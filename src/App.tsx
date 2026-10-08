@@ -478,9 +478,6 @@ const TEXT = {
     close: 'Close',
     footer: 'Connected identity. Considered style. Digital experiences.',
     follow: 'FOLLOW ZEXOR',
-    downloadLogo: 'Download logo',
-    downloadSocialLogo: 'Square logo · SVG',
-    downloadSocialPng: 'Social-ready image · PNG',
     tikTok: 'TikTok · @zexor.digtal.studio',
     adminHint: 'Changes are saved on this device. Connect a backend before using this as a shared production admin.',
     count: 'products',
@@ -683,9 +680,6 @@ const TEXT = {
     close: 'إغلاق',
     footer: 'هوية متصلة. أسلوب مدروس. تجارب رقمية.',
     follow: 'تابع ZEXOR',
-    downloadLogo: 'تحميل الشعار',
-    downloadSocialLogo: 'الشعار المربع · SVG',
-    downloadSocialPng: 'صورة جاهزة للسوشيال · PNG',
     tikTok: 'تيك توك · @zexor.digtal.studio',
     adminHint: 'التغييرات محفوظة على هذا الجهاز. اربط قاعدة بيانات قبل استخدام الإدارة بشكل مشترك.',
     count: 'منتجات',
@@ -2036,11 +2030,6 @@ export default function App() {
             <a className="inline-flex max-w-full items-center gap-1.5 break-all text-[10px] text-[#688775] transition-colors hover:text-[#344f40]" href="https://www.tiktok.com/@zexor.digtal.studio" rel="noreferrer" target="_blank">
               <Music2 className="h-3.5 w-3.5" />{t.tikTok}<ArrowUpRight className="h-3 w-3" />
             </a>
-            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[9px] sm:justify-end">
-              <a className="text-[#688775] underline decoration-[#cad8cf] underline-offset-4 transition-colors hover:text-[#344f40]" download href="/zexor-logo.svg">{t.downloadLogo} · SVG</a>
-              <a className="text-[#688775] underline decoration-[#cad8cf] underline-offset-4 transition-colors hover:text-[#344f40]" download href="/zexor-logo-social.svg">{t.downloadSocialLogo}</a>
-              <a className="text-[#688775] underline decoration-[#cad8cf] underline-offset-4 transition-colors hover:text-[#344f40]" download href="/zexor-logo-social.png">{t.downloadSocialPng}</a>
-            </div>
             <a className="text-[9px] text-[#829087] transition-colors hover:text-[#344f40]" href={whatsAppUrl('eg', t.contactGreeting)} rel="noreferrer" target="_blank">{t.EgyptWhatsApp} · +20 100 555 6553</a>
             <a className="text-[9px] text-[#829087] transition-colors hover:text-[#344f40]" href={whatsAppUrl('ksa', t.contactGreeting)} rel="noreferrer" target="_blank">{t.KSAWhatsApp} · +966 56 041 0310</a>
           </div>
