@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none">
+  <defs>
+    <linearGradient id="background" x1="96" x2="904" y1="70" y2="930" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FAFFFF"/>
+      <stop offset=".52" stop-color="#EAF8F3"/>
+      <stop offset="1" stop-color="#F4EDFF"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="260" x2="743" y1="223" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BEEDE1"/>
+      <stop offset=".55" stop-color="#E4D8FF"/>
+      <stop offset="1" stop-color="#F3D8CC"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1000" rx="210" fill="url(#background)"/>
+  <circle cx="500" cy="430" r="286" stroke="url(#ring)" stroke-width="3"/>
+  <circle cx="500" cy="430" r="244" stroke="#fff" stroke-opacity=".72" stroke-width="2"/>
+  <path d="M320 333h360L320 527h360" stroke="#344F47" stroke-linecap="round" stroke-linejoin="round" stroke-width="67"/>
+  <path d="M669 267a171 171 0 0 1 38 53M323 592a171 171 0 0 1-35-52" stroke="#77CDB5" stroke-linecap="round" stroke-width="28"/>
+  <circle cx="675" cy="273" r="31" fill="#A986E8"/>
+  <circle cx="322" cy="590" r="23" fill="#E6A68E"/>
+  <text x="500" y="825" fill="#344F47" font-family="Manrope, Arial, sans-serif" font-size="93" font-weight="800" letter-spacing="15" text-anchor="middle">ZEXOR</text>
+  <text x="500" y="875" fill="#7B8D83" font-family="Manrope, Arial, sans-serif" font-size="20" font-weight="600" letter-spacing="7" text-anchor="middle">DESIGN · TECHNOLOGY · CULTURE</text>
+</svg>

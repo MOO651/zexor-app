@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" fill="none">
+  <defs>
+    <linearGradient id="markTile" x1="26" x2="174" y1="24" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5FFFF"/>
+      <stop offset=".55" stop-color="#E5F8F3"/>
+      <stop offset="1" stop-color="#F1EAFF"/>
+    </linearGradient>
+    <linearGradient id="wordmark" x1="218" x2="775" y1="90" y2="155" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#344F47"/>
+      <stop offset=".58" stop-color="#45675A"/>
+      <stop offset="1" stop-color="#755CA2"/>
+    </linearGradient>
+  </defs>
+  <rect x="24" y="24" width="192" height="192" rx="58" fill="url(#markTile)"/>
+  <path d="M72 82h96L72 158h96" stroke="#344F47" stroke-linecap="round" stroke-linejoin="round" stroke-width="22"/>
+  <path d="M166 65a68 68 0 0 1 15 21M73 175a68 68 0 0 1-14-20" stroke="#77CDB5" stroke-linecap="round" stroke-width="10"/>
+  <circle cx="168" cy="67" r="12" fill="#A986E8"/>
+  <circle cx="72" cy="173" r="9" fill="#E6A68E"/>
+  <text x="254" y="138" fill="url(#wordmark)" font-family="Manrope, Arial, sans-serif" font-size="82" font-weight="800" letter-spacing="10">ZEXOR</text>
+  <text x="260" y="183" fill="#7B8D83" font-family="Manrope, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing="5">DESIGN · TECHNOLOGY · CULTURE</text>
+</svg>
