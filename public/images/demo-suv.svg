@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury SUV">
+  <defs>
+    <linearGradient id="u-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e1a15"/>
+      <stop offset="52%" stop-color="#1d362c"/>
+      <stop offset="100%" stop-color="#315744"/>
+    </linearGradient>
+    <linearGradient id="u-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#243c30"/>
+      <stop offset="100%" stop-color="#080e0b"/>
+    </linearGradient>
+    <linearGradient id="u-body" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0%" stop-color="#f4fbf7"/>
+      <stop offset="28%" stop-color="#bddace"/>
+      <stop offset="60%" stop-color="#628f77"/>
+      <stop offset="100%" stop-color="#27412f"/>
+    </linearGradient>
+    <linearGradient id="u-glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a1410" stop-opacity="0.97"/>
+      <stop offset="60%" stop-color="#244035" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#4b7760" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="u-key" cx="34%" cy="15%" r="72%">
+      <stop offset="0%" stop-color="#dcfff2" stop-opacity="0.36"/>
+      <stop offset="100%" stop-color="#dcfff2" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="u-rim" cx="86%" cy="72%" r="40%">
+      <stop offset="0%" stop-color="#f0c9ae" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#f0c9ae" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="u-beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#u-bg)"/>
+  <rect width="1200" height="800" fill="url(#u-key)"/>
+  <rect width="1200" height="800" fill="url(#u-rim)"/>
+  <polygon points="260,0 420,0 530,440 240,440" fill="url(#u-beam)"/>
+  <polygon points="800,0 960,0 940,440 690,440" fill="url(#u-beam)"/>
+
+  <rect x="0" y="308" width="1200" height="4" fill="#3f6653" opacity="0.38"/>
+  <g opacity="0.28" fill="#1b3026">
+    <rect x="70" y="130" width="250" height="174" rx="8"/>
+    <rect x="890" y="160" width="240" height="144" rx="8"/>
+  </g>
+
+  <path d="M0 440 L1200 440 L1200 800 L0 800 Z" fill="url(#u-floor)"/>
+  <ellipse cx="600" cy="656" rx="500" ry="118" fill="#040906" opacity="0.6"/>
+
+  <!-- SUV silhouette: tall, boxy, confident -->
+  <ellipse cx="600" cy="640" rx="400" ry="38" fill="#020504" opacity="0.6"/>
+  <path d="M182 566 C200 500 250 452 350 436 L854 436 C948 452 1000 496 1020 566 L1034 588 C1046 602 1040 622 1022 628 L196 628 C178 622 172 602 182 566 Z" fill="url(#u-body)"/>
+  <!-- boxy greenhouse -->
+  <path d="M352 440 L360 330 C368 314 384 306 402 306 L806 306 C826 306 840 314 848 332 L862 440 Z" fill="#d3e8dc"/>
+  <path d="M368 434 L376 340 C382 328 392 322 406 322 L512 322 L512 434 Z" fill="url(#u-glass)"/>
+  <path d="M530 322 L694 322 L694 434 L530 434 Z" fill="url(#u-glass)"/>
+  <path d="M712 322 L798 322 C812 322 822 328 828 340 L836 434 L712 434 Z" fill="url(#u-glass)"/>
+  <!-- roof rails -->
+  <rect x="380" y="296" width="420" height="12" rx="6" fill="#9fc6b2" opacity="0.8"/>
+  <!-- lower cladding -->
+  <rect x="196" y="566" width="828" height="26" rx="12" fill="#1b3026" opacity="0.55"/>
+  <path d="M216 564 C260 508 356 480 470 476 L486 492 C372 498 300 520 262 578 Z" fill="#ffffff" opacity="0.24"/>
+  <path d="M200 566 C350 540 900 538 1016 570" stroke="#ffffff" stroke-opacity="0.14" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <rect x="986" y="518" width="48" height="18" rx="9" fill="#d8ffe9" opacity="0.95"/>
+  <rect x="178" y="522" width="42" height="15" rx="7" fill="#f3bda8" opacity="0.9"/>
+  <path d="M596 322 L596 620" stroke="#0f2018" stroke-opacity="0.3" stroke-width="3"/>
+
+  <circle cx="386" cy="626" r="76" fill="#050b08"/>
+  <circle cx="386" cy="626" r="76" fill="none" stroke="#3a5c49" stroke-width="4"/>
+  <circle cx="386" cy="626" r="40" fill="#2c4838"/>
+  <circle cx="386" cy="626" r="40" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+  <circle cx="386" cy="626" r="15" fill="#cfe9dc"/>
+
+  <circle cx="874" cy="626" r="76" fill="#050b08"/>
+  <circle cx="874" cy="626" r="76" fill="none" stroke="#3a5c49" stroke-width="4"/>
+  <circle cx="874" cy="626" r="40" fill="#2c4838"/>
+  <circle cx="874" cy="626" r="40" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+  <circle cx="874" cy="626" r="15" fill="#cfe9dc"/>
+
+  <g opacity="0.2" fill="#a6e6c4">
+    <rect x="210" y="716" width="250" height="5" rx="3"/>
+    <rect x="510" y="734" width="340" height="5" rx="3"/>
+    <rect x="890" y="716" width="200" height="5" rx="3"/>
+  </g>
+</svg>

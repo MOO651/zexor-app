@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Luxury real estate skyline">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#101d18"/>
+      <stop offset="48%" stop-color="#22392e"/>
+      <stop offset="100%" stop-color="#3c5c4b"/>
+    </linearGradient>
+    <linearGradient id="tower" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#cfe7db"/>
+      <stop offset="60%" stop-color="#7fa792"/>
+      <stop offset="100%" stop-color="#42634f"/>
+    </linearGradient>
+    <linearGradient id="tower2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9dc4b0"/>
+      <stop offset="100%" stop-color="#33503f"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="78%" cy="26%" r="34%">
+      <stop offset="0%" stop-color="#f2d9c8" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#f2d9c8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2f4a3c" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0b1410"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <rect width="1200" height="800" fill="url(#sun)"/>
+
+  <!-- distant skyline -->
+  <g opacity="0.35" fill="#5f8a73">
+    <rect x="40" y="330" width="90" height="300"/>
+    <rect x="150" y="380" width="70" height="250"/>
+    <rect x="980" y="300" width="100" height="330"/>
+    <rect x="1100" y="360" width="70" height="270"/>
+  </g>
+
+  <!-- primary tower -->
+  <g>
+    <rect x="330" y="150" width="200" height="480" rx="8" fill="url(#tower)"/>
+    <!-- window grid -->
+    <g fill="#1b2f26" opacity="0.72">
+      <rect x="352" y="176" width="36" height="26" rx="3"/><rect x="400" y="176" width="36" height="26" rx="3"/><rect x="448" y="176" width="36" height="26" rx="3"/>
+      <rect x="352" y="222" width="36" height="26" rx="3"/><rect x="400" y="222" width="36" height="26" rx="3"/><rect x="448" y="222" width="36" height="26" rx="3"/>
+      <rect x="352" y="268" width="36" height="26" rx="3"/><rect x="400" y="268" width="36" height="26" rx="3"/><rect x="448" y="268" width="36" height="26" rx="3"/>
+      <rect x="352" y="314" width="36" height="26" rx="3"/><rect x="400" y="314" width="36" height="26" rx="3"/><rect x="448" y="314" width="36" height="26" rx="3"/>
+      <rect x="352" y="360" width="36" height="26" rx="3"/><rect x="400" y="360" width="36" height="26" rx="3"/><rect x="448" y="360" width="36" height="26" rx="3"/>
+      <rect x="352" y="406" width="36" height="26" rx="3"/><rect x="400" y="406" width="36" height="26" rx="3"/><rect x="448" y="406" width="36" height="26" rx="3"/>
+      <rect x="352" y="452" width="36" height="26" rx="3"/><rect x="400" y="452" width="36" height="26" rx="3"/><rect x="448" y="452" width="36" height="26" rx="3"/>
+    </g>
+    <!-- lit windows -->
+    <g fill="#f4e3cf" opacity="0.85">
+      <rect x="400" y="268" width="36" height="26" rx="3"/>
+      <rect x="352" y="360" width="36" height="26" rx="3"/>
+      <rect x="448" y="406" width="36" height="26" rx="3"/>
+    </g>
+    <rect x="414" y="110" width="32" height="46" rx="4" fill="#8fb8a2"/>
+  </g>
+
+  <!-- secondary tower -->
+  <g>
+    <rect x="610" y="250" width="170" height="380" rx="8" fill="url(#tower2)"/>
+    <g fill="#16281f" opacity="0.66">
+      <rect x="630" y="276" width="30" height="22" rx="3"/><rect x="674" y="276" width="30" height="22" rx="3"/><rect x="718" y="276" width="30" height="22" rx="3"/>
+      <rect x="630" y="318" width="30" height="22" rx="3"/><rect x="674" y="318" width="30" height="22" rx="3"/><rect x="718" y="318" width="30" height="22" rx="3"/>
+      <rect x="630" y="360" width="30" height="22" rx="3"/><rect x="674" y="360" width="30" height="22" rx="3"/><rect x="718" y="360" width="30" height="22" rx="3"/>
+      <rect x="630" y="402" width="30" height="22" rx="3"/><rect x="674" y="402" width="30" height="22" rx="3"/><rect x="718" y="402" width="30" height="22" rx="3"/>
+      <rect x="630" y="444" width="30" height="22" rx="3"/><rect x="674" y="444" width="30" height="22" rx="3"/><rect x="718" y="444" width="30" height="22" rx="3"/>
+    </g>
+    <g fill="#f4e3cf" opacity="0.7">
+      <rect x="674" y="360" width="30" height="22" rx="3"/>
+      <rect x="718" y="444" width="30" height="22" rx="3"/>
+    </g>
+  </g>
+
+  <!-- villa -->
+  <g>
+    <rect x="820" y="470" width="230" height="160" rx="10" fill="#dbeae1"/>
+    <path d="M810 470 L935 400 L1060 470 Z" fill="#9ab8a6"/>
+    <rect x="880" y="520" width="46" height="110" rx="6" fill="#3c5c4b"/>
+    <rect x="950" y="516" width="42" height="42" rx="4" fill="#cbe7d8"/>
+    <rect x="1006" y="516" width="42" height="42" rx="4" fill="#cbe7d8"/>
+  </g>
+
+  <!-- ground + reflective water -->
+  <path d="M0 630 L1200 630 L1200 800 L0 800 Z" fill="url(#water)"/>
+  <g opacity="0.16" fill="#a6e6c4">
+    <rect x="335" y="634" width="190" height="4" rx="2"/>
+    <rect x="615" y="634" width="160" height="4" rx="2"/>
+    <rect x="825" y="634" width="220" height="4" rx="2"/>
+  </g>
+
+  <rect x="72" y="700" width="250" height="3" rx="2" fill="#a6e6c4" opacity="0.8"/>
+</svg>

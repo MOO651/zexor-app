@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury villa">
+  <defs>
+    <linearGradient id="v-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1a15"/>
+      <stop offset="44%" stop-color="#27432f"/>
+      <stop offset="100%" stop-color="#4c7157"/>
+    </linearGradient>
+    <linearGradient id="v-wall" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f2faf5"/>
+      <stop offset="52%" stop-color="#b6d3c2"/>
+      <stop offset="100%" stop-color="#5a8169"/>
+    </linearGradient>
+    <linearGradient id="v-wall2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b9179"/>
+      <stop offset="100%" stop-color="#2e4f3b"/>
+    </linearGradient>
+    <linearGradient id="v-roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9dc4b0"/>
+      <stop offset="100%" stop-color="#42634f"/>
+    </linearGradient>
+    <radialGradient id="v-sun" cx="22%" cy="18%" r="40%">
+      <stop offset="0%" stop-color="#f7e2d1" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#f7e2d1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="v-ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b4a37"/>
+      <stop offset="100%" stop-color="#0a120e"/>
+    </linearGradient>
+    <linearGradient id="v-warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8e2c9" stop-opacity="0.92"/>
+      <stop offset="100%" stop-color="#f8e2c9" stop-opacity="0.32"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#v-sky)"/>
+  <rect width="1200" height="800" fill="url(#v-sun)"/>
+
+  <!-- palm silhouettes -->
+  <g opacity="0.42" fill="#16301f">
+    <path d="M150 640 L150 470 C120 462 96 440 84 414 C122 428 146 442 158 462 C166 430 190 404 218 392 C196 424 182 452 180 480 L196 640 Z"/>
+    <path d="M1046 640 L1046 486 C1020 478 998 458 988 434 C1020 446 1042 458 1052 476 C1060 448 1082 424 1106 414 C1086 442 1074 468 1072 492 L1086 640 Z"/>
+  </g>
+
+  <!-- main volume -->
+  <rect x="300" y="300" width="560" height="330" rx="10" fill="url(#v-wall)"/>
+  <!-- upper volume -->
+  <rect x="470" y="196" width="300" height="150" rx="10" fill="url(#v-wall)"/>
+  <rect x="450" y="182" width="340" height="24" rx="8" fill="url(#v-roof)"/>
+  <rect x="282" y="288" width="596" height="24" rx="8" fill="url(#v-roof)"/>
+
+  <!-- right wing -->
+  <rect x="856" y="368" width="192" height="262" rx="8" fill="url(#v-wall2)"/>
+  <rect x="843" y="356" width="220" height="20" rx="7" fill="#8fb8a2"/>
+
+  <!-- full-height glazing -->
+  <g fill="#10221a" opacity="0.88">
+    <rect x="330" y="330" width="110" height="270" rx="5"/>
+    <rect x="470" y="330" width="110" height="270" rx="5"/>
+    <rect x="610" y="330" width="110" height="270" rx="5"/>
+    <rect x="750" y="330" width="88" height="270" rx="5"/>
+  </g>
+  <g fill="url(#v-warm)">
+    <rect x="470" y="330" width="110" height="270" rx="5"/>
+    <rect x="750" y="330" width="88" height="270" rx="5"/>
+  </g>
+  <!-- upper floor glazing -->
+  <g fill="#10221a" opacity="0.86">
+    <rect x="496" y="222" width="76" height="112" rx="5"/>
+    <rect x="592" y="222" width="76" height="112" rx="5"/>
+    <rect x="688" y="222" width="60" height="112" rx="5"/>
+  </g>
+  <rect x="592" y="222" width="76" height="112" rx="5" fill="url(#v-warm)"/>
+
+  <!-- side wing windows -->
+  <g fill="#132a1f" opacity="0.8">
+    <rect x="886" y="396" width="52" height="42" rx="4"/>
+    <rect x="950" y="396" width="52" height="42" rx="4"/>
+    <rect x="886" y="470" width="52" height="42" rx="4"/>
+    <rect x="950" y="470" width="52" height="42" rx="4"/>
+    <rect x="886" y="544" width="52" height="42" rx="4"/>
+    <rect x="950" y="544" width="52" height="42" rx="4"/>
+  </g>
+  <rect x="950" y="470" width="52" height="42" rx="4" fill="url(#v-warm)"/>
+
+  <!-- vertical light fins -->
+  <g fill="#e9f5ee" opacity="0.5">
+    <rect x="446" y="300" width="8" height="330"/>
+    <rect x="586" y="300" width="8" height="330"/>
+    <rect x="726" y="300" width="8" height="330"/>
+  </g>
+
+  <!-- ground, entry path, pool -->
+  <path d="M0 630 L1200 630 L1200 800 L0 800 Z" fill="url(#v-ground)"/>
+  <path d="M560 630 L520 800 L700 800 L660 630 Z" fill="#7ea08c" opacity="0.55"/>
+  <ellipse cx="600" cy="762" rx="470" ry="40" fill="#a6e6c4" opacity="0.12"/>
+  <ellipse cx="240" cy="726" rx="150" ry="20" fill="#a6e6c4" opacity="0.14"/>
+</svg>

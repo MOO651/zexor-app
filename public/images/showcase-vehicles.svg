@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury vehicle showroom">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#08110d"/>
+      <stop offset="50%" stop-color="#132a20"/>
+      <stop offset="100%" stop-color="#264a39"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1c3329"/>
+      <stop offset="100%" stop-color="#050b08"/>
+    </linearGradient>
+    <linearGradient id="carBody" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#f2faf6"/>
+      <stop offset="34%" stop-color="#b9d8c8"/>
+      <stop offset="68%" stop-color="#5d8a70"/>
+      <stop offset="100%" stop-color="#2c4838"/>
+    </linearGradient>
+    <linearGradient id="carTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dff1e8"/>
+      <stop offset="100%" stop-color="#7ba491"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1a14" stop-opacity="0.96"/>
+      <stop offset="55%" stop-color="#284539" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#4f7a63" stop-opacity="0.82"/>
+    </linearGradient>
+    <radialGradient id="keyLight" cx="34%" cy="18%" r="68%">
+      <stop offset="0%" stop-color="#d9fff0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#d9fff0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rimLight" cx="82%" cy="72%" r="46%">
+      <stop offset="0%" stop-color="#f0c9ae" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#f0c9ae" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <rect width="1600" height="1000" fill="url(#keyLight)"/>
+  <rect width="1600" height="1000" fill="url(#rimLight)"/>
+
+  <polygon points="360,0 540,0 700,560 300,560" fill="url(#beam)"/>
+  <polygon points="1080,0 1260,0 1250,560 900,560" fill="url(#beam)"/>
+
+  <rect x="0" y="392" width="1600" height="5" fill="#3f6653" opacity="0.42"/>
+  <g opacity="0.34" fill="#1b3026">
+    <rect x="90" y="150" width="330" height="242" rx="8"/>
+    <rect x="470" y="96" width="300" height="296" rx="8"/>
+    <rect x="820" y="150" width="330" height="242" rx="8"/>
+    <rect x="1200" y="196" width="300" height="196" rx="8"/>
+  </g>
+
+  <path d="M0 560 L1600 560 L1600 1000 L0 1000 Z" fill="url(#floor)"/>
+  <ellipse cx="800" cy="800" rx="660" ry="150" fill="#040906" opacity="0.62"/>
+
+  <ellipse cx="800" cy="782" rx="520" ry="52" fill="#020504" opacity="0.62"/>
+  <path d="M232 700 C264 596 372 552 520 542 L1076 542 C1218 550 1330 600 1392 700 L1416 726 C1432 742 1424 772 1400 780 L252 780 C226 772 216 738 232 700 Z" fill="url(#carBody)"/>
+  <path d="M520 546 C632 452 900 442 1024 542 L940 550 L610 552 Z" fill="url(#carTop)"/>
+  <path d="M566 552 C664 486 896 480 986 552 L586 556 Z" fill="url(#glass)"/>
+  <path d="M560 560 L988 560 L964 664 L580 664 Z" fill="url(#glass)"/>
+  <path d="M276 698 C330 622 452 586 610 578 L632 596 C470 606 372 640 328 716 Z" fill="#ffffff" opacity="0.26"/>
+  <path d="M256 704 C420 672 1180 668 1396 706" stroke="#ffffff" stroke-opacity="0.16" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <rect x="1352" y="650" width="66" height="22" rx="11" fill="#d8ffe9" opacity="0.96"/>
+  <rect x="228" y="654" width="58" height="18" rx="9" fill="#f3bda8" opacity="0.92"/>
+  <path d="M742 560 L742 756" stroke="#0f2018" stroke-opacity="0.35" stroke-width="3"/>
+  <path d="M1010 560 L1010 750" stroke="#0f2018" stroke-opacity="0.3" stroke-width="3"/>
+
+  <g>
+    <circle cx="500" cy="772" r="86" fill="#050b08"/>
+    <circle cx="500" cy="772" r="86" fill="none" stroke="#3a5c49" stroke-width="4"/>
+    <circle cx="500" cy="772" r="46" fill="#2c4838"/>
+    <circle cx="500" cy="772" r="46" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+    <circle cx="500" cy="772" r="18" fill="#cfe9dc"/>
+  </g>
+  <g>
+    <circle cx="1130" cy="772" r="86" fill="#050b08"/>
+    <circle cx="1130" cy="772" r="86" fill="none" stroke="#3a5c49" stroke-width="4"/>
+    <circle cx="1130" cy="772" r="46" fill="#2c4838"/>
+    <circle cx="1130" cy="772" r="46" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+    <circle cx="1130" cy="772" r="18" fill="#cfe9dc"/>
+  </g>
+
+  <g opacity="0.2" fill="#a6e6c4">
+    <rect x="250" y="874" width="280" height="5" rx="3"/>
+    <rect x="600" y="892" width="420" height="5" rx="3"/>
+    <rect x="1090" y="874" width="280" height="5" rx="3"/>
+  </g>
+
+  <rect x="96" y="916" width="300" height="4" rx="2" fill="#a6e6c4" opacity="0.85"/>
+</svg>

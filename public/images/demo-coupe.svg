@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Sports coupe">
+  <defs>
+    <linearGradient id="c-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a1512"/>
+      <stop offset="50%" stop-color="#193026"/>
+      <stop offset="100%" stop-color="#2c5040"/>
+    </linearGradient>
+    <linearGradient id="c-floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f362b"/>
+      <stop offset="100%" stop-color="#060c09"/>
+    </linearGradient>
+    <linearGradient id="c-body" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#f8fdfb"/>
+      <stop offset="26%" stop-color="#c6e0d4"/>
+      <stop offset="58%" stop-color="#679576"/>
+      <stop offset="100%" stop-color="#243d2d"/>
+    </linearGradient>
+    <linearGradient id="c-glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#091310" stop-opacity="0.98"/>
+      <stop offset="60%" stop-color="#203a30" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#487158" stop-opacity="0.8"/>
+    </linearGradient>
+    <radialGradient id="c-key" cx="32%" cy="14%" r="70%">
+      <stop offset="0%" stop-color="#e0fff5" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#e0fff5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="c-rim" cx="88%" cy="74%" r="38%">
+      <stop offset="0%" stop-color="#f0c9ae" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#f0c9ae" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c-beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#c-bg)"/>
+  <rect width="1200" height="800" fill="url(#c-key)"/>
+  <rect width="1200" height="800" fill="url(#c-rim)"/>
+  <polygon points="250,0 420,0 540,450 230,450" fill="url(#c-beam)"/>
+  <polygon points="810,0 970,0 950,450 690,450" fill="url(#c-beam)"/>
+
+  <rect x="0" y="316" width="1200" height="4" fill="#3f6653" opacity="0.36"/>
+  <g opacity="0.26" fill="#1b3026">
+    <rect x="80" y="140" width="240" height="176" rx="8"/>
+    <rect x="900" y="170" width="230" height="146" rx="8"/>
+  </g>
+
+  <path d="M0 450 L1200 450 L1200 800 L0 800 Z" fill="url(#c-floor)"/>
+  <ellipse cx="600" cy="662" rx="510" ry="116" fill="#040906" opacity="0.6"/>
+
+  <!-- coupe: very low roofline, long bonnet, fastback -->
+  <ellipse cx="600" cy="634" rx="420" ry="36" fill="#020504" opacity="0.62"/>
+  <path d="M150 578 C176 512 268 480 400 470 L812 470 C922 478 1000 512 1058 578 L1078 598 C1092 612 1086 632 1068 638 L166 638 C148 632 142 610 150 578 Z" fill="url(#c-body)"/>
+  <!-- fastback roofline -->
+  <path d="M398 476 C470 396 662 372 790 428 L836 476 L470 482 Z" fill="#d9ece2"/>
+  <path d="M446 482 C520 402 700 388 792 470 L470 484 Z" fill="url(#c-glass)"/>
+  <path d="M440 488 L806 486 L790 556 L456 558 Z" fill="url(#c-glass)"/>
+  <path d="M186 576 C232 516 336 486 468 480 L486 496 C358 504 278 528 240 590 Z" fill="#ffffff" opacity="0.28"/>
+  <path d="M170 580 C330 552 900 550 1062 582" stroke="#ffffff" stroke-opacity="0.15" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- rear spoiler -->
+  <path d="M1010 512 L1082 520 L1080 538 L1008 532 Z" fill="#89b39c" opacity="0.85"/>
+  <rect x="1024" y="548" width="48" height="16" rx="8" fill="#d8ffe9" opacity="0.95"/>
+  <rect x="150" y="548" width="42" height="14" rx="7" fill="#f3bda8" opacity="0.9"/>
+  <path d="M604 486 L604 630" stroke="#0f2018" stroke-opacity="0.3" stroke-width="3"/>
+
+  <circle cx="368" cy="632" r="72" fill="#050b08"/>
+  <circle cx="368" cy="632" r="72" fill="none" stroke="#3a5c49" stroke-width="4"/>
+  <circle cx="368" cy="632" r="38" fill="#2c4838"/>
+  <circle cx="368" cy="632" r="38" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+  <circle cx="368" cy="632" r="14" fill="#cfe9dc"/>
+
+  <circle cx="886" cy="632" r="72" fill="#050b08"/>
+  <circle cx="886" cy="632" r="72" fill="none" stroke="#3a5c49" stroke-width="4"/>
+  <circle cx="886" cy="632" r="38" fill="#2c4838"/>
+  <circle cx="886" cy="632" r="38" fill="none" stroke="#9dc9b2" stroke-width="3"/>
+  <circle cx="886" cy="632" r="14" fill="#cfe9dc"/>
+
+  <g opacity="0.2" fill="#a6e6c4">
+    <rect x="200" y="720" width="250" height="5" rx="3"/>
+    <rect x="500" y="738" width="330" height="5" rx="3"/>
+    <rect x="890" y="720" width="200" height="5" rx="3"/>
+  </g>
+</svg>

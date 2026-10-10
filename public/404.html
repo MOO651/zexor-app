@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZEXOR — Redirecting…</title>
+    <script>
+      // Single-page-app fallback for static hosts (GitHub Pages, S3, Netlify).
+      // The app uses hash routing, so a deep link like /zexor-app/#cars is served
+      // by index.html; this page catches any stray path and forwards to the root
+      // while preserving the hash fragment.
+      (function () {
+        var path = window.location.pathname;
+        var hash = window.location.hash || '';
+        // Preserve a project subpath (e.g. /zexor-app/) so assets still resolve.
+        var base = path.replace(/\/[^/]*$/, '/');
+        window.location.replace(base + hash);
+      })();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f5f8f7;
+        color: #2d4236;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+      p {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </head>
+  <body>
+    <p>ZEXOR · Redirecting…</p>
+  </body>
+</html>

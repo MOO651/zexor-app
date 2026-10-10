@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury apartment">
+  <defs>
+    <linearGradient id="a-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1a15"/>
+      <stop offset="46%" stop-color="#24402f"/>
+      <stop offset="100%" stop-color="#466b52"/>
+    </linearGradient>
+    <linearGradient id="a-facade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e8f4ec"/>
+      <stop offset="48%" stop-color="#a9c9b7"/>
+      <stop offset="100%" stop-color="#4f765d"/>
+    </linearGradient>
+    <linearGradient id="a-side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5d8369"/>
+      <stop offset="100%" stop-color="#294a37"/>
+    </linearGradient>
+    <radialGradient id="a-sun" cx="76%" cy="20%" r="38%">
+      <stop offset="0%" stop-color="#f7e2d1" stop-opacity="0.46"/>
+      <stop offset="100%" stop-color="#f7e2d1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="a-ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c4a38"/>
+      <stop offset="100%" stop-color="#0a120e"/>
+    </linearGradient>
+    <linearGradient id="a-warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6e0c8" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#f6e0c8" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#a-sky)"/>
+  <rect width="1200" height="800" fill="url(#a-sun)"/>
+
+  <!-- background towers -->
+  <g opacity="0.32" fill="#5f8a73">
+    <rect x="30" y="300" width="96" height="320"/>
+    <rect x="150" y="360" width="74" height="260"/>
+    <rect x="1030" y="280" width="104" height="340"/>
+  </g>
+
+  <!-- main tower, three-quarter view -->
+  <rect x="330" y="130" width="420" height="500" rx="10" fill="url(#a-facade)"/>
+  <rect x="750" y="170" width="180" height="460" rx="8" fill="url(#a-side)"/>
+  <rect x="300" y="606" width="660" height="26" rx="8" fill="#7ea08c"/>
+
+  <!-- window grid on facade -->
+  <g fill="#1d3a2c" opacity="0.72">
+    <rect x="364" y="164" width="62" height="40" rx="4"/><rect x="454" y="164" width="62" height="40" rx="4"/><rect x="544" y="164" width="62" height="40" rx="4"/><rect x="634" y="164" width="62" height="40" rx="4"/>
+    <rect x="364" y="232" width="62" height="40" rx="4"/><rect x="454" y="232" width="62" height="40" rx="4"/><rect x="544" y="232" width="62" height="40" rx="4"/><rect x="634" y="232" width="62" height="40" rx="4"/>
+    <rect x="364" y="300" width="62" height="40" rx="4"/><rect x="454" y="300" width="62" height="40" rx="4"/><rect x="544" y="300" width="62" height="40" rx="4"/><rect x="634" y="300" width="62" height="40" rx="4"/>
+    <rect x="364" y="368" width="62" height="40" rx="4"/><rect x="454" y="368" width="62" height="40" rx="4"/><rect x="544" y="368" width="62" height="40" rx="4"/><rect x="634" y="368" width="62" height="40" rx="4"/>
+    <rect x="364" y="436" width="62" height="40" rx="4"/><rect x="454" y="436" width="62" height="40" rx="4"/><rect x="544" y="436" width="62" height="40" rx="4"/><rect x="634" y="436" width="62" height="40" rx="4"/>
+    <rect x="364" y="504" width="62" height="40" rx="4"/><rect x="454" y="504" width="62" height="40" rx="4"/><rect x="544" y="504" width="62" height="40" rx="4"/><rect x="634" y="504" width="62" height="40" rx="4"/>
+  </g>
+  <!-- lit windows -->
+  <g fill="url(#a-warm)">
+    <rect x="544" y="232" width="62" height="40" rx="4"/>
+    <rect x="364" y="368" width="62" height="40" rx="4"/>
+    <rect x="634" y="436" width="62" height="40" rx="4"/>
+    <rect x="454" y="504" width="62" height="40" rx="4"/>
+  </g>
+
+  <!-- side wing windows -->
+  <g fill="#102319" opacity="0.62">
+    <rect x="778" y="210" width="46" height="32" rx="3"/><rect x="844" y="210" width="46" height="32" rx="3"/>
+    <rect x="778" y="272" width="46" height="32" rx="3"/><rect x="844" y="272" width="46" height="32" rx="3"/>
+    <rect x="778" y="334" width="46" height="32" rx="3"/><rect x="844" y="334" width="46" height="32" rx="3"/>
+    <rect x="778" y="396" width="46" height="32" rx="3"/><rect x="844" y="396" width="46" height="32" rx="3"/>
+    <rect x="778" y="458" width="46" height="32" rx="3"/><rect x="844" y="458" width="46" height="32" rx="3"/>
+  </g>
+  <rect x="844" y="334" width="46" height="32" rx="3" fill="url(#a-warm)"/>
+
+  <!-- roof crown -->
+  <rect x="348" y="112" width="384" height="22" rx="6" fill="#8fb8a2"/>
+
+  <!-- landscaped ground + pool reflection -->
+  <path d="M0 632 L1200 632 L1200 800 L0 800 Z" fill="url(#a-ground)"/>
+  <ellipse cx="600" cy="742" rx="440" ry="44" fill="#a6e6c4" opacity="0.1"/>
+  <g opacity="0.5" fill="#3f6653">
+    <rect x="80" y="690" width="120" height="14" rx="7"/>
+    <rect x="1000" y="690" width="120" height="14" rx="7"/>
+  </g>
+</svg>

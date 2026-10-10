@@ -1,8 +1,26 @@
 @import "tailwindcss";
 @import "@fontsource-variable/manrope/wght.css";
 @import "@fontsource-variable/alexandria/wght.css";
+@import "@fontsource-variable/playfair-display/wght.css";
 
 :root {
+  /* ---- ZEXOR design tokens -------------------------------------- */
+  --zx-ink: #16241d;
+  --zx-ink-soft: #2d4236;
+  --zx-muted: #6c7d73;
+  --zx-faint: #98a79f;
+  --zx-jade: #35614a;
+  --zx-jade-bright: #4e8e6f;
+  --zx-mint: #a6e6c4;
+  --zx-rose: #ba7f6d;
+  --zx-lilac: #a986e8;
+  --zx-sand: #f9f8f3;
+  --zx-paper: #f5f8f7;
+  --zx-line: rgba(53, 97, 74, 0.14);
+
+  /* Brand display serif — luxury/advertising headline face */
+  --zx-display: "Playfair Display Variable", "Alexandria Variable", Georgia, serif;
+
   font-family: "Manrope Variable", "Alexandria Variable", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -18,6 +36,12 @@ html:lang(ar) body {
   font-family: "Alexandria Variable", "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Arabic uses Alexandria for display too — Playfair has no Arabic glyphs. */
+html:lang(ar) .zx-display {
+  font-family: "Alexandria Variable", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+}
+
 html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
@@ -26,6 +50,144 @@ html {
 
 body {
   margin: 0;
+  background-color: var(--zx-paper);
+}
+
+/* ---- Utilities used across the marketing surfaces ---------------- */
+
+/* Luxury display headline */
+.zx-display {
+  font-family: var(--zx-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
+}
+
+/* Small uppercase eyebrow label above section titles */
+.zx-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+}
+
+/* Frosted glass surface */
+.zx-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+/* Animated gradient sheen for advertising panels */
+.zx-sheen {
+  background-size: 220% 220%;
+  animation: zx-sheen 9s ease-in-out infinite;
+}
+
+@keyframes zx-sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Slow float used by decorative orbs */
+@keyframes zx-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+.zx-float {
+  animation: zx-float 7s ease-in-out infinite;
+}
+
+/* Vertical marquee for the brand ticker */
+@keyframes zx-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.zx-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: zx-marquee 26s linear infinite;
+}
+
+.zx-marquee:hover .zx-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Hide scrollbars on horizontal rails */
+.zx-no-bar {
+  scrollbar-width: none;
+}
+
+.zx-no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  color-scheme: dark;
+  background-color: #0b1310 !important;
+  color: #e2ede7 !important;
+}
+
+[data-theme="dark"] nav,
+[data-theme="dark"] header nav {
+  background-color: rgba(14, 24, 20, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] section,
+[data-theme="dark"] article,
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/80,
+[data-theme="dark"] .bg-white\/85,
+[data-theme="dark"] .bg-white\/90 {
+  background-color: rgba(18, 30, 25, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #dcece3 !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: rgba(24, 40, 33, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #8da497 !important;
+}
+
+[data-theme="dark"] .text-\[\#2f4437\],
+[data-theme="dark"] .text-\[\#2d4236\],
+[data-theme="dark"] .text-\[\#293d32\],
+[data-theme="dark"] .text-\[\#34483e\],
+[data-theme="dark"] .text-\[\#263a33\] {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .text-\[\#697a70\],
+[data-theme="dark"] .text-\[\#7d8f85\],
+[data-theme="dark"] .text-\[\#788b80\],
+[data-theme="dark"] .text-\[\#74807a\] {
+  color: #a3baa9 !important;
 }
 
 button,
@@ -48,6 +210,31 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid #78aa8e;
   outline-offset: 3px;
+}
+
+/* Card hover lift used by showcase tiles */
+.zx-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  isolation: isolate;
+}
+
+.zx-tile img {
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zx-tile:hover img,
+.zx-tile:focus-visible img {
+  transform: scale(1.07);
+}
+
+/* Content-visibility: skip rendering of offscreen sections (perf).
+   The intrinsic size is a *placeholder* used before a section is measured, so it
+   is deliberately modest — an oversized value reserves blank space on the page. */
+.zx-lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 20rem;
 }
 
 ::selection {
