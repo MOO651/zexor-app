@@ -29,7 +29,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'credit',
     finish: 'pearl',
     available: true,
-    imageUrl: '/images/nfc-card.jpg',
+    imageUrl: '/images/product-nfc-elite.svg',
   },
   {
     id: 'social',
@@ -45,7 +45,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'fingerprint',
     finish: 'mint',
     available: true,
-    imageUrl: '/images/social-profile.jpg',
+    imageUrl: '/images/product-nfc-social.svg',
   },
   {
     id: 'custom',
@@ -61,7 +61,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'sparkles',
     finish: 'rose',
     available: true,
-    imageUrl: '/images/custom-identity.jpg',
+    imageUrl: '/images/product-nfc-bespoke.svg',
   },
   {
     id: 'hoodie',
@@ -77,7 +77,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'shirt',
     finish: 'rose',
     available: true,
-    imageUrl: '/images/streetwear-hoodie.jpg',
+    imageUrl: '/images/product-hoodie.svg',
     variants: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
   },
   {
@@ -94,7 +94,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'shirt',
     finish: 'lilac',
     available: true,
-    imageUrl: '/images/streetwear-collection.jpg',
+    imageUrl: '/images/product-tee.svg',
     variants: ['S', 'M', 'L', 'XL', 'XXL'],
   },
   {
@@ -111,7 +111,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'code',
     finish: 'sky',
     available: true,
-    imageUrl: '/images/digital-commerce.jpg',
+    imageUrl: '/images/product-website.svg',
   },
   {
     id: 'commerce',
@@ -127,7 +127,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'layers',
     finish: 'lilac',
     available: true,
-    imageUrl: '/images/digital-studio.jpg',
+    imageUrl: '/images/product-store.svg',
   },
 ];
 

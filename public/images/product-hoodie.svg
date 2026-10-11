@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="ZEXOR heavyweight hoodie">
+  <defs>
+    <linearGradient id="h-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1114"/>
+      <stop offset="55%" stop-color="#1d262a"/>
+      <stop offset="100%" stop-color="#37464b"/>
+    </linearGradient>
+    <radialGradient id="h-key" cx="34%" cy="12%" r="74%">
+      <stop offset="0%" stop-color="#e7fbff" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#e7fbff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="h-fabric" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#5a6f75"/>
+      <stop offset="45%" stop-color="#42555b"/>
+      <stop offset="100%" stop-color="#2a393e"/>
+    </linearGradient>
+    <linearGradient id="h-shade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0b1113" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#0b1113" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0b1113" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#h-bg)"/>
+  <rect width="1200" height="800" fill="url(#h-key)"/>
+  <ellipse cx="600" cy="742" rx="300" ry="34" fill="#04070a" opacity="0.55"/>
+
+  <!-- Sleeves first, so the body overlaps the shoulder joint cleanly. -->
+  <path d="M360 268 C312 288 286 330 274 382 L244 512 C236 548 258 578 296 582 C328 585 348 566 352 538 L392 400 Z" fill="#3f5257"/>
+  <path d="M840 268 C888 288 914 330 926 382 L956 512 C964 548 942 578 904 582 C872 585 852 566 848 538 L808 400 Z" fill="#3a4c51"/>
+
+  <!-- Hood: a wide opening that clearly sits on top of the shoulders. -->
+  <path d="M424 244 C444 166 514 130 600 130 C686 130 756 166 776 244 C756 300 682 324 600 324 C518 324 444 300 424 244 Z" fill="#43565c"/>
+  <path d="M468 226 C492 176 540 158 600 158 C660 158 708 176 732 226 C706 258 658 272 600 272 C542 272 494 258 468 226 Z" fill="#1e2b2f"/>
+  <path d="M468 226 C492 176 540 158 600 158 C660 158 708 176 732 226" fill="none" stroke="#8ba1a8" stroke-width="5" stroke-opacity="0.8"/>
+
+  <!-- Body. -->
+  <path d="M360 268 C422 236 470 226 522 226 L678 226 C730 226 778 236 840 268 C874 286 896 322 898 370 L898 640 C898 676 876 700 842 700 L358 700 C324 700 302 676 302 640 L302 370 C304 322 326 286 360 268 Z" fill="url(#h-fabric)"/>
+
+  <!-- Side shading gives the fleece volume without darkening the whole piece. -->
+  <path d="M302 370 L302 640 C302 676 324 700 358 700 L408 700 L408 268 C378 278 352 296 332 322 C314 344 304 356 302 370 Z" fill="#37494e" opacity="0.5"/>
+  <path d="M898 370 L898 640 C898 676 876 700 842 700 L792 700 L792 268 C822 278 848 296 868 322 C886 344 896 356 898 370 Z" fill="#37494e" opacity="0.4"/>
+
+  <!-- Shoulder seams. -->
+  <path d="M394 302 C432 284 468 276 502 274" fill="none" stroke="#2c3b40" stroke-width="4" stroke-opacity="0.55"/>
+  <path d="M806 302 C768 284 732 276 698 274" fill="none" stroke="#2c3b40" stroke-width="4" stroke-opacity="0.55"/>
+
+  <!-- Drawcords hanging from the hood opening. -->
+  <path d="M568 316 C560 372 554 412 562 446" fill="none" stroke="#d3dee1" stroke-width="8" stroke-linecap="round"/>
+  <path d="M632 316 C640 372 646 412 638 446" fill="none" stroke="#d3dee1" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="562" cy="452" r="9" fill="#e4ecee"/>
+  <circle cx="638" cy="452" r="9" fill="#e4ecee"/>
+
+  <!-- Kangaroo pocket. -->
+  <path d="M438 516 L762 516 L762 590 C762 608 748 622 730 622 L470 622 C452 622 438 608 438 590 Z" fill="#3a4c51"/>
+  <path d="M438 516 L762 516" stroke="#83989e" stroke-opacity="0.8" stroke-width="3.5"/>
+  <path d="M438 516 L438 590 C438 608 452 622 470 622" fill="none" stroke="#26363b" stroke-opacity="0.7" stroke-width="3"/>
+  <path d="M762 516 L762 590 C762 608 748 622 730 622" fill="none" stroke="#26363b" stroke-opacity="0.7" stroke-width="3"/>
+
+  <!-- Ribbed hem + cuffs. -->
+  <rect x="302" y="654" width="596" height="46" fill="#2b3b40"/>
+  <g stroke="#5f787e" stroke-width="3" opacity="0.8">
+    <path d="M334 654 V700 M372 654 V700 M410 654 V700 M448 654 V700 M486 654 V700 M524 654 V700 M562 654 V700 M600 654 V700 M638 654 V700 M676 654 V700 M714 654 V700 M752 654 V700 M790 654 V700 M828 654 V700 M866 654 V700"/>
+  </g>
+  <path d="M302 654 H898" stroke="#1e2b2f" stroke-opacity="0.8" stroke-width="4"/>
+
+  <!-- Embroidered brand mark on the chest. -->
+  <text x="600" y="452" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="48" font-weight="700" letter-spacing="11" fill="#1c2a2e">ZEXOR</text>
+  <text x="600" y="484" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="6" fill="#a7bcc0">450 GSM</text>
+</svg>

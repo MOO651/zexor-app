@@ -80,6 +80,8 @@ import type {
 import {
   ADMIN_PASSWORD_FALLBACK,
   DEFAULT_LOCALE,
+  currencySymbol,
+  formatNumber,
   isValidObject,
   isValidObjectArray,
   mergeSettings,
@@ -146,6 +148,51 @@ function pageFromHash(): Route {
  */
 function openWhatsApp(number: string, message: string) {
   window.open(whatsappLink(number, message), '_blank', 'noopener,noreferrer');
+}
+
+/**
+ * Renders one price as two isolated runs — the numeral and the currency word.
+ *
+ * A single string such as "٣٥٠ ج.م" is unreliable in an RTL document: the
+ * browser may reorder the digits and the currency, and two price strings dropped
+ * into a flex row can collapse together with no visible gap. Wrapping each half
+ * in its own `bdi` (which imposes unicode-bidi isolation) keeps the numeral and
+ * its currency adjacent, correctly ordered, and cleanly separated from any
+ * neighbouring price.
+ */
+function PriceTag({
+  className,
+  price,
+  market,
+  locale,
+}: {
+  className?: string;
+  price: number;
+  market: Market;
+  locale: Locale;
+}) {
+  /*
+   * Read this carefully before changing the order again — it was wrong four
+   * times.
+   *
+   * In an RTL flex row the FIRST DOM child is painted on the RIGHT, and the eye
+   * reads it first. Arabic prices are written and read number-first, so the
+   * numeral must be the first DOM child; the currency then lands to its left,
+   * producing `450 ج.م` on screen.
+   *
+   * Each half is wrapped in its own `bdi` with `unicode-bidi: isolate` so the
+   * bidi algorithm cannot merge them into one run (which is what dragged the
+   * `ج.م` dot out of place) and cannot swap them against the surrounding text.
+   */
+  return (
+    <span
+      className={`inline-flex items-baseline gap-1 whitespace-nowrap font-bold ${className ?? ''}`}
+      dir="rtl"
+    >
+      <bdi className="[unicode-bidi:isolate]">{formatNumber(price)}</bdi>
+      <bdi className="[unicode-bidi:isolate]">{currencySymbol(market, locale)}</bdi>
+    </span>
+  );
 }
 
 /**
@@ -1202,54 +1249,74 @@ export default function App() {
               </button>
             </div>
 
-            {/* Product Cards Grid */}
+            {/* Product Cards Grid — premium surface, image plate with a soft
+                inner ring, discount badge and a two-tier action row. */}
             <div className="grid gap-6 md:grid-cols-3">
-              {currentCategoryProducts.map((p) => (
-                <div
-                  className="flex flex-col justify-between overflow-hidden rounded-3xl border border-white bg-white/90 p-5 shadow-md"
+              {currentCategoryProducts.map((p) => {
+                const hasOffer = Boolean(p.oldPrice && p.oldPrice[market] > p.price[market]);
+                const off = hasOffer
+                  ? Math.round((1 - p.price[market] / (p.oldPrice?.[market] ?? p.price[market])) * 100)
+                  : 0;
+                return (
+                <article
+                  className="zx-product group flex flex-col overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[0_2px_10px_rgba(28,47,37,0.06)]"
                   key={p.id}
                 >
-                  <div>
-                    <div className="relative aspect-[1.3/1] overflow-hidden rounded-2xl bg-[#e6ede8]">
-                      <img alt={p.name[locale]} className="h-full w-full object-cover" src={p.imageUrl} />
-                      <button
-                        aria-label={isArabic ? 'إضافة للمفضلة' : 'Toggle wishlist'}
-                        className="absolute end-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-[#718579] shadow-xs backdrop-blur-md"
-                        onClick={() => handleToggleWishlist(p)}
-                        type="button"
-                      >
-                        <Heart className="h-4 w-4" fill={wishlist.includes(p.id) ? '#c85a6e' : 'none'} />
-                      </button>
-                    </div>
-
-                    <h3 className="mt-4 text-sm font-bold text-[#2e4537]">{p.name[locale]}</h3>
-                    <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">{p.description[locale]}</p>
+                  <div className="relative aspect-[1.3/1] overflow-hidden bg-[#eef3f0]">
+                    <img
+                      alt={p.name[locale]}
+                      className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                      loading="lazy"
+                      src={p.imageUrl}
+                    />
+                    {/* Bottom veil keeps any image legible under the badges. */}
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/35 to-transparent"
+                    />
+                    {hasOffer && (
+                      <span className="absolute start-3 top-3 rounded-full bg-[#c85a6e] px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-white shadow-sm">
+                        −{off}%
+                      </span>
+                    )}
+                    <button
+                      aria-label={isArabic ? 'إضافة للمفضلة' : 'Toggle wishlist'}
+                      className="absolute end-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/85 text-[#718579] shadow-sm backdrop-blur-md transition-colors hover:text-[#c85a6e]"
+                      onClick={() => handleToggleWishlist(p)}
+                      type="button"
+                    >
+                      <Heart className="h-4 w-4" fill={wishlist.includes(p.id) ? '#c85a6e' : 'none'} />
+                    </button>
                   </div>
 
-                  <div className="mt-5 border-t border-[#edf1ee] pt-4">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-base font-extrabold text-[#2d4738]">
-                        {money(p.price[market], market, locale)}
-                      </span>
-                      {p.oldPrice && p.oldPrice[market] > p.price[market] && (
-                        <span className="text-xs text-[#98a79f] line-through">
-                          {money(p.oldPrice[market], market, locale)}
-                        </span>
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{p.name[locale]}</h3>
+                    <p className="mt-1.5 line-clamp-2 text-[11px] leading-5 text-[#6c7d73]">{p.description[locale]}</p>
+
+                    <div className="mt-auto flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-4">
+                      <PriceTag className="zx-display text-xl text-[#2d4738]" price={p.price[market]} market={market} locale={locale} />
+                      {hasOffer && (
+                        <PriceTag
+                          className="zx-strike text-[11px] text-[#a9b5ad]"
+                          price={p.oldPrice![market]}
+                          market={market}
+                          locale={locale}
+                        />
                       )}
                     </div>
 
-                    <div className="mt-3 flex gap-2">
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
+                          onClick={() => handleOpenNfcCustomizer(p)}
+                          type="button"
+                        >
+                          <Fingerprint className="h-3.5 w-3.5" />
+                          {isArabic ? 'تخصيص الكارت' : 'Customize'}
+                        </button>
                       <button
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] py-2 text-xs font-semibold text-white hover:bg-[#436e5d]"
-                        onClick={() => handleOpenNfcCustomizer(p)}
-                        type="button"
-                      >
-                        <Fingerprint className="h-3.5 w-3.5" />
-                        {isArabic ? 'تخصيص الكارت' : 'Customize'}
-                      </button>
-                                      <button
                         aria-label={isArabic ? 'أضف للسلة' : 'Add to cart'}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d5e2d9] text-[#4d705d] hover:bg-[#edf5f0]"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d5e2d9] bg-white text-[#4d705d] transition-colors hover:border-[#4e8e6f] hover:bg-[#edf5f0]"
                         onClick={() => handleAddToCart(p)}
                         type="button"
                       >
@@ -1257,8 +1324,9 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                </article>
+                );
+              })}
             </div>
           </div>
         )}
@@ -1281,31 +1349,57 @@ export default function App() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {currentCategoryProducts.map((p) => (
-                <div
-                  className="flex flex-col justify-between overflow-hidden rounded-3xl border border-white bg-white/90 p-5 shadow-md"
+              {currentCategoryProducts.map((p) => {
+                const hasOffer = Boolean(p.oldPrice && p.oldPrice.eg > p.price.eg);
+                const off = hasOffer
+                  ? Math.round((1 - p.price.eg / (p.oldPrice?.eg ?? p.price.eg)) * 100)
+                  : 0;
+                return (
+                <article
+                  className="zx-product group flex flex-col overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[0_2px_10px_rgba(28,47,37,0.06)]"
                   key={p.id}
                 >
-                  <div>
-                    <div className="relative aspect-[1.3/1] overflow-hidden rounded-2xl bg-[#e6ede8]">
-                      <img alt={p.name[locale]} className="h-full w-full object-cover" src={p.imageUrl} />
-                      <button
-                        className="absolute end-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-[#718579] shadow-xs backdrop-blur-md"
-                        onClick={() => handleToggleWishlist(p)}
-                        type="button"
-                      >
-                        <Heart className="h-4 w-4" fill={wishlist.includes(p.id) ? '#c85a6e' : 'none'} />
-                      </button>
-                    </div>
+                  <div className="relative aspect-[1.3/1] overflow-hidden bg-[#eef3f0]">
+                    <img
+                      alt={p.name[locale]}
+                      className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                      loading="lazy"
+                      src={p.imageUrl}
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/35 to-transparent"
+                    />
+                    {hasOffer && (
+                      <span className="absolute start-3 top-3 rounded-full bg-[#c85a6e] px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-white shadow-sm">
+                        −{off}%
+                      </span>
+                    )}
+                    <button
+                      aria-label={isArabic ? 'إضافة للمفضلة' : 'Toggle wishlist'}
+                      className="absolute end-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-white/85 text-[#718579] shadow-sm backdrop-blur-md transition-colors hover:text-[#c85a6e]"
+                      onClick={() => handleToggleWishlist(p)}
+                      type="button"
+                    >
+                      <Heart className="h-4 w-4" fill={wishlist.includes(p.id) ? '#c85a6e' : 'none'} />
+                    </button>
+                    <span className="absolute bottom-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-[#314f43]/90 px-3 py-1.5 text-[10px] font-bold text-white shadow-sm backdrop-blur-md">
+                      <Sparkles className="h-3 w-3 shrink-0 text-[#a6e6c4]" />
+                      {/* `bdi` stops the surrounding RTL context from re-ordering
+                          the Arabic label around the icon. */}
+                      <bdi>{isArabic ? 'إصدار محدود' : 'Limited Drop'}</bdi>
+                    </span>
+                  </div>
 
-                    <h3 className="mt-4 text-sm font-bold text-[#2e4537]">{p.name[locale]}</h3>
-                    <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">{p.description[locale]}</p>
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{p.name[locale]}</h3>
+                    <p className="mt-1.5 line-clamp-2 text-[11px] leading-5 text-[#6c7d73]">{p.description[locale]}</p>
 
                     {p.variants && (
-                      <div className="mt-3 flex gap-1.5">
+                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {p.variants.map((v) => (
                           <span
-                            className="rounded-lg border border-[#dfe8e2] bg-[#fbfdfa] px-2 py-0.5 text-[9px] font-bold text-[#4e6b5b]"
+                            className="flex h-6 min-w-6 items-center justify-center rounded-lg border border-[#dfe8e2] bg-[#fbfdfa] px-1.5 text-[9px] font-bold text-[#4e6b5b]"
                             key={v}
                           >
                             {v}
@@ -1313,31 +1407,26 @@ export default function App() {
                         ))}
                       </div>
                     )}
-                  </div>
 
-                  <div className="mt-5 border-t border-[#edf1ee] pt-4">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-base font-extrabold text-[#2d4738]">
-                        {money(p.price.eg, 'eg', locale)}
-                      </span>
-                      {p.oldPrice && p.oldPrice.eg > p.price.eg && (
-                        <span className="text-xs text-[#98a79f] line-through">
-                          {money(p.oldPrice.eg, 'eg', locale)}
-                        </span>
+                    <div className="mt-auto flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-4">
+                      <PriceTag className="zx-display text-xl text-[#2d4738]" price={p.price.eg} market="eg" locale={locale} />
+                      {hasOffer && (
+                        <PriceTag className="zx-strike text-[11px] text-[#a9b5ad]" price={p.oldPrice!.eg} market="eg" locale={locale} />
                       )}
                     </div>
 
                     <button
-                      className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
+                      className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
                       onClick={() => handleAddToCart(p, undefined, 'L')}
                       type="button"
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
-                      {isArabic ? 'إضافة إلى السلة (مقاس L)' : 'Add to Cart'}
+                      {isArabic ? 'إضافة إلى السلة' : 'Add to Cart'}
                     </button>
                   </div>
-                </div>
-              ))}
+                </article>
+                );
+              })}
             </div>
           </div>
         )}

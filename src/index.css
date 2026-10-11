@@ -190,6 +190,17 @@ body {
   color: #a3baa9 !important;
 }
 
+/* Product plates + badges get a slightly darker surface in dark mode so the
+   bright artwork still separates from the card body. */
+[data-theme="dark"] .zx-product {
+  background-color: rgba(18, 30, 25, 0.94) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .zx-product .bg-\[\#eef3f0\] {
+  background-color: #101a16 !important;
+}
+
 button,
 a,
 input,
@@ -210,6 +221,47 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid #78aa8e;
   outline-offset: 3px;
+}
+
+/* Product card: a restrained lift + warmer shadow on hover so the whole grid
+   feels like a curated storefront rather than a list of boxes. */
+.zx-product {
+  transition:
+    transform var(--zx-slow) var(--zx-ease),
+    box-shadow var(--zx-slow) var(--zx-ease),
+    border-color var(--zx-slow) var(--zx-ease);
+}
+
+.zx-product:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -18px rgba(28, 47, 37, 0.28);
+  border-color: rgba(78, 142, 111, 0.35);
+}
+
+/* Two-line clamp for product copy keeps every card the same height. */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Old-price strike.
+   The native `line-through` decorates each text run independently, so on mixed
+   bidi content (Eastern-Arabic numerals + "ج.م") it breaks into fragments and
+   looks torn. A pseudo-element draws one unbroken line across the whole label
+   instead, whatever the direction. */
+/* Old-price strike.
+   `line-through` on mixed bidi text (Eastern-Arabic digits + "ج.م") breaks into
+   fragments, and a pseudo-element strike inherits the RTL line box and drifts.
+   A linear-gradient painted across the text itself always sits on the vertical
+   centre of whatever glyphs are inside, in any script or direction. */
+.zx-strike {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 55%;
+  background-size: 100% 1.5px;
+  opacity: 0.85;
 }
 
 /* Card hover lift used by showcase tiles */

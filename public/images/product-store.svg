@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Next-gen e-commerce storefront">
+  <defs>
+    <linearGradient id="c-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#100b1d"/>
+      <stop offset="55%" stop-color="#1f1733"/>
+      <stop offset="100%" stop-color="#3a2c5c"/>
+    </linearGradient>
+    <radialGradient id="c-key" cx="34%" cy="12%" r="74%">
+      <stop offset="0%" stop-color="#efe6ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#efe6ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c-screen" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#fdfcff"/>
+      <stop offset="60%" stop-color="#efeaf7"/>
+      <stop offset="100%" stop-color="#ddd4ee"/>
+    </linearGradient>
+    <linearGradient id="c-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d3cce0"/>
+      <stop offset="100%" stop-color="#857ba0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#c-bg)"/>
+  <rect width="1200" height="800" fill="url(#c-key)"/>
+
+  <!-- Phone in front (mobile commerce), window behind. -->
+  <ellipse cx="600" cy="666" rx="380" ry="34" fill="#060310" opacity="0.6"/>
+
+  <rect x="300" y="150" width="600" height="440" rx="20" fill="#171126"/>
+  <rect x="314" y="164" width="572" height="412" rx="10" fill="url(#c-screen)"/>
+
+  <!-- Store chrome. -->
+  <rect x="314" y="164" width="572" height="44" rx="10" fill="#e9e2f4"/>
+  <rect x="336" y="178" width="120" height="16" rx="6" fill="#5b4a86"/>
+  <g fill="#b3a7cc">
+    <rect x="640" y="180" width="52" height="12" rx="6"/>
+    <rect x="704" y="180" width="52" height="12" rx="6"/>
+    <rect x="768" y="180" width="52" height="12" rx="6"/>
+  </g>
+  <circle cx="856" cy="186" r="14" fill="#4e8e6f"/>
+  <circle cx="856" cy="186" r="5" fill="#eafff6"/>
+
+  <!-- Product grid with price tags + cart badge. -->
+  <g fill="#efeaf7">
+    <rect x="338" y="228" width="164" height="164" rx="14"/>
+    <rect x="518" y="228" width="164" height="164" rx="14"/>
+    <rect x="698" y="228" width="164" height="164" rx="14"/>
+  </g>
+  <g fill="#cdbff0">
+    <rect x="338" y="228" width="164" height="104" rx="14"/>
+    <rect x="518" y="228" width="164" height="104" rx="14"/>
+    <rect x="698" y="228" width="164" height="104" rx="14"/>
+  </g>
+  <g fill="#5b4a86">
+    <rect x="356" y="348" width="96" height="12" rx="6"/>
+    <rect x="536" y="348" width="112" height="12" rx="6"/>
+    <rect x="716" y="348" width="88" height="12" rx="6"/>
+  </g>
+  <g fill="#8f80b8">
+    <rect x="356" y="370" width="56" height="11" rx="5"/>
+    <rect x="536" y="370" width="66" height="11" rx="5"/>
+    <rect x="716" y="370" width="50" height="11" rx="5"/>
+  </g>
+
+  <!-- Checkout banner. -->
+  <rect x="338" y="424" width="524" height="58" rx="14" fill="#2f2649"/>
+  <rect x="362" y="446" width="150" height="14" rx="7" fill="#cdbff0"/>
+  <rect x="672" y="440" width="166" height="26" rx="13" fill="#a6e6c4"/>
+  <rect x="700" y="449" width="110" height="9" rx="4" fill="#2f5b45"/>
+
+  <!-- Floating payment card. -->
+  <g transform="rotate(-12 872 560)">
+    <rect x="808" y="500" width="180" height="112" rx="14" fill="#20183a"/>
+    <rect x="808" y="500" width="180" height="112" rx="14" fill="none" stroke="#6b5a9c" stroke-width="2"/>
+    <rect x="828" y="546" width="34" height="24" rx="5" fill="#e8c98a"/>
+    <rect x="828" y="582" width="104" height="9" rx="4" fill="#8f80b8"/>
+    <circle cx="948" cy="524" r="9" fill="#a6e6c4"/>
+  </g>
+
+  <!-- Cart pill. -->
+  <g transform="translate(258 452)">
+    <rect x="0" y="0" width="64" height="64" rx="20" fill="#4e8e6f"/>
+    <path d="M20 24 L24 46 L44 46 L48 24 Z" fill="none" stroke="#eafff6" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M24 24 a8 8 0 0 1 16 0" fill="none" stroke="#eafff6" stroke-width="3.5"/>
+  </g>
+</svg>

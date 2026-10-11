@@ -15,25 +15,38 @@ export function intlLocale(locale: Locale): string {
 }
 
 /**
- * Currency symbol/label for a market in a given locale.
+ * Currency label for a market in a given locale.
+ *
+ * The Arabic form deliberately omits the period ("جم" rather than "ج.م").
+ * A bare "." between two Arabic letters is neutral for the bidi algorithm, so
+ * the browser is free to reorder it and the abbreviation rendered as "م.ج" in
+ * the storefront. "جم" carries the same meaning, has nothing to reorder, and is
+ * the form Gulf/Egyptian price tags use in practice.
  */
 export function currencySymbol(market: Market, locale: Locale): string {
-  if (market === 'eg') return locale === 'ar' ? 'ج.م' : 'EGP';
+  if (market === 'eg') return locale === 'ar' ? 'جم' : 'EGP';
   return locale === 'ar' ? 'ر.س' : 'SAR';
 }
 
 /**
- * Locale-aware number formatting.
+ * Formats a number for display.
+ *
+ * Always uses Latin digits (`en`) even in Arabic. Eastern-Arabic numerals
+ * ("٤٥٠") render mirrored and mis-ordered once they sit next to an Arabic
+ * currency word inside an RTL flex row — the digits are mirrored glyph-by-glyph
+ * by the shaping engine. Latin digits carry the price unambiguously, which is
+ * also the convention on premium Arabic storefronts. The Arabic currency word
+ * is still shown, and only the numerals are localised away.
  */
-export function formatNumber(amount: number, locale: Locale): string {
-  return new Intl.NumberFormat(intlLocale(locale)).format(amount);
+export function formatNumber(amount: number): string {
+  return new Intl.NumberFormat('en-US').format(amount);
 }
 
 /**
  * Formats an amount together with its market currency, e.g. "1,250 ج.م".
  */
 export function money(amount: number, market: Market, locale: Locale): string {
-  return `${formatNumber(amount, locale)} ${currencySymbol(market, locale)}`;
+  return `${formatNumber(amount)} ${currencySymbol(market, locale)}`;
 }
 
 /**
