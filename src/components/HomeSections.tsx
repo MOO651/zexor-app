@@ -391,7 +391,11 @@ export function SiteFooter({ isArabic, settings, market, navigate, onTrackOrder 
                 rel="noreferrer"
                 target="_blank"
               >
-                @{TIKTOK_HANDLE}
+                {/* Latin handle inside an RTL page — force LTR or the @ and
+                    letters render in reverse. */}
+                <span dir="ltr" className="inline-block">
+                  @{TIKTOK_HANDLE}
+                </span>
               </a>
             </li>
             <li>
