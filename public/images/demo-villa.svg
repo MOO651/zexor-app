@@ -1,30 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury villa">
   <defs>
-    <linearGradient id="v-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0d1a15"/>
-      <stop offset="44%" stop-color="#27432f"/>
-      <stop offset="100%" stop-color="#4c7157"/>
+    <!-- Daylight scene with a warm horizon, matching the apartment plate so the
+         property gallery feels like one photo shoot. -->
+    <linearGradient id="v-sky" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#6b8fa3"/>
+      <stop offset="40%" stop-color="#adc0b2"/>
+      <stop offset="74%" stop-color="#e6d2b2"/>
+      <stop offset="100%" stop-color="#f3ddbe"/>
     </linearGradient>
     <linearGradient id="v-wall" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#f2faf5"/>
-      <stop offset="52%" stop-color="#b6d3c2"/>
-      <stop offset="100%" stop-color="#5a8169"/>
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="30%" stop-color="#efe5d3"/>
+      <stop offset="68%" stop-color="#c9bca4"/>
+      <stop offset="100%" stop-color="#948b77"/>
     </linearGradient>
     <linearGradient id="v-wall2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6b9179"/>
-      <stop offset="100%" stop-color="#2e4f3b"/>
+      <stop offset="0%" stop-color="#a89d86"/>
+      <stop offset="100%" stop-color="#6b6353"/>
     </linearGradient>
     <linearGradient id="v-roof" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#9dc4b0"/>
-      <stop offset="100%" stop-color="#42634f"/>
+      <stop offset="0%" stop-color="#8e8776"/>
+      <stop offset="100%" stop-color="#4f4a3e"/>
     </linearGradient>
-    <radialGradient id="v-sun" cx="22%" cy="18%" r="40%">
-      <stop offset="0%" stop-color="#f7e2d1" stop-opacity="0.42"/>
-      <stop offset="100%" stop-color="#f7e2d1" stop-opacity="0"/>
+    <radialGradient id="v-sun" cx="22%" cy="18%" r="44%">
+      <stop offset="0%" stop-color="#ffe9c9" stop-opacity="0.62"/>
+      <stop offset="100%" stop-color="#ffe9c9" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="v-ground" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2b4a37"/>
-      <stop offset="100%" stop-color="#0a120e"/>
+      <stop offset="0%" stop-color="#7a9663"/>
+      <stop offset="48%" stop-color="#4f6a3f"/>
+      <stop offset="100%" stop-color="#283a1f"/>
     </linearGradient>
     <linearGradient id="v-warm" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f8e2c9" stop-opacity="0.92"/>

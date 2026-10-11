@@ -37,7 +37,10 @@ export function Marketplace({
   onWhatsApp,
 }: Props) {
   const isArabic = locale === 'ar';
-  const currency = mode === 'cars' ? (market === 'eg' ? 'ج.م' : 'ر.س') : market === 'eg' ? 'ج.م' : 'ر.س';
+  // Matches `currencySymbol()` — Arabic omits the period, because a bare "."
+  // between two Arabic letters is bidi-neutral and the browser reorders it,
+  // rendering "ج.م" as "م.ج".
+  const currency = market === 'eg' ? (isArabic ? 'جم' : 'EGP') : isArabic ? 'ر.س' : 'SAR';
 
   // Filters
   const [regionFilter, setRegionFilter] = useState('');
@@ -151,13 +154,13 @@ Listing: ${itemTitle}`;
             {mode === 'cars' ? <CarFront className="h-4 w-4" /> : <Home className="h-4 w-4" />}
             ZEXOR / {mode === 'cars' ? 'VEHICLE SHOWROOM' : 'PREMIUM REAL ESTATE'}
           </p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#293d32] sm:text-5xl">
+          <h1 className="zx-h1 zx-display mt-3 text-[#21362b]">
             {mode === 'cars'
               ? isArabic
-                ? 'معرض ومكتب السيارات الفاخرة'
+                ? 'معرض السيارات الفاخرة'
                 : 'Curated Vehicle Showroom'
               : isArabic
-                ? 'قسم العقارات والمساحات الفاخرة'
+                ? 'عقارات مختارة بعناية'
                 : 'Prime Real Estate & Estates'}
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
@@ -186,10 +189,10 @@ Listing: ${itemTitle}`;
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {/* Region */}
-          <div>
-            <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'المدينة / المنطقة' : 'Region'}</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="zx-field-label">{isArabic ? 'المدينة / المنطقة' : 'Region'}</label>
             <select
-              className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setRegionFilter(e.target.value)}
               value={regionFilter}
             >
@@ -203,10 +206,10 @@ Listing: ${itemTitle}`;
           </div>
 
           {/* Price Range */}
-          <div>
-            <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'أقل سعر' : 'Min Price'}</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="zx-field-label">{isArabic ? 'أقل سعر' : 'Min Price'}</label>
             <input
-              className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="0"
               type="number"
@@ -214,10 +217,10 @@ Listing: ${itemTitle}`;
             />
           </div>
 
-          <div>
-            <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'أعلى سعر' : 'Max Price'}</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="zx-field-label">{isArabic ? 'أعلى سعر' : 'Max Price'}</label>
             <input
-              className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="—"
               type="number"
@@ -227,10 +230,10 @@ Listing: ${itemTitle}`;
 
           {mode === 'cars' ? (
             <>
-              <div>
-                <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'الماركة' : 'Make'}</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="zx-field-label">{isArabic ? 'الماركة' : 'Make'}</label>
                 <select
-                  className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
                   onChange={(e) => setMakeFilter(e.target.value)}
                   value={makeFilter}
                 >
@@ -240,10 +243,10 @@ Listing: ${itemTitle}`;
                   <option value="Porsche">Porsche</option>
                 </select>
               </div>
-              <div>
-                <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'حالة السيارة' : 'Condition'}</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="zx-field-label">{isArabic ? 'حالة السيارة' : 'Condition'}</label>
                 <select
-                  className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
                   onChange={(e) => setConditionFilter(e.target.value)}
                   value={conditionFilter}
                 >
@@ -255,10 +258,10 @@ Listing: ${itemTitle}`;
             </>
           ) : (
             <>
-              <div>
-                <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'نوع العقار' : 'Property Type'}</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="zx-field-label">{isArabic ? 'نوع العقار' : 'Property Type'}</label>
                 <select
-                  className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
                   onChange={(e) => setPropertyTypeFilter(e.target.value)}
                   value={propertyTypeFilter}
                 >
@@ -269,10 +272,10 @@ Listing: ${itemTitle}`;
                   <option value="Shop">{isArabic ? 'محل تجاري' : 'Shop'}</option>
                 </select>
               </div>
-              <div>
-                <label className="text-[10px] font-medium text-[#65796f]">{isArabic ? 'نوع الصفقة' : 'Deal Type'}</label>
+              <div className="flex flex-col gap-1.5">
+                <label className="zx-field-label">{isArabic ? 'نوع الصفقة' : 'Deal Type'}</label>
                 <select
-                  className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34] outline-none"
+                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
                   onChange={(e) => setDealFilter(e.target.value)}
                   value={dealFilter}
                 >
@@ -291,12 +294,12 @@ Listing: ${itemTitle}`;
         <div className="grid gap-6 md:grid-cols-3">
           {filteredVehicles.map((car) => (
             <article
-              className="group overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+              className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[0_2px_10px_rgba(28,47,37,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-20px_rgba(28,47,37,0.3)]"
               key={car.id}
             >
-              {/* Image & Slider Launcher */}
+              {/* Image & Gallery Launcher */}
               <div
-                className="relative aspect-[1.4/1] cursor-pointer overflow-hidden bg-[#e6ede8]"
+                className="relative aspect-[1.4/1] cursor-pointer overflow-hidden bg-[#e8efeb]"
                 onClick={() => {
                   setActiveVehicle(car);
                   setGalleryIndex(0);
@@ -304,17 +307,35 @@ Listing: ${itemTitle}`;
               >
                 <img
                   alt={car.title[locale]}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
+                  loading="lazy"
                   src={car.photo}
                 />
-                <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/45 to-transparent"
+                />
+                <span
+                  className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
+                    car.condition === 'New'
+                      ? 'bg-[#a6e6c4] text-[#14301f]'
+                      : 'bg-white/90 text-[#305342]'
+                  }`}
+                >
+                  {car.condition === 'New' ? (isArabic ? 'زيرو' : 'Brand New') : isArabic ? 'مستعمل معتمد' : 'Certified'}
+                </span>
+                <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
                   {car.id}
                 </span>
-                <span className="absolute end-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[8px] font-semibold text-[#305342]">
-                  {car.condition === 'New' ? (isArabic ? 'جديدة' : 'New') : isArabic ? 'مستعملة' : 'Used'}
+                {/* Price rides the image so the card body stays uncluttered. */}
+                <span className="absolute bottom-3 start-3 flex items-baseline gap-1.5 text-white drop-shadow">
+                  <span className="zx-display text-lg leading-none">
+                    {new Intl.NumberFormat('en-US').format(car.price)}
+                  </span>
+                  <span className="text-[10px] font-semibold opacity-85">{currency}</span>
                 </span>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#253d30] shadow-md">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
                     {isArabic ? 'عرض الألبوم والتفاصيل' : 'View Gallery & Specs'}
                   </span>
@@ -322,52 +343,64 @@ Listing: ${itemTitle}`;
               </div>
 
               {/* Card Details */}
-              <div className="p-5">
-                <h3 className="text-sm font-bold text-[#2d4336]">{car.title[locale]}</h3>
-                <p className="mt-1 flex items-center gap-1 text-[10px] text-[#798a80]">
-                  <MapPin className="h-3.5 w-3.5 text-[#5e8c75]" />
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{car.title[locale]}</h3>
+                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
                   {car.location[locale]}
                 </p>
 
-                {/* Specs pills */}
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">{car.year}</span>
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                    {car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : isArabic ? 'مانيوال' : 'Manual'}
-                  </span>
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                    {car.mileage === 0 ? (isArabic ? 'زيرو' : '0 km') : `${car.mileage.toLocaleString()} km`}
-                  </span>
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">{car.body}</span>
+                {/* Spec chips — tinted so they read as data, not decoration.
+                    Every value is localised: the enum values in the data are
+                    English ("Sedan") and showing them raw put Latin words inside
+                    an otherwise Arabic row. */}
+                <div className="mt-3.5 flex flex-wrap gap-1.5">
+                  {[
+                    String(car.year),
+                    car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : isArabic ? 'مانيوال' : 'Manual',
+                    car.mileage === 0
+                      ? (isArabic ? 'زيرو' : '0 km')
+                      : `${new Intl.NumberFormat('en-US').format(car.mileage)} ${isArabic ? 'كم' : 'km'}`,
+                    isArabic
+                      ? ({ Sedan: 'سيدان', SUV: 'دفع رباعي', Coupe: 'كوبيه' } as Record<string, string>)[car.body] ?? car.body
+                      : car.body,
+                    car.fuel === 'Electric'
+                      ? (isArabic ? 'كهربائية' : 'Electric')
+                      : car.fuel === 'Hybrid'
+                        ? (isArabic ? 'هايبرد' : 'Hybrid')
+                        : (isArabic ? 'بنزين' : 'Petrol'),
+                  ].map((spec) => (
+                    <span
+                      className="rounded-lg border border-[#e3ece7] bg-[#f3f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]"
+                      key={spec}
+                    >
+                      {spec}
+                    </span>
+                  ))}
                 </div>
 
-                <div className="mt-4 flex items-baseline justify-between border-t border-[#edf1ee] pt-3">
-                  <div>
-                    <span className="text-[8px] text-[#86978e]">{isArabic ? 'السعر المطلوب:' : 'Price:'}</span>
-                    <p className="text-base font-extrabold text-[#2e4d3c]">
-                      {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(car.price)} {currency}
-                    </p>
-                  </div>
-                  {car.oldPrice && (
-                    <span className="text-xs text-[#9aa7a0] line-through">
-                      {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(car.oldPrice)}
+                {car.oldPrice && (
+                  <p className="mt-3 text-[10px] text-[#9aa7a0]">
+                    {isArabic ? 'كان:' : 'Was:'}{' '}
+                    <span className="zx-strike font-semibold">
+                      {new Intl.NumberFormat('en-US').format(car.oldPrice)} {currency}
                     </span>
-                  )}
-                </div>
+                  </p>
+                )}
 
                 {/* Action Buttons */}
-                <div className="mt-4 flex gap-2">
+                <div className="mt-auto flex gap-2 pt-4">
                   <button
-                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[10px] font-semibold text-white transition-all hover:bg-[#436e5d]"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
                     onClick={() => handleCarWhatsApp(car)}
                     type="button"
                   >
                     <MessageCircle className="h-3.5 w-3.5" />
-                    {isArabic ? 'احجز معاينة سريعة' : 'Instant WhatsApp Booking'}
+                    {isArabic ? 'احجز معاينة' : 'Book Viewing'}
                   </button>
                   <button
-                    aria-label="View Details"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] hover:bg-[#eef5f1]"
+                    aria-label={isArabic ? 'التفاصيل' : 'Details'}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
                     onClick={() => {
                       setActiveVehicle(car);
                       setGalleryIndex(0);
@@ -398,74 +431,81 @@ Listing: ${itemTitle}`;
               >
                 <img
                   alt={prop.title[locale]}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
+                  loading="lazy"
                   src={prop.photo}
                 />
-                <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
-                  {prop.id}
-                </span>
-                <span className="absolute end-3 top-3 rounded-full bg-[#314f43] px-2.5 py-1 text-[8px] font-semibold text-white">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/45 to-transparent"
+                />
+                <span
+                  className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
+                    prop.deal === 'Sale' ? 'bg-[#a6e6c4] text-[#14301f]' : 'bg-[#e6a68e] text-[#3a1a12]'
+                  }`}
+                >
                   {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'For Sale') : isArabic ? 'للإيجار' : 'For Rent'}
                 </span>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#253d30] shadow-md">
+                <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
+                  {prop.id}
+                </span>
+                <span className="absolute bottom-3 start-3 flex items-baseline gap-1.5 text-white drop-shadow">
+                  <span className="zx-display text-lg leading-none">
+                    {new Intl.NumberFormat('en-US').format(prop.price)}
+                  </span>
+                  <span className="text-[10px] font-semibold opacity-85">{currency}</span>
+                </span>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
                     {isArabic ? 'استعراض العقار والخريطة' : 'View Property & Map'}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5">
-                <h3 className="text-sm font-bold text-[#2d4336]">{prop.title[locale]}</h3>
-                <p className="mt-1 flex items-center gap-1 text-[10px] text-[#798a80]">
-                  <MapPin className="h-3.5 w-3.5 text-[#5e8c75]" />
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{prop.title[locale]}</h3>
+                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
                   {prop.location[locale]}
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                    {prop.area} م²
-                  </span>
-                  {prop.rooms > 0 && (
-                    <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                      {prop.rooms} {isArabic ? 'غرف' : 'rooms'}
-                    </span>
-                  )}
-                  {prop.floor > 0 && (
-                    <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                      {isArabic ? `الطابق ${prop.floor}` : `Floor ${prop.floor}`}
-                    </span>
-                  )}
-                  <span className="rounded-full bg-[#eef4f0] px-2.5 py-0.5 text-[8px] text-[#557363]">
-                    {prop.type}
-                  </span>
+                <div className="mt-3.5 flex flex-wrap gap-1.5">
+                  {[
+                    `${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`,
+                    prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : '',
+                    prop.bathrooms > 0 ? `${prop.bathrooms} ${isArabic ? 'حمام' : 'baths'}` : '',
+                    // The type is a raw enum value in the data ("Apartment"); show it
+                    // localised so an Arabic card never mixes scripts. The English
+                    // word is the canonical value used by the admin filter, so only
+                    // the label is translated here.
+                    isArabic
+                      ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type
+                      : prop.type,
+                  ]
+                    .filter(Boolean)
+                    .map((spec) => (
+                      <span
+                        className="rounded-lg border border-[#e3ece7] bg-[#f3f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]"
+                        key={spec}
+                      >
+                        {spec}
+                      </span>
+                    ))}
                 </div>
 
-                <div className="mt-4 flex items-baseline justify-between border-t border-[#edf1ee] pt-3">
-                  <div>
-                    <span className="text-[8px] text-[#86978e]">
-                      {prop.deal === 'Rent'
-                        ? isArabic
-                          ? 'الإيجار الشهري:'
-                          : 'Monthly Rent:'
-                        : isArabic
-                          ? 'السعر الإجمالي:'
-                          : 'Total Price:'}
+                {prop.oldPrice && (
+                  <p className="mt-3 text-[10px] text-[#9aa7a0]">
+                    {isArabic ? 'كان:' : 'Was:'}{' '}
+                    <span className="zx-strike font-semibold">
+                      {new Intl.NumberFormat('en-US').format(prop.oldPrice)} {currency}
                     </span>
-                    <p className="text-base font-extrabold text-[#2e4d3c]">
-                      {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(prop.price)} {currency}
-                    </p>
-                  </div>
-                  {prop.oldPrice && (
-                    <span className="text-xs text-[#9aa7a0] line-through">
-                      {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(prop.oldPrice)}
-                    </span>
-                  )}
-                </div>
+                  </p>
+                )}
 
-                <div className="mt-4 flex gap-2">
+                <div className="mt-auto flex gap-2 pt-4">
                   <button
-                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[10px] font-semibold text-white transition-all hover:bg-[#436e5d]"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
                     onClick={() => {
                       setActiveProperty(prop);
                       setGalleryIndex(0);
@@ -473,11 +513,11 @@ Listing: ${itemTitle}`;
                     type="button"
                   >
                     <CalendarDays className="h-3.5 w-3.5" />
-                    {isArabic ? 'حجز موعد معاينة ميدانية' : 'Book Viewing Appointment'}
+                    {isArabic ? 'حجز معاينة' : 'Book Viewing'}
                   </button>
                   <button
-                    aria-label="Ask WhatsApp"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] hover:bg-[#eef5f1]"
+                    aria-label={isArabic ? 'استفسار واتساب' : 'Ask on WhatsApp'}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
                     onClick={() =>
                       onWhatsApp(
                         market,

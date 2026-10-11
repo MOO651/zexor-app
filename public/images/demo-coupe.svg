@@ -1,13 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Sports coupe">
   <defs>
+    <!-- Bright showroom, matching the other vehicle plates. -->
     <linearGradient id="c-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a1512"/>
-      <stop offset="50%" stop-color="#193026"/>
-      <stop offset="100%" stop-color="#2c5040"/>
+      <stop offset="0%" stop-color="#eaf0ec"/>
+      <stop offset="46%" stop-color="#c4d4ca"/>
+      <stop offset="100%" stop-color="#8ea597"/>
     </linearGradient>
     <linearGradient id="c-floor" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1f362b"/>
-      <stop offset="100%" stop-color="#060c09"/>
+      <stop offset="0%" stop-color="#6e8478"/>
+      <stop offset="52%" stop-color="#3e5147"/>
+      <stop offset="100%" stop-color="#212f2a"/>
     </linearGradient>
     <linearGradient id="c-body" x1="0" y1="0" x2="0.2" y2="1">
       <stop offset="0%" stop-color="#f8fdfb"/>

@@ -1,14 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury apartment">
   <defs>
-    <linearGradient id="a-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0d1a15"/>
-      <stop offset="46%" stop-color="#24402f"/>
-      <stop offset="100%" stop-color="#466b52"/>
+    <!-- Golden-hour sky: a warm horizon rather than a flat night silhouette,
+         which is what made this read as a diagram instead of a photograph. -->
+    <linearGradient id="a-sky" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#5b7f92"/>
+      <stop offset="38%" stop-color="#9db3a6"/>
+      <stop offset="72%" stop-color="#e0c9a8"/>
+      <stop offset="100%" stop-color="#f0d9b8"/>
     </linearGradient>
     <linearGradient id="a-facade" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#e8f4ec"/>
-      <stop offset="48%" stop-color="#a9c9b7"/>
-      <stop offset="100%" stop-color="#4f765d"/>
+      <stop offset="0%" stop-color="#fdfbf6"/>
+      <stop offset="30%" stop-color="#e9dfcd"/>
+      <stop offset="68%" stop-color="#c0b39c"/>
+      <stop offset="100%" stop-color="#8d8471"/>
     </linearGradient>
     <linearGradient id="a-side" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#5d8369"/>
@@ -19,8 +23,9 @@
       <stop offset="100%" stop-color="#f7e2d1" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="a-ground" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2c4a38"/>
-      <stop offset="100%" stop-color="#0a120e"/>
+      <stop offset="0%" stop-color="#6d8a5c"/>
+      <stop offset="45%" stop-color="#46603c"/>
+      <stop offset="100%" stop-color="#25371f"/>
     </linearGradient>
     <linearGradient id="a-warm" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#f6e0c8" stop-opacity="0.9"/>

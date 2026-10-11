@@ -1,13 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Luxury sedan">
   <defs>
+    <!-- Bright showroom: a light backdrop makes the car body read as painted
+         metal instead of a dark silhouette. -->
     <linearGradient id="s-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0c1712"/>
-      <stop offset="55%" stop-color="#1b332a"/>
-      <stop offset="100%" stop-color="#2f5342"/>
+      <stop offset="0%" stop-color="#e9f1ec"/>
+      <stop offset="46%" stop-color="#c3d6cb"/>
+      <stop offset="100%" stop-color="#8fa79a"/>
     </linearGradient>
     <linearGradient id="s-floor" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#22392e"/>
-      <stop offset="100%" stop-color="#070d0a"/>
+      <stop offset="0%" stop-color="#6f8579"/>
+      <stop offset="52%" stop-color="#3f5248"/>
+      <stop offset="100%" stop-color="#22302a"/>
     </linearGradient>
     <linearGradient id="s-body" x1="0" y1="0" x2="0.25" y2="1">
       <stop offset="0%" stop-color="#f6fcf9"/>
@@ -38,19 +41,17 @@
   <rect width="1200" height="800" fill="url(#s-key)"/>
   <rect width="1200" height="800" fill="url(#s-rim)"/>
 
-  <polygon points="240,0 400,0 520,430 210,430" fill="url(#s-beam)"/>
-  <polygon points="820,0 980,0 960,430 700,430" fill="url(#s-beam)"/>
+  <!-- Soft studio light pools on the back wall, instead of the two hard grey
+       slabs that read as random rectangles behind the car. -->
+  <ellipse cx="360" cy="230" rx="300" ry="150" fill="#ffffff" opacity="0.35"/>
+  <ellipse cx="880" cy="210" rx="260" ry="130" fill="#ffffff" opacity="0.28"/>
 
-  <rect x="0" y="300" width="1200" height="4" fill="#3f6653" opacity="0.4"/>
-  <g opacity="0.3" fill="#1b3026">
-    <rect x="60" y="120" width="260" height="184" rx="8"/>
-    <rect x="880" y="150" width="260" height="154" rx="8"/>
-  </g>
+  <rect x="0" y="300" width="1200" height="3" fill="#8fa79a" opacity="0.5"/>
 
   <path d="M0 430 L1200 430 L1200 800 L0 800 Z" fill="url(#s-floor)"/>
-  <ellipse cx="600" cy="650" rx="500" ry="120" fill="#040906" opacity="0.6"/>
 
-  <ellipse cx="600" cy="628" rx="410" ry="40" fill="#020504" opacity="0.6"/>
+  <!-- One soft contact shadow grounds the car without blacking out the floor. -->
+  <ellipse cx="600" cy="640" rx="420" ry="56" fill="#1c2b24" opacity="0.45"/>
   <path d="M170 560 C196 480 286 448 420 440 L800 440 C906 448 986 486 1032 560 L1052 580 C1066 594 1060 616 1042 622 L186 622 C168 616 162 592 170 560 Z" fill="url(#s-body)"/>
   <path d="M418 446 C520 372 726 366 826 446 L756 452 L470 454 Z" fill="#d7ebe0"/>
   <path d="M458 452 C548 396 714 392 792 452 L474 456 Z" fill="url(#s-glass)"/>
@@ -62,17 +63,24 @@
   <path d="M596 458 L596 612" stroke="#0f2018" stroke-opacity="0.32" stroke-width="3"/>
   <path d="M780 458 L780 608" stroke="#0f2018" stroke-opacity="0.28" stroke-width="3"/>
 
-  <circle cx="392" cy="618" r="68" fill="#050b08"/>
-  <circle cx="392" cy="618" r="68" fill="none" stroke="#3a5c49" stroke-width="4"/>
-  <circle cx="392" cy="618" r="36" fill="#2c4838"/>
-  <circle cx="392" cy="618" r="36" fill="none" stroke="#9dc9b2" stroke-width="3"/>
-  <circle cx="392" cy="618" r="13" fill="#cfe9dc"/>
+  <!-- Wheels: solid tyre, alloy rim, then a bright hub. -->
+  <circle cx="392" cy="618" r="68" fill="#131a17"/>
+  <circle cx="392" cy="618" r="68" fill="none" stroke="#515f59" stroke-width="4"/>
+  <circle cx="392" cy="618" r="38" fill="#8e9c95"/>
+  <circle cx="392" cy="618" r="38" fill="none" stroke="#dfe8e3" stroke-width="3"/>
+  <circle cx="392" cy="618" r="14" fill="#eef4f1"/>
+  <g stroke="#6d7a73" stroke-width="4" stroke-linecap="round">
+    <path d="M392 584 V600 M392 636 V652 M358 618 H374 M410 618 H426"/>
+  </g>
 
-  <circle cx="866" cy="618" r="68" fill="#050b08"/>
-  <circle cx="866" cy="618" r="68" fill="none" stroke="#3a5c49" stroke-width="4"/>
-  <circle cx="866" cy="618" r="36" fill="#2c4838"/>
-  <circle cx="866" cy="618" r="36" fill="none" stroke="#9dc9b2" stroke-width="3"/>
-  <circle cx="866" cy="618" r="13" fill="#cfe9dc"/>
+  <circle cx="866" cy="618" r="68" fill="#131a17"/>
+  <circle cx="866" cy="618" r="68" fill="none" stroke="#515f59" stroke-width="4"/>
+  <circle cx="866" cy="618" r="38" fill="#8e9c95"/>
+  <circle cx="866" cy="618" r="38" fill="none" stroke="#dfe8e3" stroke-width="3"/>
+  <circle cx="866" cy="618" r="14" fill="#eef4f1"/>
+  <g stroke="#6d7a73" stroke-width="4" stroke-linecap="round">
+    <path d="M866 584 V600 M866 636 V652 M832 618 H848 M884 618 H900"/>
+  </g>
 
   <g opacity="0.2" fill="#a6e6c4">
     <rect x="200" y="704" width="240" height="5" rx="3"/>
