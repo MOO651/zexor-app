@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import type { PointerEvent, ReactNode } from 'react';
+import { art } from '../data/imagery';
 import type { Locale, Market, Route } from '../types';
 
 export function TiltCard({
@@ -228,7 +229,7 @@ export function HomeHero({
               <img
                 alt="Atelier"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                src="/images/streetwear-collection.jpg"
+                src={art.tee}
               />
               <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
               <span className="absolute start-4 top-4 rounded-full border border-white/50 bg-white/20 px-3 py-1.5 text-[8px] font-bold text-white backdrop-blur-md">
@@ -259,7 +260,7 @@ export function HomeHero({
                 <img
                   alt="NFC"
                   className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                  src="/images/nfc-card.jpg"
+                  src={art.cardsElite}
                 />
                 <span aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#d4f0e4]/80 via-[#f8f6ed]/70 to-[#e4cebe]/80" />
 
@@ -299,7 +300,7 @@ export function HomeHero({
                 <img
                   alt="Studio"
                   className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-105"
-                  src="/images/digital-studio.jpg"
+                  src={art.studioPortal}
                 />
                 <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-[#121c17]/90 via-[#121c17]/30 to-transparent" />
                 <span className="absolute inset-x-3 bottom-3 flex items-end justify-between text-white sm:inset-x-4 sm:bottom-4">

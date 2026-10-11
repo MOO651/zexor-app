@@ -7,6 +7,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { Locale, Route } from '../types';
+import { art } from './imagery';
 
 /**
  * The five ZEXOR departments. Kept in one place so the landing-page portals,
@@ -41,7 +42,7 @@ const ORDERED: Portal[] = [
       ar: 'شارك هويتك بلمسة واحدة مع مُخصِّص ثلاثي الأبعاد.',
     },
     meta: { en: 'Elite · Social · Bespoke', ar: 'إيليت · سوشيال · مخصص' },
-    image: '/images/nfc-card.jpg',
+    image: art.cardsPortal,
     icon: CreditCard,
     accent: '#a6e6c4',
     span: 'wide',
@@ -54,7 +55,7 @@ const ORDERED: Portal[] = [
       ar: 'أزياء ثقيلة بإصدارات محدودة وحصرية.',
     },
     meta: { en: 'Limited · 450 GSM', ar: 'إصدار محدود · 450 جرام' },
-    image: '/images/streetwear-hoodie.jpg',
+    image: art.hoodie,
     icon: Shirt,
     accent: '#e0b49d',
     span: 'wide',
@@ -91,7 +92,7 @@ const ORDERED: Portal[] = [
       ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',
     },
     meta: { en: 'Web · Commerce · Apps', ar: 'ويب · تجارة · تطبيقات' },
-    image: '/images/digital-studio.jpg',
+    image: art.studioPortal,
     icon: Code2,
     accent: '#9fd8e8',
     span: 'wide',

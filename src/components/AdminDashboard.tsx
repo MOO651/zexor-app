@@ -25,6 +25,7 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react';
+import { art } from '../data/imagery';
 import type {
   CustomerOrder,
   DynamicCategory,
@@ -240,7 +241,7 @@ export function AdminDashboard({
       icon: 'sparkles',
       finish: 'pearl',
       available: true,
-      imageUrl: prodImageUrl || '/images/nfc-card.jpg',
+      imageUrl: prodImageUrl || art.cardsElite,
     };
 
     if (editingProductId) {
