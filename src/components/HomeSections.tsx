@@ -17,6 +17,25 @@ import type { Locale, Market, Route } from '../types';
 
 type Common = { locale: Locale; isArabic: boolean };
 
+/**
+ * The official TikTok channel for the brand. Kept as a constant so the footer
+ * link and any future reference stay in sync.
+ */
+const TIKTOK_HANDLE = 'zexor.digtal.studio';
+const TIKTOK_URL = `https://www.tiktok.com/@${TIKTOK_HANDLE}`;
+
+/**
+ * TikTok brand glyph. lucide-react ships no brand icons, so the mark is drawn
+ * inline — it inherits `currentColor` like every other footer icon.
+ */
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M16.5 2h-3v13.2a2.7 2.7 0 1 1-2.7-2.7c.24 0 .47.03.7.09V9.5a5.9 5.9 0 0 0-.7-.04 5.74 5.74 0 1 0 5.74 5.74V8.9a7.3 7.3 0 0 0 4.2 1.33V7.2a4.4 4.4 0 0 1-4.24-4.2V2Z" />
+    </svg>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* FAQ                                                                 */
 /* ------------------------------------------------------------------ */
@@ -286,6 +305,16 @@ export function SiteFooter({ isArabic, settings, market, navigate, onTrackOrder 
             >
               <Mail className="h-4 w-4" />
             </a>
+            <a
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] text-[#4d705d] transition-colors hover:bg-[#eef8f2]"
+              href={TIKTOK_URL}
+              rel="noreferrer"
+              target="_blank"
+              aria-label="TikTok"
+              title={`TikTok · @${TIKTOK_HANDLE}`}
+            >
+              <TikTokIcon className="h-4 w-4" />
+            </a>
           </div>
         </div>
 
@@ -352,6 +381,17 @@ export function SiteFooter({ isArabic, settings, market, navigate, onTrackOrder 
               <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5e8b75]" />
               <a className="transition-colors hover:text-[#2d4838]" href={`mailto:${settings.supportEmail}`}>
                 {settings.supportEmail}
+              </a>
+            </li>
+            <li className="flex items-start gap-2">
+              <TikTokIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5e8b75]" />
+              <a
+                className="transition-colors hover:text-[#2d4838]"
+                href={TIKTOK_URL}
+                rel="noreferrer"
+                target="_blank"
+              >
+                @{TIKTOK_HANDLE}
               </a>
             </li>
             <li>

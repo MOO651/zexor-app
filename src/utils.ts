@@ -165,3 +165,23 @@ export function resolveAdminPassword(envValue?: string): string {
   const trimmed = raw?.trim();
   return trimmed ? trimmed : ADMIN_PASSWORD_FALLBACK;
 }
+
+/**
+ * Merges persisted settings with the current defaults so a payload written by an
+ * older build (before new fields like `brand` or `content` existed) still loads.
+ * Object-valued keys are merged one level deep; the defaults win for anything the
+ * stored value is missing. This is what keeps a live site working across upgrades.
+ */
+export function mergeSettings<T extends Record<string, unknown>>(defaults: T, stored: unknown): T {
+  if (!isObject(stored)) return defaults;
+  const merged: Record<string, unknown> = { ...defaults };
+  for (const [key, value] of Object.entries(stored)) {
+    const base = (defaults as Record<string, unknown>)[key];
+    if (isObject(base) && isObject(value)) {
+      merged[key] = { ...base, ...value };
+    } else if (value !== undefined && value !== null) {
+      merged[key] = value;
+    }
+  }
+  return merged as T;
+}

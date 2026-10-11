@@ -5,6 +5,7 @@ import {
 import {
   ArrowUpRight,
   ChevronDown,
+  Clock,
   Fingerprint,
   Globe2,
   Heart,
@@ -81,6 +82,7 @@ import {
   DEFAULT_LOCALE,
   isValidObject,
   isValidObjectArray,
+  mergeSettings,
   money,
   resolveAdminPassword,
   routeFromHash,
@@ -115,7 +117,6 @@ function readStorage<T>(key: string, fallback: T, isValid?: (value: unknown) => 
     return fallback;
   }
 }
-
 // Lets useStoredState tell the caller when persistence fails (quota exceeded or
 // storage disabled in private mode) so the UI can warn instead of silently losing data.
 type StorageWriteHandler = (failed: boolean) => void;
@@ -202,6 +203,13 @@ export default function App() {
   const [vehicles, setVehicles] = useStoredState<Vehicle[]>('zexor-vehicles-v3', INITIAL_VEHICLES, isValidObjectArray);
   const [properties, setProperties] = useStoredState<Property[]>('zexor-properties-v3', INITIAL_PROPERTIES, isValidObjectArray);
   const [settings, setSettings] = useStoredState<SiteSettings>(STORAGE.settings, DEFAULT_SETTINGS, isValidObject);
+  // Merge the persisted settings over the current defaults so a payload written
+  // by an earlier build (before `brand`/`content`/`maintenanceText` existed) still
+  // renders every field instead of crashing on an undefined lookup.
+  const resolvedSettings = useMemo<SiteSettings>(
+    () => mergeSettings(DEFAULT_SETTINGS, settings),
+    [settings],
+  );
 
   const [route, setRoute] = useState<Route>(pageFromHash);
   const [market, setMarket] = useState<Market>('eg');
@@ -279,6 +287,19 @@ export default function App() {
       // ignore
     }
   }, [dir, locale, theme]);
+
+  // Paint the admin-controlled brand tokens onto <html> as CSS variables. The
+  // storefront's primary/accent surfaces read these, so a colour change in the
+  // Design tab restyles the live site with no rebuild.
+  useEffect(() => {
+    const root = document.documentElement;
+    const { brand } = resolvedSettings;
+    root.style.setProperty('--zx-jade', brand.primary);
+    root.style.setProperty('--zx-jade-bright', brand.accent);
+    root.style.setProperty('--zx-ink-soft', brand.ink);
+    root.style.setProperty('--zx-radius', `${brand.radius}rem`);
+    root.style.fontSize = `${brand.fontScale * 100}%`;
+  }, [resolvedSettings]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -360,11 +381,11 @@ export default function App() {
     const items: { route: Route; label: string }[] = [
       { route: 'home', label: isArabic ? 'الرئيسية' : 'Home' },
     ];
-    if (settings.sectionVisibility.cards) items.push({ route: 'cards', label: isArabic ? 'بطاقات NFC' : 'NFC Cards' });
-    if (settings.sectionVisibility.fashion) items.push({ route: 'fashion', label: isArabic ? 'الأزياء' : 'Streetwear' });
-    if (settings.sectionVisibility.cars) items.push({ route: 'cars', label: isArabic ? 'السيارات' : 'Vehicles' });
-    if (settings.sectionVisibility.property) items.push({ route: 'property', label: isArabic ? 'العقارات' : 'Real Estate' });
-    if (settings.sectionVisibility.services) items.push({ route: 'services', label: isArabic ? 'الاستوديو' : 'Studio' });
+    if (resolvedSettings.sectionVisibility.cards) items.push({ route: 'cards', label: isArabic ? 'بطاقات NFC' : 'NFC Cards' });
+    if (resolvedSettings.sectionVisibility.fashion) items.push({ route: 'fashion', label: isArabic ? 'الأزياء' : 'Streetwear' });
+    if (resolvedSettings.sectionVisibility.cars) items.push({ route: 'cars', label: isArabic ? 'السيارات' : 'Vehicles' });
+    if (resolvedSettings.sectionVisibility.property) items.push({ route: 'property', label: isArabic ? 'العقارات' : 'Real Estate' });
+    if (resolvedSettings.sectionVisibility.services) items.push({ route: 'services', label: isArabic ? 'الاستوديو' : 'Studio' });
 
     // Dynamic categories created in Admin!
     categories
@@ -374,19 +395,19 @@ export default function App() {
       });
 
     return items;
-  }, [categories, isArabic, locale, settings.sectionVisibility]);
+  }, [categories, isArabic, locale, resolvedSettings.sectionVisibility]);
 
   // Secondary navigation: pricing, calculator, reviews, tracking, contact.
   // Rendered in a "More" menu so the bar stays uncluttered on every width.
   const moreNavItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [];
-    if (settings.sectionVisibility.pricing ?? true) items.push({ route: 'pricing', label: isArabic ? 'باقات البرمجة' : 'Pricing' });
-    if (settings.sectionVisibility.calculator ?? true) items.push({ route: 'calculator', label: isArabic ? 'حاسبة التكلفة' : 'Cost Calculator' });
-    if (settings.sectionVisibility.reviews ?? true) items.push({ route: 'reviews', label: isArabic ? 'آراء العملاء' : 'Reviews' });
-    if (settings.sectionVisibility.tracking ?? true) items.push({ route: 'tracking', label: isArabic ? 'تتبّع الطلب' : 'Track Order' });
-    if (settings.sectionVisibility.contact) items.push({ route: 'contact', label: isArabic ? 'تواصل معنا' : 'Contact' });
+    if (resolvedSettings.sectionVisibility.pricing ?? true) items.push({ route: 'pricing', label: isArabic ? 'باقات البرمجة' : 'Pricing' });
+    if (resolvedSettings.sectionVisibility.calculator ?? true) items.push({ route: 'calculator', label: isArabic ? 'حاسبة التكلفة' : 'Cost Calculator' });
+    if (resolvedSettings.sectionVisibility.reviews ?? true) items.push({ route: 'reviews', label: isArabic ? 'آراء العملاء' : 'Reviews' });
+    if (resolvedSettings.sectionVisibility.tracking ?? true) items.push({ route: 'tracking', label: isArabic ? 'تتبّع الطلب' : 'Track Order' });
+    if (resolvedSettings.sectionVisibility.contact) items.push({ route: 'contact', label: isArabic ? 'تواصل معنا' : 'Contact' });
     return items;
-  }, [isArabic, settings.sectionVisibility]);
+  }, [isArabic, resolvedSettings.sectionVisibility]);
 
   // Global search entries
   const searchResults = useMemo(() => {
@@ -462,10 +483,19 @@ export default function App() {
       </div>
 
       {/* 1. Dynamic Announcement Bar */}
-      {settings.announcementActive && (
+      {resolvedSettings.announcementActive && (
         <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-[#2d493e] px-8 py-2 text-center text-[10px] font-semibold text-white shadow-xs">
           <Sparkles className="h-3.5 w-3.5 text-[#a8dfc4]" />
-          <span>{settings.announcementText[locale]}</span>
+          <span>{resolvedSettings.announcementText[locale]}</span>
+        </div>
+      )}
+
+      {/* Maintenance notice — shown only when the admin enables it. Distinct
+          amber styling so it never reads as the marketing announcement. */}
+      {resolvedSettings.maintenanceActive && (
+        <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-[#7a4b12] px-8 py-2 text-center text-[10px] font-semibold text-[#fff4e2] shadow-xs">
+          <Clock className="h-3.5 w-3.5" />
+          <span>{resolvedSettings.maintenanceText[locale]}</span>
         </div>
       )}
 
@@ -486,7 +516,7 @@ export default function App() {
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}
-          <div className="zx-no-bar hidden items-center gap-0.5 overflow-x-auto lg:flex">
+          <div className="zx-no-bar zx-snap-x hidden items-center gap-0.5 overflow-x-auto lg:flex">
             {navItems.map((item) => (
               <button
                 className={`relative shrink-0 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition-all xl:px-3 ${
@@ -713,9 +743,10 @@ export default function App() {
           <div className="space-y-20">
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
-              heroAccent={settings.heroAccent[locale]}
-              heroText={settings.heroText[locale]}
-              heroTitle={settings.heroTitle[locale]}
+              heroAccent={resolvedSettings.heroAccent[locale]}
+              heroImage={resolvedSettings.heroImage}
+              heroText={resolvedSettings.heroText[locale]}
+              heroTitle={resolvedSettings.heroTitle[locale]}
               locale={locale}
               market={market}
               navigate={navigate}
@@ -725,19 +756,23 @@ export default function App() {
               }}
             />
 
-            {/* 2. Department Board — image-driven entry points into every section */}
-            <CategoryShowcase
-              isArabic={isArabic}
-              locale={locale}
-              navigate={navigate}
-              visible={{
-                cards: settings.sectionVisibility.cards,
-                fashion: settings.sectionVisibility.fashion,
-                cars: settings.sectionVisibility.cars,
-                property: settings.sectionVisibility.property,
-                services: settings.sectionVisibility.services,
-              }}
-            />
+            {/* 2. Department Board — image-driven entry points into every section.
+                The `departments` id is the scroll target for the hero's
+                "Explore All 5 Departments" button. */}
+            <div id="departments" className="scroll-mt-24">
+              <CategoryShowcase
+                isArabic={isArabic}
+                locale={locale}
+                navigate={navigate}
+                visible={{
+                  cards: resolvedSettings.sectionVisibility.cards,
+                  fashion: resolvedSettings.sectionVisibility.fashion,
+                  cars: resolvedSettings.sectionVisibility.cars,
+                  property: resolvedSettings.sectionVisibility.property,
+                  services: resolvedSettings.sectionVisibility.services,
+                }}
+              />
+            </div>
 
             {/* 3. Live Animated Stats Counter */}
             <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#f7fbf8] to-[#eef5f0] p-6 shadow-sm sm:p-8">
@@ -765,7 +800,7 @@ export default function App() {
             </section>
 
             {/* 3. Section 01: 3D Smart NFC Identity Cards Showcase */}
-            {settings.sectionVisibility.cards && (
+            {resolvedSettings.sectionVisibility.cards && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -773,7 +808,7 @@ export default function App() {
                       01 / {isArabic ? 'بطاقات الهوية المتصلة' : 'CONNECTED IDENTITY'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
-                      {isArabic ? 'بطاقات NFC الذكية والمخصصة' : 'Interactive Smart NFC Cards'}
+                      {resolvedSettings.content.cardsTitle[locale]}
                     </h2>
                   </div>
                   <button
@@ -854,7 +889,7 @@ export default function App() {
             )}
 
             {/* 4. Section 02: Streetwear Atelier Drop Showcase */}
-            {settings.sectionVisibility.fashion && (
+            {resolvedSettings.sectionVisibility.fashion && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -862,7 +897,7 @@ export default function App() {
                       02 / {isArabic ? 'أتيليه الأزياء والستريت وير' : 'STREETWEAR ATELIER'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
-                      {isArabic ? 'إصدارات الأزياء الحصرية' : 'Exclusive Streetwear Releases'}
+                      {resolvedSettings.content.fashionTitle[locale]}
                     </h2>
                   </div>
                   <button
@@ -915,7 +950,7 @@ export default function App() {
             )}
 
             {/* 5. Section 03: Digital Studio, Live Demos & Software Agency */}
-            {settings.sectionVisibility.services && (
+            {resolvedSettings.sectionVisibility.services && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -923,7 +958,7 @@ export default function App() {
                       03 / {isArabic ? 'الاستوديو وتطوير البرمجيات' : 'SOFTWARE & DIGITAL AGENCY'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
-                      {isArabic ? 'معاينة حية للمشاريع والمنصات' : 'Live Platform Demos & Agency Works'}
+                      {resolvedSettings.content.servicesTitle[locale]}
                     </h2>
                   </div>
                   <button
@@ -969,7 +1004,7 @@ export default function App() {
             )}
 
             {/* 6. Section 04: Luxury Car Showroom */}
-            {settings.sectionVisibility.cars && (
+            {resolvedSettings.sectionVisibility.cars && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -977,7 +1012,7 @@ export default function App() {
                       04 / {isArabic ? 'معرض ومكتب السيارات الفاخرة' : 'CURATED VEHICLES'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
-                      {isArabic ? 'سيارات معتمدة مع حجز معاينة' : 'Featured Luxury Vehicles'}
+                      {resolvedSettings.content.carsTitle[locale]}
                     </h2>
                   </div>
                   <button
@@ -1015,7 +1050,7 @@ export default function App() {
                             const msg = isArabic
                               ? `طلب حجز معاينة للسيارة ${car.id}: ${car.title.ar}`
                               : `Booking inspection for ${car.id}: ${car.title.en}`;
-                            openWhatsApp(whatsappNumberFor(market, settings), msg);
+                            openWhatsApp(whatsappNumberFor(market, resolvedSettings), msg);
                           }}
                           type="button"
                         >
@@ -1030,7 +1065,7 @@ export default function App() {
             )}
 
             {/* 7. Section 05: Prime Real Estate Showcase */}
-            {settings.sectionVisibility.property && (
+            {resolvedSettings.sectionVisibility.property && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -1038,7 +1073,7 @@ export default function App() {
                       05 / {isArabic ? 'قسم العقارات والمساحات' : 'PRIME REAL ESTATE'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
-                      {isArabic ? 'عقارات فاخرة للبيع والإيجار' : 'Curated Residential & Commercial Spaces'}
+                      {resolvedSettings.content.propertyTitle[locale]}
                     </h2>
                   </div>
                   <button
@@ -1115,17 +1150,15 @@ export default function App() {
                     {isArabic ? 'ابدأ خطوتك القادمة الآن' : 'YOUR NEXT MOVE STARTS HERE'}
                   </span>
                   <h2 className="mt-2 text-3xl font-extrabold sm:text-5xl">
-                    {isArabic ? 'جاهز لتحويل فكرتك إلى واقع؟' : 'Ready to Elevate Your Brand?'}
+                    {resolvedSettings.content.ctaTitle[locale]}
                   </h2>
                   <p className="mt-3 text-xs leading-6 text-white/75 sm:text-sm">
-                    {isArabic
-                      ? 'تواصل مباشرة مع استوديو ZEXOR عبر واتساب لمناقشة كروت NFC، تطوير متجرك، أو حجز معاينة.'
-                      : 'Connect directly with our team over WhatsApp for NFC orders, software development, or bookings.'}
+                    {resolvedSettings.content.ctaText[locale]}
                   </p>
                 </div>
                 <a
                   className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-xs font-bold text-[#1f382c] shadow-lg transition-all hover:bg-[#a6e6c4]"
-                  href={`https://wa.me/${market === 'eg' ? settings.whatsappEg : settings.whatsappKsa}?text=${encodeURIComponent(
+                  href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
                     isArabic ? 'مرحباً ZEXOR، أود بدء محادثة ومناقشة مشروع جديد.' : 'Hello ZEXOR, I want to start a new project.',
                   )}`}
                   rel="noreferrer"
@@ -1315,7 +1348,7 @@ export default function App() {
             locale={locale}
             market={market}
             onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
-            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, settings), text)}
+            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
           />
         )}
 
@@ -1333,7 +1366,7 @@ export default function App() {
             market={market}
             mode="cars"
             onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
-            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, settings), text)}
+            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
           />
@@ -1346,7 +1379,7 @@ export default function App() {
             market={market}
             mode="property"
             onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
-            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, settings), text)}
+            onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
           />
@@ -1439,7 +1472,7 @@ Phone: ${phone}
 Budget: ${budget}
 Details: ${details}`;
 
-                openWhatsApp(whatsappNumberFor(market, settings), text);
+                openWhatsApp(whatsappNumberFor(market, resolvedSettings), text);
                 setToast(isArabic ? 'تم حفظ رسالتك وجارٍ فتح واتساب!' : 'Opening WhatsApp!');
               }}
             >
@@ -1491,10 +1524,11 @@ Details: ${details}`;
               setOrders={setOrders}
               setProducts={setProducts}
               setPromoCodes={setPromoCodes}
+              setInbox={setInbox}
               setProperties={setProperties}
               setSettings={setSettings}
               setVehicles={setVehicles}
-              settings={settings}
+              settings={resolvedSettings}
               vehicles={vehicles}
             />
           ) : (
@@ -1567,14 +1601,14 @@ Details: ${details}`;
         market={market}
         navigate={navigate}
         onTrackOrder={() => setTrackingOpen(true)}
-        settings={settings}
+        settings={resolvedSettings}
       />
 
       {/* 3. Floating WhatsApp Widget */}
       <a
         aria-label="Floating WhatsApp"
-        className="fixed bottom-5 inset-e-5 z-40 flex h-14 items-center gap-2.5 rounded-full border border-white/70 bg-[#25855a] px-4.5 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#1d734c]"
-        href={`https://wa.me/${market === 'eg' ? settings.whatsappEg : settings.whatsappKsa}?text=${encodeURIComponent(
+        className="zx-float-anchor fixed inset-e-5 z-40 flex h-14 items-center gap-2.5 rounded-full border border-white/70 bg-[#25855a] px-4.5 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#1d734c]"
+        href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
           isArabic ? 'مرحباً ZEXOR، أود الاستفسار والتواصل السريع.' : 'Hello ZEXOR, I want to inquire.',
         )}`}
         rel="noreferrer"
@@ -1592,7 +1626,7 @@ Details: ${details}`;
           <motion.button
             animate={{ opacity: 1, scale: 1 }}
             aria-label={isArabic ? 'العودة للأعلى' : 'Back to top'}
-            className="fixed bottom-5 inset-s-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[#35614a] shadow-xl backdrop-blur-md transition-colors hover:bg-[#eef8f2]"
+            className="zx-float-anchor fixed inset-s-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[#35614a] shadow-xl backdrop-blur-md transition-colors hover:bg-[#eef8f2]"
             exit={{ opacity: 0, scale: 0.9 }}
             initial={{ opacity: 0, scale: 0.9 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -1723,7 +1757,7 @@ Details: ${details}`;
           market={market}
           onAddToCart={(p, custom) => handleAddToCart(p, custom)}
           onClose={() => setNfcModalOpen(false)}
-          onOrderWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, settings), text)}
+          onOrderWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
           open={nfcModalOpen}
           product={selectedNfcProduct}
         />
@@ -1754,7 +1788,7 @@ Details: ${details}`;
         open={cartOpen}
         products={products}
         promoCodes={promoCodes}
-        settings={settings}
+        settings={resolvedSettings}
       />
 
       {/* 8. Live Shipment & Order Tracking Modal */}
@@ -1764,7 +1798,7 @@ Details: ${details}`;
         onClose={() => setTrackingOpen(false)}
         open={trackingOpen}
         orders={orders}
-        whatsappNumber={market === 'eg' ? settings.whatsappEg : settings.whatsappKsa}
+        whatsappNumber={market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}
       />
 
       {/* 9. Notification Toast */}

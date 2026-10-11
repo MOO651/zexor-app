@@ -173,6 +173,9 @@ export type SiteSettings = {
   heroTitle: Record<Locale, string>;
   heroAccent: Record<Locale, string>;
   heroText: Record<Locale, string>;
+  // Optional background image for the hero (data-url or /images/... path).
+  // When empty the hero keeps its built-in gradient mesh.
+  heroImage: string;
   whatsappEg: string;
   whatsappKsa: string;
   supportEmail: string;
@@ -193,4 +196,41 @@ export type SiteSettings = {
     reviews: boolean;
     tracking: boolean;
   };
+  /**
+   * Brand design tokens applied live to the storefront as CSS variables.
+   * The admin "Design" tab writes these; `applyThemeTokens()` paints them onto
+   * <html> so the whole site restyles without touching Tailwind classes.
+   */
+  brand: {
+    primary: string; // buttons, active pills, primary surfaces
+    accent: string; // highlights, glows, badge accents
+    ink: string; // headline / body ink
+    radius: number; // base corner radius in rem
+    fontScale: number; // root font scale (0.9 – 1.15)
+  };
+  /**
+   * Editable storefront copy. Every value has an Arabic and English variant so
+   * the admin can localise the marketing sections without code changes.
+   */
+  content: {
+    cardsTitle: Record<Locale, string>;
+    cardsSubtitle: Record<Locale, string>;
+    fashionTitle: Record<Locale, string>;
+    fashionSubtitle: Record<Locale, string>;
+    servicesTitle: Record<Locale, string>;
+    servicesSubtitle: Record<Locale, string>;
+    carsTitle: Record<Locale, string>;
+    carsSubtitle: Record<Locale, string>;
+    propertyTitle: Record<Locale, string>;
+    propertySubtitle: Record<Locale, string>;
+    ctaTitle: Record<Locale, string>;
+    ctaText: Record<Locale, string>;
+    footerNote: Record<Locale, string>;
+  };
+  /**
+   * Optional site-wide notice (e.g. "orders resume Monday"). Shown as a banner
+   * under the nav when `maintenanceActive` is true.
+   */
+  maintenanceActive: boolean;
+  maintenanceText: Record<Locale, string>;
 };

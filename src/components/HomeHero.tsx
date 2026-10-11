@@ -74,6 +74,8 @@ type Props = {
   heroTitle: string;
   heroAccent: string;
   heroText: string;
+  /** Optional admin-set hero background image (data-url or /images path). */
+  heroImage?: string;
 };
 
 /** Rotating advertising headline words for the animated hero ticker. */
@@ -90,6 +92,7 @@ export function HomeHero({
   heroTitle,
   heroAccent,
   heroText,
+  heroImage,
 }: Props) {
   const isArabic = locale === 'ar';
   const pointerX = useMotionValue(0.5);
@@ -122,6 +125,16 @@ export function HomeHero({
 
   return (
     <section className="relative overflow-hidden rounded-[2.5rem] border border-white/90 bg-[#f9f8f3] text-[#222923] shadow-xl sm:rounded-[3rem]">
+      {/* Optional admin-uploaded hero backdrop, dimmed with a light veil so the
+          headline and CTA stay legible in both languages. */}
+      {heroImage && (
+        <img
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
+          src={heroImage}
+        />
+      )}
       {/* 3D Atmospheric Radial Glows */}
       <div
         aria-hidden="true"
@@ -194,10 +207,10 @@ export function HomeHero({
 
               <button
                 className="flex min-h-12 items-center gap-2 rounded-full border border-[#d2dfd7] bg-white/80 px-5 text-xs font-bold text-[#355243] shadow-xs backdrop-blur-md transition-all hover:bg-white"
-                onClick={() => navigate('cars')}
+                onClick={() => document.getElementById('departments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 type="button"
               >
-                <span>{isArabic ? 'معرض السيارات والعقارات' : 'Vehicles & Real Estate'}</span>
+                <span>{isArabic ? 'استعرض الأقسام الخمسة' : 'Explore All 5 Departments'}</span>
               </button>
             </div>
           </div>

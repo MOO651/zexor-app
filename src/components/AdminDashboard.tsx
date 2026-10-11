@@ -8,9 +8,11 @@ import {
   Eye,
   EyeOff,
   Home,
+  Inbox,
   Layers,
   LockKeyhole,
   LogOut,
+  Palette,
   Pencil,
   Plus,
   Search,
@@ -19,6 +21,7 @@ import {
   ShoppingBag,
   Tag,
   Trash2,
+  Type,
   UploadCloud,
   X,
 } from 'lucide-react';
@@ -49,6 +52,7 @@ type Props = {
   orders: CustomerOrder[];
   setOrders: React.Dispatch<React.SetStateAction<CustomerOrder[]>>;
   inbox: PlatformInquiry[];
+  setInbox: React.Dispatch<React.SetStateAction<PlatformInquiry[]>>;
   promoCodes: PromoCode[];
   setPromoCodes: React.Dispatch<React.SetStateAction<PromoCode[]>>;
   settings: SiteSettings;
@@ -70,6 +74,7 @@ export function AdminDashboard({
   orders,
   setOrders,
   inbox,
+  setInbox,
   promoCodes,
   setPromoCodes,
   settings,
@@ -79,55 +84,32 @@ export function AdminDashboard({
 }: Props) {
   const isArabic = locale === 'ar';
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'categories' | 'products' | 'cars' | 'properties' | 'orders' | 'promos' | 'settings'
+    | 'overview'
+    | 'categories'
+    | 'products'
+    | 'cars'
+    | 'properties'
+    | 'orders'
+    | 'inbox'
+    | 'promos'
+    | 'design'
+    | 'content'
+    | 'settings'
   >('overview');
 
   // Hero / contact editor: which locale column is being edited
   const [heroLang, setHeroLang] = useState<Locale>(locale);
 
-  /** Downloads every persisted store as a single JSON backup file. */
-  const handleExportData = () => {
-    const backup = {
-      exportedAt: new Date().toISOString(),
-      products,
-      categories,
-      vehicles,
-      properties,
-      orders,
-      promoCodes,
-      settings,
-      inbox,
-    };
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `zexor-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    onToast(isArabic ? 'تم تنزيل نسخة احتياطية كاملة!' : 'Full backup downloaded!');
-  };
-
-  /** Clears only the demo/content stores, keeping settings and the admin session. */
-  const handleResetContent = () => {
-    const ok = window.confirm(
-      isArabic
-        ? 'سيتم مسح المنتجات والسيارات والعقارات والطلبات والرسائل. هل أنت متأكد؟'
-        : 'This clears products, cars, properties, orders and inbox. Continue?',
-    );
-    if (!ok) return;
-    setProducts([]);
-    setVehicles([]);
-    setProperties([]);
-    setOrders([]);
-    onToast(isArabic ? 'تم تفريغ بيانات المحتوى.' : 'Content data cleared.');
-  };
+  // Backup restore picker — a hidden file input opened by the "Restore" button.
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   // Search & Filter in Admin
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'new' | 'confirmed' | 'complete'>('all');
+  // Free-text filter for the products table (matches Arabic or English names).
+  const [productSearch, setProductSearch] = useState('');
+  // Shared filter for the vehicle and property listings.
+  const [inventorySearch, setInventorySearch] = useState('');
 
   // Add Category Modal State
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -150,40 +132,60 @@ export function AdminDashboard({
   const [prodImageUrl, setProdImageUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Add Car Modal State
+  // Add / Edit Car Modal State — every field is editable and bilingual so the
+  // admin can create AND correct a listing without touching code.
   const [showCarModal, setShowCarModal] = useState(false);
+  const [editingCarId, setEditingCarId] = useState<string | null>(null);
   const [carTitleAr, setCarTitleAr] = useState('');
-  const [carTitleEn] = useState('');
+  const [carTitleEn, setCarTitleEn] = useState('');
   const [carMake, setCarMake] = useState('Mercedes-Benz');
   const [carYear, setCarYear] = useState('2024');
   const [carPrice, setCarPrice] = useState('');
-  const [carLocation] = useState('Cairo');
+  const [carLocation, setCarLocation] = useState('Cairo');
   const [carCondition, setCarCondition] = useState<'New' | 'Used'>('Used');
+  const [carPhoto, setCarPhoto] = useState('');
+  const carFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Add Property Modal State
+  // Add / Edit Property Modal State
   const [showPropModal, setShowPropModal] = useState(false);
+  const [editingPropId, setEditingPropId] = useState<string | null>(null);
   const [propTitleAr, setPropTitleAr] = useState('');
-  const [propTitleEn] = useState('');
+  const [propTitleEn, setPropTitleEn] = useState('');
   const [propType, setPropType] = useState<'Apartment' | 'Villa' | 'Land' | 'Shop'>('Apartment');
   const [propDeal, setPropDeal] = useState<'Sale' | 'Rent'>('Sale');
   const [propPrice, setPropPrice] = useState('');
   const [propArea, setPropArea] = useState('150');
   const [propRooms, setPropRooms] = useState('3');
-  const [propLocation] = useState('Cairo');
+  const [propLocation, setPropLocation] = useState('Cairo');
+  const [propPhoto, setPropPhoto] = useState('');
+  const propFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Cloudinary / Local Image Uploader Helper
-  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // Reads a picked image file as a data-URL and hands it to the setter. Shared
+  // by the product, vehicle and property forms so uploads behave identically.
+  const readImageFile = (file: File, onLoaded: (dataUrl: string) => void) => {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        setProdImageUrl(reader.result);
+        onLoaded(reader.result);
         onToast(isArabic ? 'تم رفع ومعالجة الصورة بنجاح!' : 'Image uploaded & ready!');
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) readImageFile(file, setProdImageUrl);
+  };
+
+  const handleCarImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) readImageFile(file, setCarPhoto);
+  };
+
+  const handlePropImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) readImageFile(file, setPropPhoto);
   };
 
   // Save / Update Category
@@ -281,52 +283,120 @@ export function AdminDashboard({
     }
   };
 
-  // Add Car
+  // Save / Update Car — creates a new listing, or updates the one being edited.
   const handleSaveCar = (e: React.FormEvent) => {
     e.preventDefault();
-    const newCar: Vehicle = {
-      id: `ZX-CAR-${Date.now().toString().slice(-4)}`,
-      title: { ar: carTitleAr || 'سيارة جديدة', en: carTitleEn || 'New Vehicle' },
+    const id = editingCarId ?? `ZX-CAR-${Date.now().toString().slice(-4)}`;
+    const existing = vehicles.find((v) => v.id === id);
+    const photo = carPhoto || existing?.photo || '/images/demo-sedan.svg';
+
+    const car: Vehicle = {
+      id,
+      title: { ar: carTitleAr.trim() || 'سيارة جديدة', en: carTitleEn.trim() || 'New Vehicle' },
       location: { ar: carLocation, en: carLocation },
-      price: Number(carPrice) || 1000000,
-      area: 0,
+      price: Number(carPrice) || existing?.price || 1000000,
+      area: existing?.area ?? 0,
       region: (carLocation as Vehicle['region']) || 'Cairo',
-      photo: '/images/demo-sedan.svg',
-      gallery: ['/images/demo-sedan.svg', '/images/demo-coupe.svg'],
+      photo,
+      gallery: existing?.gallery?.length ? existing.gallery : [photo],
       make: carMake,
       year: Number(carYear) || 2024,
-      mileage: carCondition === 'New' ? 0 : 15000,
-      transmission: 'Automatic',
+      mileage: carCondition === 'New' ? 0 : existing?.mileage || 15000,
+      transmission: existing?.transmission ?? 'Automatic',
       condition: carCondition,
-      body: 'Sedan',
-      fuel: 'Petrol',
+      body: existing?.body ?? 'Sedan',
+      fuel: existing?.fuel ?? 'Petrol',
     };
-    setVehicles((prev) => [newCar, ...prev]);
+
+    if (editingCarId) {
+      setVehicles((prev) => prev.map((v) => (v.id === editingCarId ? car : v)));
+      onToast(isArabic ? 'تم تحديث بيانات السيارة!' : 'Vehicle updated!');
+    } else {
+      setVehicles((prev) => [car, ...prev]);
+      onToast(isArabic ? 'تمت إضافة السيارة إلى المعرض بنجاح!' : 'Vehicle added to showroom!');
+    }
+    setEditingCarId(null);
     setShowCarModal(false);
-    onToast(isArabic ? 'تمت إضافة السيارة إلى المعرض بنجاح!' : 'Vehicle added to showroom!');
   };
 
-  // Add Property
+  // Loads a vehicle into the modal for editing.
+  const startEditCar = (v: Vehicle) => {
+    setEditingCarId(v.id);
+    setCarTitleAr(v.title.ar);
+    setCarTitleEn(v.title.en);
+    setCarMake(v.make);
+    setCarYear(String(v.year));
+    setCarPrice(String(v.price));
+    setCarLocation(v.region);
+    setCarCondition(v.condition);
+    setCarPhoto(v.photo);
+    setShowCarModal(true);
+  };
+
+  const handleDeleteCar = (id: string) => {
+    if (window.confirm(isArabic ? 'حذف هذه السيارة؟' : 'Delete this vehicle?')) {
+      setVehicles((prev) => prev.filter((v) => v.id !== id));
+      onToast(isArabic ? 'تم حذف السيارة' : 'Vehicle deleted');
+    }
+  };
+
+  // Save / Update Property.
   const handleSaveProperty = (e: React.FormEvent) => {
     e.preventDefault();
-    const newProp: Property = {
-      id: `ZX-PROP-${Date.now().toString().slice(-4)}`,
-      title: { ar: propTitleAr || 'عقار جديد', en: propTitleEn || 'New Property' },
+    const id = editingPropId ?? `ZX-PROP-${Date.now().toString().slice(-4)}`;
+    const existing = properties.find((p) => p.id === id);
+    const fallbackPhoto =
+      propType === 'Villa' ? '/images/demo-villa.svg' : propType === 'Land' ? '/images/demo-land.svg' : '/images/demo-apartment.svg';
+    const photo = propPhoto || existing?.photo || fallbackPhoto;
+
+    const prop: Property = {
+      id,
+      title: { ar: propTitleAr.trim() || 'عقار جديد', en: propTitleEn.trim() || 'New Property' },
       location: { ar: propLocation, en: propLocation },
-      price: Number(propPrice) || 2500000,
+      price: Number(propPrice) || existing?.price || 2500000,
       area: Number(propArea) || 150,
       region: (propLocation as Property['region']) || 'Cairo',
-      photo: propType === 'Villa' ? '/images/demo-villa.svg' : propType === 'Land' ? '/images/demo-land.svg' : '/images/demo-apartment.svg',
-      gallery: ['/images/demo-apartment.svg', '/images/demo-villa.svg'],
+      photo,
+      gallery: existing?.gallery?.length ? existing.gallery : [photo],
       type: propType,
       deal: propDeal,
       rooms: Number(propRooms) || 3,
-      floor: 2,
-      bathrooms: 2,
+      floor: existing?.floor ?? 2,
+      bathrooms: existing?.bathrooms ?? 2,
+      featured: existing?.featured,
     };
-    setProperties((prev) => [newProp, ...prev]);
+
+    if (editingPropId) {
+      setProperties((prev) => prev.map((p) => (p.id === editingPropId ? prop : p)));
+      onToast(isArabic ? 'تم تحديث بيانات العقار!' : 'Property updated!');
+    } else {
+      setProperties((prev) => [prop, ...prev]);
+      onToast(isArabic ? 'تمت إضافة العقار بنجاح!' : 'Property added successfully!');
+    }
+    setEditingPropId(null);
     setShowPropModal(false);
-    onToast(isArabic ? 'تمت إضافة العقار بنجاح!' : 'Property added successfully!');
+  };
+
+  // Loads a property into the modal for editing.
+  const startEditProperty = (p: Property) => {
+    setEditingPropId(p.id);
+    setPropTitleAr(p.title.ar);
+    setPropTitleEn(p.title.en);
+    setPropType(p.type);
+    setPropDeal(p.deal);
+    setPropPrice(String(p.price));
+    setPropArea(String(p.area));
+    setPropRooms(String(p.rooms));
+    setPropLocation(p.region);
+    setPropPhoto(p.photo);
+    setShowPropModal(true);
+  };
+
+  const handleDeleteProperty = (id: string) => {
+    if (window.confirm(isArabic ? 'حذف هذا العقار؟' : 'Delete this property?')) {
+      setProperties((prev) => prev.filter((p) => p.id !== id));
+      onToast(isArabic ? 'تم حذف العقار' : 'Property deleted');
+    }
   };
 
   // Update Order Status
@@ -362,6 +432,46 @@ export function AdminDashboard({
     onToast(isArabic ? 'تم تصدير ملف النسخة الاحتياطية بنجاح!' : 'Backup exported successfully!');
   };
 
+  // Import a previously exported JSON backup. We validate the shape loosely so a
+  // stray file (e.g. an image) can't wipe the live state.
+  const handleImportData = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const raw = await file.text();
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('invalid');
+      }
+      // Each store is optional, and only applied when the backup really carries
+      // an array — restoring one section never silently wipes another.
+      if (Array.isArray(parsed.products)) setProducts(parsed.products as Product[]);
+      if (Array.isArray(parsed.categories)) setCategories(parsed.categories as DynamicCategory[]);
+      if (Array.isArray(parsed.vehicles)) setVehicles(parsed.vehicles as Vehicle[]);
+      if (Array.isArray(parsed.properties)) setProperties(parsed.properties as Property[]);
+      if (Array.isArray(parsed.orders)) setOrders(parsed.orders as CustomerOrder[]);
+      if (Array.isArray(parsed.promoCodes)) setPromoCodes(parsed.promoCodes as PromoCode[]);
+      if (parsed.settings && typeof parsed.settings === 'object') setSettings(parsed.settings as SiteSettings);
+      onToast(isArabic ? 'تم استيراد النسخة الاحتياطية بنجاح!' : 'Backup restored successfully!');
+    } catch {
+      onToast(isArabic ? 'ملف غير صالح، تأكد أنه نسخة ZEXOR بصيغة JSON.' : 'Invalid file — please select a ZEXOR JSON backup.');
+    } finally {
+      if (importInputRef.current) importInputRef.current.value = '';
+    }
+  };
+
+  // Wipes store content back to a blank slate (keeps the admin's hero/telegram settings).
+  const handleResetContent = () => {
+    const confirmed = window.confirm(
+      isArabic ? 'هل تريد تفريغ المنتجات والأقسام والطلبات؟ لا يمكن التراجع.' : 'Clear all products, categories and orders? This cannot be undone.'
+    );
+    if (!confirmed) return;
+    setProducts([]);
+    setCategories([]);
+    setOrders([]);
+    onToast(isArabic ? 'تم تفريغ المحتوى.' : 'All content cleared.');
+  };
+
   // Test Telegram Automation Notification
   const handleTestTelegramNotification = async () => {
     if (!settings.telegramBotToken || !settings.telegramChatId) {
@@ -385,6 +495,20 @@ export function AdminDashboard({
   const totalRevenueEg = orders.filter((o) => o.market === 'eg' && o.status === 'complete').reduce((s, o) => s + o.total, 0);
   const totalRevenueKsa = orders.filter((o) => o.market === 'ksa' && o.status === 'complete').reduce((s, o) => s + o.total, 0);
   const pendingOrdersCount = orders.filter((o) => o.status === 'new').length;
+  // Inquiries still needing follow-up (anything not closed).
+  const openInquiriesCount = inbox.filter((i) => i.status !== 'complete').length;
+
+  const handleUpdateInquiryStatus = (id: string, status: PlatformInquiry['status']) => {
+    setInbox((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
+    onToast(isArabic ? 'تم تحديث حالة الاستفسار' : 'Inquiry status updated');
+  };
+
+  const handleDeleteInquiry = (id: string) => {
+    if (window.confirm(isArabic ? 'حذف هذا الاستفسار؟' : 'Delete this inquiry?')) {
+      setInbox((prev) => prev.filter((i) => i.id !== id));
+      onToast(isArabic ? 'تم حذف الاستفسار' : 'Inquiry deleted');
+    }
+  };
 
   const filteredOrders = orders.filter((o) => {
     if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
@@ -413,7 +537,30 @@ export function AdminDashboard({
             type="button"
           >
             <Download className="h-3.5 w-3.5" />
-            {isArabic ? 'تصدير نسخة احتياطية (JSON)' : 'Export Backup'}
+            {isArabic ? 'تصدير نسخة احتياطية' : 'Export Backup'}
+          </button>
+          <button
+            className="flex items-center gap-1.5 rounded-full border border-[#d6e3db] bg-white px-3.5 py-2 text-xs font-semibold text-[#3b5949] shadow-xs hover:bg-[#edf5f0]"
+            onClick={() => importInputRef.current?.click()}
+            type="button"
+          >
+            <UploadCloud className="h-3.5 w-3.5" />
+            {isArabic ? 'استيراد نسخة' : 'Restore Backup'}
+          </button>
+          <input
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportData}
+            ref={importInputRef}
+            type="file"
+          />
+          <button
+            className="flex items-center gap-1.5 rounded-full border border-[#f0d9d3] bg-white px-3.5 py-2 text-xs font-semibold text-[#a5574c] shadow-xs hover:bg-[#fdf4f2]"
+            onClick={handleResetContent}
+            type="button"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {isArabic ? 'تفريغ المحتوى' : 'Clear Content'}
           </button>
           <button
             className="flex items-center gap-1.5 rounded-full border border-[#d6e3db] bg-white px-3.5 py-2 text-xs font-semibold text-[#3b5949] shadow-xs hover:bg-[#edf5f0]"
@@ -435,7 +582,10 @@ export function AdminDashboard({
           { id: 'cars', label: isArabic ? `معرض السيارات (${vehicles.length})` : `Vehicles (${vehicles.length})`, icon: CarFront },
           { id: 'properties', label: isArabic ? `إدارة العقارات (${properties.length})` : `Real Estate (${properties.length})`, icon: Home },
           { id: 'orders', label: isArabic ? `الطلبات الواردة (${pendingOrdersCount})` : `Orders (${pendingOrdersCount})`, icon: Clock },
+          { id: 'inbox', label: isArabic ? `الاستفسارات (${openInquiriesCount})` : `Inquiries (${openInquiriesCount})`, icon: Inbox },
           { id: 'promos', label: isArabic ? 'أكواد الخصم' : 'Promo Codes', icon: Tag },
+          { id: 'design', label: isArabic ? 'التصميم والهوية' : 'Design & Brand', icon: Palette },
+          { id: 'content', label: isArabic ? 'نصوص الموقع' : 'Site Content', icon: Type },
           { id: 'settings', label: isArabic ? 'إعدادات الواجهة وتليجرام' : 'Hero & Telegram Settings', icon: Settings },
         ].map((tab) => {
           const Icon = tab.icon;
@@ -635,8 +785,31 @@ export function AdminDashboard({
             </button>
           </div>
 
-          <div className="mt-6 divide-y divide-[#edf1ee]">
-            {products.map((prod) => (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-48">
+              <Search className="pointer-events-none absolute inset-s-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#8a9a90]" />
+              <input
+                className="h-10 w-full rounded-full border border-[#dfe7e1] ps-9 pe-3 text-xs outline-none focus:border-[#7fb59a]"
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder={isArabic ? 'ابحث بالاسم أو التصنيف…' : 'Search by name or category…'}
+                type="search"
+                value={productSearch}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 divide-y divide-[#edf1ee]">
+            {products
+              .filter((prod) => {
+                const q = productSearch.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  prod.name.ar.toLowerCase().includes(q) ||
+                  prod.name.en.toLowerCase().includes(q) ||
+                  prod.category.toLowerCase().includes(q)
+                );
+              })
+              .map((prod) => (
               <div className="flex items-center justify-between py-4" key={prod.id}>
                 <div className="flex items-center gap-3">
                   <img alt={prod.name.ar} className="h-12 w-12 rounded-xl object-cover shadow-xs" src={prod.imageUrl} />
@@ -835,7 +1008,18 @@ export function AdminDashboard({
             </div>
             <button
               className="flex items-center gap-1.5 rounded-full bg-[#314f43] px-4 py-2 text-xs font-semibold text-white hover:bg-[#436e5d]"
-              onClick={() => setShowCarModal(true)}
+              onClick={() => {
+                setEditingCarId(null);
+                setCarTitleAr('');
+                setCarTitleEn('');
+                setCarMake('Mercedes-Benz');
+                setCarYear('2024');
+                setCarPrice('');
+                setCarLocation('Cairo');
+                setCarCondition('Used');
+                setCarPhoto('');
+                setShowCarModal(true);
+              }}
               type="button"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -843,8 +1027,27 @@ export function AdminDashboard({
             </button>
           </div>
 
-          <div className="mt-6 divide-y divide-[#edf1ee]">
-            {vehicles.map((v) => (
+          {/* Shared inventory filter — matches the Arabic/English title, the
+              make (cars) and the id, so any listing is one query away. */}
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute inset-s-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#8a9a90]" />
+            <input
+              className="h-10 w-full rounded-full border border-[#dfe7e1] ps-9 pe-3 text-xs outline-none focus:border-[#7fb59a]"
+              onChange={(e) => setInventorySearch(e.target.value)}
+              placeholder={isArabic ? 'ابحث بالموديل أو الماركة أو رقم العرض…' : 'Search by model, make or listing id…'}
+              type="search"
+              value={inventorySearch}
+            />
+          </div>
+
+          <div className="mt-4 divide-y divide-[#edf1ee]">
+            {vehicles
+              .filter((v) => {
+                const q = inventorySearch.trim().toLowerCase();
+                if (!q) return true;
+                return `${v.title.ar} ${v.title.en} ${v.make} ${v.id}`.toLowerCase().includes(q);
+              })
+              .map((v) => (
               <div className="flex items-center justify-between py-4" key={v.id}>
                 <div className="flex items-center gap-3">
                   <img alt={v.title.ar} className="h-12 w-16 rounded-xl object-cover" src={v.photo} />
@@ -855,45 +1058,68 @@ export function AdminDashboard({
                     </p>
                   </div>
                 </div>
-                <button
-                  className="p-2 text-[#b06155] hover:text-[#d04535]"
-                  onClick={() => setVehicles((prev) => prev.filter((item) => item.id !== v.id))}
-                  type="button"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label={isArabic ? 'تعديل' : 'Edit'}
+                    className="p-2 text-[#517663] hover:text-[#2d4b3b]"
+                    onClick={() => startEditCar(v)}
+                    type="button"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    aria-label={isArabic ? 'حذف' : 'Delete'}
+                    className="p-2 text-[#b06155] hover:text-[#d04535]"
+                    onClick={() => handleDeleteCar(v.id)}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Add Car Modal */}
+          {/* Add / Edit Car Modal */}
           {showCarModal && (
             <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 p-4">
-              <form className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl" onSubmit={handleSaveCar}>
+              <form className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onSubmit={handleSaveCar}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#2e4337]">{isArabic ? 'إضافة سيارة جديدة' : 'Add Car'}</h3>
+                  <h3 className="text-sm font-bold text-[#2e4337]">
+                    {editingCarId ? (isArabic ? 'تعديل السيارة' : 'Edit Vehicle') : isArabic ? 'إضافة سيارة جديدة' : 'Add Vehicle'}
+                  </h3>
                   <button onClick={() => setShowCarModal(false)} type="button">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'اسم الموديل (عربي)' : 'Model Name'}</label>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'اسم الموديل (عربي)' : 'Model (Arabic)'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarTitleAr(e.target.value)} required value={carTitleAr} />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'الماركة' : 'Make'}</label>
-                      <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarMake(e.target.value)} value={carMake} />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'سنة الصنع' : 'Year'}</label>
-                      <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarYear(e.target.value)} type="number" value={carYear} />
-                    </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'اسم الموديل (إنجليزي)' : 'Model (English)'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarTitleEn(e.target.value)} value={carTitleEn} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'السعر (ج.م)' : 'Price'}</label>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'الماركة' : 'Make'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarMake(e.target.value)} value={carMake} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'سنة الصنع' : 'Year'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarYear(e.target.value)} type="number" value={carYear} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'السعر (ج.م / ر.س)' : 'Price (EGP / SAR)'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarPrice(e.target.value)} required type="number" value={carPrice} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'المدينة' : 'City'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarLocation(e.target.value)} value={carLocation}>
+                      {(['Cairo', 'Giza', 'Alexandria', 'Riyadh', 'Jeddah'] as const).map((city) => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'الحالة' : 'Condition'}</label>
@@ -902,9 +1128,24 @@ export function AdminDashboard({
                       <option value="Used">{isArabic ? 'مستعمل فاخر' : 'Certified Used'}</option>
                     </select>
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'صورة السيارة' : 'Vehicle Photo'}</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input accept="image/*" className="hidden" onChange={handleCarImageUpload} ref={carFileInputRef} type="file" />
+                      <button
+                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#d6e4dc] bg-[#f4f9f6] text-[10px] font-semibold text-[#3a634e] hover:bg-[#eaf5ef]"
+                        onClick={() => carFileInputRef.current?.click()}
+                        type="button"
+                      >
+                        <UploadCloud className="h-3.5 w-3.5" />
+                        {isArabic ? 'اختر صورة من جهازك' : 'Upload from Device'}
+                      </button>
+                      {carPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={carPhoto} />}
+                    </div>
+                  </div>
                 </div>
                 <button className="mt-5 min-h-10 w-full rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]" type="submit">
-                  {isArabic ? 'حفظ وإضافة للمعرض' : 'Save Car'}
+                  {editingCarId ? (isArabic ? 'حفظ التعديلات' : 'Save Changes') : isArabic ? 'حفظ وإضافة للمعرض' : 'Save Vehicle'}
                 </button>
               </form>
             </div>
@@ -926,7 +1167,19 @@ export function AdminDashboard({
             </div>
             <button
               className="flex items-center gap-1.5 rounded-full bg-[#314f43] px-4 py-2 text-xs font-semibold text-white hover:bg-[#436e5d]"
-              onClick={() => setShowPropModal(true)}
+              onClick={() => {
+                setEditingPropId(null);
+                setPropTitleAr('');
+                setPropTitleEn('');
+                setPropType('Apartment');
+                setPropDeal('Sale');
+                setPropPrice('');
+                setPropArea('150');
+                setPropRooms('3');
+                setPropLocation('Cairo');
+                setPropPhoto('');
+                setShowPropModal(true);
+              }}
               type="button"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -934,8 +1187,25 @@ export function AdminDashboard({
             </button>
           </div>
 
-          <div className="mt-6 divide-y divide-[#edf1ee]">
-            {properties.map((p) => (
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute inset-s-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#8a9a90]" />
+            <input
+              className="h-10 w-full rounded-full border border-[#dfe7e1] ps-9 pe-3 text-xs outline-none focus:border-[#7fb59a]"
+              onChange={(e) => setInventorySearch(e.target.value)}
+              placeholder={isArabic ? 'ابحث بالعنوان أو النوع أو رقم العرض…' : 'Search by title, type or listing id…'}
+              type="search"
+              value={inventorySearch}
+            />
+          </div>
+
+          <div className="mt-4 divide-y divide-[#edf1ee]">
+            {properties
+              .filter((p) => {
+                const q = inventorySearch.trim().toLowerCase();
+                if (!q) return true;
+                return `${p.title.ar} ${p.title.en} ${p.type} ${p.deal} ${p.id}`.toLowerCase().includes(q);
+              })
+              .map((p) => (
               <div className="flex items-center justify-between py-4" key={p.id}>
                 <div className="flex items-center gap-3">
                   <img alt={p.title.ar} className="h-12 w-16 rounded-xl object-cover" src={p.photo} />
@@ -946,67 +1216,103 @@ export function AdminDashboard({
                     </p>
                   </div>
                 </div>
-                <button
-                  className="p-2 text-[#b06155] hover:text-[#d04535]"
-                  onClick={() => setProperties((prev) => prev.filter((item) => item.id !== p.id))}
-                  type="button"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label={isArabic ? 'تعديل' : 'Edit'}
+                    className="p-2 text-[#517663] hover:text-[#2d4b3b]"
+                    onClick={() => startEditProperty(p)}
+                    type="button"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    aria-label={isArabic ? 'حذف' : 'Delete'}
+                    className="p-2 text-[#b06155] hover:text-[#d04535]"
+                    onClick={() => handleDeleteProperty(p.id)}
+                    type="button"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Add Property Modal */}
+          {/* Add / Edit Property Modal */}
           {showPropModal && (
             <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 p-4">
-              <form className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl" onSubmit={handleSaveProperty}>
+              <form className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onSubmit={handleSaveProperty}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#2e4337]">{isArabic ? 'إضافة عقار جديد' : 'Add Property'}</h3>
+                  <h3 className="text-sm font-bold text-[#2e4337]">
+                    {editingPropId ? (isArabic ? 'تعديل العقار' : 'Edit Property') : isArabic ? 'إضافة عقار جديد' : 'Add Property'}
+                  </h3>
                   <button onClick={() => setShowPropModal(false)} type="button">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'عنوان العقار (عربي)' : 'Title'}</label>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'عنوان العقار (عربي)' : 'Title (Arabic)'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropTitleAr(e.target.value)} required value={propTitleAr} />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'النوع' : 'Type'}</label>
-                      <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropType(e.target.value as Property['type'])} value={propType}>
-                        <option value="Apartment">{isArabic ? 'شقة' : 'Apartment'}</option>
-                        <option value="Villa">{isArabic ? 'فيلا' : 'Villa'}</option>
-                        <option value="Land">{isArabic ? 'أرض' : 'Land'}</option>
-                        <option value="Shop">{isArabic ? 'محل تجاري' : 'Shop'}</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'نوع العرض' : 'Deal'}</label>
-                      <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropDeal(e.target.value as Property['deal'])} value={propDeal}>
-                        <option value="Sale">{isArabic ? 'للبيع' : 'Sale'}</option>
-                        <option value="Rent">{isArabic ? 'للإيجار' : 'Rent'}</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'عنوان العقار (إنجليزي)' : 'Title (English)'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropTitleEn(e.target.value)} value={propTitleEn} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'النوع' : 'Type'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropType(e.target.value as Property['type'])} value={propType}>
+                      <option value="Apartment">{isArabic ? 'شقة' : 'Apartment'}</option>
+                      <option value="Villa">{isArabic ? 'فيلا' : 'Villa'}</option>
+                      <option value="Land">{isArabic ? 'أرض' : 'Land'}</option>
+                      <option value="Shop">{isArabic ? 'محل تجاري' : 'Shop'}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'نوع العرض' : 'Deal'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropDeal(e.target.value as Property['deal'])} value={propDeal}>
+                      <option value="Sale">{isArabic ? 'للبيع' : 'Sale'}</option>
+                      <option value="Rent">{isArabic ? 'للإيجار' : 'Rent'}</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'السعر' : 'Price'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropPrice(e.target.value)} required type="number" value={propPrice} />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'المساحة م²' : 'Area m²'}</label>
-                      <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropArea(e.target.value)} type="number" value={propArea} />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#5e7166]">{isArabic ? 'عدد الغرف' : 'Bedrooms'}</label>
-                      <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropRooms(e.target.value)} type="number" value={propRooms} />
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'المدينة' : 'City'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropLocation(e.target.value)} value={propLocation}>
+                      {(['Cairo', 'Giza', 'Alexandria', 'Riyadh', 'Jeddah'] as const).map((city) => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'المساحة م²' : 'Area m²'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropArea(e.target.value)} type="number" value={propArea} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'عدد الغرف' : 'Bedrooms'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropRooms(e.target.value)} type="number" value={propRooms} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'صورة العقار' : 'Property Photo'}</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input accept="image/*" className="hidden" onChange={handlePropImageUpload} ref={propFileInputRef} type="file" />
+                      <button
+                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-[#d6e4dc] bg-[#f4f9f6] text-[10px] font-semibold text-[#3a634e] hover:bg-[#eaf5ef]"
+                        onClick={() => propFileInputRef.current?.click()}
+                        type="button"
+                      >
+                        <UploadCloud className="h-3.5 w-3.5" />
+                        {isArabic ? 'اختر صورة من جهازك' : 'Upload from Device'}
+                      </button>
+                      {propPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={propPhoto} />}
                     </div>
                   </div>
                 </div>
                 <button className="mt-5 min-h-10 w-full rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]" type="submit">
-                  {isArabic ? 'حفظ العقار' : 'Save Property'}
+                  {editingPropId ? (isArabic ? 'حفظ التعديلات' : 'Save Changes') : isArabic ? 'حفظ العقار' : 'Save Property'}
                 </button>
               </form>
             </div>
@@ -1106,6 +1412,113 @@ export function AdminDashboard({
         </div>
       )}
 
+      {/* Tab 6b: Inbox — every contact / car / property / NFC inquiry, with
+          status workflow and direct call/WhatsApp actions. */}
+      {activeTab === 'inbox' && (
+        <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-base font-bold text-[#2f4437]">
+                {isArabic ? 'صندوق الاستفسارات والمعاينات' : 'Inquiries & Viewing Requests'}
+              </h2>
+              <p className="text-[10px] text-[#788b80]">
+                {isArabic
+                  ? 'كل رسالة من نموذج التواصل أو طلب معاينة سيارة/عقار أو تخصيص كارت NFC تصل هنا فوراً.'
+                  : 'Every contact-form message, vehicle/property viewing request and NFC enquiry lands here.'}
+              </p>
+            </div>
+            {inbox.length > 0 && (
+              <button
+                className="flex items-center gap-1.5 rounded-full border border-[#d6e3db] bg-white px-3.5 py-2 text-xs font-semibold text-[#3b5949] hover:bg-[#edf5f0]"
+                onClick={() => {
+                  if (window.confirm(isArabic ? 'مسح كل الاستفسارات؟' : 'Clear all inquiries?')) {
+                    setInbox([]);
+                    onToast(isArabic ? 'تم مسح الاستفسارات' : 'Inquiries cleared');
+                  }
+                }}
+                type="button"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {isArabic ? 'مسح الكل' : 'Clear All'}
+              </button>
+            )}
+          </div>
+
+          {inbox.length === 0 ? (
+            <p className="py-12 text-center text-xs text-[#829288]">
+              {isArabic ? 'لا توجد استفسارات بعد.' : 'No inquiries yet.'}
+            </p>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {inbox.map((inq) => (
+                <div className="rounded-2xl border border-[#e7efe9] bg-[#fbfdfa] p-4" key={inq.id}>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-[#e7f4ed] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#35614a]">
+                          {inq.type}
+                        </span>
+                        <h4 className="text-xs font-bold text-[#2d4236]">{inq.title}</h4>
+                      </div>
+                      <p className="mt-1 text-[10px] text-[#697d72]">
+                        {inq.name} · {inq.phone} · {inq.city} {inq.market === 'eg' ? '🇪🇬' : '🇸🇦'}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[9px] font-semibold ${
+                        inq.status === 'new'
+                          ? 'bg-[#fff1de] text-[#a16d3e]'
+                          : inq.status === 'in-progress'
+                            ? 'bg-[#e7f1fb] text-[#4777a8]'
+                            : 'bg-[#e4f6ec] text-[#347854]'
+                      }`}
+                    >
+                      {inq.status === 'new' ? (isArabic ? 'جديد' : 'New') : inq.status === 'in-progress' ? (isArabic ? 'قيد المتابعة' : 'In progress') : isArabic ? 'منتهي' : 'Complete'}
+                    </span>
+                  </div>
+
+                  {inq.message && (
+                    <p className="mt-3 text-[11px] leading-5 text-[#4d6157]">{inq.message}</p>
+                  )}
+                  {inq.budget && (
+                    <p className="mt-1 text-[10px] text-[#7a8d83]">{isArabic ? 'الميزانية:' : 'Budget:'} {inq.budget}</p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <select
+                      className="rounded-lg border border-[#dfe8e2] bg-white px-2 py-1 text-[10px] outline-none"
+                      onChange={(e) => handleUpdateInquiryStatus(inq.id, e.target.value as PlatformInquiry['status'])}
+                      value={inq.status}
+                    >
+                      <option value="new">{isArabic ? 'جديد' : 'New'}</option>
+                      <option value="in-progress">{isArabic ? 'قيد المتابعة' : 'In progress'}</option>
+                      <option value="complete">{isArabic ? 'منتهي' : 'Complete'}</option>
+                    </select>
+                    <a
+                      className="flex items-center gap-1 rounded-full bg-[#25855a] px-3 py-1 text-[10px] font-semibold text-white hover:bg-[#1d734c]"
+                      href={`https://wa.me/${inq.phone.replace(/\D/g, '')}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <Send className="h-3 w-3" />
+                      {isArabic ? 'واتساب' : 'WhatsApp'}
+                    </a>
+                    <button
+                      className="flex items-center gap-1 rounded-full border border-[#f0d4cd] px-3 py-1 text-[10px] font-semibold text-[#a8503f] hover:bg-[#fdf4f1]"
+                      onClick={() => handleDeleteInquiry(inq.id)}
+                      type="button"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      {isArabic ? 'حذف' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tab 7: Promo Codes Generator */}
       {activeTab === 'promos' && (
         <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
@@ -1158,6 +1571,241 @@ export function AdminDashboard({
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Design & Brand — live brand tokens (colours, radius, font scale).
+          These are written onto <html> as CSS variables by the storefront, so a
+          change here restyles the whole site instantly. */}
+      {activeTab === 'design' && (
+        <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <h2 className="flex items-center gap-2 text-base font-bold text-[#2f4437]">
+            <Palette className="h-4 w-4 text-[#4e8e6f]" />
+            {isArabic ? 'التصميم والهوية البصرية' : 'Design & Brand Identity'}
+          </h2>
+          <p className="text-[10px] text-[#788b80]">
+            {isArabic
+              ? 'غيّر ألوان العلامة ونصف القطر وحجم الخط وشاهد النتيجة على الموقع مباشرة.'
+              : 'Change brand colours, corner radius and font scale — applied live across the site.'}
+          </p>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-3">
+            {([
+              { key: 'primary' as const, labelAr: 'اللون الأساسي', labelEn: 'Primary colour' },
+              { key: 'accent' as const, labelAr: 'اللون الثانوي', labelEn: 'Accent colour' },
+              { key: 'ink' as const, labelAr: 'لون العناوين', labelEn: 'Ink colour' },
+            ]).map(({ key, labelAr, labelEn }) => (
+              <div key={key}>
+                <label className="text-[10px] font-semibold text-[#486b59]">{isArabic ? labelAr : labelEn}</label>
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    className="h-9 w-12 cursor-pointer rounded-lg border border-[#dfe8e2] bg-white p-1"
+                    onChange={(e) =>
+                      setSettings((prev) => ({ ...prev, brand: { ...prev.brand, [key]: e.target.value } }))
+                    }
+                    type="color"
+                    value={settings.brand[key]}
+                  />
+                  <input
+                    className="h-9 flex-1 rounded-xl border border-[#dfe8e2] px-3 font-mono text-xs uppercase outline-none"
+                    onChange={(e) =>
+                      setSettings((prev) => ({ ...prev, brand: { ...prev.brand, [key]: e.target.value } }))
+                    }
+                    value={settings.brand[key]}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="flex items-center justify-between text-[10px] font-semibold text-[#486b59]">
+                <span>{isArabic ? 'استدارة الحواف' : 'Corner radius'}</span>
+                <span className="font-mono text-[#3b5949]">{settings.brand.radius.toFixed(2)} rem</span>
+              </label>
+              <input
+                className="mt-2 w-full accent-[#314f43]"
+                max={3}
+                min={0}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, brand: { ...prev.brand, radius: Number(e.target.value) } }))
+                }
+                step={0.05}
+                type="range"
+                value={settings.brand.radius}
+              />
+            </div>
+            <div>
+              <label className="flex items-center justify-between text-[10px] font-semibold text-[#486b59]">
+                <span>{isArabic ? 'حجم الخط العام' : 'Global font scale'}</span>
+                <span className="font-mono text-[#3b5949]">{Math.round(settings.brand.fontScale * 100)}%</span>
+              </label>
+              <input
+                className="mt-2 w-full accent-[#314f43]"
+                max={1.15}
+                min={0.9}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, brand: { ...prev.brand, fontScale: Number(e.target.value) } }))
+                }
+                step={0.01}
+                type="range"
+                value={settings.brand.fontScale}
+              />
+            </div>
+          </div>
+
+          {/* Live swatch preview so the admin sees the palette before saving. */}
+          <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-[#e7efe9] bg-[#fbfdfa] p-4">
+            <span className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'معاينة:' : 'Preview:'}</span>
+            <span className="rounded-full px-4 py-1.5 text-[11px] font-bold text-white" style={{ background: settings.brand.primary }}>
+              {isArabic ? 'زر أساسي' : 'Primary button'}
+            </span>
+            <span className="rounded-full px-4 py-1.5 text-[11px] font-bold text-white" style={{ background: settings.brand.accent }}>
+              {isArabic ? 'زر ثانوي' : 'Accent button'}
+            </span>
+            <span className="text-sm font-extrabold" style={{ color: settings.brand.ink }}>
+              {isArabic ? 'نص العناوين' : 'Headline text'}
+            </span>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              className="flex min-h-10 items-center gap-1.5 rounded-full bg-[#314f43] px-5 text-xs font-semibold text-white hover:bg-[#436e5d]"
+              onClick={() => onToast(isArabic ? 'تم تطبيق التصميم على الموقع!' : 'Design applied across the site!')}
+              type="button"
+            >
+              <Check className="h-4 w-4" />
+              {isArabic ? 'تثبيت التصميم' : 'Apply Design'}
+            </button>
+            <button
+              className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#d6e3db] bg-white px-5 text-xs font-semibold text-[#3b5949] hover:bg-[#edf5f0]"
+              onClick={() => {
+                setSettings((prev) => ({
+                  ...prev,
+                  brand: { primary: '#314f43', accent: '#4e8e6f', ink: '#21362b', radius: 1.5, fontScale: 1 },
+                }));
+                onToast(isArabic ? 'تمت استعادة الهوية الافتراضية' : 'Default brand restored');
+              }}
+              type="button"
+            >
+              {isArabic ? 'استعادة الافتراضي' : 'Reset to Default'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Site Content — editable copy for every marketing section. */}
+      {activeTab === 'content' && (
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="flex items-center gap-2 text-base font-bold text-[#2f4437]">
+                  <Type className="h-4 w-4 text-[#4e8e6f]" />
+                  {isArabic ? 'نصوص أقسام الموقع' : 'Site Section Copy'}
+                </h2>
+                <p className="text-[10px] text-[#788b80]">
+                  {isArabic
+                    ? 'عدّل عناوين وأوصاف كل قسم بعنوان عربي وإنجليزي — يظهر فوراً على الصفحة الرئيسية.'
+                    : 'Edit each homepage section title and subtitle in both languages — reflected instantly.'}
+                </p>
+              </div>
+              <div className="flex rounded-full border border-[#dfe8e2] bg-[#fbfdfa] p-1">
+                {(['ar', 'en'] as const).map((lng) => (
+                  <button
+                    className={`rounded-full px-3.5 py-1.5 text-[10px] font-bold transition-colors ${
+                      heroLang === lng ? 'bg-[#314f43] text-white' : 'text-[#5e7d6d]'
+                    }`}
+                    key={lng}
+                    onClick={() => setHeroLang(lng)}
+                    type="button"
+                  >
+                    {lng === 'ar' ? 'العربية' : 'English'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {([
+                { key: 'cardsTitle' as const, labelAr: 'عنوان قسم البطاقات', labelEn: 'Cards section title' },
+                { key: 'cardsSubtitle' as const, labelAr: 'وصف قسم البطاقات', labelEn: 'Cards section subtitle' },
+                { key: 'fashionTitle' as const, labelAr: 'عنوان قسم الأزياء', labelEn: 'Fashion section title' },
+                { key: 'fashionSubtitle' as const, labelAr: 'وصف قسم الأزياء', labelEn: 'Fashion section subtitle' },
+                { key: 'servicesTitle' as const, labelAr: 'عنوان قسم الاستوديو', labelEn: 'Studio section title' },
+                { key: 'servicesSubtitle' as const, labelAr: 'وصف قسم الاستوديو', labelEn: 'Studio section subtitle' },
+                { key: 'carsTitle' as const, labelAr: 'عنوان قسم السيارات', labelEn: 'Vehicles section title' },
+                { key: 'carsSubtitle' as const, labelAr: 'وصف قسم السيارات', labelEn: 'Vehicles section subtitle' },
+                { key: 'propertyTitle' as const, labelAr: 'عنوان قسم العقارات', labelEn: 'Real Estate section title' },
+                { key: 'propertySubtitle' as const, labelAr: 'وصف قسم العقارات', labelEn: 'Real Estate section subtitle' },
+                { key: 'ctaTitle' as const, labelAr: 'عنوان دعوة التواصل', labelEn: 'CTA title' },
+                { key: 'ctaText' as const, labelAr: 'نص دعوة التواصل', labelEn: 'CTA text' },
+                { key: 'footerNote' as const, labelAr: 'ملاحظة التذييل', labelEn: 'Footer note' },
+              ]).map(({ key, labelAr, labelEn }) => (
+                <div key={key}>
+                  <label className="text-[10px] text-[#607368]">{isArabic ? labelAr : labelEn}</label>
+                  <input
+                    className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        content: { ...prev.content, [key]: { ...prev.content[key], [heroLang]: e.target.value } },
+                      }))
+                    }
+                    value={settings.content[key][heroLang]}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Hero background image + maintenance notice live here too, since
+                they are site-wide presentation rather than store data. */}
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="text-[10px] text-[#607368]">{isArabic ? 'صورة خلفية الواجهة (اختياري)' : 'Hero background image (optional)'}</label>
+                <input
+                  className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                  onChange={(e) => setSettings((prev) => ({ ...prev, heroImage: e.target.value }))}
+                  placeholder="/images/hero.jpg or https://…"
+                  value={settings.heroImage}
+                />
+              </div>
+              <div>
+                <label className="flex items-center justify-between rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] p-3 text-xs font-semibold text-[#3b5546]">
+                  <span>{isArabic ? 'إظهار شريط الصيانة' : 'Show maintenance banner'}</span>
+                  <input
+                    checked={settings.maintenanceActive}
+                    className="h-4 w-4 accent-[#314f43]"
+                    onChange={(e) => setSettings((prev) => ({ ...prev, maintenanceActive: e.target.checked }))}
+                    type="checkbox"
+                  />
+                </label>
+              </div>
+              <div>
+                <label className="text-[10px] text-[#607368]">{isArabic ? 'نص شريط الصيانة' : 'Maintenance banner text'}</label>
+                <input
+                  className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      maintenanceText: { ...prev.maintenanceText, [heroLang]: e.target.value },
+                    }))
+                  }
+                  value={settings.maintenanceText[heroLang]}
+                />
+              </div>
+            </div>
+
+            <button
+              className="mt-6 flex min-h-10 items-center gap-1.5 rounded-full bg-[#314f43] px-5 text-xs font-semibold text-white hover:bg-[#436e5d]"
+              onClick={() => onToast(isArabic ? 'تم حفظ نصوص الموقع!' : 'Site copy saved!')}
+              type="button"
+            >
+              <Check className="h-4 w-4" />
+              {isArabic ? 'حفظ النصوص' : 'Save Copy'}
+            </button>
           </div>
         </div>
       )}
@@ -1401,7 +2049,7 @@ export function AdminDashboard({
             <div className="mt-4 flex flex-wrap gap-3">
               <button
                 className="flex min-h-10 items-center gap-1.5 rounded-full border border-[#cfe3d8] bg-white px-5 text-xs font-semibold text-[#2f5b45] hover:bg-[#f2faf5]"
-                onClick={handleExportData}
+                onClick={handleExportDataBackup}
                 type="button"
               >
                 <Download className="h-4 w-4" />

@@ -1,27 +1,16 @@
-import { motion, useReducedMotion } from 'framer-motion';
 import {
-  ArrowUpRight,
-  BadgeCheck,
-  Building2,
-  Car,
-  Code2,
-  CreditCard,
-  Shirt,
-  Sparkles,
-  type LucideIcon,
-} from 'lucide-react';
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
+import { ArrowUpRight, BadgeCheck, Layers, Sparkles } from 'lucide-react';
+import { useMemo, useState, type PointerEvent } from 'react';
+import { PORTALS, visiblePortals, type NumberedPortal } from '../data/portals';
 import type { Locale, Route } from '../types';
-
-export type ShowcaseTile = {
-  route: Route;
-  title: Record<Locale, string>;
-  tagline: Record<Locale, string>;
-  meta: Record<Locale, string>;
-  image: string;
-  icon: LucideIcon;
-  /** Stagger weight — larger tiles read as "featured". */
-  span?: 'wide' | 'normal';
-};
 
 type Props = {
   locale: Locale;
@@ -38,82 +27,174 @@ type Props = {
 };
 
 /**
- * Image-driven entry points for every department. Clicking a tile routes
- * straight into its section — the "department board" the brand needed.
+ * A single 3D gateway. Pointer position drives a spring-smoothed tilt so the
+ * tile reads as a physical panel, while the glare highlight follows the cursor.
+ */
+function PortalGate({
+  portal,
+  locale,
+  isArabic,
+  navigate,
+  reduce,
+  delay,
+}: {
+  portal: NumberedPortal;
+  locale: Locale;
+  isArabic: boolean;
+  navigate: (route: Route) => void;
+  reduce: boolean;
+  delay: number;
+}) {
+  const Icon = portal.icon;
+  const wide = portal.span === 'wide';
+
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
+  const sx = useSpring(px, { stiffness: 130, damping: 20 });
+  const sy = useSpring(py, { stiffness: 130, damping: 20 });
+
+  const rotateY = useTransform(sx, [0, 1], [-11, 11]);
+  const rotateX = useTransform(sy, [0, 1], [9, -9]);
+  const glareX = useTransform(sx, [0, 1], ['16%', '84%']);
+  const glareY = useTransform(sy, [0, 1], ['10%', '90%']);
+  // A template keeps the highlight bound to the live springs — reading glareX/Y
+  // directly in `style` would freeze it at its initial position on first render.
+  const glareBackground = useMotionTemplate`radial-gradient(40% 50% at ${glareX} ${glareY}, rgba(255,255,255,.24), transparent 72%)`;
+
+  const handleMove = (event: PointerEvent<HTMLButtonElement>) => {
+    if (reduce || event.pointerType !== 'mouse') return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    px.set((event.clientX - rect.left) / rect.width);
+    py.set((event.clientY - rect.top) / rect.height);
+  };
+
+  const reset = () => {
+    px.set(0.5);
+    py.set(0.5);
+  };
+
+  return (
+    <motion.button
+      aria-label={`${portal.title[locale]} — ${portal.tagline[locale]}`}
+      className="zx-portal group relative w-full text-start shadow-[0_36px_80px_-42px_rgba(6,16,11,.85)]"
+      initial={reduce ? undefined : { opacity: 0, y: 30, scale: 0.97 }}
+      onPointerLeave={reset}
+      onPointerMove={handleMove}
+      onClick={() => navigate(portal.route)}
+      style={{
+        rotateX: reduce ? 0 : rotateX,
+        rotateY: reduce ? 0 : rotateY,
+        transformPerspective: 1100,
+      }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      type="button"
+      viewport={{ once: true, margin: '-70px' }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0, scale: 1 }}
+      whileTap={{ scale: 0.985 }}
+    >
+      {/* Background plate */}
+      <img
+        alt=""
+        aria-hidden="true"
+        className="zx-portal-img absolute inset-0 h-full w-full object-cover"
+        loading="lazy"
+        src={portal.image}
+      />
+
+      {/* Legibility scrim + accent tint on hover */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 bg-linear-to-t from-[#050d09]/96 via-[#050d09]/44 to-[#050d09]/10"
+      />
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+        style={{ background: `radial-gradient(120% 90% at 80% 0%, ${portal.accent}30, transparent 62%)` }}
+      />
+
+      {/* Pointer-tracking glare */}
+      <motion.span
+        aria-hidden="true"
+        className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: glareBackground }}
+      />
+
+      {/* Accent ring on hover */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 rounded-[1.75rem] border border-white/0 transition-colors duration-500 group-hover:border-white/25"
+      />
+
+      {/* Content plate */}
+      <span className="relative flex h-full w-full flex-col justify-between p-5 sm:p-6">
+        <span className="flex items-start justify-between gap-3">
+          <span className="flex items-center gap-2.5">
+            <span
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white backdrop-blur-md"
+              style={{ boxShadow: `0 12px 30px -18px ${portal.accent}` }}
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+            <span className="zx-eyebrow text-white/60">
+              {portal.index} / {String(PORTALS.length).padStart(2, '0')}
+            </span>
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:bg-white/20">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </span>
+
+        <span className="mt-6 block">
+          <span className="zx-eyebrow block" style={{ color: portal.accent }}>
+            {portal.meta[locale]}
+          </span>
+          <span className={`zx-display mt-1.5 block text-white ${wide ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'}`}>
+            {portal.title[locale]}
+          </span>
+          <span className="mt-1.5 block max-w-md text-[11px] leading-5 text-white/72">
+            {portal.tagline[locale]}
+          </span>
+          <span
+            className="mt-3.5 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-[10px] font-bold backdrop-blur-md transition-colors duration-500 group-hover:border-white/35"
+            style={{ color: portal.accent }}
+          >
+            <Sparkles className="h-3 w-3" />
+            {isArabic ? 'ادخل القسم' : 'Enter department'}
+          </span>
+        </span>
+      </span>
+    </motion.button>
+  );
+}
+
+/**
+ * The landing page "department board": five animated 3D gateways, one per
+ * ZEXOR department. Tapping a gateway routes straight into its showroom.
  */
 export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props) {
   const reduce = useReducedMotion();
+  const portals = visiblePortals(visible);
+  const [focused, setFocused] = useState<Route>('cards');
+  const active = portals.find((p) => p.route === focused) ?? portals[0];
 
-  const all: ShowcaseTile[] = [
-    {
-      route: 'cars',
-      title: { en: 'Vehicle Showroom', ar: 'معرض السيارات' },
-      tagline: {
-        en: 'Certified luxury cars with live inspection booking.',
-        ar: 'سيارات فاخرة معتمدة مع حجز معاينة مباشر.',
-      },
-      meta: { en: 'Mercedes · BMW · Porsche', ar: 'مرسيدس · BMW · بورش' },
-      image: '/images/showcase-vehicles.svg',
-      icon: Car,
-      span: 'wide',
-    },
-    {
-      route: 'property',
-      title: { en: 'Real Estate', ar: 'العقارات الفاخرة' },
-      tagline: {
-        en: 'Villas, apartments and land across Egypt & KSA.',
-        ar: 'فيلات وشقق وأراضٍ في مصر والسعودية.',
-      },
-      meta: { en: 'Sale · Rent · Off-plan', ar: 'بيع · إيجار · تحت الإنشاء' },
-      image: '/images/showcase-estate.svg',
-      icon: Building2,
-      span: 'wide',
-    },
-    {
-      route: 'cards',
-      title: { en: 'Smart NFC Cards', ar: 'بطاقات NFC' },
-      tagline: {
-        en: 'Tap-to-share identity with a 3D live customizer.',
-        ar: 'شارك هويتك بلمسة مع مُخصِّص ثلاثي الأبعاد.',
-      },
-      meta: { en: 'Elite · Social · Bespoke', ar: 'إيليت · سوشيال · مخصص' },
-      image: '/images/nfc-card.jpg',
-      icon: CreditCard,
-    },
-    {
-      route: 'fashion',
-      title: { en: 'Atelier Drop', ar: 'أتيليه الأزياء' },
-      tagline: {
-        en: 'Heavyweight streetwear released in limited runs.',
-        ar: 'أزياء ثقيلة بإصدارات محدودة وحصرية.',
-      },
-      meta: { en: 'Limited · 450 GSM', ar: 'إصدار محدود · 450 جرام' },
-      image: '/images/streetwear-hoodie.jpg',
-      icon: Shirt,
-    },
-    {
-      route: 'services',
-      title: { en: 'Digital Studio', ar: 'الاستوديو الرقمي' },
-      tagline: {
-        en: 'Stores, platforms and apps built to convert.',
-        ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',
-      },
-      meta: { en: 'Web · Commerce · Apps', ar: 'مواقع · متاجر · تطبيقات' },
-      image: '/images/digital-studio.jpg',
-      icon: Code2,
-    },
-  ];
+  // A `wide` portal occupies two cells. Pick a column count that the enabled
+  // portals divide into exactly, so the board never renders a ragged empty
+  // cell at the end of a row (the classic "department board looks broken"
+  // symptom when the admin toggles sections on and off).
+  const cells = portals.reduce((sum, p) => sum + (p.span === 'wide' ? 2 : 1), 0);
+  const columns = useMemo(() => {
+    if (portals.length === 0) return 1;
+    for (const candidate of [4, 3, 2]) {
+      // Every row must be filled: the cell count has to divide evenly, and a
+      // single-column board only makes sense when nothing is `wide`.
+      if (cells % candidate === 0 && (candidate > 1 || cells === 1)) return candidate;
+    }
+    return 2;
+  }, [cells, portals.length]);
 
-  const tiles = all.filter((t) => {
-    if (t.route === 'cards') return visible.cards;
-    if (t.route === 'fashion') return visible.fashion;
-    if (t.route === 'cars') return visible.cars;
-    if (t.route === 'property') return visible.property;
-    if (t.route === 'services') return visible.services;
-    return true;
-  });
+  const columnClass = { 1: 'lg:grid-cols-1', 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4' }[columns];
 
-  if (tiles.length === 0) return null;
+  if (portals.length === 0) return null;
 
   return (
     <section className="space-y-6">
@@ -127,82 +208,57 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props)
           </h2>
           <p className="mt-2 max-w-lg text-xs leading-6 text-[#6c7d73]">
             {isArabic
-              ? 'خمسة أقسام متكاملة — اضغط على أي قسم للدخول مباشرة إلى معرضه الكامل.'
-              : 'Five complete departments — tap any card to enter its full showroom.'}
+              ? 'خمس بوابات تفاعلية ثلاثية الأبعاد — المس أي بوابة للدخول مباشرة إلى معرضها الكامل.'
+              : 'Five interactive 3D gateways — tap any portal to enter its full showroom.'}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 py-1.5 text-[10px] font-semibold text-[#5e8b75]">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 py-1.5 text-[10px] font-semibold text-[#5e8b75]">
           <BadgeCheck className="h-3.5 w-3.5" />
           {isArabic ? 'معتمد في مصر والسعودية' : 'Certified in Egypt & KSA'}
         </span>
       </div>
 
-      <div className="grid auto-rows-[14rem] gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {tiles.map((tile, i) => {
-          const Icon = tile.icon;
-          const wide = tile.span === 'wide';
-          return (
-            <motion.button
-              className={`zx-tile group min-h-56 relative border border-white/70 bg-[#16241d] text-start shadow-lg ${
-                wide ? 'sm:col-span-2 lg:row-span-2' : 'sm:col-span-1'
-              }`}
-              initial={reduce ? undefined : { opacity: 0, y: 22 }}
-              key={tile.route}
-              onClick={() => navigate(tile.route)}
-              transition={{ duration: 0.55, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-              type="button"
-              viewport={{ once: true, margin: '-60px' }}
-              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-              whileTap={{ scale: 0.985 }}
-            >
-              <img
-                alt={tile.title[locale]}
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="lazy"
-                src={tile.image}
-              />
-              {/* readability scrim */}
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 bg-linear-to-t from-[#06100b]/94 via-[#06100b]/45 to-[#06100b]/12 transition-opacity duration-500 group-hover:from-[#06100b]/96"
-              />
-              {/* accent ring on hover */}
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 rounded-[1.75rem] border border-transparent transition-colors duration-500 group-hover:border-[#a6e6c4]/55"
-              />
+      {/* Mobile helper: which gateway is under focus right now */}
+      <div className="flex items-center justify-between gap-3 lg:hidden">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#7a8d83]">
+          <Layers className="h-3.5 w-3.5 text-[#5e8b75]" />
+          {isArabic ? 'اضغط على أي بوابة للدخول' : 'Tap any gateway to enter'}
+        </span>
+        <AnimatePresence mode="wait">
+          <motion.span
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-full bg-[#e7f4ed] px-3 py-1 text-[10px] font-bold text-[#2c5341]"
+            exit={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: 6 }}
+            key={active?.route ?? 'none'}
+          >
+            {active?.index} · {active?.title[locale]}
+          </motion.span>
+        </AnimatePresence>
+      </div>
 
-              <span className="relative flex h-full flex-col justify-between p-5 sm:p-6">
-                <span className="flex items-start justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/25 bg-white/12 text-white backdrop-blur-md">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
-                </span>
-
-                <span>
-                  <span className="zx-eyebrow block text-[#a6e6c4]">{tile.meta[locale]}</span>
-                  <span
-                    className={`zx-display mt-1.5 block text-white ${
-                      wide ? 'text-2xl sm:text-3xl' : 'text-xl'
-                    }`}
-                  >
-                    {tile.title[locale]}
-                  </span>
-                  <span className="mt-1.5 block text-[11px] leading-5 text-white/72">
-                    {tile.tagline[locale]}
-                  </span>
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#a6e6c4]">
-                    <Sparkles className="h-3 w-3" />
-                    {isArabic ? 'ادخل القسم' : 'Enter department'}
-                  </span>
-                </span>
-              </span>
-            </motion.button>
-          );
-        })}
+      {/* Five gateways laid out as a balanced board. The column count is
+          derived from how many departments are actually marked `wide` so the
+          board always tiles with no empty cells — whether the admin has all
+          five enabled or just a couple. */}
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 sm:auto-rows-[15rem] ${columnClass}`}>
+        {portals.map((portal, i) => (
+          <div
+            className={`flex min-h-64 ${portal.span === 'wide' ? 'sm:col-span-2' : ''}`}
+            key={portal.route}
+            onFocus={() => setFocused(portal.route)}
+            onPointerEnter={() => setFocused(portal.route)}
+          >
+            <PortalGate
+              delay={i * 0.07}
+              isArabic={isArabic}
+              locale={locale}
+              navigate={navigate}
+              portal={portal}
+              reduce={Boolean(reduce)}
+            />
+          </div>
+        ))}
       </div>
     </section>
   );

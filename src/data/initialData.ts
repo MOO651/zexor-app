@@ -369,6 +369,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     en: 'One house for smart NFC identity, considered streetwear, a full digital studio, and curated vehicles and real estate across Egypt and Saudi Arabia.',
     ar: 'بيت واحد لهوية NFC الذكية، وأزياء مدروسة، واستوديو رقمي متكامل، وسيارات وعقارات مختارة بعناية في مصر والسعودية.',
   },
+  heroImage: '',
   whatsappEg: '201005556553',
   whatsappKsa: '966560410310',
   supportEmail: 'contact@zexor.studio',
@@ -391,5 +392,53 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     calculator: true,
     reviews: true,
     tracking: true,
+  },
+  brand: {
+    primary: '#314f43',
+    accent: '#4e8e6f',
+    ink: '#21362b',
+    radius: 1.5,
+    fontScale: 1,
+  },
+  content: {
+    cardsTitle: { en: 'Interactive Smart NFC Cards', ar: 'بطاقات NFC الذكية والمخصصة' },
+    cardsSubtitle: {
+      en: 'Share your contact details, portfolio and socials with a single tap.',
+      ar: 'شارك ملفك الشخصي أو التجاري بلمسة واحدة دون الحاجة لتطبيق أو أوراق.',
+    },
+    fashionTitle: { en: 'Exclusive Streetwear Releases', ar: 'إصدارات الأزياء الحصرية' },
+    fashionSubtitle: {
+      en: 'Independent drops with high-density cotton and confident silhouettes.',
+      ar: 'أقمشة قطنية ثقيلة وقصّات واسعة مريحة بإصدارات محدودة وحصرية.',
+    },
+    servicesTitle: { en: 'Live Platform Demos & Agency Works', ar: 'معاينة حية للمشاريع والمنصات' },
+    servicesSubtitle: {
+      en: 'Websites, storefronts and product design shipped end to end.',
+      ar: 'مواقع ومتاجر وتصميم منتجات من الفكرة حتى الإطلاق.',
+    },
+    carsTitle: { en: 'Featured Luxury Vehicles', ar: 'سيارات معتمدة مع حجز معاينة' },
+    carsSubtitle: {
+      en: 'Inspected, priced and ready to view in Egypt and Saudi Arabia.',
+      ar: 'سيارات مفحوصة بأسعار واضحة وجاهزة للمعاينة في مصر والسعودية.',
+    },
+    propertyTitle: { en: 'Curated Residential & Commercial Spaces', ar: 'عقارات فاخرة للبيع والإيجار' },
+    propertySubtitle: {
+      en: 'Apartments, villas and land with verified details and viewings.',
+      ar: 'شقق وفيلات وأراضٍ ببيانات موثقة وإمكانية معاينة ميدانية.',
+    },
+    ctaTitle: { en: 'Ready to Elevate Your Brand?', ar: 'جاهز لتحويل فكرتك إلى واقع؟' },
+    ctaText: {
+      en: 'Connect directly with our team over WhatsApp for NFC orders, software development, or bookings.',
+      ar: 'تواصل مباشرة مع استوديو ZEXOR عبر واتساب لمناقشة كروت NFC، تطوير متجرك، أو حجز معاينة.',
+    },
+    footerNote: {
+      en: 'Smart identity, apparel, software and property — one house, two markets.',
+      ar: 'هوية ذكية، أزياء، برمجيات وعقارات — بيت واحد وسوقان.',
+    },
+  },
+  maintenanceActive: false,
+  maintenanceText: {
+    en: 'Scheduled maintenance — orders may take a little longer than usual.',
+    ar: 'صيانة مجدولة — قد تستغرق الطلبات وقتاً أطول قليلاً من المعتاد.',
   },
 };

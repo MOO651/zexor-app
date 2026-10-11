@@ -229,6 +229,135 @@ textarea:focus-visible {
   transform: scale(1.07);
 }
 
+/* ---- 3D interactive gateways (landing-page department portals) ---- */
+.zx-portal {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background: #0d1713;
+  cursor: pointer;
+  isolation: isolate;
+  /* Explicit height so the plate fills the grid cell on every breakpoint. */
+  min-height: 16rem;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.zx-portal-img {
+  transform: scale(1.02);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zx-portal:hover .zx-portal-img,
+.zx-portal:focus-visible .zx-portal-img {
+  transform: scale(1.09);
+}
+
+/* Soft mint halo behind gateways on hover — reads as a lit portal edge. */
+.zx-portal::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(166, 230, 196, 0.55), transparent 45%, rgba(186, 127, 109, 0.4));
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.zx-portal:hover::after,
+.zx-portal:focus-visible::after {
+  opacity: 1;
+}
+
+/* Mobile: tap feedback + native-feeling momentum rails. */
+@media (hover: none) {
+  .zx-portal:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Safe-area aware floating rails so widgets clear the iPhone home bar. */
+.zx-float-rail {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.zx-float-anchor {
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Modern scroll snap for the horizontal option rails on mobile. */
+.zx-snap-x {
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.zx-snap-x > * {
+  scroll-snap-align: start;
+}
+
+/* ---- Motion & polish consistency --------------------------------- */
+
+/* One shared easing + duration so every hover lift on the site matches. */
+:root {
+  --zx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --zx-fast: 180ms;
+  --zx-slow: 500ms;
+}
+
+/* Interactive cards/buttons share the same lift so nothing feels "off". */
+.zx-lift {
+  transition:
+    transform var(--zx-slow) var(--zx-ease),
+    box-shadow var(--zx-slow) var(--zx-ease),
+    border-color var(--zx-slow) var(--zx-ease);
+}
+
+.zx-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* A reliable 1px hairline that matches the token colour in both themes. */
+.zx-hairline {
+  border-color: var(--zx-line);
+}
+
+/* Section shell used by the landing page — consistent rhythm and radius. */
+.zx-section {
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: linear-gradient(160deg, #fbfdfb, #f2f8f4);
+  box-shadow: 0 1px 2px rgba(28, 47, 37, 0.04);
+}
+
+/* Extra-safe tap targets: never smaller than 44px on touch devices. */
+@media (pointer: coarse) {
+  button,
+  [role='button'],
+  a.zx-tap {
+    min-height: 44px;
+  }
+}
+
+/* Tighter, comfortable tap targets on small screens. */
+@media (max-width: 640px) {
+  .zx-portal {
+    min-height: 15rem;
+  }
+
+  .zx-eyebrow {
+    letter-spacing: 0.2em;
+  }
+}
+
 /* Content-visibility: skip rendering of offscreen sections (perf).
    The intrinsic size is a *placeholder* used before a section is measured, so it
    is deliberately modest — an oversized value reserves blank space on the page. */
