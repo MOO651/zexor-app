@@ -382,6 +382,18 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني لكل المحافظات',
   },
   announcementActive: true,
+  discountBanner: {
+    active: false,
+    percent: 0,
+    text: {
+      en: 'Seasonal offer — limited time only',
+      ar: 'عرض الموسم — لفترة محدودة فقط',
+    },
+  },
+  freeShippingThreshold: { eg: 2000, ksa: 300 },
+  taxRate: 0,
+  codEnabled: true,
+  autoPromoCode: '',
   sectionVisibility: {
     cards: true,
     fashion: true,

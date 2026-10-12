@@ -14,6 +14,7 @@ import {
   LogOut,
   Palette,
   Pencil,
+  Percent,
   Plus,
   Search,
   Send,
@@ -93,6 +94,7 @@ export function AdminDashboard({
     | 'orders'
     | 'inbox'
     | 'promos'
+    | 'sales'
     | 'design'
     | 'content'
     | 'settings'
@@ -131,6 +133,13 @@ export function AdminDashboard({
   const [prodOldPriceEg, setProdOldPriceEg] = useState('');
   const [prodOldPriceKsa, setProdOldPriceKsa] = useState('');
   const [prodImageUrl, setProdImageUrl] = useState('');
+  // Extra merchandising fields added for Salla-style product management.
+  const [prodSku, setProdSku] = useState('');
+  const [prodBrand, setProdBrand] = useState('');
+  const [prodBadge, setProdBadge] = useState('');
+  const [prodVariants, setProdVariants] = useState('');
+  const [prodFeatured, setProdFeatured] = useState(false);
+  const [prodAvailable, setProdAvailable] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Add / Edit Car Modal State — every field is editable and bilingual so the
@@ -240,8 +249,16 @@ export function AdminDashboard({
       oldPrice: oldEg || oldKsa ? { eg: oldEg ?? egPrice, ksa: oldKsa ?? ksaPrice } : undefined,
       icon: 'sparkles',
       finish: 'pearl',
-      available: true,
+      available: prodAvailable,
       imageUrl: prodImageUrl || art.cardsElite,
+      sku: prodSku.trim() || undefined,
+      brand: prodBrand.trim() || undefined,
+      badge: prodBadge.trim() || undefined,
+      featured: prodFeatured,
+      variants: prodVariants
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean),
     };
 
     if (editingProductId) {
@@ -268,6 +285,12 @@ export function AdminDashboard({
     setProdOldPriceEg(prod.oldPrice ? String(prod.oldPrice.eg) : '');
     setProdOldPriceKsa(prod.oldPrice ? String(prod.oldPrice.ksa) : '');
     setProdImageUrl(prod.imageUrl ?? '');
+    setProdSku(prod.sku ?? '');
+    setProdBrand(prod.brand ?? '');
+    setProdBadge(prod.badge ?? '');
+    setProdVariants((prod.variants ?? []).join(', '));
+    setProdFeatured(Boolean(prod.featured));
+    setProdAvailable(prod.available);
     setShowProductModal(true);
   };
 
@@ -585,6 +608,7 @@ export function AdminDashboard({
           { id: 'orders', label: isArabic ? `الطلبات الواردة (${pendingOrdersCount})` : `Orders (${pendingOrdersCount})`, icon: Clock },
           { id: 'inbox', label: isArabic ? `الاستفسارات (${openInquiriesCount})` : `Inquiries (${openInquiriesCount})`, icon: Inbox },
           { id: 'promos', label: isArabic ? 'أكواد الخصم' : 'Promo Codes', icon: Tag },
+          { id: 'sales', label: isArabic ? 'العروض والكوبونات' : 'Sale & Coupons', icon: Percent },
           { id: 'design', label: isArabic ? 'التصميم والهوية' : 'Design & Brand', icon: Palette },
           { id: 'content', label: isArabic ? 'نصوص الموقع' : 'Site Content', icon: Type },
           { id: 'settings', label: isArabic ? 'إعدادات الواجهة وتليجرام' : 'Hero & Telegram Settings', icon: Settings },
@@ -777,6 +801,12 @@ export function AdminDashboard({
                 setProdOldPriceEg('');
                 setProdOldPriceKsa('');
                 setProdImageUrl('');
+                setProdSku('');
+                setProdBrand('');
+                setProdBadge('');
+                setProdVariants('');
+                setProdFeatured(false);
+                setProdAvailable(true);
                 setShowProductModal(true);
               }}
               type="button"
@@ -818,11 +848,26 @@ export function AdminDashboard({
                     <h4 className="text-xs font-bold text-[#2c3f34]">
                       {prod.name.ar} · {prod.name.en}
                     </h4>
-                    <p className="mt-0.5 text-[10px] text-[#426b56]">
-                      {prod.price.eg} ج.م / {prod.price.ksa} ر.س
+                    <p className="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-[#426b56]">
+                      <span>
+                        {prod.price.eg} ج.م / {prod.price.ksa} ر.س
+                      </span>
                       {prod.oldPrice && (
-                        <span className="ms-2 text-[#99a79f] line-through">
+                        <span className="text-[#99a79f] line-through">
                           {prod.oldPrice.eg} ج.م
+                        </span>
+                      )}
+                      {prod.sku && (
+                        <span className="font-mono text-[9px] text-[#8a9a90]">{prod.sku}</span>
+                      )}
+                      {prod.brand && (
+                        <span className="rounded-full bg-[#eef5f0] px-2 py-0.5 text-[9px] font-semibold text-[#3f6c56]">
+                          {prod.brand}
+                        </span>
+                      )}
+                      {prod.featured && (
+                        <span className="rounded-full bg-[#fdf3dd] px-2 py-0.5 text-[9px] font-semibold text-[#9a7628]">
+                          ★ {isArabic ? 'مميز' : 'Featured'}
                         </span>
                       )}
                     </p>
@@ -980,6 +1025,65 @@ export function AdminDashboard({
                       type="number"
                       value={prodOldPriceKsa}
                     />
+                  </div>
+
+                  {/* Merchandising fields: SKU, brand label, promo badge,
+                      size variants and featured/availability flags. */}
+                  <div>
+                    <label className="text-[10px] text-[#607368]">{isArabic ? 'كود المنتج (SKU)' : 'SKU / Product Code'}</label>
+                    <input
+                      className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                      onChange={(e) => setProdSku(e.target.value)}
+                      placeholder="ZX-CARD-001"
+                      value={prodSku}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#607368]">{isArabic ? 'الماركة / البراند' : 'Brand'}</label>
+                    <input
+                      className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                      onChange={(e) => setProdBrand(e.target.value)}
+                      placeholder={isArabic ? 'مثال: ZEXOR Studio' : 'e.g. ZEXOR Studio'}
+                      value={prodBrand}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#607368]">{isArabic ? 'شارة ترويجية (Badge)' : 'Promo Badge'}</label>
+                    <input
+                      className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                      onChange={(e) => setProdBadge(e.target.value)}
+                      placeholder={isArabic ? 'جديد / إصدار محدود' : 'New / Limited'}
+                      value={prodBadge}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#607368]">{isArabic ? 'المقاسات / الخيارات (افصل بفاصلة)' : 'Variants (comma separated)'}</label>
+                    <input
+                      className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
+                      onChange={(e) => setProdVariants(e.target.value)}
+                      placeholder="S, M, L, XL"
+                      value={prodVariants}
+                    />
+                  </div>
+                  <div className="flex items-center gap-4 sm:col-span-2">
+                    <label className="flex flex-1 items-center justify-between rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] p-3 text-xs font-semibold text-[#3b5546]">
+                      <span>{isArabic ? 'منتج مميز (يظهر في المقدمة)' : 'Featured product'}</span>
+                      <input
+                        checked={prodFeatured}
+                        className="h-4 w-4 accent-[#314f43]"
+                        onChange={(e) => setProdFeatured(e.target.checked)}
+                        type="checkbox"
+                      />
+                    </label>
+                    <label className="flex flex-1 items-center justify-between rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] p-3 text-xs font-semibold text-[#3b5546]">
+                      <span>{isArabic ? 'متوفر للبيع' : 'Available for sale'}</span>
+                      <input
+                        checked={prodAvailable}
+                        className="h-4 w-4 accent-[#314f43]"
+                        onChange={(e) => setProdAvailable(e.target.checked)}
+                        type="checkbox"
+                      />
+                    </label>
                   </div>
                 </div>
 

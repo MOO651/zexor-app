@@ -77,6 +77,12 @@ serve `dist`.
 - Live order tracking, FAQ, newsletter capture, and an animated luxury hero.
 - Admin studio: products, categories, vehicles, properties, orders, promo codes,
   hero/announcement copy, section visibility, day/night theme, JSON backup.
+- Admin design studio: live brand colours (primary / accent / ink), corner radius,
+  and global font scale, applied instantly as CSS variables.
+- Admin content studio: bilingual copy for all eight home departments (cards,
+  fashion, studio, vehicles, real estate, CTA, footer) plus hero and maintenance text.
+- Admin automation: Telegram bot notifications on new orders/inquiries, with a
+  one-tap test message, and full data export / import / reset controls.
 - Route-level code splitting so the home page ships a small initial bundle.
 - Locally hosted fonts and imagery — no third-party asset requests.
 

@@ -37,6 +37,14 @@ export type Product = {
   available: boolean;
   imageUrl?: string;
   variants?: string[];
+  /** Optional merchant SKU / internal code shown in the admin table. */
+  sku?: string;
+  /** Brand or label shown as a badge on the product card. */
+  brand?: string;
+  /** Free-text promo badge (e.g. "New", "Limited") editable from the admin. */
+  badge?: string;
+  /** Pins the product to the top of its category / home showcase. */
+  featured?: boolean;
 };
 
 export type OrderItem = {
@@ -184,6 +192,20 @@ export type SiteSettings = {
   telegramChatId: string;
   announcementText: Record<Locale, string>;
   announcementActive: boolean;
+  /** Percentage discount applied to the whole catalogue while active. */
+  discountBanner: {
+    active: boolean;
+    percent: number;
+    text: Record<Locale, string>;
+  };
+  /** Order subtotal above which shipping is free (per market, in local currency). */
+  freeShippingThreshold: Record<Market, number>;
+  /** Global tax / VAT percentage added at checkout. */
+  taxRate: number;
+  /** Enables Cash on Delivery as a payment option. */
+  codEnabled: boolean;
+  /** Coupon code applied site-wide automatically when set. */
+  autoPromoCode: string;
   sectionVisibility: {
     cards: boolean;
     fashion: boolean;

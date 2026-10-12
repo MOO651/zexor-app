@@ -291,13 +291,15 @@ export default function App() {
 
   useEffect(() => {
     let warned = false;
+    let active = true;
     onStorageWriteError = (failed) => {
-      if (failed && !warned) {
+      if (failed && !warned && active) {
         warned = true;
         setToast(storageWarning);
       }
     };
     return () => {
+      active = false;
       onStorageWriteError = null;
     };
   }, [storageWarning]);
@@ -369,8 +371,10 @@ export default function App() {
         (line) => line.productId === product.id && line.variant === variant && !line.nfcCustomization,
       );
       if (existing && !customization) {
+        // Bump only the line we actually matched. A bare productId comparison
+        // would also increment other variants of the same product.
         return current.map((line) =>
-          line.productId === product.id ? { ...line, quantity: line.quantity + 1 } : line,
+          line === existing ? { ...line, quantity: line.quantity + 1 } : line,
         );
       }
       return [
