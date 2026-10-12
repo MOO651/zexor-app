@@ -395,9 +395,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     tracking: true,
   },
   brand: {
-    primary: '#314f43',
-    accent: '#4e8e6f',
-    ink: '#21362b',
+    primary: '#1f6b52',
+    accent: '#77cdb5',
+    ink: '#14241d',
     radius: 1.5,
     fontScale: 1,
   },

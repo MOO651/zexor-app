@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 @import "@fontsource-variable/manrope/wght.css";
 @import "@fontsource-variable/alexandria/wght.css";
 @import "@fontsource-variable/playfair-display/wght.css";
@@ -50,7 +51,7 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--zx-paper);
+  background-color: var(--c-bg);
 }
 
 /* ---- Utilities used across the marketing surfaces ---------------- */
