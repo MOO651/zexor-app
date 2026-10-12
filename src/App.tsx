@@ -1,3 +1,4 @@
+import CardView from './components/CardView';
 import {
   AnimatePresence,
   motion,
@@ -227,6 +228,11 @@ function LogoMark({ compact = false }: { compact?: boolean }) {
 }
 
 export default function App() {
+  // 👇 التحقق السريع من الـ Hash لعرض الكارت فوراً من Supabase
+  if (window.location.hash.startsWith('#card/')) {
+    return <CardView />;
+  }
+
   const [locale, setLocale] = useState<Locale>(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE.locale);

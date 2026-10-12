@@ -9,6 +9,8 @@ interface ImportMetaEnv {
    * Optional: `src/App.tsx` falls back to a local demo password when unset.
    */
   readonly VITE_ADMIN_PASSWORD?: string;
+  readonly VITE_SUPABASE_URL?: string;
+  readonly VITE_SUPABASE_ANON_KEY?: string;
 }
 
 interface ImportMeta {
