@@ -1,4 +1,3 @@
-import CardView from './components/CardView';
 import {
   AnimatePresence,
   motion,
@@ -228,10 +227,10 @@ function LogoMark({ compact = false }: { compact?: boolean }) {
 }
 
 export default function App() {
-  // 👇 التحقق السريع من الـ Hash لعرض الكارت فوراً من Supabase
-  if (window.location.hash.startsWith('#card/')) {
-    return <CardView />;
-  }
+  // 👇 التحقق السريع من الـ Hash لعرض الكارت فوراً من Supabase.
+  // ملاحظة: هذا الفحص كان موضوعاً قبل الـ hooks (return مبكر) مما يخلّ بقواعد
+  // الـ Hooks ويهدم الشجرة عند التنقل — لذا أُزيل من هنا ونُقل إلى نقطة الدخول
+  // في `main.tsx` التي تعرض CardView مباشرةً عند فتح رابط #card/<id>.
 
   const [locale, setLocale] = useState<Locale>(() => {
     try {
