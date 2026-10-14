@@ -79,41 +79,15 @@ I would like to discuss next steps.`;
   };
 
   const handleDownloadProfile = () => {
-    // Generate text/PDF format profile download
-    const profileContent = `
-==================================================
-           ZEXOR DIGITAL STUDIO & FASHION
-     Design · Technology · Regional Innovation
-==================================================
-
-Cairo, Egypt: +20 100 555 6553
-Riyadh, Saudi Arabia: +966 56 041 0310
-Website: https://zexor.studio
-TikTok: @zexor.digtal.studio
-
-1. OVERVIEW:
-ZEXOR delivers bespoke web applications, high-converting e-commerce experiences, and smart NFC connected hardware for top-tier brands and ambitious founders across the MENA region.
-
-2. CORE SERVICES:
-• Brand Strategy & High-End Editorial Web Platforms
-• Full-Featured E-Commerce Engines (Stripe, Apple Pay, Mada, WhatsApp CRM)
-• Custom Web Applications & Enterprise Dashboards
-• Interactive Smart NFC Identity Passes & Digital Profiles
-
-3. TECH STACK:
-React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
-
-4. GUARANTEE:
-100% responsive, high-speed Lighthouse score > 95, bespoke code with zero generic templates.
-
-© 2026 ZEXOR Studio. All rights reserved.
-    `.trim();
+    const profileContent = isArabic
+      ? `استوديو ZEXOR الرقمي\nتصميم وتطوير حلول رقمية للشركات ورواد الأعمال.\n\nخدماتنا\n• تصميم وتطوير المواقع التعريفية.\n• إنشاء المتاجر الإلكترونية.\n• تطوير تطبيقات الويب والأنظمة المخصصة.\n• تحسين تجربة الاستخدام ودعم الإطلاق.\n\nنبدأ بفهم احتياج المشروع، ثم نحدد النطاق والمدة والتكلفة قبل التنفيذ.\nللتواصل، استخدم وسائل التواصل الموجودة على موقعنا.`
+      : `ZEXOR DIGITAL STUDIO\nDigital design and development for businesses and founders.\n\nOUR SERVICES\n• Company and brand websites.\n• E-commerce stores.\n• Custom web applications and internal tools.\n• User experience and launch support.\n\nWe start by understanding the brief, then agree on scope, timing and cost before development.\nContact us through the channels listed on our website.`;
 
     const blob = new Blob([profileContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'ZEXOR-Studio-Company-Profile-2026.txt';
+    link.download = isArabic ? 'نبذة-استوديو-ZEXOR.txt' : 'ZEXOR-Studio-Profile.txt';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -135,10 +109,10 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
   ];
 
   return (
-    <div className="space-y-16">
+    <div className="zx-agency-page space-y-12">
       {/* 1. Header & Live Stats Counter */}
-      <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#d9f2e9] via-[#faf8f2] to-[#ecdff4] p-6 shadow-xl sm:p-10">
-        <div className="relative z-10 max-w-3xl">
+      <section className="zx-agency-hero relative overflow-hidden rounded-4xl border p-6 sm:p-10 lg:p-12">
+        <div className="zx-agency-intro relative z-10 max-w-3xl">
           <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
             <Code2 className="h-4 w-4" />
             ZEXOR / PORTFOLIO & DIGITAL AGENCY
@@ -148,8 +122,8 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
             {isArabic
-              ? 'نطور مواقع وتطبيقات ومتاجر إلكترونية استثنائية تجمع بين الفخامة البصرية والأداء التقني الصاروخي لخدمة رواد الأعمال والشركات في مصر والسعودية.'
-              : 'We architect distinct web experiences, high-converting stores, and bespoke applications engineered with world-class frontend precision.'}
+            ? 'نصمّم ونطوّر مواقع ومتاجر وتطبيقات تساعد مشروعك على الظهور والعمل بكفاءة. من الفكرة إلى الإطلاق، بخطوات واضحة تناسب احتياجك.'
+              : 'We design and build websites, online stores and apps around your business needs, guiding each project from its first brief to launch.'}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -159,7 +133,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
               type="button"
             >
               <Download className="h-4 w-4" />
-              {isArabic ? 'تحميل ملف أعمال الوكالة (Company Profile)' : 'Download Agency Profile / CV'}
+              {isArabic ? 'تحميل نبذة عن الاستوديو' : 'Download studio profile'}
             </button>
             {downloadSuccess && (
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#3b7355]">
@@ -171,7 +145,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
         </div>
 
         {/* Live Animated Stats Counter */}
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="zx-agency-stats mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {STATS.map((s) => (
             <div
               className="rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur-md"
@@ -185,7 +159,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
       </section>
 
       {/* 2. Live Demo Portfolio Section */}
-      <section>
+      <section className="zx-agency-projects">
         <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
             <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
@@ -200,7 +174,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {AGENCY_PROJECTS.map((proj) => (
             <motion.article
               className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white/85 shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
@@ -218,7 +192,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
                   {proj.category[locale]}
                 </span>
               </div>
-              <div className="flex min-h-[250px] flex-col p-4 sm:p-5">
+              <div className="zx-agency-project-copy flex min-h-[250px] flex-col p-4 sm:p-5">
                 <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
                 <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6d7e74]">{proj.description[locale]}</p>
 
@@ -252,7 +226,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
       </section>
 
       {/* 3. Interactive Cost Calculator */}
-      <section className="rounded-3xl border border-white bg-linear-to-br from-[#f8faf8] to-[#edf4f0] p-6 shadow-lg sm:p-8">
+      <section className="zx-agency-calculator rounded-3xl border p-5 sm:p-8">
         <div className="max-w-2xl">
           <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#5e8f77]">
             <Sparkles className="h-3.5 w-3.5" />
@@ -369,7 +343,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
           </div>
 
           {/* Calculator Output Card */}
-          <div className="flex flex-col justify-between rounded-2xl border border-white bg-white p-6 shadow-md">
+          <div className="zx-agency-estimate flex flex-col justify-between rounded-2xl border p-6">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-[#7e9989]">
                 {isArabic ? 'ملخص التقدير الفوري' : 'Instant Cost Breakdown'}
@@ -422,7 +396,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
       </section>
 
       {/* 4. Pricing Tables */}
-      <section>
+      <section className="zx-agency-pricing">
         <div className="mb-6 text-center">
           <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
             {isArabic ? 'باقات البرمجة والتطوير' : 'Transparent Pricing Packages'}
@@ -432,7 +406,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
           </h2>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {[
             {
               id: 'starter',
@@ -471,7 +445,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
             const Icon = tier.icon;
             return (
               <div
-                className={`relative flex flex-col justify-between rounded-3xl border p-6 shadow-md transition-all ${
+                className={`zx-agency-tier relative flex flex-col justify-between rounded-3xl border p-6 transition-all ${
                   tier.popular
                     ? 'border-[#3f6753] bg-linear-to-b from-white via-[#f3f9f5] to-white shadow-xl ring-2 ring-[#4d7d65]/20'
                     : 'border-white bg-white/80'
@@ -526,7 +500,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
       </section>
 
       {/* 6. Tech Stack Badges */}
-      <section className="rounded-3xl border border-[#e4ece6] bg-white/70 p-6 text-center">
+      <section className="zx-agency-toolkit rounded-3xl border p-6 text-center">
         <span className="text-[9px] font-bold uppercase tracking-widest text-[#729381]">
           {isArabic ? 'التقنيات والأدوات المستخدمة' : 'Our Engineering Toolkit'}
         </span>

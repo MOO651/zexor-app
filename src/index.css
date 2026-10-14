@@ -800,6 +800,253 @@ html:lang(ar) .zx-hero-title {
   box-shadow: 0 22px 42px -32px rgba(20, 33, 25, 0.48);
 }
 
+/* The digital studio uses the same retail system, with a clearer reading
+   order for its work, calculator and service plans. */
+.zx-agency-page {
+  --zx-agency-line: #e3e6de;
+  --zx-agency-muted: #69766d;
+}
+
+.zx-agency-page > * + * {
+  margin-block-start: 3rem !important;
+}
+
+.zx-agency-hero {
+  border-color: #e2e3da;
+  border-radius: 1.25rem;
+  background: #f1eee6;
+  box-shadow: 0 20px 50px -40px rgba(22, 37, 28, 0.42);
+}
+
+.zx-agency-intro > p:first-child {
+  color: #567361;
+  letter-spacing: 0.14em;
+}
+
+.zx-agency-intro h1 {
+  color: #1e3025;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.zx-agency-intro > p:not(:first-child) {
+  max-width: 42rem;
+  color: #5e6a61;
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.zx-agency-hero button {
+  min-height: 2.8rem;
+  border-radius: 0.65rem;
+  background: #294538;
+  box-shadow: none;
+}
+
+.zx-agency-stats > div {
+  border-color: rgba(255, 255, 255, 0.42);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+}
+
+.zx-agency-page section > div:first-child h2,
+.zx-agency-page section > div:first-child h3 {
+  color: #23382c;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.zx-agency-page section > div:first-child span {
+  color: #64826f;
+}
+
+.zx-agency-projects .zx-showcase-card {
+  height: 100%;
+  border-color: var(--zx-agency-line);
+  border-radius: 1rem;
+  background: #fffefa;
+  box-shadow: 0 12px 30px -26px rgba(22, 37, 28, 0.52);
+}
+
+.zx-agency-projects .zx-showcase-card > div:first-child {
+  aspect-ratio: 1.7 / 1;
+  background: #ecece5;
+}
+
+.zx-agency-project-copy {
+  min-height: 16rem;
+  padding: 1.25rem;
+}
+
+.zx-agency-project-copy h3 {
+  font-size: 0.95rem;
+  color: #263b2e;
+}
+
+.zx-agency-project-copy > p {
+  color: var(--zx-agency-muted);
+  font-size: 0.75rem;
+  line-height: 1.75;
+}
+
+.zx-agency-project-copy a {
+  min-height: 2.75rem;
+  border-radius: 0.65rem;
+}
+
+.zx-agency-calculator {
+  border-color: var(--zx-agency-line);
+  border-radius: 1.15rem;
+  background: #f3f2eb;
+  box-shadow: none;
+}
+
+.zx-agency-estimate {
+  border-color: #344b3e;
+  border-radius: 0.95rem;
+  background: #233b30;
+  color: #f5f2e9;
+  box-shadow: none;
+}
+
+.zx-agency-estimate :is(p, span) {
+  color: inherit;
+}
+
+.zx-agency-estimate p:first-of-type {
+  color: #e4c7a7;
+}
+
+.zx-agency-estimate button {
+  border-radius: 0.65rem;
+  background: #d9e5d8;
+  color: #20382c;
+  box-shadow: none;
+}
+
+.zx-agency-tier {
+  min-height: 100%;
+  border-color: var(--zx-agency-line);
+  border-radius: 1rem;
+  background: #fffefa;
+  box-shadow: 0 12px 30px -26px rgba(22, 37, 28, 0.5);
+}
+
+.zx-agency-tier[class*="ring-2"] {
+  border-color: #557763;
+  background: #f3f4ed;
+  box-shadow: 0 18px 34px -28px rgba(29, 56, 40, 0.52);
+}
+
+.zx-agency-tier > button {
+  min-height: 2.8rem;
+  border-radius: 0.65rem;
+  box-shadow: none;
+}
+
+.zx-agency-toolkit {
+  border-color: var(--zx-agency-line);
+  border-radius: 1rem;
+  background: #f4f3ed;
+}
+
+.zx-agency-toolkit > div > div {
+  border-color: #e1e4dc;
+  border-radius: 0.7rem;
+  background: #fffefa;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .zx-agency-page {
+  --zx-agency-line: rgba(216, 230, 219, 0.12);
+  --zx-agency-muted: #b1beb4;
+}
+
+[data-theme="dark"] .zx-agency-hero,
+[data-theme="dark"] .zx-agency-calculator,
+[data-theme="dark"] .zx-agency-toolkit {
+  border-color: var(--zx-agency-line);
+  background: #18241d;
+}
+
+[data-theme="dark"] .zx-agency-intro h1,
+[data-theme="dark"] .zx-agency-page section > div:first-child h2,
+[data-theme="dark"] .zx-agency-page section > div:first-child h3 {
+  color: #edf1e8;
+}
+
+[data-theme="dark"] .zx-agency-intro > p:not(:first-child) {
+  color: #b1beb4;
+}
+
+[data-theme="dark"] .zx-agency-projects .zx-showcase-card,
+[data-theme="dark"] .zx-agency-tier,
+[data-theme="dark"] .zx-agency-toolkit > div > div {
+  border-color: var(--zx-agency-line);
+  background: #202e26;
+}
+
+[data-theme="dark"] .zx-agency-stats > div {
+  border-color: var(--zx-agency-line);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+[data-theme="dark"] .zx-agency-stats p:first-child {
+  color: #e2c5a2;
+}
+
+[data-theme="dark"] .zx-agency-stats p:last-child,
+[data-theme="dark"] .zx-agency-tier li,
+[data-theme="dark"] .zx-agency-project-copy > div span {
+  color: #b4c1b7;
+}
+
+[data-theme="dark"] .zx-agency-calculator form > div:first-child label,
+[data-theme="dark"] .zx-agency-calculator select {
+  border-color: var(--zx-agency-line);
+  background-color: #202e26;
+  color: #dce5dc;
+}
+
+[data-theme="dark"] .zx-agency-tier[class*="ring-2"] {
+  background: #26382d;
+}
+
+[data-theme="dark"] .zx-agency-estimate {
+  border-color: rgba(223, 235, 224, 0.12);
+  background: #101b15;
+}
+
+@media (max-width: 640px) {
+  .zx-agency-page {
+    --zx-agency-line: #e3e6de;
+  }
+
+  .zx-agency-page > * + * {
+    margin-block-start: 2.25rem !important;
+  }
+
+  .zx-agency-hero {
+    padding: 1.25rem;
+  }
+
+  .zx-agency-project-copy {
+    min-height: 0;
+  }
+
+  .zx-agency-calculator {
+    padding: 1.25rem;
+  }
+
+  .zx-agency-calculator form > div:first-child > div:nth-child(1) > div {
+    grid-template-columns: 1fr;
+  }
+}
+
 .zx-home-flow .zx-product-price {
   border-color: #eeece5;
 }
