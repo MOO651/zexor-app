@@ -601,13 +601,27 @@ export default function App() {
   useEffect(() => {
     if (!storeContentLoaded || !adminAuthenticated) return;
     const timer = window.setTimeout(() => {
-      void Promise.all([
-        saveStoreContent('products', products),
-        saveStoreContent('categories', categories),
-        saveStoreContent('vehicles', vehicles),
-        saveStoreContent('properties', properties),
-        saveStoreContent('promo_codes', promoCodes),
-      ]).then((results) => reportCloudSave('content', results.every(Boolean), isArabic ? 'بيانات المتجر' : 'store data'));
+      const documents: [StoreContentKey, unknown, string, string][] = [
+        ['products', products, 'المنتجات', 'products'],
+        ['categories', categories, 'الأقسام', 'categories'],
+        ['vehicles', vehicles, 'السيارات', 'vehicles'],
+        ['properties', properties, 'العقارات', 'properties'],
+        ['promo_codes', promoCodes, 'أكواد الخصم', 'promo codes'],
+      ];
+      void Promise.all(documents.map(async ([key, value, labelAr, labelEn]) => ({
+        key,
+        label: isArabic ? labelAr : labelEn,
+        saved: await saveStoreContent(key, value),
+      }))).then((results) => {
+        const failed = results.filter((result) => !result.saved);
+        if (failed.length) {
+          console.error('ZEXOR store content sync failed:', failed.map(({ key }) => key));
+        }
+        const label = failed.length
+          ? failed.map(({ label: item }) => item).join(isArabic ? '، ' : ', ')
+          : isArabic ? 'بيانات المتجر' : 'store data';
+        reportCloudSave('content', failed.length === 0, label);
+      });
     }, 350);
     return () => window.clearTimeout(timer);
   }, [products, categories, vehicles, properties, promoCodes, storeContentLoaded, adminAuthenticated, isArabic, reportCloudSave]);

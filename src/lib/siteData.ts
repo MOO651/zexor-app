@@ -58,14 +58,27 @@ export async function saveStoreContent(key: StoreContentKey, value: unknown): Pr
   try {
     if (key === 'products') {
       const { data, error } = await supabase.rpc('admin_save_products', { product_payload: value });
-      return !error && data === true;
+      if (error) {
+        console.error(`Supabase rejected store content document "${key}":`, error.message, error.code);
+        return false;
+      }
+      if (data !== true) {
+        console.error(`Supabase rejected store content document "${key}": admin_save_products returned`, data);
+        return false;
+      }
+      return true;
     }
     const { error } = await supabase.from('store_content').upsert(
       { key, value, updated_at: new Date().toISOString() },
       { onConflict: 'key' },
     );
-    return !error;
-  } catch {
+    if (error) {
+      console.error(`Supabase rejected store content document "${key}":`, error.message, error.code);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(`Could not save store content document "${key}":`, error);
     return false;
   }
 }
