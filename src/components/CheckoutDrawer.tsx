@@ -11,6 +11,10 @@ import {
 } from 'lucide-react';
 import { SHIPPING_RATES } from '../data/initialData';
 import type { CartLine, CustomerOrder, Locale, Market, Product, PromoCode, SiteSettings } from '../types';
+import type { PaymentMethod } from '../lib/siteData';
+import { publicAssetUrl } from '../utils';
+
+const hasExpiredPromo = (promo: PromoCode) => Date.parse(`${promo.expiresAt}T23:59:59.999`) < Date.now();
 
 type Props = {
   open: boolean;
@@ -19,11 +23,12 @@ type Props = {
   products: Product[];
   locale: Locale;
   market: Market;
+  paymentMethods: PaymentMethod[];
   promoCodes: PromoCode[];
   settings: SiteSettings;
-  onQuantityChange: (productId: string, delta: number) => void;
-  onRemoveItem: (productId: string) => void;
-  onOrderComplete: (order: CustomerOrder) => void;
+  onQuantityChange: (line: CartLine, delta: number) => void;
+  onRemoveItem: (line: CartLine) => void;
+  onOrderComplete: (order: CustomerOrder) => Promise<boolean | { accepted: boolean; paymentUrl?: string }>;
   onToast: (msg: string) => void;
 };
 
@@ -34,6 +39,7 @@ export function CheckoutDrawer({
   products,
   locale,
   market,
+  paymentMethods,
   promoCodes,
   settings,
   onQuantityChange,
@@ -52,12 +58,62 @@ export function CheckoutDrawer({
   const [step, setStep] = useState<'cart' | 'checkout'>('cart');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [selectedCity, setSelectedCity] = useState(market === 'eg' ? 'Cairo' : 'Riyadh');
-  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'card' | 'apple_pay' | 'mada' | 'cod'>('whatsapp');
+  const [paymentMethodId, setPaymentMethodId] = useState('');
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetCheckout = () => {
+    setStep('cart');
+    setCustomerName('');
+    setCustomerPhone('');
+    setCustomerEmail('');
+    setSelectedCity(market === 'eg' ? 'Cairo' : 'Riyadh');
+    setPaymentMethodId('');
+    setPromoCodeInput('');
+    setAppliedPromo(null);
+    setIsSubmitting(false);
+  };
+  const handleClose = () => {
+    if (isSubmitting) return;
+    resetCheckout();
+    onClose();
+  };
 
   if (!open) return null;
+
+  const configuredPaymentMethods = paymentMethods.filter((method) =>
+    method.market === market && method.active && ((settings.codEnabledByMarket?.[market] ?? settings.codEnabled) || method.method !== 'cash'),
+  );
+  const marketPaymentMethods: PaymentMethod[] = configuredPaymentMethods.length ? configuredPaymentMethods : [{
+    id: `fallback-whatsapp-${market}`,
+    market,
+    method: 'whatsapp',
+    label: isArabic ? 'التأكيد عبر واتساب' : 'Confirm via WhatsApp',
+    accountName: '',
+    accountNumber: '',
+    instructions: { ar: '', en: '' },
+    active: true,
+    sortOrder: 0,
+  }];
+  const selectedPaymentMethod = marketPaymentMethods.find((method) => method.id === paymentMethodId);
+  const marketCities = market === 'eg'
+    ? ['Cairo', 'Giza', 'Alexandria', 'Delta Cities', 'Upper Egypt']
+    : ['Riyadh', 'Jeddah', 'Dammam', 'Other KSA'];
+  const effectiveCity = marketCities.includes(selectedCity)
+    ? selectedCity
+    : market === 'eg' ? 'Cairo' : 'Riyadh';
+
+  const isUsablePromo = (promo: PromoCode | undefined | null): promo is PromoCode => {
+    if (!promo || !promo.active || !Number.isFinite(promo.discount) || promo.discount <= 0 || promo.discount > 100) return false;
+    return Number.isFinite(Date.parse(`${promo.expiresAt}T23:59:59.999`));
+  };
+  const automaticPromo = promoCodes.find((promo) =>
+    promo.code.toUpperCase() === settings.autoPromoCode.trim().toUpperCase() && isUsablePromo(promo),
+  );
+  const currentPromo = isUsablePromo(appliedPromo) ? appliedPromo : automaticPromo ?? null;
 
   // Cart Calculation
   const subtotal = cart.reduce((sum, item) => {
@@ -65,16 +121,27 @@ export function CheckoutDrawer({
     return sum + (product ? product.price[market] * item.quantity : 0);
   }, 0);
 
-  const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discount) / 100) : 0;
-  const shippingFee = SHIPPING_RATES[selectedCity]?.[market] ?? (market === 'eg' ? 45 : 25);
-  const total = Math.max(0, subtotal - discountAmount + shippingFee);
+  const discountAmount = currentPromo ? Math.round((subtotal * currentPromo.discount) / 100) : 0;
+  const rateForCity = (city: string, targetMarket: Market) => {
+    const configured = settings.shippingRates?.[city]?.[targetMarket];
+    return Number.isFinite(configured) && configured >= 0 && configured <= 100000
+      ? configured
+      : SHIPPING_RATES[city]?.[targetMarket] ?? (targetMarket === 'eg' ? 45 : 25);
+  };
+  const baseShippingFee = rateForCity(effectiveCity, market);
+  const freeShippingThreshold = settings.freeShippingThreshold?.[market] ?? Number.POSITIVE_INFINITY;
+  const shippingFee = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : baseShippingFee;
+  const taxableSubtotal = Math.max(0, subtotal - discountAmount);
+  const taxRate = settings.taxRateByMarket?.[market] ?? settings.taxRate ?? 0;
+  const taxAmount = Math.round((taxableSubtotal * Math.max(0, taxRate)) / 100);
+  const total = Math.max(0, taxableSubtotal + shippingFee + taxAmount);
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
     const found = promoCodes.find(
-      (p) => p.code.toUpperCase() === promoCodeInput.trim().toUpperCase() && p.active,
+      (p) => p.code.toUpperCase() === promoCodeInput.trim().toUpperCase() && isUsablePromo(p),
     );
-    if (!found) {
+    if (!found || hasExpiredPromo(found)) {
       onToast(isArabic ? 'كود الخصم غير صالح أو منتهي الصلاحية.' : 'Invalid or expired promo code.');
       return;
     }
@@ -82,10 +149,14 @@ export function CheckoutDrawer({
     onToast(isArabic ? `تم تطبيق خصم ${found.discount}% بنجاح!` : `Discount of ${found.discount}% applied!`);
   };
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerPhone) {
       onToast(isArabic ? 'يرجى إكمال بيانات الاسم والهاتف.' : 'Please enter your name and phone number.');
+      return;
+    }
+    if (!selectedPaymentMethod) {
+      onToast(isArabic ? 'اختر طريقة الدفع للمتابعة.' : 'Choose a payment method to continue.');
       return;
     }
     // Basic phone sanity check so we don't create an order we can never reach.
@@ -94,13 +165,33 @@ export function CheckoutDrawer({
       onToast(isArabic ? 'يرجى إدخال رقم هاتف صحيح.' : 'Please enter a valid phone number.');
       return;
     }
+    const isOnlinePayment = market === 'eg' && ['visa', 'fawry'].includes(selectedPaymentMethod.method);
+    if (isOnlinePayment && !customerEmail.trim()) {
+      onToast(isArabic ? 'أدخل بريدك الإلكتروني لإتمام الدفع الإلكتروني.' : 'Enter your email to continue with online payment.');
+      return;
+    }
+    const stockConflict = products.find((product) => product.stock !== undefined && cart.filter((line) => line.productId === product.id).reduce((sum, line) => sum + line.quantity, 0) > product.stock);
+    if (stockConflict) {
+      onToast(isArabic ? 'الكمية في السلة أكبر من المخزون المتاح. عدّل الكمية وحاول مجدداً.' : 'Cart quantity exceeds available stock. Update it and try again.');
+      return;
+    }
+    if (isSubmitting) return;
+    if (currentPromo && hasExpiredPromo(currentPromo)) {
+      setAppliedPromo(null);
+      onToast(isArabic ? 'انتهت صلاحية كود الخصم. راجع الإجمالي وحاول مجدداً.' : 'The promo code expired. Review the total and try again.');
+      return;
+    }
+    setIsSubmitting(true);
 
     // Open the WhatsApp tab while still inside the user gesture so mobile browsers
     // don't treat it as an unprompted popup and block it.
     const num = market === 'eg' ? settings.whatsappEg : settings.whatsappKsa;
-    const pendingWindow = window.open('', '_blank', 'noopener,noreferrer');
+    const pendingWindow = window.open('', '_blank');
+    if (pendingWindow) pendingWindow.opener = null;
 
-    const orderId = `ZX-${Date.now().toString().slice(-7)}`;
+    // Keep enough random bits in the public tracking reference to make online
+    // order-ID guessing impractical, even when a customer's phone is known.
+    const orderId = `ZX-${crypto.randomUUID().replaceAll('-', '').slice(0, 24).toUpperCase()}`;
     const orderItems = cart.map((line) => {
       const prod = products.find((p) => p.id === line.productId);
       return {
@@ -119,7 +210,8 @@ export function CheckoutDrawer({
       createdAt: new Date().toISOString(),
       customer: customerName.trim(),
       phone: customerPhone.trim(),
-      city: selectedCity,
+      ...(customerEmail.trim() ? { email: customerEmail.trim() } : {}),
+      city: effectiveCity,
       market,
       items: orderItems,
       status: 'new',
@@ -127,30 +219,26 @@ export function CheckoutDrawer({
       subtotal,
       shippingFee,
       discount: discountAmount,
-      promoCode: appliedPromo?.code,
-      paymentMethod,
+      promoCode: currentPromo?.code,
+      paymentMethod: selectedPaymentMethod?.label ?? (isArabic ? 'التواصل عبر واتساب' : 'WhatsApp'),
+      paymentMethodKey: selectedPaymentMethod?.method,
+      paymentStatus: isOnlinePayment ? 'pending' : 'unpaid',
     };
 
     whatsappWindowRef.current = pendingWindow;
-    onOrderComplete(newOrder);
-
-    // Automation: Telegram Notification dispatch if configured
-    if (settings.telegramBotToken && settings.telegramChatId) {
-      try {
-        const text = encodeURIComponent(
-          `🛍️ NEW ORDER: ${orderId}\n` +
-          `Customer: ${customerName}\n` +
-          `Phone: ${customerPhone}\n` +
-          `City: ${selectedCity} (${market.toUpperCase()})\n` +
-          `Total: ${total} ${currency}\n` +
-          `Payment: ${paymentMethod.toUpperCase()}`
-        );
-        fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/sendMessage?chat_id=${settings.telegramChatId}&text=${text}`, {
-          method: 'POST',
-        }).catch(() => {});
-      } catch {
-        // silent fail for local session
-      }
+    let completion: boolean | { accepted: boolean; paymentUrl?: string };
+    try {
+      completion = await onOrderComplete(newOrder);
+    } catch {
+      completion = false;
+    }
+    const accepted = typeof completion === 'boolean' ? completion : completion.accepted;
+    const paymentUrl = typeof completion === 'boolean' ? undefined : completion.paymentUrl;
+    if (!accepted) {
+      if (pendingWindow && !pendingWindow.closed) pendingWindow.close();
+      whatsappWindowRef.current = null;
+      setIsSubmitting(false);
+      return;
     }
 
     // Format WhatsApp Message & Open
@@ -160,31 +248,42 @@ export function CheckoutDrawer({
 رقم الطلب: ${orderId}
 الاسم: ${customerName}
 الهاتف: ${customerPhone}
-المدينة: ${selectedCity}
-طريقة الدفع: ${paymentMethod}
+المدينة: ${effectiveCity}
+طريقة الدفع: ${selectedPaymentMethod?.label ?? 'واتساب'}${selectedPaymentMethod?.accountName ? ` - ${selectedPaymentMethod.accountName}` : ''}${selectedPaymentMethod?.accountNumber ? ` - ${selectedPaymentMethod.accountNumber}` : ''}${selectedPaymentMethod?.instructions[locale] ? ` - ${selectedPaymentMethod.instructions[locale]}` : ''}
 المنتجات:
 ${itemsText}
 الشحن: ${shippingFee} ${currency}
+الضريبة: ${taxAmount} ${currency}
 الإجمالي: ${total} ${currency}`
       : `New ZEXOR Order:
 Order ID: ${orderId}
 Name: ${customerName}
 Phone: ${customerPhone}
-City: ${selectedCity}
-Payment: ${paymentMethod}
+City: ${effectiveCity}
+Payment: ${selectedPaymentMethod?.label ?? 'WhatsApp'}${selectedPaymentMethod?.accountName ? ` - ${selectedPaymentMethod.accountName}` : ''}${selectedPaymentMethod?.accountNumber ? ` - ${selectedPaymentMethod.accountNumber}` : ''}${selectedPaymentMethod?.instructions[locale] ? ` - ${selectedPaymentMethod.instructions[locale]}` : ''}
 Items:
 ${itemsText}
 Shipping: ${shippingFee} ${currency}
+Tax: ${taxAmount} ${currency}
 Total: ${total} ${currency}`;
 
     const waUrl = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
     const target = whatsappWindowRef.current ?? pendingWindow;
+    if (paymentUrl) {
+      if (target && !target.closed) target.location.href = paymentUrl;
+      else window.location.assign(paymentUrl);
+      whatsappWindowRef.current = null;
+      resetCheckout();
+      onClose();
+      return;
+    }
     if (target && !target.closed) {
       target.location.href = waUrl;
     } else {
       window.open(waUrl, '_blank', 'noopener,noreferrer');
     }
     whatsappWindowRef.current = null;
+    resetCheckout();
     onClose();
   };
 
@@ -192,7 +291,7 @@ Total: ${total} ${currency}`;
     <div
       className="fixed inset-0 z-100 flex justify-end bg-black/40 backdrop-blur-xs"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (!isSubmitting && e.target === e.currentTarget) handleClose();
       }}
     >
       <motion.aside
@@ -223,8 +322,9 @@ Total: ${total} ${currency}`;
           </div>
           <button
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#738279] hover:bg-[#edf2ef]"
-            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#738279] hover:bg-[#edf2ef] disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={isSubmitting}
+            onClick={handleClose}
             type="button"
           >
             <X className="h-4 w-4" />
@@ -248,25 +348,25 @@ Total: ${total} ${currency}`;
           <>
             {/* Cart Items List */}
             <div className="flex-1 space-y-3 overflow-y-auto p-5">
-              {cart.map((line) => {
+              {cart.map((line, lineIndex) => {
                 const product = products.find((p) => p.id === line.productId);
                 if (!product) return null;
                 return (
                   <div
                     className="flex gap-3 rounded-2xl border border-[#e5ebe6] bg-white p-3.5 shadow-xs"
-                    key={line.productId}
+                    key={`${line.productId}-${line.variant ?? 'default'}-${line.nfcCustomization?.profileSlug ?? 'plain'}-${lineIndex}`}
                   >
                     <img
                       alt={product.name[locale]}
                       className="h-16 w-16 rounded-xl object-cover"
-                      src={product.imageUrl}
+                      src={publicAssetUrl(product.imageUrl)}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1">
                         <h4 className="truncate text-xs font-bold text-[#2d4236]">{product.name[locale]}</h4>
                         <button
                           className="text-[#9ea9a2] hover:text-[#b45648]"
-                          onClick={() => onRemoveItem(line.productId)}
+                          onClick={() => onRemoveItem(line)}
                           type="button"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -292,15 +392,16 @@ Total: ${total} ${currency}`;
                         <div className="flex items-center gap-1.5 rounded-full border border-[#dfe7e1] px-2 py-0.5">
                           <button
                             className="text-[#64796e]"
-                            onClick={() => onQuantityChange(line.productId, -1)}
+                            onClick={() => onQuantityChange(line, -1)}
                             type="button"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="min-w-4 text-center text-xs font-semibold">{line.quantity}</span>
                           <button
-                            className="text-[#64796e]"
-                            onClick={() => onQuantityChange(line.productId, 1)}
+                            className="text-[#64796e] disabled:opacity-30"
+                            disabled={product.stock !== undefined && cart.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0) >= product.stock}
+                            onClick={() => onQuantityChange(line, 1)}
                             type="button"
                           >
                             <Plus className="h-3 w-3" />
@@ -330,9 +431,9 @@ Total: ${total} ${currency}`;
                 </button>
               </form>
 
-              {appliedPromo && (
+              {currentPromo && (
                 <p className="mt-2 text-xs font-semibold text-[#377755]">
-                  ✓ {isArabic ? `تم تفعيل كود ${appliedPromo.code}: خصم ${appliedPromo.discount}%` : `Code ${appliedPromo.code} applied: ${appliedPromo.discount}% OFF`}
+                  ✓ {isArabic ? `تم تفعيل كود ${currentPromo.code}: خصم ${currentPromo.discount}%` : `Code ${currentPromo.code} applied: ${currentPromo.discount}% OFF`}
                 </p>
               )}
 
@@ -368,6 +469,15 @@ Total: ${total} ${currency}`;
                 />
               </div>
 
+              {['visa', 'fawry'].includes(selectedPaymentMethod?.method ?? '') && (
+                <div>
+                  <label className="text-xs font-semibold text-[#445b4e]">
+                    {isArabic ? 'البريد الإلكتروني' : 'Email address'}
+                  </label>
+                  <input autoComplete="email" className="mt-1 h-10 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(event) => setCustomerEmail(event.target.value)} required type="email" value={customerEmail} />
+                </div>
+              )}
+
               <div>
                 <label className="text-xs font-semibold text-[#445b4e]">
                   {isArabic ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}
@@ -386,7 +496,7 @@ Total: ${total} ${currency}`;
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-[#445b4e]">
                     <Truck className="h-3.5 w-3.5 text-[#487a60]" />
-                    {isArabic ? 'حاسبة الشحن والتوصيل (المدينة):' : 'Automated Shipping Calculator (City):'}
+                    {isArabic ? 'تقدير تكلفة التوصيل (المدينة):' : 'Estimated delivery fee (city):'}
                   </label>
                   <span className="text-xs font-bold text-[#355844]">+{shippingFee} {currency}</span>
                 </div>
@@ -394,22 +504,22 @@ Total: ${total} ${currency}`;
                 <select
                   className="mt-1 h-10 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs outline-none"
                   onChange={(e) => setSelectedCity(e.target.value)}
-                  value={selectedCity}
+                  value={effectiveCity}
                 >
                   {market === 'eg' ? (
                     <>
-                      <option value="Cairo">القاهرة (Cairo) - 40 ج.م</option>
-                      <option value="Giza">الجيزة (Giza) - 45 ج.م</option>
-                      <option value="Alexandria">الإسكندرية (Alexandria) - 55 ج.م</option>
-                      <option value="Delta Cities">محافظات الدلتا (Delta) - 65 ج.م</option>
-                      <option value="Upper Egypt">محافظات الصعيد (Upper Egypt) - 80 ج.م</option>
+                      <option value="Cairo">{isArabic ? 'القاهرة' : 'Cairo'} — {rateForCity('Cairo', market)} {currency}</option>
+                      <option value="Giza">{isArabic ? 'الجيزة' : 'Giza'} — {rateForCity('Giza', market)} {currency}</option>
+                      <option value="Alexandria">{isArabic ? 'الإسكندرية' : 'Alexandria'} — {rateForCity('Alexandria', market)} {currency}</option>
+                      <option value="Delta Cities">{isArabic ? 'محافظات الدلتا' : 'Delta cities'} — {rateForCity('Delta Cities', market)} {currency}</option>
+                      <option value="Upper Egypt">{isArabic ? 'محافظات الصعيد' : 'Upper Egypt'} — {rateForCity('Upper Egypt', market)} {currency}</option>
                     </>
                   ) : (
                     <>
-                      <option value="Riyadh">الرياض (Riyadh) - 25 ر.س</option>
-                      <option value="Jeddah">جدة (Jeddah) - 30 ر.س</option>
-                      <option value="Dammam">الدمام والشرقية (Dammam) - 30 ر.س</option>
-                      <option value="Other KSA">باقي مدن المملكة - 35 ر.س</option>
+                      <option value="Riyadh">{isArabic ? 'الرياض' : 'Riyadh'} — {rateForCity('Riyadh', market)} {currency}</option>
+                      <option value="Jeddah">{isArabic ? 'جدة' : 'Jeddah'} — {rateForCity('Jeddah', market)} {currency}</option>
+                      <option value="Dammam">{isArabic ? 'الدمام والمنطقة الشرقية' : 'Dammam & Eastern Province'} — {rateForCity('Dammam', market)} {currency}</option>
+                      <option value="Other KSA">{isArabic ? 'باقي مدن المملكة' : 'Other cities'} — {rateForCity('Other KSA', market)} {currency}</option>
                     </>
                   )}
                 </select>
@@ -418,30 +528,32 @@ Total: ${total} ${currency}`;
               {/* Payment Gateways Selection */}
               <div>
                 <label className="text-xs font-semibold text-[#445b4e]">
-                  {isArabic ? 'اختر طريقة الدفع المفضلة:' : 'Select Payment Gateway:'}
+                  {isArabic ? 'اختر طريقة الدفع:' : 'Choose a payment method:'}
                 </label>
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'whatsapp', label: isArabic ? 'تأكيد ودفع عبر واتساب' : 'WhatsApp Checkout', icon: '💬' },
-                    { id: 'card', label: isArabic ? 'بطاقة بنكية / فيزا' : 'Credit / Debit Card', icon: '💳' },
-                    { id: 'apple_pay', label: 'Apple Pay', icon: '🍎' },
-                    { id: 'mada', label: isArabic ? 'مدى (Mada)' : 'Mada Payment', icon: '🇸🇦' },
-                  ].map((method) => (
+                  {marketPaymentMethods.map((method) => (
                     <button
                       className={`flex items-center gap-2 rounded-xl border p-2.5 text-start text-xs transition-all ${
-                        paymentMethod === method.id
+                        (selectedPaymentMethod?.id ?? '') === method.id
                           ? 'border-[#3f6753] bg-[#edf6f1] text-[#2c4739] shadow-xs'
                           : 'border-[#dfe8e2] bg-white text-[#65796e]'
                       }`}
                       key={method.id}
-                      onClick={() => setPaymentMethod(method.id as typeof paymentMethod)}
+                      onClick={() => setPaymentMethodId(method.id)}
                       type="button"
                     >
-                      <span>{method.icon}</span>
-                      <span className="text-[10px] font-semibold">{method.label}</span>
+                      <span>{['visa', 'mada', 'apple_pay'].includes(method.method) ? '💳' : method.method === 'fawry' ? '🟡' : method.method === 'cash' ? '💵' : '💸'}</span>
+                      <span className="text-[10px] font-semibold">{method.label}{method.accountNumber ? ` · ${method.accountNumber}` : ''}</span>
                     </button>
                   ))}
                 </div>
+                {['visa', 'fawry'].includes(selectedPaymentMethod?.method ?? '') && (
+                  <p className="mt-2 text-[10px] leading-5 text-[#788b80]">
+                    {isArabic
+                      ? 'سيتم فتح صفحة دفع آمنة بعد تسجيل الطلب. لا تُدخل بيانات بطاقتك داخل المتجر.'
+                      : 'A secure payment page will open after the order is recorded. Never enter card details on this store.'}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -462,6 +574,12 @@ Total: ${total} ${currency}`;
                   <span>{isArabic ? 'تكلفة التوصيل والشحن:' : 'Delivery Fee:'}</span>
                   <span>{shippingFee} {currency}</span>
                 </div>
+                {taxAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span>{isArabic ? `الضريبة (${taxRate}%):` : `Tax (${taxRate}%):`}</span>
+                    <span>{taxAmount} {currency}</span>
+                  </div>
+                )}
                 <div className="flex justify-between border-t border-[#e8eeea] pt-2 text-base font-extrabold text-[#2b4435]">
                   <span>{isArabic ? 'الإجمالي النهائي:' : 'Total Amount:'}</span>
                   <span>{total} {currency}</span>
@@ -477,11 +595,14 @@ Total: ${total} ${currency}`;
                   {isArabic ? 'رجوع للسلة' : 'Back'}
                 </button>
                 <button
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#314f43] py-2.5 text-xs font-semibold text-white shadow-md hover:bg-[#436e5d]"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#314f43] py-2.5 text-xs font-semibold text-white shadow-md hover:bg-[#436e5d] disabled:cursor-wait disabled:opacity-60"
+                  disabled={isSubmitting}
                   type="submit"
                 >
                   <Check className="h-4 w-4" />
-                  {isArabic ? 'تأكيد الطلب وإرسال الإشعار' : 'Confirm Order & Send'}
+                  {isSubmitting
+                    ? isArabic ? 'جارٍ تأكيد المخزون...' : 'Checking stock...'
+                    : isArabic ? 'تأكيد الطلب وإرسال الإشعار' : 'Confirm Order & Send'}
                 </button>
               </div>
             </div>

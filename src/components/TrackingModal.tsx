@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Check,
@@ -10,6 +10,8 @@ import {
   X,
 } from 'lucide-react';
 import { copyToClipboard } from '../utils';
+import { findCloudOrder } from '../lib/siteData';
+import { isSupabaseConfigured } from '../../supabase';
 import type { CustomerOrder, Locale, Market } from '../types';
 
 type Props = {
@@ -30,9 +32,26 @@ export function TrackingModal({
 }: Props) {
   const isArabic = locale === 'ar';
   const [query, setQuery] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [foundOrder, setFoundOrder] = useState<CustomerOrder | null>(null);
   const [copied, setCopied] = useState<'id' | 'phone' | null>(null);
+  const foundOrderId = foundOrder?.id;
+
+  useEffect(() => {
+    if (!open || !foundOrderId || !isSupabaseConfigured) return;
+    let active = true;
+    const refresh = async () => {
+      const latest = await findCloudOrder(foundOrderId, phone);
+      if (active && latest) setFoundOrder(latest);
+    };
+    const interval = window.setInterval(() => void refresh(), 30_000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, [foundOrderId, open, phone]);
 
   const handleCopy = async (value: string, field: 'id' | 'phone') => {
     const ok = await copyToClipboard(value);
@@ -43,20 +62,26 @@ export function TrackingModal({
 
   if (!open) return null;
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setSearched(true);
+    setFoundOrder(null);
+    setIsSearching(true);
     const clean = query.trim().toUpperCase();
-    const match = orders.find(
-      (o) => o.id.toUpperCase() === clean || o.phone.includes(clean) || o.customer.toUpperCase().includes(clean),
+    const normalizePhone = (value: string) => value.replace(/\D/g, '');
+    const localMatch = orders.find((order) =>
+      order.id.toUpperCase() === clean && normalizePhone(order.phone) === normalizePhone(phone),
     );
-    setFoundOrder(match ?? null);
+    const remoteMatch = isSupabaseConfigured ? await findCloudOrder(clean, phone) : null;
+    const match = isSupabaseConfigured ? remoteMatch : localMatch ?? null;
+    setFoundOrder(match);
+    setIsSearching(false);
   };
 
   const steps = [
     { id: 'new', label: isArabic ? 'تم استلام الطلب وتأكيده' : 'Order Received & Confirmed', desc: isArabic ? 'تمت مراجعة المنتجات واعتمادها في النظام.' : 'Items registered and verified.' },
     { id: 'processing', label: isArabic ? 'قيد التجهيز والتغليف' : 'Processing & Packaging', desc: isArabic ? 'تجهيز الكروت والملابس في الأتيليه والتغليف الفاخر.' : 'Customization & premium packaging in progress.' },
-    { id: 'shipping', label: isArabic ? 'خرج مع مندوب الشحن' : 'Out for Delivery', desc: isArabic ? 'الشحنة في طريقها إليك عبر أرامكس / بوسطة.' : 'Package is on the vehicle for delivery.' },
+    { id: 'shipping', label: isArabic ? 'تم تسجيل بيانات الشحنة' : 'Shipment details added', desc: isArabic ? 'استخدم رقم التتبع أو رابط شركة الشحن عند ظهوره.' : 'Use the carrier tracking number or link when available.' },
     { id: 'complete', label: isArabic ? 'تم التسليم بنجاح' : 'Delivered Successfully', desc: isArabic ? 'وصلت الشحنة للعميل بنجاح.' : 'Order has reached customer.' },
   ];
 
@@ -88,10 +113,10 @@ export function TrackingModal({
             </span>
             <div>
               <h2 className="text-base font-bold text-[#2b4133]">
-                {isArabic ? 'نظام تتبع حالة الشحنات والطلبات' : 'Live Order & Shipment Tracker'}
+                {isArabic ? 'تتبع حالة الطلب والشحنة' : 'Order & Shipment Tracking'}
               </h2>
               <p className="text-[10px] text-[#788a80]">
-                {isArabic ? 'تتبع فوري لمراحل شحن طلبك برقم الشحنة أو رقم الهاتف' : 'Track your package progress in real-time'}
+                {isArabic ? 'تابع حالة الطلب ورقم الشحنة باستخدام رقم الطلب وهاتفك' : 'Track your order with its reference and phone number'}
               </p>
             </div>
           </div>
@@ -106,22 +131,32 @@ export function TrackingModal({
         </div>
 
         {/* Search Input */}
-        <form className="mt-5 flex gap-2" onSubmit={handleSearch}>
-          <div className="relative flex-1">
+        <form className="mt-5 grid gap-2 sm:grid-cols-[1fr_1fr_auto]" onSubmit={handleSearch}>
+          <div className="relative">
             <Search className="absolute start-3 top-3 h-4 w-4 text-[#758a7e]" />
             <input
               className="h-10 w-full rounded-xl border border-[#dfe7e1] bg-white ps-9 pe-3 text-xs outline-none focus:border-[#67ab8b]"
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isArabic ? 'أدخل رقم الطلب (مثال: ZX-10293) أو هاتفك…' : 'Enter Order ID (e.g. ZX-10293) or phone…'}
+              placeholder={isArabic ? 'رقم الطلب' : 'Order ID'}
               required
               value={query}
             />
           </div>
+          <input
+            autoComplete="tel"
+            className="h-10 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs outline-none focus:border-[#67ab8b]"
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder={isArabic ? 'رقم الهاتف المستخدم في الطلب' : 'Phone used for the order'}
+            required
+            type="tel"
+            value={phone}
+          />
           <button
-            className="rounded-xl bg-[#314f43] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d]"
+            className="rounded-xl bg-[#314f43] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d] disabled:opacity-60"
+            disabled={isSearching}
             type="submit"
           >
-            {isArabic ? 'تتبع' : 'Track'}
+            {isSearching ? (isArabic ? 'جارٍ البحث' : 'Searching') : (isArabic ? 'تتبع' : 'Track')}
           </button>
         </form>
 
@@ -138,6 +173,7 @@ export function TrackingModal({
                   key={o.id}
                   onClick={() => {
                     setQuery(o.id);
+                    setPhone(o.phone);
                     setFoundOrder(o);
                     setSearched(true);
                   }}
@@ -172,8 +208,10 @@ export function TrackingModal({
                   >
                     {copied === 'id' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                   </button>
-                  <span className="rounded-full bg-[#e5f5ec] px-3 py-1 text-[9px] font-bold text-[#357e58]">
-                  {foundOrder.status === 'new'
+                  <span className={`rounded-full px-3 py-1 text-[9px] font-bold ${foundOrder.status === 'cancelled' ? 'bg-[#f1f2f1] text-[#69766f]' : 'bg-[#e5f5ec] text-[#357e58]'}`}>
+                  {foundOrder.status === 'cancelled'
+                    ? isArabic ? 'ملغي' : 'Cancelled'
+                    : foundOrder.status === 'new'
                     ? isArabic
                       ? 'تم الاستلام'
                       : 'Received'
@@ -189,7 +227,27 @@ export function TrackingModal({
               </div>
 
               {/* Progress Steps Visualizer */}
-              <div className="space-y-4">
+              {(foundOrder.trackingNumber || foundOrder.trackingUrl || foundOrder.shippingCarrier) && (
+                <div className="rounded-xl border border-[#dce9df] bg-white p-3 text-xs">
+                  <p className="font-bold text-[#344d3f]">{isArabic ? 'بيانات شركة الشحن' : 'Shipment details'}</p>
+                  {foundOrder.shippingCarrier && <p className="mt-1 text-[#5e7166]">{isArabic ? 'الشركة:' : 'Carrier:'} {foundOrder.shippingCarrier}</p>}
+                  {foundOrder.trackingNumber && <p className="mt-1 font-mono text-[#5e7166]">{isArabic ? 'رقم التتبع:' : 'Tracking number:'} {foundOrder.trackingNumber}</p>}
+                  {foundOrder.trackingUrl && /^https:\/\//i.test(foundOrder.trackingUrl) && <a className="mt-2 inline-flex text-[#25855a] underline" href={foundOrder.trackingUrl} rel="noopener noreferrer" target="_blank">{isArabic ? 'افتح صفحة تتبع شركة الشحن' : 'Open carrier tracking page'}</a>}
+                </div>
+              )}
+              {foundOrder.paymentStatus && (
+                <p className="rounded-xl border border-[#e1e9e3] bg-white p-3 text-xs text-[#5e7166]">
+                  <strong>{isArabic ? 'حالة الدفع:' : 'Payment:'}</strong>{' '}
+                  {foundOrder.paymentStatus === 'paid' ? (isArabic ? 'تم الدفع' : 'Paid')
+                    : foundOrder.paymentStatus === 'pending' ? (isArabic ? 'بانتظار الدفع' : 'Awaiting payment')
+                      : foundOrder.paymentStatus === 'failed' ? (isArabic ? 'لم يكتمل الدفع' : 'Payment not completed')
+                        : foundOrder.paymentStatus === 'refunded' ? (isArabic ? 'تم رد المبلغ' : 'Refunded')
+                          : (isArabic ? 'غير مدفوع' : 'Unpaid')}
+                </p>
+              )}
+              {foundOrder.status === 'cancelled' ? (
+                <p className="rounded-xl border border-[#e5e7e5] bg-white p-3 text-xs text-[#68776e]">{isArabic ? 'تم إلغاء هذا الطلب. تواصل معنا عبر واتساب إذا كنت تحتاج إلى مساعدة.' : 'This order was cancelled. Contact us on WhatsApp if you need help.'}</p>
+              ) : <div className="space-y-4">
                 {steps.map((st, i) => {
                   const activeIndex = getActiveStepIndex(foundOrder.status);
                   const isDone = i <= activeIndex;
@@ -213,7 +271,7 @@ export function TrackingModal({
                     </div>
                   );
                 })}
-              </div>
+              </div>}
 
               {/* Summary Items */}
               <div className="rounded-xl border border-[#e1e9e3] bg-white p-3 text-xs">
@@ -244,17 +302,17 @@ export function TrackingModal({
                 target="_blank"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span>{isArabic ? 'متابعة مباشرة مع مندوب الشحن عبر واتساب' : 'Chat with Courier Support'}</span>
+                <span>{isArabic ? 'تواصل مع خدمة العملاء عبر واتساب' : 'Contact customer support on WhatsApp'}</span>
               </a>
             </div>
-          ) : searched ? (
+          ) : searched && !isSearching ? (
             <div className="py-10 text-center">
               <Package className="mx-auto h-12 w-12 text-[#9bb0a4]" />
               <p className="mt-3 text-sm font-bold text-[#354f41]">
-                {isArabic ? 'لم يتم العثور على شحنة بهذا الرقم' : 'No shipment found'}
+                {isArabic ? 'لم يظهر طلب مطابق' : 'No matching order found'}
               </p>
               <p className="mt-1 text-xs text-[#7f9086]">
-                {isArabic ? 'تأكد من إدخال رقم الطلب الصحيح أو تواصل مع خدمة العملاء.' : 'Verify order ID or contact customer care.'}
+                {isArabic ? 'تأكد من رقم الطلب والهاتف، أو تحقق من اتصال المتجر وحاول مرة أخرى.' : 'Check the order ID and phone, then verify the store connection and try again.'}
               </p>
             </div>
           ) : null}

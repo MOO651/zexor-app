@@ -4,16 +4,60 @@ import type {
   Product,
   Property,
   SiteSettings,
-  Testimonial,
   Vehicle,
 } from '../types';
-import { art } from './imagery';
+
+import { art, photos } from './imagery';
 
 export const INITIAL_CATEGORIES: DynamicCategory[] = [
-  { id: 'cards', slug: 'cards', name: { en: 'NFC Cards', ar: 'بطاقات NFC' }, icon: 'credit', active: true },
-  { id: 'fashion', slug: 'fashion', name: { en: 'Streetwear', ar: 'الملابس والأزياء' }, icon: 'shirt', active: true },
-  { id: 'services', slug: 'services', name: { en: 'Digital Studio', ar: 'الاستوديو الرقمي' }, icon: 'code', active: true },
+  { id: 'cards', slug: 'cards', name: { en: 'ZEXOR LINK', ar: 'زكسور لينك' }, icon: 'credit', active: true },
+  { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR ATELIER', ar: 'أتيليه زكسور' }, icon: 'shirt', active: true },
+  { id: 'services', slug: 'services', name: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' }, icon: 'code', active: true },
+  { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
+  { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
 ];
+
+const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
+  cards: ['NFC Cards', 'Smart NFC Cards', 'بطاقات NFC', 'بطاقات NFC الذكية'],
+  fashion: ['Streetwear', 'الملابس والأزياء', 'الأزياء والستريت وير'],
+  services: ['ZEXOR Digital', 'الخدمات الرقمية'],
+  cars: ['Vehicles', 'Vehicle Showroom', 'السيارات', 'معرض السيارات'],
+  property: ['Real Estate', 'العقارات', 'العقارات الفاخرة'],
+};
+
+/** Add new built-in departments and update only untouched legacy labels. */
+export function normalizeCategories(categories: DynamicCategory[]): DynamicCategory[] {
+  const normalized = INITIAL_CATEGORIES.map((builtIn) => {
+    const current = categories.find((category) => category.slug === builtIn.slug);
+    if (!current) return builtIn;
+    const oldNames = LEGACY_CATEGORY_NAMES[builtIn.slug] ?? [];
+    const shouldRename = oldNames.includes(current.name.ar) || oldNames.includes(current.name.en);
+    return shouldRename ? { ...current, name: builtIn.name } : current;
+  });
+  return [
+    ...normalized,
+    ...categories.filter((category) => !INITIAL_CATEGORIES.some((builtIn) => builtIn.slug === category.slug)),
+  ];
+}
+
+/** Update untouched demo product photography without overwriting admin uploads. */
+export function normalizeStarterProductImages(products: Product[]): Product[] {
+  const previousDefaults: Record<string, string> = {
+    elite: photos.cardsElite,
+    social: photos.cardsSocial,
+    custom: photos.cardsBespoke,
+    hoodie: photos.hoodie,
+    'oversized-tee': photos.tee,
+    'launch-site': photos.studioWebsite,
+    commerce: photos.studioStore,
+  };
+  const correctedDefaults = new Map(INITIAL_PRODUCTS.map((product) => [product.id, product.imageUrl]));
+  return products.map((product) => (
+    product.imageUrl === previousDefaults[product.id]
+      ? { ...product, imageUrl: correctedDefaults.get(product.id) ?? product.imageUrl }
+      : product
+  ));
+}
 
 export const INITIAL_PRODUCTS: Product[] = [
   {
@@ -26,7 +70,6 @@ export const INITIAL_PRODUCTS: Product[] = [
       ar: 'بطاقة أعمال NFC فاخرة ومصقولة لمشاركة ملفك الرقمي وبيانات التواصل فوراً بلمسة واحدة.',
     },
     price: { eg: 450, ksa: 35 },
-    oldPrice: { eg: 550, ksa: 45 },
     icon: 'credit',
     finish: 'pearl',
     available: true,
@@ -42,7 +85,6 @@ export const INITIAL_PRODUCTS: Product[] = [
       ar: 'اجمع حساباتك الاجتماعية في بطاقة NFC واحدة للمشاركة بلمسة مع ربط تلقائي لصفحتك.',
     },
     price: { eg: 350, ksa: 25 },
-    oldPrice: { eg: 420, ksa: 32 },
     icon: 'fingerprint',
     finish: 'mint',
     available: true,
@@ -58,7 +100,6 @@ export const INITIAL_PRODUCTS: Product[] = [
       ar: 'بطاقة ZEXOR NFC بتصميم وهوية مخصصة بالكامل تعكس علامتك مع صفحة ويب تعريفية مخصصة.',
     },
     price: { eg: 600, ksa: 45 },
-    oldPrice: { eg: 750, ksa: 60 },
     icon: 'sparkles',
     finish: 'rose',
     available: true,
@@ -70,11 +111,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     markets: ['eg'],
     name: { en: 'After Hours Heavyweight Hoodie', ar: 'هودي أفتر آورز الفاخر' },
     description: {
-      en: '450 GSM ultra-heavyweight cotton, soft-touch brushed fleece from the limited ZEXOR Atelier drop.',
-      ar: 'قطن مصري ثقيل 450 جرام، قماش ناعم فاخر ضمن إصدار محدود وحصري من أتيليه ZEXOR.',
+      en: 'A relaxed heavyweight hoodie with a soft brushed interior, released in a limited ZEXOR Atelier run.',
+      ar: 'هودي بقصّة مريحة وخامة داخلية ناعمة، ضمن إصدار محدود من ZEXOR Atelier.',
     },
-    price: { eg: 1250, ksa: 0 },
-    oldPrice: { eg: 1450, ksa: 0 },
+    price: { eg: 999, ksa: 0 },
     icon: 'shirt',
     finish: 'rose',
     available: true,
@@ -90,8 +130,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       en: 'An everyday oversized relaxed silhouette with reinforced collar and high-density screen print.',
       ar: 'قصّة أوفرسايز مريحة للاستخدام اليومي مع ياقة معززة وطباعة عالية الكثافة.',
     },
-    price: { eg: 790, ksa: 0 },
-    oldPrice: { eg: 920, ksa: 0 },
+    price: { eg: 499, ksa: 0 },
     icon: 'shirt',
     finish: 'lilac',
     available: true,
@@ -108,7 +147,6 @@ export const INITIAL_PRODUCTS: Product[] = [
       ar: 'موقع متجاوب وسريع ومُهيأ لمحركات البحث، مصمم بالكامل ليعكس فخامة علامتك التجارية.',
     },
     price: { eg: 8000, ksa: 1200 },
-    oldPrice: { eg: 10000, ksa: 1500 },
     icon: 'code',
     finish: 'sky',
     available: true,
@@ -120,11 +158,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     markets: ['eg', 'ksa'],
     name: { en: 'Next-Gen E-Commerce Experience', ar: 'متجر إلكتروني متكامل عالي الأداء' },
     description: {
-      en: 'Full-featured online store with payment gateways, dynamic cart, inventory tracking and WhatsApp CRM checkout.',
-      ar: 'متجر إلكتروني متكامل مع بوابات الدفع الإلكتروني وتتبع الشحنات والربط الآلي مع واتساب.',
+      en: 'A tailored online store with a product catalog, cart, inventory controls, and checkout options selected for your business.',
+      ar: 'متجر إلكتروني مصمم لنشاطك مع كتالوج منتجات وسلة شراء وإدارة مخزون ووسائل دفع مناسبة.',
     },
     price: { eg: 18000, ksa: 2500 },
-    oldPrice: { eg: 22000, ksa: 3100 },
     icon: 'layers',
     finish: 'lilac',
     available: true,
@@ -141,8 +178,8 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     oldPrice: 3800000,
     area: 0,
     region: 'Cairo',
-    photo: art.vehicleSedan,
-    gallery: [art.vehicleSedan, art.vehicleCoupe, art.vehicleSuv],
+    photo: photos.vehicleSedan,
+    gallery: [photos.vehicleSedan, photos.vehicleCoupe, photos.vehicleSuv],
     make: 'Mercedes-Benz',
     year: 2024,
     mileage: 8500,
@@ -159,8 +196,8 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     oldPrice: 7800000,
     area: 0,
     region: 'Giza',
-    photo: art.vehicleSuv,
-    gallery: [art.vehicleSuv, art.vehicleSedan, art.vehicleCoupe],
+    photo: photos.vehicleSuv,
+    gallery: [photos.vehicleSuv, photos.vehicleSedan, photos.vehicleCoupe],
     make: 'Land Rover',
     year: 2025,
     mileage: 0,
@@ -173,12 +210,14 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     id: 'ZX-CAR-318',
     title: { en: 'Porsche 911 Carrera S Coupe 2023', ar: 'بورشه 911 كاريرا S كوبيه 2023' },
     location: { en: 'Riyadh · Al Nakheel', ar: 'الرياض · حي النخيل' },
-    price: 640000,
-    oldPrice: 680000,
+    price: 640,
+    oldPrice: 680,
+    deal: 'Rent',
+    rentalPeriod: 'Day',
     area: 0,
     region: 'Riyadh',
-    photo: art.vehicleCoupe,
-    gallery: [art.vehicleCoupe, art.vehicleSedan, art.vehicleSuv],
+    photo: photos.vehicleCoupe,
+    gallery: [photos.vehicleCoupe, photos.vehicleSedan, photos.vehicleSuv],
     make: 'Porsche',
     year: 2023,
     mileage: 14200,
@@ -189,6 +228,15 @@ export const INITIAL_VEHICLES: Vehicle[] = [
   },
 ];
 
+/** Keep the built-in Porsche demo rental-enabled for returning local/cloud catalogs too. */
+export function normalizeStarterVehicles(vehicles: Vehicle[]): Vehicle[] {
+  return vehicles.map((vehicle) => vehicle.id === 'ZX-CAR-318'
+    && vehicle.price === 640000
+    && vehicle.title.en === 'Porsche 911 Carrera S Coupe 2023'
+    ? { ...vehicle, price: 640, oldPrice: 680, deal: 'Rent', rentalPeriod: 'Day' }
+    : vehicle);
+}
+
 export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'ZX-PROP-017',
@@ -198,8 +246,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     oldPrice: 5300000,
     area: 185,
     region: 'Cairo',
-    photo: art.propertyApartment,
-    gallery: [art.propertyApartment, art.propertyVilla, art.propertyLand],
+    photo: photos.propertyApartment,
+    gallery: [photos.propertyApartment, photos.propertyVilla, photos.propertyLand],
     type: 'Apartment',
     deal: 'Sale',
     rooms: 3,
@@ -215,8 +263,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     oldPrice: 75000,
     area: 420,
     region: 'Giza',
-    photo: '/images/demo-villa.svg',
-    gallery: ['/images/demo-villa.svg', '/images/demo-apartment.svg', '/images/demo-land.svg'],
+    photo: photos.propertyVilla,
+    gallery: [photos.propertyVilla, photos.propertyApartment, photos.propertyLand],
     type: 'Villa',
     deal: 'Rent',
     rooms: 5,
@@ -232,8 +280,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     oldPrice: 2600000,
     area: 650,
     region: 'Riyadh',
-    photo: '/images/demo-land.svg',
-    gallery: ['/images/demo-land.svg', '/images/demo-villa.svg', '/images/demo-apartment.svg'],
+    photo: photos.propertyLand,
+    gallery: [photos.propertyLand, photos.propertyVilla, photos.propertyApartment],
     type: 'Land',
     deal: 'Sale',
     rooms: 0,
@@ -281,74 +329,11 @@ export const AGENCY_PROJECTS: AgencyProject[] = [
   },
 ];
 
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    id: 'test-1',
-    name: { en: 'Eng. Tarek Mansour', ar: 'م. طارق منصور' },
-    role: { en: 'Founder & CEO', ar: 'المؤسس والمدير التنفيذي' },
-    company: { en: 'Apex Ventures (Cairo)', ar: 'آيبكس كابيتال (القاهرة)' },
-    content: {
-      en: 'ZEXOR delivered our entire platform with incredible speed and aesthetic perfection. Our online sales increased by 40% in the first month.',
-      ar: 'فريق ZEXOR قدم لنا متجراً بهوية متكاملة واحترافية غير مسبوقة. زادت مبيعاتنا بنسبة 40% خلال الشهر الأول وحده.',
-    },
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?u=tarek',
-  },
-  {
-    id: 'test-2',
-    name: { en: 'Dr. Sarah Al-Otaibi', ar: 'د. سارة العتيبي' },
-    role: { en: 'Managing Director', ar: 'المدير العام' },
-    company: { en: 'Lumina Group (Riyadh)', ar: 'مجموعة لومينا (الرياض)' },
-    content: {
-      en: 'The custom NFC cards and the accompanying digital profile created for our executives made an unforgettable first impression at regional conferences.',
-      ar: 'كروت الـ NFC المخصصة والبروفايل الرقمي الذي صمموه لنا كان حديث المؤتمر، لمسة تقنية فاخرة رفعت من هيبة علامتنا.',
-    },
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?u=sarah',
-  },
-  {
-    id: 'test-3',
-    name: { en: 'Karim El-Sayed', ar: 'كريم السيد' },
-    role: { en: 'Marketing Director', ar: 'مدير التسويق' },
-    company: { en: 'Pulse Streetwear (Alexandria)', ar: 'بالس ستريت وير (الإسكندرية)' },
-    content: {
-      en: 'Flawless UI, blazing fast loading, and an exceptional checkout flow that connects straight to WhatsApp. Highly recommended!',
-      ar: 'واجهة مستخدم فائقة الجمال، سرعة استجابة مذهلة، وتجربة شراء سلسة تربط العميل مباشرة بالواتساب دون أي تعقيد.',
-    },
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?u=karim',
-  },
-  {
-    id: 'test-4',
-    name: { en: 'Fahad Al-Dossary', ar: 'فهد الدوسري' },
-    role: { en: 'Automotive Investments Lead', ar: 'رئيس استثمارات السيارات' },
-    company: { en: 'Prestige Motors (Jeddah)', ar: 'برستيج موتورز (جدة)' },
-    content: {
-      en: 'The car showroom UI with the multi-photo slider and direct WhatsApp viewing code cut our inquiry response time in half. World-class execution.',
-      ar: 'معرض السيارات التفاعلي وسلايدر الصور مع كود الحجز السريع اختصر وقت التواصل إلى النصف، تنفيذ عالمي واحترافي لأبعد الحدود.',
-    },
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?u=fahad',
-  },
-  {
-    id: 'test-5',
-    name: { en: 'Nouran Khalil', ar: 'نوران خليل' },
-    role: { en: 'Head of Brand Strategy', ar: 'رئيسة استراتيجية العلامة' },
-    company: { en: 'Kayan Estates (New Cairo)', ar: 'كيان للتطوير العقاري (القاهرة الجديدة)' },
-    content: {
-      en: 'Their 3D card designs, smooth animations, and interactive inspection booking tool set our real estate listings miles ahead of standard platforms.',
-      ar: 'تصاميم الـ 3D والحركات الانسيابية وأداة حجز موعد المعاينة الميدانية وضعت عروضنا في مكانة متقدمة جداً مقارنة بالمواقع التقليدية.',
-    },
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?u=nouran',
-  },
-];
-
 export const STATS = [
-  { id: 'projects', value: '120+', label: { en: 'Projects Delivered', ar: 'مشروعاً ناجحاً ومكتملاً' } },
-  { id: 'clients', value: '85+', label: { en: 'Satisfied Clients', ar: 'عميلاً سعيداً بالخدمة' } },
-  { id: 'experience', value: '6+', label: { en: 'Years Experience', ar: 'سنوات من الخبرة والإبداع' } },
-  { id: 'satisfaction', value: '99.4%', label: { en: 'Client Satisfaction', ar: 'نسبة رضا وتقييمات إيجابية' } },
+  { id: 'markets', value: 'EG · KSA', label: { en: 'Markets served', ar: 'مصر والسعودية' } },
+  { id: 'languages', value: 'AR · EN', label: { en: 'Bilingual experience', ar: 'تجربة بالعربية والإنجليزية' } },
+  { id: 'identity', value: 'NFC', label: { en: 'Tap-to-share identity', ar: 'هوية رقمية بلمسة' } },
+  { id: 'studio', value: 'CUSTOM', label: { en: 'Digital work, made to fit', ar: 'حلول رقمية حسب احتياجك' } },
 ];
 
 export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
@@ -377,9 +362,16 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   telegramUsername: 'ZexorStudio',
   telegramBotToken: '',
   telegramChatId: '',
+  // Social & wallet payment identifiers — editable from the admin dashboard.
+  instagramHandle: '',
+  instagramUrl: '',
+  instapayHandle: '',
+  instapayName: '',
+  vodafoneCashNumber: '',
+  vodafoneCashName: '',
   announcementText: {
-    en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free nationwide delivery',
-    ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني لكل المحافظات',
+    en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free delivery above the order threshold',
+    ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
   },
   announcementActive: true,
   discountBanner: {
@@ -391,8 +383,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     },
   },
   freeShippingThreshold: { eg: 2000, ksa: 300 },
+  shippingRates: SHIPPING_RATES,
   taxRate: 0,
   codEnabled: true,
+  taxRateByMarket: { eg: 0, ksa: 0 },
+  codEnabledByMarket: { eg: true, ksa: true },
   autoPromoCode: '',
   sectionVisibility: {
     cards: true,
@@ -414,30 +409,30 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     fontScale: 1,
   },
   content: {
-    cardsTitle: { en: 'Interactive Smart NFC Cards', ar: 'بطاقات NFC الذكية والمخصصة' },
+    cardsTitle: { en: 'Your Identity, One Tap Away', ar: 'هويتك الرقمية بلمسة واحدة' },
     cardsSubtitle: {
       en: 'Share your contact details, portfolio and socials with a single tap.',
       ar: 'شارك ملفك الشخصي أو التجاري بلمسة واحدة دون الحاجة لتطبيق أو أوراق.',
     },
-    fashionTitle: { en: 'Exclusive Streetwear Releases', ar: 'إصدارات الأزياء الحصرية' },
+    fashionTitle: { en: 'The Signature Collection', ar: 'تشكيلة زكسور المميزة' },
     fashionSubtitle: {
       en: 'Independent drops with high-density cotton and confident silhouettes.',
       ar: 'أقمشة قطنية ثقيلة وقصّات واسعة مريحة بإصدارات محدودة وحصرية.',
     },
-    servicesTitle: { en: 'Live Platform Demos & Agency Works', ar: 'معاينة حية للمشاريع والمنصات' },
+    servicesTitle: { en: 'Digital Experiences, Built to Perform', ar: 'تجارب رقمية صُممت لتصنع الفرق' },
     servicesSubtitle: {
       en: 'Websites, storefronts and product design shipped end to end.',
       ar: 'مواقع ومتاجر وتصميم منتجات من الفكرة حتى الإطلاق.',
     },
-    carsTitle: { en: 'Featured Luxury Vehicles', ar: 'سيارات معتمدة مع حجز معاينة' },
+    carsTitle: { en: 'The ZEXOR Motors Collection', ar: 'مختارات زكسور موتورز' },
     carsSubtitle: {
       en: 'Inspected, priced and ready to view in Egypt and Saudi Arabia.',
       ar: 'سيارات مفحوصة بأسعار واضحة وجاهزة للمعاينة في مصر والسعودية.',
     },
-    propertyTitle: { en: 'Curated Residential & Commercial Spaces', ar: 'عقارات فاخرة للبيع والإيجار' },
+    propertyTitle: { en: 'Exceptional Spaces, Found Here', ar: 'مساحات استثنائية في مكان واحد' },
     propertySubtitle: {
-      en: 'Apartments, villas and land with verified details and viewings.',
-      ar: 'شقق وفيلات وأراضٍ ببيانات موثقة وإمكانية معاينة ميدانية.',
+      en: 'Apartments, villas and land with listing details and viewing arrangements.',
+      ar: 'شقق وفيلات وأراضٍ بتفاصيل العرض وإمكانية ترتيب المعاينة.',
     },
     ctaTitle: { en: 'Ready to Elevate Your Brand?', ar: 'جاهز لتحويل فكرتك إلى واقع؟' },
     ctaText: {
@@ -454,4 +449,40 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     en: 'Scheduled maintenance — orders may take a little longer than usual.',
     ar: 'صيانة مجدولة — قد تستغرق الطلبات وقتاً أطول قليلاً من المعتاد.',
   },
+  socials: {
+    instagramHandle: 'zexor.digtal.studio',
+    instagramUrl: 'https://www.instagram.com/zexor.digtal.studio',
+    instapayNumber: '',
+    instapayName: '',
+    vodafoneCashNumber: '',
+    vodafoneCashName: '',
+  },
 };
+
+/** Upgrade the old starter section headings while preserving admin-written copy. */
+export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettings {
+  const legacy: Partial<Record<keyof SiteSettings['content'], string[]>> = {
+    cardsTitle: ['Interactive Smart NFC Cards', 'بطاقات NFC الذكية والمخصصة'],
+    fashionTitle: ['Exclusive Streetwear Releases', 'إصدارات الأزياء الحصرية'],
+    servicesTitle: ['Live Platform Demos & Agency Works', 'معاينة حية للمشاريع والمنصات'],
+    carsTitle: ['Featured Luxury Vehicles', 'سيارات معتمدة مع حجز معاينة'],
+    propertyTitle: ['Curated Residential & Commercial Spaces', 'عقارات فاخرة للبيع والإيجار'],
+  };
+  const content = { ...settings.content };
+  for (const [key, names] of Object.entries(legacy)) {
+    const typedKey = key as keyof SiteSettings['content'];
+    const current = content[typedKey] as Record<'ar' | 'en', string>;
+    if (names?.includes(current.ar) || names?.includes(current.en)) {
+      content[typedKey] = DEFAULT_SETTINGS.content[typedKey] as never;
+    }
+  }
+  const oldAnnouncements = [
+    '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free nationwide delivery',
+    '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني لكل المحافظات',
+  ];
+  const announcementText = oldAnnouncements.includes(settings.announcementText.ar)
+    || oldAnnouncements.includes(settings.announcementText.en)
+    ? DEFAULT_SETTINGS.announcementText
+    : settings.announcementText;
+  return { ...settings, content, announcementText };
+}

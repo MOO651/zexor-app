@@ -7,10 +7,10 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
-import { ArrowUpRight, BadgeCheck, Layers, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Globe2, Layers, Sparkles } from 'lucide-react';
 import { useMemo, useState, type PointerEvent } from 'react';
 import { PORTALS, visiblePortals, type NumberedPortal } from '../data/portals';
-import type { Locale, Route } from '../types';
+import type { DynamicCategory, Locale, Route } from '../types';
 
 type Props = {
   locale: Locale;
@@ -24,6 +24,7 @@ type Props = {
     property: boolean;
     services: boolean;
   };
+  categories?: DynamicCategory[];
 };
 
 /**
@@ -37,6 +38,7 @@ function PortalGate({
   navigate,
   reduce,
   delay,
+  title,
 }: {
   portal: NumberedPortal;
   locale: Locale;
@@ -44,6 +46,7 @@ function PortalGate({
   navigate: (route: Route) => void;
   reduce: boolean;
   delay: number;
+  title: string;
 }) {
   const Icon = portal.icon;
   const wide = portal.span === 'wide';
@@ -75,7 +78,7 @@ function PortalGate({
 
   return (
     <motion.button
-      aria-label={`${portal.title[locale]} — ${portal.tagline[locale]}`}
+      aria-label={`${title} — ${portal.tagline[locale]}`}
       className="zx-portal group relative w-full text-start shadow-[0_36px_80px_-42px_rgba(6,16,11,.85)]"
       initial={reduce ? undefined : { opacity: 0, y: 30, scale: 0.97 }}
       onPointerLeave={reset}
@@ -171,7 +174,7 @@ function PortalGate({
  * The landing page "department board": five animated 3D gateways, one per
  * ZEXOR department. Tapping a gateway routes straight into its showroom.
  */
-export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props) {
+export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
   const reduce = useReducedMotion();
   const portals = visiblePortals(visible);
   const [focused, setFocused] = useState<Route>('cards');
@@ -208,13 +211,13 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props)
           </h2>
           <p className="mt-2 max-w-lg text-xs leading-6 text-[#6c7d73]">
             {isArabic
-              ? 'خمس بوابات تفاعلية ثلاثية الأبعاد — المس أي بوابة للدخول مباشرة إلى معرضها الكامل.'
-              : 'Five interactive 3D gateways — tap any portal to enter its full showroom.'}
+              ? `${portals.length.toLocaleString('ar-EG')} بوابات تفاعلية — اضغط على أي بوابة للدخول إلى القسم.`
+              : `${portals.length} interactive department portals — open one to explore its section.`}
           </p>
         </div>
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 py-1.5 text-[10px] font-semibold text-[#5e8b75]">
-          <BadgeCheck className="h-3.5 w-3.5" />
-          {isArabic ? 'معتمد في مصر والسعودية' : 'Certified in Egypt & KSA'}
+          <Globe2 className="h-3.5 w-3.5" />
+          {isArabic ? 'متاح في مصر والسعودية' : 'Serving Egypt & Saudi Arabia'}
         </span>
       </div>
 
@@ -232,7 +235,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props)
             initial={{ opacity: 0, y: 6 }}
             key={active?.route ?? 'none'}
           >
-            {active?.index} · {active?.title[locale]}
+            {active?.index} · {active ? categories.find((category) => category.slug === active.route)?.name[locale] ?? active.title[locale] : ''}
           </motion.span>
         </AnimatePresence>
       </div>
@@ -255,6 +258,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible }: Props)
               locale={locale}
               navigate={navigate}
               portal={portal}
+              title={categories.find((category) => category.slug === portal.route)?.name[locale] ?? portal.title[locale]}
               reduce={Boolean(reduce)}
             />
           </div>

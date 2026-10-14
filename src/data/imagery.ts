@@ -23,31 +23,31 @@
  */
 export const PHOTO_FILENAMES = {
   // NFC cards — shoot each finish on a plain surface, top-down.
-  cardsElite: 'photo-card-elite.jpg',
-  cardsSocial: 'photo-card-social.jpg',
-  cardsBespoke: 'photo-card-bespoke.jpg',
-  cardsLifestyle: 'photo-card-lifestyle.jpg',
+  cardsElite: 'nfc-card.jpg',
+  cardsSocial: 'social-profile.jpg',
+  cardsBespoke: 'custom-identity.jpg',
+  cardsLifestyle: 'nfc-card.jpg',
   // Apparel — flat-lay or on-model, plain background.
-  hoodie: 'photo-hoodie.jpg',
-  tee: 'photo-tee.jpg',
-  apparelLifestyle: 'photo-apparel-lifestyle.jpg',
+  hoodie: 'streetwear-hoodie.jpg',
+  tee: 'streetwear-collection.jpg',
+  apparelLifestyle: 'streetwear-collection.jpg',
   // Digital studio — screenshots of real work, or your desk setup.
-  studioWebsite: 'photo-studio-website.jpg',
-  studioStore: 'photo-studio-store.jpg',
-  studioWorkspace: 'photo-studio-workspace.jpg',
+  studioWebsite: 'digital-studio.jpg',
+  studioStore: 'digital-commerce.jpg',
+  studioWorkspace: 'digital-studio.jpg',
   // Vehicles — 3/4 front, clean background.
-  vehicleSedan: 'photo-vehicle-sedan.jpg',
-  vehicleSuv: 'photo-vehicle-suv.jpg',
-  vehicleCoupe: 'photo-vehicle-coupe.jpg',
+  vehicleSedan: 'vehicle-sedan.jpg',
+  vehicleSuv: 'vehicle-suv.jpg',
+  vehicleCoupe: 'vehicle-coupe.jpg',
   // Real estate — wide interior / exterior.
-  propertyApartment: 'photo-property-apartment.jpg',
-  propertyVilla: 'photo-property-villa.jpg',
-  propertyLand: 'photo-property-land.jpg',
+  propertyApartment: 'property-apartment.jpg',
+  propertyVilla: 'property-villa.jpg',
+  propertyLand: 'property-land.jpg',
   // Hero + section banners.
-  hero: 'photo-hero.jpg',
+  hero: 'digital-studio.jpg',
 } as const;
 
-const IMG = '/images/';
+const IMG = `${import.meta.env.BASE_URL}images/`;
 
 /** Real-photo paths. Replace the underlying files; these paths never change. */
 export const photos = {

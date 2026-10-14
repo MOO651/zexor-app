@@ -52,6 +52,30 @@ html {
 body {
   margin: 0;
   background-color: var(--c-bg);
+  color: var(--c-ink);
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+/* Theme-aware feature surfaces keep large home-page panels in sync with the
+   selected theme instead of relying on a collection of light-only gradients. */
+.zx-feature-band {
+  border: 1px solid var(--c-line);
+  background: linear-gradient(135deg, var(--c-surface), var(--c-surface-2));
+  color: var(--c-ink);
+}
+
+.zx-feature-band .zx-feature-value {
+  color: var(--c-primary);
+}
+
+.zx-feature-band .zx-feature-label {
+  color: var(--c-muted);
+}
+
+.zx-theme-panel {
+  border-color: var(--c-line);
+  background: var(--c-surface);
+  color: var(--c-ink);
 }
 
 /* ---- Utilities used across the marketing surfaces ---------------- */
@@ -229,15 +253,44 @@ html:lang(ar) label {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-[data-theme="dark"] section,
-[data-theme="dark"] article,
 [data-theme="dark"] .bg-white,
+[data-theme="dark"] [class*="bg-white/"],
+[data-theme="dark"] [class*="bg-[#f"],
+[data-theme="dark"] [class*="bg-[#e"],
+[data-theme="dark"] [class*="bg-[#d"],
+[data-theme="dark"] [class*="bg-[#c"],
 [data-theme="dark"] .bg-white\/80,
 [data-theme="dark"] .bg-white\/85,
 [data-theme="dark"] .bg-white\/90 {
-  background-color: rgba(18, 30, 25, 0.92) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: #dcece3 !important;
+  background-color: var(--c-surface) !important;
+  border-color: var(--c-line) !important;
+  color: var(--c-ink) !important;
+}
+
+[data-theme="dark"] .zx-section {
+  background: linear-gradient(160deg, #14231d, #101c17) !important;
+  border-color: var(--c-line) !important;
+}
+
+[data-theme="dark"] .zx-feature-band {
+  background: linear-gradient(135deg, #14231d, #101c17);
+}
+
+[data-theme="dark"] .zx-theme-panel {
+  background: var(--c-surface);
+}
+
+/* Keep the warm sale chip and red feedback state distinct from pale surfaces. */
+[data-theme="dark"] [class*="bg-[#e6a68e]"] {
+  background-color: var(--brand-peach) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#c85a6e]"] {
+  background-color: #9f3e50 !important;
+}
+
+[data-theme="dark"] .zx-glass {
+  background: rgba(18, 30, 25, 0.82) !important;
 }
 
 [data-theme="dark"] input,
@@ -258,14 +311,27 @@ html:lang(ar) label {
 [data-theme="dark"] .text-\[\#293d32\],
 [data-theme="dark"] .text-\[\#34483e\],
 [data-theme="dark"] .text-\[\#263a33\] {
-  color: #ffffff !important;
+  color: var(--c-ink) !important;
+}
+
+[data-theme="dark"] [class*="text-[#1"],
+[data-theme="dark"] [class*="text-[#2"],
+[data-theme="dark"] [class*="text-[#3"] {
+  color: var(--c-ink) !important;
 }
 
 [data-theme="dark"] .text-\[\#697a70\],
 [data-theme="dark"] .text-\[\#7d8f85\],
 [data-theme="dark"] .text-\[\#788b80\],
 [data-theme="dark"] .text-\[\#74807a\] {
-  color: #a3baa9 !important;
+  color: var(--c-muted) !important;
+}
+
+[data-theme="dark"] [class*="text-[#4"],
+[data-theme="dark"] [class*="text-[#5"],
+[data-theme="dark"] [class*="text-[#6"],
+[data-theme="dark"] [class*="text-[#7"] {
+  color: var(--c-muted) !important;
 }
 
 /* Product plates + badges get a slightly darker surface in dark mode so the
@@ -276,7 +342,7 @@ html:lang(ar) label {
 }
 
 [data-theme="dark"] .zx-product .bg-\[\#eef3f0\] {
-  background-color: #101a16 !important;
+  background-color: var(--c-surface-2) !important;
 }
 
 button,
@@ -502,6 +568,17 @@ textarea:focus-visible {
 ::selection {
   color: #263e33;
   background: #d8eee5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

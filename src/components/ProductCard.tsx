@@ -1,24 +1,32 @@
 import { useState, type ReactNode } from 'react';
 import { Fingerprint, Heart, ShoppingBag, Sparkles } from 'lucide-react';
+import { art } from '../data/imagery';
 import type { Locale, Market, Product } from '../types';
+import { publicAssetUrl } from '../utils';
 
 type ProductCardProps = {
   product: Product;
   market: Market;
   locale: Locale;
   wishlisted: boolean;
-  /**
-   * Render a price with the app's own <PriceTag> so the RTL number/currency
-   * order stays exactly as it is today.
-   */
   renderPrice: (price: number, className: string) => ReactNode;
   onToggleWishlist: (product: Product) => void;
   onAddToCart: (product: Product, variant?: string) => void;
-  /** When given (NFC cards) the main button opens the customizer. */
   onCustomize?: (product: Product) => void;
-  /** Optional label on the image, e.g. "Limited Drop". */
   badge?: string;
+  categoryLabel?: string;
 };
+
+function fallbackFor(product: Product): string {
+  const id = product.id.toLowerCase();
+  if (product.category === 'fashion') return id.includes('hoodie') ? art.hoodie : art.tee;
+  if (product.category === 'services') {
+    return id.includes('commerce') || id.includes('store') ? art.studioStore : art.studioWebsite;
+  }
+  if (id.includes('social')) return art.cardsSocial;
+  if (id.includes('custom') || id.includes('bespoke')) return art.cardsBespoke;
+  return art.cardsElite;
+}
 
 export function ProductCard({
   product,
@@ -30,136 +38,162 @@ export function ProductCard({
   onAddToCart,
   onCustomize,
   badge,
+  categoryLabel: customCategoryLabel,
 }: ProductCardProps) {
   const isArabic = locale === 'ar';
   const price = product.price[market];
   const oldPrice = product.oldPrice?.[market];
-  const offer =
-    oldPrice !== undefined && oldPrice > price
-      ? { oldPrice, percent: Math.round((1 - price / oldPrice) * 100) }
-      : null;
-  const soldOut = !product.available;
+  const offer = oldPrice !== undefined && oldPrice > price
+    ? { oldPrice, percent: Math.round((1 - price / oldPrice) * 100) }
+    : null;
+  const soldOut = !product.available || product.stock === 0;
   const variants = product.variants ?? [];
   const [variant, setVariant] = useState<string | undefined>(() =>
     variants.includes('L') ? 'L' : variants[0],
   );
-
-  const t = {
-    wishlist: isArabic ? 'إضافة للمفضلة' : 'Toggle wishlist',
+  const [failedImageUrl, setFailedImageUrl] = useState('');
+  const fallbackImage = fallbackFor(product);
+  const labels = {
+    wishlist: isArabic ? 'إضافة للمفضلة' : 'Add to wishlist',
     soldOut: isArabic ? 'نفدت الكمية' : 'Sold out',
     unavailable: isArabic ? 'غير متوفر' : 'Unavailable',
-    customize: isArabic ? 'تخصيص الكارت' : 'Customize',
-    addToCart: isArabic ? 'إضافة إلى السلة' : 'Add to cart',
+    customize: isArabic ? 'تخصيص الكارت' : 'Personalize',
+    addToCart: isArabic ? 'إضافة إلى السلة' : 'Add to bag',
     size: isArabic ? 'المقاس' : 'Size',
   };
+  const categoryLabel = customCategoryLabel ?? (product.category === 'cards'
+    ? isArabic ? 'هوية رقمية متصلة' : 'CONNECTED IDENTITY'
+    : product.category === 'fashion'
+      ? isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'
+      : isArabic ? 'الاستوديو الرقمي' : 'DIGITAL STUDIO');
 
   return (
-    <article className="zx-card group flex flex-col overflow-hidden rounded-[var(--zx-radius,1.5rem)] border border-zx-line bg-zx-surface">
-      <div className="relative aspect-[4/3] overflow-hidden bg-zx-surface-2">
-        {product.imageUrl ? (
+    <article className="zx-card zx-product-luxe group flex h-full flex-col overflow-hidden rounded-[1.65rem] border border-zx-line bg-zx-surface">
+      <div className="zx-product-media relative aspect-[5/4] overflow-hidden bg-zx-surface-2">
+        {product.imageUrl && failedImageUrl !== product.imageUrl ? (
           <img
             alt={product.name[locale]}
-            className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${
-              soldOut ? 'grayscale' : ''
-            }`}
+            className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] ${soldOut ? 'grayscale' : ''}`}
             loading="lazy"
-            src={product.imageUrl}
+            onError={() => setFailedImageUrl(product.imageUrl ?? '')}
+            src={publicAssetUrl(product.imageUrl)}
           />
         ) : (
-          <div
-            aria-hidden="true"
-            className="h-full w-full bg-linear-to-br from-zx-mint/25 to-zx-lilac/25"
+          <img
+            alt={product.name[locale]}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            src={publicAssetUrl(fallbackImage)}
           />
         )}
 
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/40 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/30 via-black/5 to-transparent"
         />
 
         <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
           {soldOut && (
-            <span className="rounded-full bg-zx-ink px-2.5 py-1 text-[11px] font-bold text-zx-bg">
-              {t.soldOut}
+            <span className="rounded-full border border-white/15 bg-[#10251e]/90 px-3 py-1.5 text-[10px] font-bold tracking-wide text-white shadow-lg backdrop-blur-md">
+              {labels.soldOut}
             </span>
           )}
           {offer && !soldOut && (
-            <span className="rounded-full bg-zx-sale px-2.5 py-1 text-[11px] font-extrabold text-zx-on-sale">
+            <span className="rounded-full border border-white/30 bg-[#f4d9c9]/95 px-3 py-1.5 text-[10px] font-extrabold tracking-wide text-[#392b24] shadow-lg backdrop-blur-md">
               −{offer.percent}%
             </span>
           )}
         </div>
 
         <button
-          aria-label={t.wishlist}
+          aria-label={labels.wishlist}
           aria-pressed={wishlisted}
-          className="absolute end-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/60 bg-white/85 text-[#5e6f66] shadow-sm backdrop-blur-md transition-colors hover:text-[#b4533a]"
+          className="absolute end-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/55 bg-white/85 text-[#334d40] shadow-lg backdrop-blur-xl transition-all hover:scale-105 hover:bg-white hover:text-[#a75245]"
           onClick={() => onToggleWishlist(product)}
           type="button"
         >
-          <Heart className="h-4 w-4" fill={wishlisted ? '#b4533a' : 'none'} />
+          <Heart className="h-[18px] w-[18px]" fill={wishlisted ? '#b4533a' : 'none'} />
         </button>
 
         {badge && (
-          <span className="absolute bottom-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-[#0f2a22]/90 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm backdrop-blur-md">
+          <span className="absolute bottom-3 start-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[#0f2a22]/90 px-3 py-1.5 text-[10px] font-bold text-white shadow-lg backdrop-blur-md">
             <Sparkles className="h-3 w-3 shrink-0 text-[#77cdb5]" />
-            {/* bdi keeps the Arabic label from being reordered around the icon */}
             <bdi>{badge}</bdi>
           </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div>
-          <h3 className="text-[15px] font-bold leading-6 text-zx-ink">{product.name[locale]}</h3>
-          <p className="mt-1 line-clamp-2 text-[12.5px] leading-5 text-zx-muted">
+      <div className="flex flex-1 flex-col gap-4 p-5">
+        <div className="min-h-[6.5rem]">
+          <p className="mb-2 text-[9px] font-bold tracking-[0.18em] text-zx-primary">
+            {categoryLabel}
+          </p>
+          <h3 className="text-[15px] font-bold leading-6 text-zx-ink sm:text-base">
+            {product.name[locale]}
+          </h3>
+          <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-zx-muted">
             {product.description[locale]}
           </p>
         </div>
 
         {variants.length > 0 && (
-          <div aria-label={t.size} className="flex flex-wrap gap-1.5" role="radiogroup">
-            {variants.map((v) => {
-              const selected = v === variant;
-              return (
-                <button
-                  aria-checked={selected}
-                  className={`flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 text-[11px] font-bold transition-colors ${
-                    selected
-                      ? 'border-zx-primary bg-zx-primary text-zx-on-primary'
-                      : 'border-zx-line bg-zx-surface text-zx-muted hover:border-zx-primary hover:text-zx-primary'
-                  }`}
-                  key={v}
-                  onClick={() => setVariant(v)}
-                  role="radio"
-                  type="button"
-                >
-                  {v}
-                </button>
-              );
-            })}
+          <div className="space-y-2">
+            <p className="text-[10px] font-semibold text-zx-muted">{labels.size}</p>
+            <div aria-label={labels.size} className="flex flex-wrap gap-1.5" role="radiogroup">
+              {variants.map((size) => {
+                const selected = size === variant;
+                return (
+                  <button
+                    aria-checked={selected}
+                    className={`flex h-8 min-w-9 items-center justify-center rounded-xl border px-2.5 text-[10px] font-bold transition-all ${
+                      selected
+                        ? 'border-zx-primary bg-zx-primary text-zx-on-primary shadow-sm'
+                        : 'border-zx-line bg-zx-surface text-zx-muted hover:border-zx-primary hover:text-zx-primary'
+                    }`}
+                    key={size}
+                    onClick={() => setVariant(size)}
+                    role="radio"
+                    type="button"
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-1">
-          {renderPrice(price, 'zx-display text-[22px] text-zx-ink')}
-          {offer && renderPrice(offer.oldPrice, 'zx-strike text-xs text-zx-muted')}
+        <div className="zx-product-price mt-auto flex min-h-[4.25rem] items-center justify-between gap-2 border-t border-zx-line pt-3">
+          <div className="min-w-0">
+            <p className="mb-1 text-[9px] font-semibold tracking-wide text-zx-muted">
+              {isArabic ? 'السعر' : 'PRICE'}
+            </p>
+            {renderPrice(price, 'zx-display text-[23px] leading-none text-zx-ink')}
+          </div>
+          {offer && (
+            <div className="flex flex-col items-end gap-1">
+              <span className="rounded-full bg-zx-sale/25 px-2 py-0.5 text-[9px] font-bold text-zx-on-sale">
+                {isArabic ? `وفّر ${offer.percent}٪` : `SAVE ${offer.percent}%`}
+              </span>
+              {renderPrice(offer.oldPrice, 'zx-strike text-[10px] text-zx-muted')}
+            </div>
+          )}
         </div>
 
         {onCustomize ? (
           <div className="flex gap-2">
             <button
-              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-zx-primary text-[13px] font-bold text-zx-on-primary shadow-sm transition-colors hover:bg-zx-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-zx-primary px-4 text-[12px] font-bold text-zx-on-primary shadow-md shadow-zx-primary/15 transition-all hover:-translate-y-0.5 hover:bg-zx-primary-hover hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
               disabled={soldOut}
               onClick={() => onCustomize(product)}
               type="button"
             >
               <Fingerprint className="h-4 w-4" />
-              {soldOut ? t.unavailable : t.customize}
+              {soldOut ? labels.unavailable : labels.customize}
             </button>
             <button
-              aria-label={t.addToCart}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-zx-line bg-zx-surface text-zx-primary transition-colors hover:border-zx-primary hover:bg-zx-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label={labels.addToCart}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-zx-line bg-zx-surface text-zx-primary transition-all hover:border-zx-primary hover:bg-zx-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={soldOut}
               onClick={() => onAddToCart(product, variant)}
               type="button"
@@ -169,13 +203,13 @@ export function ProductCard({
           </div>
         ) : (
           <button
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-zx-primary text-[13px] font-bold text-zx-on-primary shadow-sm transition-colors hover:bg-zx-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-zx-primary text-[12px] font-bold text-zx-on-primary shadow-md shadow-zx-primary/15 transition-all hover:-translate-y-0.5 hover:bg-zx-primary-hover hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             disabled={soldOut}
             onClick={() => onAddToCart(product, variant)}
             type="button"
           >
             <ShoppingBag className="h-4 w-4" />
-            {soldOut ? t.unavailable : t.addToCart}
+            {soldOut ? labels.unavailable : labels.addToCart}
           </button>
         )}
       </div>

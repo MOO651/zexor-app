@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { Locale, Route } from '../types';
-import { art } from './imagery';
+import { photos } from './imagery';
 
 /**
  * The five ZEXOR departments. Kept in one place so the landing-page portals,
@@ -36,63 +36,63 @@ export type NumberedPortal = Portal & { index: string };
 const ORDERED: Portal[] = [
   {
     route: 'cards',
-    title: { en: 'Smart NFC Cards', ar: 'بطاقات NFC الذكية' },
+    title: { en: 'ZEXOR LINK', ar: 'زكسور لينك' },
     tagline: {
       en: 'Tap-to-share identity with a live 3D customizer.',
       ar: 'شارك هويتك بلمسة واحدة مع مُخصِّص ثلاثي الأبعاد.',
     },
     meta: { en: 'Elite · Social · Bespoke', ar: 'إيليت · سوشيال · مخصص' },
-    image: art.cardsPortal,
+    image: photos.cardsLifestyle,
     icon: CreditCard,
     accent: '#a6e6c4',
     span: 'wide',
   },
   {
     route: 'fashion',
-    title: { en: 'Atelier & Streetwear', ar: 'أتيليه الأزياء' },
+    title: { en: 'ZEXOR ATELIER', ar: 'أتيليه زكسور' },
     tagline: {
       en: 'Heavyweight streetwear released in limited runs.',
       ar: 'أزياء ثقيلة بإصدارات محدودة وحصرية.',
     },
     meta: { en: 'Limited · 450 GSM', ar: 'إصدار محدود · 450 جرام' },
-    image: art.hoodie,
+    image: photos.apparelLifestyle,
     icon: Shirt,
     accent: '#e0b49d',
     span: 'wide',
   },
   {
     route: 'cars',
-    title: { en: 'Vehicle Showroom', ar: 'معرض السيارات' },
+    title: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' },
     tagline: {
       en: 'Certified luxury cars with live inspection booking.',
       ar: 'سيارات فاخرة معتمدة مع حجز معاينة مباشر.',
     },
     meta: { en: 'Mercedes · BMW · Porsche', ar: 'مرسيدس · BMW · بورش' },
-    image: '/images/showcase-vehicles.svg',
+    image: photos.vehicleCoupe,
     icon: Car,
     accent: '#b8d8c7',
   },
   {
     route: 'property',
-    title: { en: 'Real Estate', ar: 'العقارات الفاخرة' },
+    title: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' },
     tagline: {
       en: 'Villas, apartments and land across Egypt & KSA.',
       ar: 'فيلات وشقق وأراضٍ في مصر والسعودية.',
     },
     meta: { en: 'Sale · Rent · Off-plan', ar: 'بيع · إيجار · تحت الإنشاء' },
-    image: '/images/showcase-estate.svg',
+    image: photos.propertyVilla,
     icon: Building2,
     accent: '#a9c4e8',
   },
   {
     route: 'services',
-    title: { en: 'Digital Studio', ar: 'الاستوديو الرقمي' },
+    title: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' },
     tagline: {
       en: 'Stores, platforms and apps engineered to convert.',
       ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',
     },
     meta: { en: 'Web · Commerce · Apps', ar: 'ويب · تجارة · تطبيقات' },
-    image: art.studioPortal,
+    image: photos.studioWebsite,
     icon: Code2,
     accent: '#9fd8e8',
     span: 'wide',

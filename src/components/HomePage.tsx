@@ -3,7 +3,7 @@ import { ArrowUpRight, MessageCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AGENCY_PROJECTS, STATS } from '../data/initialData';
 import type { Locale, Market, MarketFilter, Product, Property, Route, SiteSettings, Vehicle } from '../types';
-import { money, whatsappNumberFor } from '../utils';
+import { money, publicAssetUrl, whatsappNumberFor } from '../utils';
 import { CategoryShowcase } from './CategoryShowcase';
 import { HomeHero, TiltCard } from './HomeHero';
 import { FaqSection, TrackingAndNewsletter } from './HomeSections';
@@ -127,7 +127,7 @@ export function HomePage({
       </div>
 
       {/* 3. Live Animated Stats Counter */}
-      <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#f7fbf8] to-[#eef5f0] p-6 shadow-sm sm:p-8">
+      <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#c4f2e9]/60 blur-3xl"
@@ -142,10 +142,10 @@ export function HomePage({
               viewport={{ once: true }}
               whileInView={{ opacity: 1, y: 0 }}
             >
-              <p className="zx-display bg-linear-to-br from-[#21362b] to-[#4e8e6f] bg-clip-text text-3xl text-transparent sm:text-4xl">
+              <p className="zx-display zx-feature-value text-3xl sm:text-4xl">
                 {s.value}
               </p>
-              <p className="zx-eyebrow mt-2 text-[#7a8d83]">{s.label[locale]}</p>
+              <p className="zx-eyebrow zx-feature-label mt-2">{s.label[locale]}</p>
             </motion.div>
           ))}
         </div>
@@ -224,7 +224,7 @@ export function HomePage({
                 key={proj.id}
               >
                 <div className="relative aspect-video overflow-hidden bg-[#e0eee5]">
-                  <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={proj.image} />
+                  <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={publicAssetUrl(proj.image)} />
                   <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-2.5 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
                     {proj.category[locale]}
                   </span>
@@ -265,7 +265,7 @@ export function HomePage({
                 key={car.id}
               >
                 <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                  <img alt={car.title[locale]} className="h-full w-full object-cover" src={car.photo} />
+                  <img alt={car.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(car.photo)} />
                   <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
                     {car.id}
                   </span>
@@ -317,7 +317,7 @@ export function HomePage({
                 key={prop.id}
               >
                 <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                  <img alt={prop.title[locale]} className="h-full w-full object-cover" src={prop.photo} />
+                  <img alt={prop.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(prop.photo)} />
                   <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
                     {prop.id}
                   </span>
@@ -346,7 +346,13 @@ export function HomePage({
       )}
 
       {/* 9. Section 06: Client Testimonials & Reviews */}
-      <TestimonialsSection locale={locale} onToast={onToast} />
+      <TestimonialsSection
+        locale={locale}
+        onContact={() => {
+          const text = locale === 'ar' ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.';
+          window.open(`https://wa.me/${whatsappNumberFor(market, settings)}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+        }}
+      />
 
       {/* 10. Section 07: Interactive FAQ */}
       <FaqSection isArabic={isArabic} locale={locale} />

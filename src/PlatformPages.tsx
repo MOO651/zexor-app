@@ -23,6 +23,7 @@ import {
 import { useMemo, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { makeReference } from './utils';
+const PUBLIC_IMAGES = `${import.meta.env.BASE_URL}images/`;
 
 export type PlatformPage = 'cars' | 'property' | 'contact' | 'services';
 export type TrackedOrder = { id: string; status: 'new' | 'confirmed' | 'complete'; createdAt: string };
@@ -77,15 +78,15 @@ type Property = Listing & {
 };
 
 const DEMO_VEHICLES: Vehicle[] = [
-  { id: 'DEMO-CAR-101', title: { en: 'Astra City Edition', ar: 'أسترا سيتي إيديشن' }, location: { en: 'New Cairo', ar: 'القاهرة الجديدة' }, price: 930000, area: 0, region: 'Cairo', photo: '/images/demo-sedan.svg', make: 'Astra', year: 2024, transmission: 'Automatic', condition: 'Used', body: 'Sedan' },
-  { id: 'DEMO-CAR-204', title: { en: 'Terra Horizon SUV', ar: 'تيرا هورايزن SUV' }, location: { en: '6th of October', ar: 'السادس من أكتوبر' }, price: 1480000, area: 0, region: 'Giza', photo: '/images/demo-suv.svg', make: 'Terra', year: 2025, transmission: 'Automatic', condition: 'New', body: 'SUV' },
-  { id: 'DEMO-CAR-318', title: { en: 'Riva Classic Coupe', ar: 'ريفا كلاسيك كوبيه' }, location: { en: 'Alexandria', ar: 'الإسكندرية' }, price: 765000, area: 0, region: 'Alexandria', photo: '/images/demo-coupe.svg', make: 'Riva', year: 2022, transmission: 'Manual', condition: 'Used', body: 'Coupe' },
+  { id: 'DEMO-CAR-101', title: { en: 'Astra City Edition', ar: 'أسترا سيتي إيديشن' }, location: { en: 'New Cairo', ar: 'القاهرة الجديدة' }, price: 930000, area: 0, region: 'Cairo', photo: `${PUBLIC_IMAGES}demo-sedan.svg`, make: 'Astra', year: 2024, transmission: 'Automatic', condition: 'Used', body: 'Sedan' },
+  { id: 'DEMO-CAR-204', title: { en: 'Terra Horizon SUV', ar: 'تيرا هورايزن SUV' }, location: { en: '6th of October', ar: 'السادس من أكتوبر' }, price: 1480000, area: 0, region: 'Giza', photo: `${PUBLIC_IMAGES}demo-suv.svg`, make: 'Terra', year: 2025, transmission: 'Automatic', condition: 'New', body: 'SUV' },
+  { id: 'DEMO-CAR-318', title: { en: 'Riva Classic Coupe', ar: 'ريفا كلاسيك كوبيه' }, location: { en: 'Alexandria', ar: 'الإسكندرية' }, price: 765000, area: 0, region: 'Alexandria', photo: `${PUBLIC_IMAGES}demo-coupe.svg`, make: 'Riva', year: 2022, transmission: 'Manual', condition: 'Used', body: 'Coupe' },
 ];
 
 const DEMO_PROPERTIES: Property[] = [
-  { id: 'DEMO-EST-017', title: { en: 'Palm Residence Apartment', ar: 'شقة بالم ريزيدنس' }, location: { en: 'New Cairo · Fifth Settlement', ar: 'القاهرة الجديدة · التجمع الخامس' }, price: 4600000, area: 156, region: 'Cairo', photo: '/images/demo-apartment.svg', type: 'Apartment', deal: 'Sale', rooms: 3, floor: 3 },
-  { id: 'DEMO-EST-024', title: { en: 'Courtyard Villa', ar: 'فيلا كورت يارد' }, location: { en: 'Sheikh Zayed', ar: 'الشيخ زايد' }, price: 28500, area: 310, region: 'Giza', photo: '/images/demo-villa.svg', type: 'Villa', deal: 'Rent', rooms: 5, floor: 0 },
-  { id: 'DEMO-EST-039', title: { en: 'Garden District Plot', ar: 'قطعة أرض حي الحدائق' }, location: { en: 'Riyadh · North District', ar: 'الرياض · الحي الشمالي' }, price: 1850000, area: 420, region: 'Riyadh', photo: '/images/demo-land.svg', type: 'Land', deal: 'Sale', rooms: 0, floor: 0 },
+  { id: 'DEMO-EST-017', title: { en: 'Palm Residence Apartment', ar: 'شقة بالم ريزيدنس' }, location: { en: 'New Cairo · Fifth Settlement', ar: 'القاهرة الجديدة · التجمع الخامس' }, price: 4600000, area: 156, region: 'Cairo', photo: `${PUBLIC_IMAGES}demo-apartment.svg`, type: 'Apartment', deal: 'Sale', rooms: 3, floor: 3 },
+  { id: 'DEMO-EST-024', title: { en: 'Courtyard Villa', ar: 'فيلا كورت يارد' }, location: { en: 'Sheikh Zayed', ar: 'الشيخ زايد' }, price: 28500, area: 310, region: 'Giza', photo: `${PUBLIC_IMAGES}demo-villa.svg`, type: 'Villa', deal: 'Rent', rooms: 5, floor: 0 },
+  { id: 'DEMO-EST-039', title: { en: 'Garden District Plot', ar: 'قطعة أرض حي الحدائق' }, location: { en: 'Riyadh · North District', ar: 'الرياض · الحي الشمالي' }, price: 1850000, area: 420, region: 'Riyadh', photo: `${PUBLIC_IMAGES}demo-land.svg`, type: 'Land', deal: 'Sale', rooms: 0, floor: 0 },
 ];
 
 const COPY = {

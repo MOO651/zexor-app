@@ -10,22 +10,22 @@ import {
   Layers,
   MessageCircle,
   MonitorSmartphone,
-  Quote,
   ShoppingBag,
   Sparkles,
-  Star,
 } from 'lucide-react';
-import { AGENCY_PROJECTS, STATS, TESTIMONIALS } from '../data/initialData';
+import { AGENCY_PROJECTS, STATS } from '../data/initialData';
 import type { Locale, Market, PlatformInquiry } from '../types';
+import { publicAssetUrl } from '../utils';
 
 type Props = {
   locale: Locale;
   market: Market;
   onInquiry: (inquiry: PlatformInquiry) => void;
   onWhatsApp: (market: Market, message: string) => void;
+  sectionName?: string;
 };
 
-export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp }: Props) {
+export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp, sectionName }: Props) {
   const isArabic = locale === 'ar';
   const currency = market === 'eg' ? (isArabic ? 'ج.م' : 'EGP') : isArabic ? 'ر.س' : 'SAR';
 
@@ -51,7 +51,7 @@ export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp }: Props
   const handleCalculatorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const inquiry: PlatformInquiry = {
-      id: `ZX-CALC-${Date.now().toString().slice(-6)}`,
+      id: `ZX-CALC-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
       createdAt: new Date().toISOString(),
       type: 'contact',
       title: `${kind.toUpperCase()} Project · Cost Calculator`,
@@ -144,7 +144,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
             ZEXOR / PORTFOLIO & DIGITAL AGENCY
           </p>
           <h1 className={`mt-3 text-3xl font-semibold text-[#293d32] sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
-            {isArabic ? 'استوديو البرمجة والتطوير الرقمي' : 'Digital Studio & Software Engineering'}
+            {sectionName ?? (isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL')}
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
             {isArabic
@@ -192,7 +192,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
               {isArabic ? 'معاينة حية للمشاريع' : 'Live Interactive Demos'}
             </span>
             <h2 className="mt-1 text-2xl font-bold text-[#2d4236]">
-              {isArabic ? 'نماذج ومشاريع قمنا بتطويرها' : 'Featured Client Works & Platforms'}
+              {isArabic ? 'نماذج تفاعلية مختارة' : 'Selected Interactive Demos'}
             </h2>
           </div>
           <p className="text-xs text-[#7e8d84]">
@@ -211,7 +211,7 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
                 <img
                   alt={proj.title[locale]}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  src={proj.image}
+                  src={publicAssetUrl(proj.image)}
                 />
                 <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-white backdrop-blur-md">
                   {proj.category[locale]}
@@ -521,47 +521,6 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
               </div>
             );
           })}
-        </div>
-      </section>
-
-      {/* 5. Client Testimonials & Reviews */}
-      <section className="rounded-3xl border border-white bg-linear-to-br from-[#eff7f2] via-white to-[#f7f1f9] p-6 shadow-md sm:p-9">
-        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-          <div>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#69937c]">
-              {isArabic ? 'آراء وتقييمات العملاء' : 'Client Testimonials'}
-            </span>
-            <h2 className="mt-1 text-2xl font-bold text-[#2b4134]">
-              {isArabic ? 'ماذا يقول شركاء نجاحنا؟' : 'Trusted by Visionary Founders'}
-            </h2>
-          </div>
-          <div className="flex items-center gap-1 text-[#f39c12]">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Star className="h-4 w-4 fill-current" key={i} />
-            ))}
-            <span className="ms-1.5 text-xs font-bold text-[#3d594a]">5.0 / 5.0</span>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div
-              className="relative flex flex-col justify-between rounded-2xl border border-white/90 bg-white/80 p-5 shadow-sm backdrop-blur-md"
-              key={t.id}
-            >
-              <Quote className="h-6 w-6 text-[#99bfaa]/40" />
-              <p className="my-3 text-xs leading-5 text-[#546b5e]">{t.content[locale]}</p>
-              <div className="flex items-center gap-3 border-t border-[#edf2ef] pt-3">
-                <img alt={t.name[locale]} className="h-10 w-10 rounded-full object-cover" src={t.avatar} />
-                <div>
-                  <h4 className="text-xs font-bold text-[#2e4337]">{t.name[locale]}</h4>
-                  <p className="text-[9px] text-[#7d8f85]">
-                    {t.role[locale]} · {t.company[locale]}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 

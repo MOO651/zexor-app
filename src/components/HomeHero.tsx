@@ -15,6 +15,7 @@ import {
 import type { PointerEvent, ReactNode } from 'react';
 import { art } from '../data/imagery';
 import type { Locale, Market, Route } from '../types';
+import { publicAssetUrl } from '../utils';
 
 export function TiltCard({
   children,
@@ -77,6 +78,8 @@ type Props = {
   heroText: string;
   /** Optional admin-set hero background image (data-url or /images path). */
   heroImage?: string;
+  departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string>>;
+  departmentCount?: number;
 };
 
 /** Rotating advertising headline words for the animated hero ticker. */
@@ -94,8 +97,13 @@ export function HomeHero({
   heroAccent,
   heroText,
   heroImage,
+  departmentNames,
+  departmentCount = 5,
 }: Props) {
   const isArabic = locale === 'ar';
+  const tickerNames = departmentNames
+    ? (['cards', 'fashion', 'services', 'cars', 'property'] as const).map((key) => departmentNames[key] ?? HERO_TICKER[locale][['cards', 'fashion', 'services', 'cars', 'property'].indexOf(key)])
+    : HERO_TICKER[locale];
   const pointerX = useMotionValue(0.5);
   const pointerY = useMotionValue(0.5);
   const smoothX = useSpring(pointerX, { stiffness: 65, damping: 20 });
@@ -133,7 +141,7 @@ export function HomeHero({
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
-          src={heroImage}
+          src={publicAssetUrl(heroImage)}
         />
       )}
       {/* 3D Atmospheric Radial Glows */}
@@ -202,7 +210,7 @@ export function HomeHero({
                 onClick={() => navigate('cards')}
                 type="button"
               >
-                <span>{isArabic ? 'اكتشف بطاقات NFC' : 'Explore NFC Cards'}</span>
+                <span>{isArabic ? `اكتشف ${departmentNames?.cards ?? 'زكسور لينك'}` : `Explore ${departmentNames?.cards ?? 'ZEXOR LINK'}`}</span>
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </button>
 
@@ -211,7 +219,7 @@ export function HomeHero({
                 onClick={() => document.getElementById('departments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 type="button"
               >
-                <span>{isArabic ? 'استعرض الأقسام الخمسة' : 'Explore All 5 Departments'}</span>
+                <span>{isArabic ? `استعرض الأقسام (${departmentCount})` : `Explore Departments (${departmentCount})`}</span>
               </button>
             </div>
           </div>
@@ -285,7 +293,7 @@ export function HomeHero({
                   </span>
                 </span>
                 <span className="absolute start-3 bottom-3 rounded-full bg-[#294234]/90 px-2.5 py-1 text-[7px] font-bold text-white">
-                  02 · {isArabic ? 'بطاقات NFC' : 'NFC CARDS'}
+                  02 · {departmentNames?.cards ?? (isArabic ? 'زكسور لينك' : 'ZEXOR LINK')}
                 </span>
               </motion.button>
 
@@ -305,7 +313,7 @@ export function HomeHero({
                 <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-[#121c17]/90 via-[#121c17]/30 to-transparent" />
                 <span className="absolute inset-x-3 bottom-3 flex items-end justify-between text-white sm:inset-x-4 sm:bottom-4">
                   <div>
-                    <span className="block text-[7px] font-bold tracking-widest text-white/75">03 · STUDIO</span>
+                    <span className="block text-[7px] font-bold tracking-widest text-white/75">03 · ZEXOR DIGITAL</span>
                     <span className="mt-0.5 block text-xs font-bold sm:text-sm">
                       {isArabic ? 'مواقع وتطبيقات ومتاجر' : 'Web & App Studio'}
                     </span>
@@ -323,7 +331,7 @@ export function HomeHero({
         <div className="relative z-20 flex flex-col gap-3 border-t border-black/5 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="zx-marquee zx-no-bar overflow-hidden">
             <div className="zx-marquee-track">
-              {[...HERO_TICKER[locale], ...HERO_TICKER[locale], ...HERO_TICKER[locale], ...HERO_TICKER[locale]].map(
+              {[...tickerNames, ...tickerNames, ...tickerNames, ...tickerNames].map(
                 (word, i) => (
                   <span
                     className="zx-eyebrow mx-4 inline-flex items-center gap-3 text-[#748278]"

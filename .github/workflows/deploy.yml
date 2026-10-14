@@ -36,12 +36,17 @@ jobs:
       - name: Type-check
         run: npx tsc --noEmit -p tsconfig.app.json
 
+      - name: Check Supabase Edge Functions
+        run: npx --yes deno check supabase/functions/paymob-create-intention/index.ts supabase/functions/paymob-webhook/index.ts supabase/functions/telegram-test-notification/index.ts
+
       - name: Build
         run: npm run build
         env:
-          # Set VITE_ADMIN_PASSWORD as a repository secret to control the
-          # admin studio password. Falls back to the built-in demo value.
-          VITE_ADMIN_PASSWORD: ${{ secrets.VITE_ADMIN_PASSWORD }}
+          # These are the browser-safe project URL and anon key. Admin access
+          # is enforced by Supabase Auth + the store_admins table, not a build
+          # time password.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

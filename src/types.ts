@@ -45,6 +45,8 @@ export type Product = {
   badge?: string;
   /** Pins the product to the top of its category / home showcase. */
   featured?: boolean;
+  /** Optional tracked stock quantity. Omit to keep unlimited / untracked stock. */
+  stock?: number;
 };
 
 export type OrderItem = {
@@ -62,16 +64,26 @@ export type CustomerOrder = {
   createdAt: string;
   customer: string;
   phone: string;
+  email?: string;
   city: string;
   market: Market;
   items: OrderItem[];
-  status: 'new' | 'confirmed' | 'complete';
+  status: 'new' | 'confirmed' | 'complete' | 'cancelled';
+  /** Prevents cancelled orders from returning stock more than once. */
+  stockAdjusted?: boolean;
+  /** Products whose stock was tracked when the order was placed. */
+  stockAdjustedProductIds?: string[];
   total: number;
   subtotal: number;
   shippingFee: number;
   discount: number;
   promoCode?: string;
-  paymentMethod: 'whatsapp' | 'card' | 'apple_pay' | 'mada' | 'cod';
+  paymentMethod: string;
+  paymentMethodKey?: string;
+  paymentStatus?: 'unpaid' | 'pending' | 'paid' | 'failed' | 'refunded';
+  shippingCarrier?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
   notes?: string;
 };
 
@@ -125,6 +137,9 @@ export type Vehicle = {
   title: Record<Locale, string>;
   location: Record<Locale, string>;
   price: number;
+  /** Defaults to Sale for listings created before rental support. */
+  deal?: 'Sale' | 'Rent';
+  rentalPeriod?: 'Day' | 'Week' | 'Month';
   oldPrice?: number;
   area: number;
   region: 'Cairo' | 'Giza' | 'Alexandria' | 'Riyadh' | 'Jeddah';
@@ -167,16 +182,6 @@ export type AgencyProject = {
   tags: string[];
 };
 
-export type Testimonial = {
-  id: string;
-  name: Record<Locale, string>;
-  role: Record<Locale, string>;
-  company: Record<Locale, string>;
-  content: Record<Locale, string>;
-  rating: number;
-  avatar: string;
-};
-
 export type SiteSettings = {
   heroTitle: Record<Locale, string>;
   heroAccent: Record<Locale, string>;
@@ -190,6 +195,18 @@ export type SiteSettings = {
   telegramUsername: string;
   telegramBotToken: string;
   telegramChatId: string;
+  /** Instagram business handle shown in the footer (without the leading @). */
+  instagramHandle: string;
+  /** Public Instagram profile URL; empty falls back to the handle-based URL. */
+  instagramUrl: string;
+  /** InstaPay wallet handle used by customers paying from Egypt. */
+  instapayHandle: string;
+  /** InstaPay account holder name shown next to the handle. */
+  instapayName: string;
+  /** Vodafone Cash wallet number customers transfer to. */
+  vodafoneCashNumber: string;
+  /** Vodafone Cash account holder name shown next to the number. */
+  vodafoneCashName: string;
   announcementText: Record<Locale, string>;
   announcementActive: boolean;
   /** Percentage discount applied to the whole catalogue while active. */
@@ -200,8 +217,13 @@ export type SiteSettings = {
   };
   /** Order subtotal above which shipping is free (per market, in local currency). */
   freeShippingThreshold: Record<Market, number>;
+  /** Store-configured delivery estimates indexed by checkout city and market. */
+  shippingRates: Record<string, Record<Market, number>>;
   /** Global tax / VAT percentage added at checkout. */
   taxRate: number;
+  /** Optional market-specific rates and COD controls; legacy values remain fallbacks. */
+  taxRateByMarket: Record<Market, number>;
+  codEnabledByMarket: Record<Market, boolean>;
   /** Enables Cash on Delivery as a payment option. */
   codEnabled: boolean;
   /** Coupon code applied site-wide automatically when set. */
@@ -255,4 +277,17 @@ export type SiteSettings = {
    */
   maintenanceActive: boolean;
   maintenanceText: Record<Locale, string>;
+  /**
+   * Social + manual payment channels edited from the admin dashboard.
+   * Instagram, InstaPay and Vodafone Cash identifiers live here so the admin
+   * can publish them without a code change.
+   */
+  socials: {
+    instagramHandle: string;
+    instagramUrl: string;
+    instapayNumber: string;
+    instapayName: string;
+    vodafoneCashNumber: string;
+    vodafoneCashName: string;
+  };
 };

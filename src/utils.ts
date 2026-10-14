@@ -157,26 +157,13 @@ export function whatsappNumberFor(
  * purity rules stay satisfied.
  */
 export function makeReference(prefix: string): string {
-  return `${prefix}-${Date.now().toString().slice(-6)}`;
+  return `${prefix}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
-/**
- * Password used when `VITE_ADMIN_PASSWORD` is not configured.
- * Exported (and read as a default parameter, not inline in `App.tsx`) so the
- * `undefined` env path can be exercised directly in tests.
- */
-export const ADMIN_PASSWORD_FALLBACK = 'zexor-demo';
-
-/**
- * Resolves the admin studio password from a raw env value.
- * An `undefined` value (variable not set in `.env`) or a blank string
- * (e.g. `VITE_ADMIN_PASSWORD=` in `.env`) falls back to the demo password
- * instead of authenticating against an empty secret.
- */
-export function resolveAdminPassword(envValue?: string): string {
-  const raw = envValue ?? import.meta.env?.VITE_ADMIN_PASSWORD;
-  const trimmed = raw?.trim();
-  return trimmed ? trimmed : ADMIN_PASSWORD_FALLBACK;
+/** Resolve public-root paths against Vite's base so subpath deployments work. */
+export function publicAssetUrl(path: string | undefined): string | undefined {
+  if (!path || /^(https?:|data:|blob:|\/\/)/i.test(path) || !path.startsWith('/')) return path;
+  return `${import.meta.env.BASE_URL}${path.slice(1)}`;
 }
 
 /**

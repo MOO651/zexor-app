@@ -1,0 +1,2 @@
+[functions.paymob-webhook]
+verify_jwt = false

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
   CarFront,
+  CircleAlert,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_PROPERTIES, INITIAL_VEHICLES } from '../data/initialData';
 import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../types';
+import { publicAssetUrl } from '../utils';
 
 type Props = {
   mode: 'cars' | 'property';
@@ -25,6 +27,7 @@ type Props = {
   properties?: Property[];
   onInquiry: (inquiry: PlatformInquiry) => void;
   onWhatsApp: (market: Market, message: string) => void;
+  sectionName?: string;
 };
 
 export function Marketplace({
@@ -35,19 +38,16 @@ export function Marketplace({
   properties,
   onInquiry,
   onWhatsApp,
+  sectionName,
 }: Props) {
   const isArabic = locale === 'ar';
-  // Matches `currencySymbol()` — Arabic omits the period, because a bare "."
-  // between two Arabic letters is bidi-neutral and the browser reorders it,
-  // rendering "ج.م" as "م.ج".
-  const currency = market === 'eg' ? (isArabic ? 'جم' : 'EGP') : isArabic ? 'ر.س' : 'SAR';
-
   // Filters
   const [regionFilter, setRegionFilter] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
   const [dealFilter, setDealFilter] = useState('');
+  const [vehicleDealFilter, setVehicleDealFilter] = useState('');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [makeFilter, setMakeFilter] = useState('');
 
@@ -67,8 +67,27 @@ export function Marketplace({
   const vehicleList = vehicles ?? INITIAL_VEHICLES;
   const propertyList = properties ?? INITIAL_PROPERTIES;
 
+  const marketRegions = market === 'eg' ? ['Cairo', 'Giza', 'Alexandria'] : ['Riyadh', 'Jeddah'];
+  const selectedRegion = marketRegions.includes(regionFilter) ? regionFilter : '';
+  const inMarket = (region: string) => (market === 'ksa' ? ['Riyadh', 'Jeddah'].includes(region) : !['Riyadh', 'Jeddah'].includes(region));
+  const listingCurrency = (region: string) => (['Riyadh', 'Jeddah'].includes(region)
+    ? (isArabic ? 'ر.س' : 'SAR')
+    : (isArabic ? 'جم' : 'EGP'));
+  const formatListingPrice = (price: number, region: string) =>
+    `${new Intl.NumberFormat(isArabic ? (market === 'ksa' ? 'ar-SA' : 'ar-EG') : 'en').format(price)} ${listingCurrency(region)}`;
+  const rentalPeriodLabel = (vehicle: Vehicle) => {
+    const period = vehicle.rentalPeriod ?? 'Day';
+    if (!isArabic) return period.toLowerCase();
+    return ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[period];
+  };
+  const vehiclePricePeriod = (vehicle: Vehicle) => vehicle.deal === 'Rent'
+    ? isArabic ? ` / ${rentalPeriodLabel(vehicle)}` : ` / ${rentalPeriodLabel(vehicle)}`
+    : '';
+
   const filteredVehicles = vehicleList.filter((car) => {
-    if (regionFilter && car.region !== regionFilter) return false;
+    if (!inMarket(car.region)) return false;
+    if (selectedRegion && car.region !== selectedRegion) return false;
+    if (vehicleDealFilter && (car.deal ?? 'Sale') !== vehicleDealFilter) return false;
     if (makeFilter && car.make !== makeFilter) return false;
     if (conditionFilter && car.condition !== conditionFilter) return false;
     if (minPrice && car.price < Number(minPrice)) return false;
@@ -77,7 +96,8 @@ export function Marketplace({
   });
 
   const filteredProperties = propertyList.filter((prop) => {
-    if (regionFilter && prop.region !== regionFilter) return false;
+    if (!inMarket(prop.region)) return false;
+    if (selectedRegion && prop.region !== selectedRegion) return false;
     if (dealFilter && prop.deal !== dealFilter) return false;
     if (propertyTypeFilter && prop.type !== propertyTypeFilter) return false;
     if (minPrice && prop.price < Number(minPrice)) return false;
@@ -86,15 +106,16 @@ export function Marketplace({
   });
 
   const handleCarWhatsApp = (car: Vehicle) => {
+    const isRental = car.deal === 'Rent';
     const text = isArabic
-      ? `مرحباً ZEXOR، أرغب في حجز معاينة للسيارة:
+      ? `مرحباً ZEXOR، أرغب في ${isRental ? 'الاستفسار عن استئجار السيارة' : 'حجز معاينة للسيارة'}:
 كود السيارة: ${car.id}
 الموديل: ${car.title.ar}
-السعر: ${new Intl.NumberFormat('ar-EG').format(car.price)} ج.م`
-      : `Hello ZEXOR, I want to book a viewing for vehicle:
+السعر: ${formatListingPrice(car.price, car.region)}${vehiclePricePeriod(car)}`
+      : `Hello ZEXOR, I want to ${isRental ? 'inquire about renting' : 'book a viewing for'} vehicle:
 Car Code: ${car.id}
 Model: ${car.title.en}
-Price: ${new Intl.NumberFormat('en').format(car.price)} EGP`;
+Price: ${formatListingPrice(car.price, car.region)}${vehiclePricePeriod(car)}`;
     onWhatsApp(market, text);
   };
 
@@ -104,7 +125,7 @@ Price: ${new Intl.NumberFormat('en').format(car.price)} EGP`;
     const itemCode = activeVehicle ? activeVehicle.id : activeProperty ? activeProperty.id : '';
 
     const inquiry: PlatformInquiry = {
-      id: `ZX-BK-${Date.now().toString().slice(-6)}`,
+      id: `ZX-BK-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
       createdAt: new Date().toISOString(),
       type: mode === 'cars' ? 'car' : 'property',
       title: `${itemCode} · ${itemTitle}`,
@@ -113,7 +134,9 @@ Price: ${new Intl.NumberFormat('en').format(car.price)} EGP`;
       city: activeVehicle ? activeVehicle.region : activeProperty ? activeProperty.region : '',
       market,
       budget: '',
-      message: `Inspection booked for ${bookingDate} at ${bookingTime}`,
+      message: activeVehicle?.deal === 'Rent'
+        ? `Vehicle rental request for ${bookingDate} at ${bookingTime}`
+        : `Inspection booked for ${bookingDate} at ${bookingTime}`,
       date: bookingDate,
       time: bookingTime,
       status: 'new',
@@ -121,14 +144,14 @@ Price: ${new Intl.NumberFormat('en').format(car.price)} EGP`;
     onInquiry(inquiry);
 
     const msg = isArabic
-      ? `طلب حجز موعد معاينة ميدانية:
+      ? `${activeVehicle?.deal === 'Rent' ? 'طلب استئجار السيارة:' : 'طلب حجز موعد معاينة ميدانية:'}
 الكود: ${itemCode}
 الاسم: ${bookingName}
 الهاتف: ${bookingPhone}
 التاريخ: ${bookingDate}
 الساعة: ${bookingTime}
 العنوان: ${itemTitle}`
-      : `Inspection appointment booked:
+      : `${activeVehicle?.deal === 'Rent' ? 'Vehicle rental request:' : 'Inspection appointment booked:'}
 Code: ${itemCode}
 Name: ${bookingName}
 Phone: ${bookingPhone}
@@ -152,25 +175,33 @@ Listing: ${itemTitle}`;
         <div className="relative z-10 max-w-2xl">
           <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
             {mode === 'cars' ? <CarFront className="h-4 w-4" /> : <Home className="h-4 w-4" />}
-            ZEXOR / {mode === 'cars' ? 'VEHICLE SHOWROOM' : 'PREMIUM REAL ESTATE'}
+            ZEXOR / {sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')}
           </p>
           <h1 className="zx-h1 zx-display mt-3 text-[#21362b]">
-            {mode === 'cars'
+            {sectionName ?? (mode === 'cars'
               ? isArabic
-                ? 'معرض السيارات الفاخرة'
-                : 'Curated Vehicle Showroom'
+                ? 'زكسور موتورز'
+                : 'ZEXOR MOTORS'
               : isArabic
-                ? 'عقارات مختارة بعناية'
-                : 'Prime Real Estate & Estates'}
+                ? 'زكسور إستيتس'
+                : 'ZEXOR ESTATES')}
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
             {mode === 'cars'
               ? isArabic
                 ? 'تصفح السيارات المتاحة للبيع مع صور متعددة وسلايدر تكبير ومواصفات تفصيلية وحجز معاينة فورية بالرمز التعريفي.'
-                : 'Browse verified vehicles with high-resolution multi-angle gallery, specifications, and instant WhatsApp inspection booking.'
+                : 'Explore vehicle listings, compare specifications and arrange an inspection directly with our team.'
               : isArabic
-                ? 'عقارات مختارة للبيع والإيجار (شقق، فيلات، أراضٍ، محلات) مع خريطة توضيحية وجدول مواعيد معاينة ميدانية.'
-                : 'Explore prime residential and commercial spaces with district maps and in-person viewing reservation.'}
+                ? 'تصفح الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار، واطلب موعد معاينة مباشرة.'
+                : 'Explore residential and commercial listings, then arrange an in-person viewing with our team.'}
+          </p>
+          <p className="zx-theme-panel mt-4 flex max-w-2xl items-start gap-2 rounded-2xl border px-3.5 py-3 text-[10px] leading-5 shadow-sm">
+            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#8a7043]" />
+            <span>
+              {isArabic
+                ? 'العروض والصور المعروضة نماذج توضيحية. أكّد التوفر والسعر والصورة الفعلية مع فريق ZEXOR قبل الحجز.'
+                : 'Listings and photos are illustrative examples. Confirm availability, pricing and actual photos with ZEXOR before booking.'}
+            </span>
           </p>
         </div>
       </section>
@@ -183,7 +214,9 @@ Listing: ${itemTitle}`;
             {isArabic ? 'تصفية وبحث متقدم' : 'Advanced Filter & Refine'}
           </h3>
           <span className="text-[10px] text-[#7d8f85]">
-            {mode === 'cars' ? `${filteredVehicles.length} سيارات` : `${filteredProperties.length} عقارات`}
+            {isArabic
+              ? mode === 'cars' ? `${filteredVehicles.length} سيارات` : `${filteredProperties.length} عقارات`
+              : mode === 'cars' ? `${filteredVehicles.length} vehicles` : `${filteredProperties.length} properties`}
           </span>
         </div>
 
@@ -194,20 +227,22 @@ Listing: ${itemTitle}`;
             <select
               className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setRegionFilter(e.target.value)}
-              value={regionFilter}
+              value={selectedRegion}
             >
               <option value="">{isArabic ? 'كل المناطق' : 'All Regions'}</option>
-              <option value="Cairo">{isArabic ? 'القاهرة' : 'Cairo'}</option>
-              <option value="Giza">{isArabic ? 'الجيزة' : 'Giza'}</option>
-              <option value="Alexandria">{isArabic ? 'الإسكندرية' : 'Alexandria'}</option>
-              <option value="Riyadh">{isArabic ? 'الرياض' : 'Riyadh'}</option>
-              <option value="Jeddah">{isArabic ? 'جدة' : 'Jeddah'}</option>
+              {marketRegions.map((region) => (
+                <option key={region} value={region}>
+                  {isArabic
+                    ? ({ Cairo: 'القاهرة', Giza: 'الجيزة', Alexandria: 'الإسكندرية', Riyadh: 'الرياض', Jeddah: 'جدة' } as Record<string, string>)[region]
+                    : region}
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Price Range */}
           <div className="flex flex-col gap-1.5">
-            <label className="zx-field-label">{isArabic ? 'أقل سعر' : 'Min Price'}</label>
+            <label className="zx-field-label">{isArabic ? `أقل سعر (${market === 'eg' ? 'ج.م' : 'ر.س'})` : `Min Price (${market === 'eg' ? 'EGP' : 'SAR'})`}</label>
             <input
               className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setMinPrice(e.target.value)}
@@ -218,7 +253,7 @@ Listing: ${itemTitle}`;
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="zx-field-label">{isArabic ? 'أعلى سعر' : 'Max Price'}</label>
+            <label className="zx-field-label">{isArabic ? `أعلى سعر (${market === 'eg' ? 'ج.م' : 'ر.س'})` : `Max Price (${market === 'eg' ? 'EGP' : 'SAR'})`}</label>
             <input
               className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
               onChange={(e) => setMaxPrice(e.target.value)}
@@ -230,6 +265,18 @@ Listing: ${itemTitle}`;
 
           {mode === 'cars' ? (
             <>
+              <div className="flex flex-col gap-1.5">
+                <label className="zx-field-label">{isArabic ? 'نوع العرض' : 'Listing type'}</label>
+                <select
+                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  onChange={(e) => setVehicleDealFilter(e.target.value)}
+                  value={vehicleDealFilter}
+                >
+                  <option value="">{isArabic ? 'بيع وإيجار' : 'Sale & Rent'}</option>
+                  <option value="Sale">{isArabic ? 'للبيع' : 'For sale'}</option>
+                  <option value="Rent">{isArabic ? 'للإيجار' : 'For rent'}</option>
+                </select>
+              </div>
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'الماركة' : 'Make'}</label>
                 <select
@@ -252,7 +299,7 @@ Listing: ${itemTitle}`;
                 >
                   <option value="">{isArabic ? 'الكل' : 'All'}</option>
                   <option value="New">{isArabic ? 'جديد (زيرو)' : 'Brand New'}</option>
-                  <option value="Used">{isArabic ? 'مستعمل فاخر' : 'Used Certified'}</option>
+                  <option value="Used">{isArabic ? 'مستعمل' : 'Pre-owned'}</option>
                 </select>
               </div>
             </>
@@ -292,6 +339,11 @@ Listing: ${itemTitle}`;
       {/* Grid: Cars or Properties */}
       {mode === 'cars' ? (
         <div className="grid gap-6 md:grid-cols-3">
+          {filteredVehicles.length === 0 && (
+            <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
+              {isArabic ? 'لا توجد سيارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No vehicles match these filters in this market yet.'}
+            </p>
+          )}
           {filteredVehicles.map((car) => (
             <article
               className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[0_2px_10px_rgba(28,47,37,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-20px_rgba(28,47,37,0.3)]"
@@ -309,7 +361,7 @@ Listing: ${itemTitle}`;
                   alt={car.title[locale]}
                   className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
                   loading="lazy"
-                  src={car.photo}
+                  src={publicAssetUrl(car.photo)}
                 />
                 <span
                   aria-hidden="true"
@@ -322,17 +374,23 @@ Listing: ${itemTitle}`;
                       : 'bg-white/90 text-[#305342]'
                   }`}
                 >
-                  {car.condition === 'New' ? (isArabic ? 'زيرو' : 'Brand New') : isArabic ? 'مستعمل معتمد' : 'Certified'}
+                  {car.condition === 'New' ? (isArabic ? 'زيرو' : 'Brand New') : isArabic ? 'مستعمل' : 'Pre-owned'}
                 </span>
-                <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
-                  {car.id}
-                </span>
+                <div className="absolute end-3 top-3 flex items-center gap-1.5">
+                  <span className="rounded-full border border-white/20 bg-[#143b2d]/85 px-2.5 py-1 text-[9px] font-extrabold text-white backdrop-blur-md">
+                    {(car.deal ?? 'Sale') === 'Rent' ? isArabic ? 'للإيجار' : 'For Rent' : isArabic ? 'للبيع' : 'For Sale'}
+                  </span>
+                  <span className="rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
+                    {car.id}
+                  </span>
+                </div>
                 {/* Price rides the image so the card body stays uncluttered. */}
                 <span className="absolute bottom-3 start-3 flex items-baseline gap-1.5 text-white drop-shadow">
                   <span className="zx-display text-lg leading-none">
                     {new Intl.NumberFormat('en-US').format(car.price)}
                   </span>
-                  <span className="text-[10px] font-semibold opacity-85">{currency}</span>
+                  <span className="text-[10px] font-semibold opacity-85">{listingCurrency(car.region)}</span>
+                  {car.deal === 'Rent' && <span className="text-[10px] font-semibold opacity-85">{vehiclePricePeriod(car)}</span>}
                 </span>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
@@ -379,11 +437,11 @@ Listing: ${itemTitle}`;
                   ))}
                 </div>
 
-                {car.oldPrice && (
+                  {car.oldPrice && car.deal !== 'Rent' && (
                   <p className="mt-3 text-[10px] text-[#9aa7a0]">
                     {isArabic ? 'كان:' : 'Was:'}{' '}
                     <span className="zx-strike font-semibold">
-                      {new Intl.NumberFormat('en-US').format(car.oldPrice)} {currency}
+                      {formatListingPrice(car.oldPrice, car.region)}
                     </span>
                   </p>
                 )}
@@ -396,7 +454,7 @@ Listing: ${itemTitle}`;
                     type="button"
                   >
                     <MessageCircle className="h-3.5 w-3.5" />
-                    {isArabic ? 'احجز معاينة' : 'Book Viewing'}
+                    {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة' : 'Book Viewing'}
                   </button>
                   <button
                     aria-label={isArabic ? 'التفاصيل' : 'Details'}
@@ -417,6 +475,11 @@ Listing: ${itemTitle}`;
       ) : (
         /* Real Estate Grid */
         <div className="grid gap-6 md:grid-cols-3">
+          {filteredProperties.length === 0 && (
+            <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
+              {isArabic ? 'لا توجد عقارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No properties match these filters in this market yet.'}
+            </p>
+          )}
           {filteredProperties.map((prop) => (
             <article
               className="group overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
@@ -433,7 +496,7 @@ Listing: ${itemTitle}`;
                   alt={prop.title[locale]}
                   className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
                   loading="lazy"
-                  src={prop.photo}
+                  src={publicAssetUrl(prop.photo)}
                 />
                 <span
                   aria-hidden="true"
@@ -453,12 +516,12 @@ Listing: ${itemTitle}`;
                   <span className="zx-display text-lg leading-none">
                     {new Intl.NumberFormat('en-US').format(prop.price)}
                   </span>
-                  <span className="text-[10px] font-semibold opacity-85">{currency}</span>
+                  <span className="text-[10px] font-semibold opacity-85">{listingCurrency(prop.region)}</span>
                 </span>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
-                    {isArabic ? 'استعراض العقار والخريطة' : 'View Property & Map'}
+                    {isArabic ? 'استعراض العقار والموقع' : 'View Property & Location'}
                   </span>
                 </div>
               </div>
@@ -498,7 +561,7 @@ Listing: ${itemTitle}`;
                   <p className="mt-3 text-[10px] text-[#9aa7a0]">
                     {isArabic ? 'كان:' : 'Was:'}{' '}
                     <span className="zx-strike font-semibold">
-                      {new Intl.NumberFormat('en-US').format(prop.oldPrice)} {currency}
+                      {formatListingPrice(prop.oldPrice, prop.region)}
                     </span>
                   </p>
                 )}
@@ -562,7 +625,7 @@ Listing: ${itemTitle}`;
                     {activeVehicle ? activeVehicle.title[locale] : activeProperty?.title[locale]}
                   </h3>
                   <p className="text-[10px] text-[#7d8f85]">
-                    {isArabic ? 'معرض الصور، الخريطة التوضيحية، وحجز المعاينة' : 'Image Slider, Map & Inspection Scheduler'}
+                    {isArabic ? 'معرض الصور، بيانات الموقع، وحجز المعاينة' : 'Image Gallery, Location Details & Viewing'}
                   </p>
                 </div>
                 <button
@@ -588,14 +651,14 @@ Listing: ${itemTitle}`;
                       <img
                         alt="Vehicle"
                         className="h-full w-full object-cover"
-                        src={activeVehicle.gallery[galleryIndex] || activeVehicle.photo}
+                        src={publicAssetUrl(activeVehicle.gallery[galleryIndex] || activeVehicle.photo)}
                       />
                     )}
                     {activeProperty && (
                       <img
                         alt="Property"
                         className="h-full w-full object-cover"
-                        src={activeProperty.gallery[galleryIndex] || activeProperty.photo}
+                        src={publicAssetUrl(activeProperty.gallery[galleryIndex] || activeProperty.photo)}
                       />
                     )}
 
@@ -668,7 +731,7 @@ Listing: ${itemTitle}`;
                     <div className="rounded-2xl border border-[#dbe6df] bg-[#f4f8f5] p-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-[#355243]">
                         <MapPin className="h-4 w-4 text-[#4f8369]" />
-                        <span>{isArabic ? 'موقع العقار والحي التوضيحي:' : 'Location & District Map Preview:'}</span>
+                        <span>{isArabic ? 'موقع العقار حسب بيانات الإعلان:' : 'Location as listed:'}</span>
                       </div>
                       <div className="relative mt-2.5 flex aspect-[2.4/1] items-center justify-center overflow-hidden rounded-xl border border-white bg-linear-to-br from-[#d4ece2] via-[#e5f4ed] to-[#f4e7f8]">
                         <div className="text-center">
@@ -677,7 +740,7 @@ Listing: ${itemTitle}`;
                           </span>
                           <p className="mt-1.5 text-xs font-bold text-[#2a4637]">{activeProperty.location[locale]}</p>
                           <p className="text-[9px] text-[#6d8075]">
-                            {isArabic ? 'خريطة تفاعلية مدعومة ومحدثة' : 'Interactive Location Pin Supported'}
+                            {isArabic ? 'المنطقة المذكورة في بيانات العقار' : 'Area shown in the listing details'}
                           </p>
                         </div>
                       </div>
@@ -692,12 +755,14 @@ Listing: ${itemTitle}`;
                       {isArabic ? 'حجز موعد معاينة ميدانية' : 'Book In-Person Viewing'}
                     </span>
                     <h4 className="mt-1 text-sm font-bold text-[#293d32]">
-                      {isArabic ? 'حدد التاريخ والساعة لتأكيد الموعد' : 'Select Date & Hour For Direct Inspection'}
+                      {activeVehicle?.deal === 'Rent'
+                        ? isArabic ? 'حدد موعد بدء الإيجار واستلام السيارة' : 'Choose rental start and pickup time'
+                        : isArabic ? 'حدد التاريخ والساعة لتأكيد الموعد' : 'Select Date & Hour For Direct Inspection'}
                     </h4>
                     <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">
-                      {isArabic
-                        ? 'سيقوم ممثلنا بالتواصل وتأكيد الحضور في الموعد المحدد ومرافقتك للمعاينة.'
-                        : 'Our representative will coordinate and accompany you during the viewing.'}
+                      {activeVehicle?.deal === 'Rent'
+                        ? isArabic ? 'سيتواصل معك فريقنا لتأكيد التوفر ومدة الإيجار والتفاصيل قبل اعتماد الحجز.' : 'Our team will confirm availability, rental duration and terms before confirming your request.'
+                        : isArabic ? 'سيتواصل معك فريقنا لتأكيد موعد المعاينة.' : 'Our team will contact you to confirm the viewing appointment.'}
                     </p>
 
                     <form className="mt-4 space-y-3" onSubmit={handleBookingSubmit}>
@@ -729,7 +794,7 @@ Listing: ${itemTitle}`;
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="text-[10px] font-medium text-[#5c6e64]">
-                            {isArabic ? 'اليوم' : 'Date'}
+                          {activeVehicle?.deal === 'Rent' ? isArabic ? 'تاريخ بدء الإيجار' : 'Rental start date' : isArabic ? 'اليوم' : 'Date'}
                           </label>
                           <input
                             className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-2 text-xs text-[#2c3d34] outline-none"
@@ -742,7 +807,7 @@ Listing: ${itemTitle}`;
                         </div>
                         <div>
                           <label className="text-[10px] font-medium text-[#5c6e64]">
-                            {isArabic ? 'الساعة' : 'Time'}
+                          {activeVehicle?.deal === 'Rent' ? isArabic ? 'موعد الاستلام' : 'Pickup time' : isArabic ? 'الساعة' : 'Time'}
                           </label>
                           <input
                             className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-2 text-xs text-[#2c3d34] outline-none"
@@ -759,13 +824,17 @@ Listing: ${itemTitle}`;
                         type="submit"
                       >
                         <CalendarDays className="h-4 w-4" />
-                        {isArabic ? 'تأكيد حجز المعاينة وإرسال عبر واتساب' : 'Confirm Inspection & WhatsApp'}
+                        {activeVehicle?.deal === 'Rent'
+                          ? isArabic ? 'إرسال طلب الإيجار عبر واتساب' : 'Send Rental Request on WhatsApp'
+                          : isArabic ? 'تأكيد حجز المعاينة وإرسال عبر واتساب' : 'Confirm Inspection & WhatsApp'}
                       </button>
 
                       {bookingSuccess && (
                         <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#3a7554]">
                           <Check className="h-4 w-4" />
-                          {isArabic ? 'تم حفظ موعدك وفتح واتساب!' : 'Viewing booked successfully!'}
+                          {activeVehicle?.deal === 'Rent'
+                            ? isArabic ? 'تم حفظ طلب الإيجار وفتح واتساب!' : 'Rental request saved and WhatsApp opened.'
+                            : isArabic ? 'تم حفظ موعدك وفتح واتساب!' : 'Viewing request saved and WhatsApp opened.'}
                         </p>
                       )}
                     </form>

@@ -13,7 +13,7 @@ import {
   Sparkles,
   Truck,
 } from 'lucide-react';
-import type { Locale, Market, Route } from '../types';
+import type { DynamicCategory, Locale, Market, Route } from '../types';
 
 type Common = { locale: Locale; isArabic: boolean };
 
@@ -67,8 +67,8 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     q: { en: 'What payment methods do you accept?', ar: 'ما طرق الدفع المتاحة؟' },
     a: {
-      en: 'We accept WhatsApp checkout, card, Apple Pay, Mada, and cash on delivery for eligible orders.',
-      ar: 'نوفر الدفع عبر واتساب، والبطاقات البنكية، وApple Pay، ومدى، وكذلك الدفع عند الاستلام للطلبات المؤهلة.',
+      en: 'Available payment methods depend on your country and appear at checkout. Contact us if you need help choosing one.',
+      ar: 'تختلف وسائل الدفع المتاحة حسب بلدك، وستظهر لك عند إتمام الطلب. تواصل معنا لو محتاج مساعدة في اختيار وسيلة الدفع.',
     },
   },
   {
@@ -254,24 +254,27 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
 
 type FooterProps = Common & {
   settings: { supportEmail: string; whatsappEg: string; whatsappKsa: string };
+  sectionVisibility: { cards: boolean; fashion: boolean; cars: boolean; property: boolean; services: boolean };
   market: Market;
   navigate: (route: Route) => void;
   onTrackOrder: () => void;
+  categories?: DynamicCategory[];
 };
 
-export function SiteFooter({ isArabic, settings, market, navigate, onTrackOrder }: FooterProps) {
+export function SiteFooter({ isArabic, settings, sectionVisibility, market, navigate, onTrackOrder, categories = [] }: FooterProps) {
   const year = new Date().getFullYear();
   const whatsapp = market === 'eg' ? settings.whatsappEg : settings.whatsappKsa;
+  const isCategoryActive = (slug: string) => categories.find((category) => category.slug === slug)?.active ?? true;
 
-  const shopLinks: { label: string; route: Route }[] = [
-    { label: isArabic ? 'بطاقات NFC' : 'NFC Cards', route: 'cards' },
-    { label: isArabic ? 'الأزياء' : 'Streetwear', route: 'fashion' },
-    { label: isArabic ? 'السيارات' : 'Vehicles', route: 'cars' },
-    { label: isArabic ? 'العقارات' : 'Real Estate', route: 'property' },
-  ];
+  const shopLinks: { label: string; route: Route; slug: string }[] = [
+    { label: categories.find((category) => category.slug === 'cards')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور لينك' : 'ZEXOR LINK'), route: 'cards', slug: 'cards' },
+    { label: categories.find((category) => category.slug === 'fashion')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'), route: 'fashion', slug: 'fashion' },
+    { label: categories.find((category) => category.slug === 'cars')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'), route: 'cars', slug: 'cars' },
+    { label: categories.find((category) => category.slug === 'property')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'), route: 'property', slug: 'property' },
+  ].filter((link) => isCategoryActive(link.slug) && sectionVisibility[link.slug as keyof typeof sectionVisibility]);
 
   const companyLinks: { label: string; route: Route }[] = [
-    { label: isArabic ? 'الاستوديو الرقمي' : 'Digital Studio', route: 'services' },
+    ...(isCategoryActive('services') && sectionVisibility.services ? [{ label: categories.find((category) => category.slug === 'services')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL'), route: 'services' as Route }] : []),
     { label: isArabic ? 'باقات البرمجة' : 'Pricing', route: 'pricing' },
     { label: isArabic ? 'حاسبة التكلفة' : 'Calculator', route: 'calculator' },
     { label: isArabic ? 'آراء العملاء' : 'Reviews', route: 'reviews' },

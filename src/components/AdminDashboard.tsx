@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { Fragment, useState, useRef } from 'react';
 import {
   BarChart3,
   CarFront,
+  Boxes,
   Check,
   Clock,
   Download,
@@ -19,14 +20,18 @@ import {
   Search,
   Send,
   Settings,
+  Share2,
   ShoppingBag,
   Tag,
   Trash2,
   Type,
   UploadCloud,
+  UsersRound,
   X,
 } from 'lucide-react';
 import { art } from '../data/imagery';
+import { SHIPPING_RATES } from '../data/initialData';
+import { publicAssetUrl } from '../utils';
 import type {
   CustomerOrder,
   DynamicCategory,
@@ -39,6 +44,15 @@ import type {
   SiteSettings,
   Vehicle,
 } from '../types';
+import type { PaymentMethod, SocialLink } from '../lib/siteData';
+import { validateStoreBackup } from '../lib/backupValidation';
+import { sendTelegramTestNotification } from '../lib/siteData';
+
+const csvCell = (value: unknown) => {
+  const text = String(value ?? '');
+  const safeText = /^[\s\uFEFF]*[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${safeText.replaceAll('"', '""')}"`;
+};
 
 type Props = {
   locale: Locale;
@@ -59,12 +73,25 @@ type Props = {
   setPromoCodes: React.Dispatch<React.SetStateAction<PromoCode[]>>;
   settings: SiteSettings;
   setSettings: React.Dispatch<React.SetStateAction<SiteSettings>>;
+  socialLinks: SocialLink[];
+  paymentMethods: PaymentMethod[];
+  onSaveSocialLink: (link: SocialLink) => Promise<boolean>;
+  onSavePaymentMethod: (method: PaymentMethod) => Promise<boolean>;
+  siteDataReady: boolean;
+  onDeleteInquiry: (id: string) => Promise<boolean>;
+  onClearInquiries: () => Promise<boolean>;
+  onClearOrders: () => Promise<boolean>;
+  onSetProductStock: (productId: string, stock: number | null) => Promise<boolean>;
+  onUpdateOrderStatus: (orderId: string, status: CustomerOrder['status']) => Promise<boolean>;
+  onUpdateOrderShipping: (orderId: string, details: Pick<CustomerOrder, 'shippingCarrier' | 'trackingNumber' | 'trackingUrl'>) => Promise<boolean>;
+  onUpdateInquiryStatus: (inquiryId: string, status: PlatformInquiry['status']) => Promise<boolean>;
   onLock: () => void;
   onToast: (msg: string) => void;
 };
 
 export function AdminDashboard({
   locale,
+  market,
   products,
   setProducts,
   categories,
@@ -81,6 +108,18 @@ export function AdminDashboard({
   setPromoCodes,
   settings,
   setSettings,
+  socialLinks,
+  paymentMethods,
+  onSaveSocialLink,
+  onSavePaymentMethod,
+  siteDataReady,
+  onDeleteInquiry,
+  onClearInquiries,
+  onClearOrders,
+  onSetProductStock,
+  onUpdateOrderStatus,
+  onUpdateOrderShipping,
+  onUpdateInquiryStatus,
   onLock,
   onToast,
 }: Props) {
@@ -89,16 +128,25 @@ export function AdminDashboard({
     | 'overview'
     | 'categories'
     | 'products'
+    | 'inventory'
+    | 'customers'
     | 'cars'
     | 'properties'
     | 'orders'
     | 'inbox'
     | 'promos'
     | 'sales'
+    | 'channels'
     | 'design'
     | 'content'
     | 'settings'
   >('overview');
+  const [socialDraftState, setSocialDraftState] = useState<{ source: SocialLink[]; value: SocialLink[] } | null>(null);
+  const [paymentDraftState, setPaymentDraftState] = useState<{ source: PaymentMethod[]; value: PaymentMethod[] } | null>(null);
+  const [paymentMarket, setPaymentMarket] = useState<Market>(market);
+  const [newPaymentMethodLabel, setNewPaymentMethodLabel] = useState('');
+  const socialDraft = socialDraftState?.source === socialLinks ? socialDraftState.value : socialLinks;
+  const paymentDraft = paymentDraftState?.source === paymentMethods ? paymentDraftState.value : paymentMethods;
 
   // Hero / contact editor: which locale column is being edited
   const [heroLang, setHeroLang] = useState<Locale>(locale);
@@ -108,14 +156,21 @@ export function AdminDashboard({
 
   // Search & Filter in Admin
   const [orderSearch, setOrderSearch] = useState('');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | 'new' | 'confirmed' | 'complete'>('all');
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | CustomerOrder['status']>('all');
+  const [orderMarketFilter, setOrderMarketFilter] = useState<'all' | Market>('all');
+  const [orderDetailsId, setOrderDetailsId] = useState<string | null>(null);
+  const [shippingDrafts, setShippingDrafts] = useState<Record<string, Pick<CustomerOrder, 'shippingCarrier' | 'trackingNumber' | 'trackingUrl'>>>({});
   // Free-text filter for the products table (matches Arabic or English names).
   const [productSearch, setProductSearch] = useState('');
   // Shared filter for the vehicle and property listings.
   const [inventorySearch, setInventorySearch] = useState('');
+  const [inventoryLowOnly, setInventoryLowOnly] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [salesPeriodDays, setSalesPeriodDays] = useState<7 | 30>(7);
 
   // Add Category Modal State
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [newCatNameAr, setNewCatNameAr] = useState('');
   const [newCatNameEn, setNewCatNameEn] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
@@ -138,6 +193,8 @@ export function AdminDashboard({
   const [prodBrand, setProdBrand] = useState('');
   const [prodBadge, setProdBadge] = useState('');
   const [prodVariants, setProdVariants] = useState('');
+  const [prodStock, setProdStock] = useState('');
+  const [prodMarkets, setProdMarkets] = useState<Market[]>(['eg', 'ksa']);
   const [prodFeatured, setProdFeatured] = useState(false);
   const [prodAvailable, setProdAvailable] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -151,6 +208,8 @@ export function AdminDashboard({
   const [carMake, setCarMake] = useState('Mercedes-Benz');
   const [carYear, setCarYear] = useState('2024');
   const [carPrice, setCarPrice] = useState('');
+  const [carDeal, setCarDeal] = useState<'Sale' | 'Rent'>('Sale');
+  const [carRentalPeriod, setCarRentalPeriod] = useState<'Day' | 'Week' | 'Month'>('Day');
   const [carLocation, setCarLocation] = useState('Cairo');
   const [carCondition, setCarCondition] = useState<'New' | 'Used'>('Used');
   const [carPhoto, setCarPhoto] = useState('');
@@ -202,6 +261,18 @@ export function AdminDashboard({
   const handleSaveCategory = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatNameAr || !newCatNameEn) return;
+    if (editingCategoryId) {
+      setCategories((prev) => prev.map((category) => category.id === editingCategoryId
+        ? { ...category, name: { ar: newCatNameAr.trim(), en: newCatNameEn.trim() } }
+        : category));
+      setEditingCategoryId(null);
+      setNewCatNameAr('');
+      setNewCatNameEn('');
+      setNewCatSlug('');
+      setShowCategoryModal(false);
+      onToast(isArabic ? 'تم تحديث اسم القسم في المتجر' : 'Section name updated across the store');
+      return;
+    }
     const slug = (newCatSlug || newCatNameEn.toLowerCase().replace(/\s+/g, '-')).trim();
     const newCat: DynamicCategory = {
       id: `cat-${Date.now()}`,
@@ -214,8 +285,17 @@ export function AdminDashboard({
     setNewCatNameAr('');
     setNewCatNameEn('');
     setNewCatSlug('');
+    setEditingCategoryId(null);
     setShowCategoryModal(false);
     onToast(isArabic ? 'تمت إضافة القسم الجديد بنجاح!' : 'New category created successfully!');
+  };
+
+  const handleEditCategory = (category: DynamicCategory) => {
+    setEditingCategoryId(category.id);
+    setNewCatNameAr(category.name.ar);
+    setNewCatNameEn(category.name.en);
+    setNewCatSlug(category.slug);
+    setShowCategoryModal(true);
   };
 
   const handleToggleCategory = (catId: string) => {
@@ -232,17 +312,35 @@ export function AdminDashboard({
   };
 
   // Save / Update Product with Discount
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     const egPrice = Number(prodPriceEg);
     const ksaPrice = Number(prodPriceKsa);
     const oldEg = prodOldPriceEg ? Number(prodOldPriceEg) : undefined;
     const oldKsa = prodOldPriceKsa ? Number(prodOldPriceKsa) : undefined;
+    const stock = prodStock.trim() ? Number(prodStock) : undefined;
+
+    if (!prodNameAr.trim() || !prodNameEn.trim() || !prodPriceEg.trim() || !prodPriceKsa.trim() || !Number.isFinite(egPrice) || !Number.isFinite(ksaPrice) || egPrice < 0 || ksaPrice < 0) {
+      onToast(isArabic ? 'أدخل اسم المنتج بالعربية والإنجليزية وأسعاراً صحيحة غير سالبة.' : 'Enter Arabic and English product names and valid non-negative prices.');
+      return;
+    }
+    if ((oldEg !== undefined && (!Number.isFinite(oldEg) || oldEg < egPrice)) || (oldKsa !== undefined && (!Number.isFinite(oldKsa) || oldKsa < ksaPrice))) {
+      onToast(isArabic ? 'يجب أن يكون السعر القديم أكبر من أو مساوياً للسعر الحالي.' : 'Each old price must be at least the current price.');
+      return;
+    }
+    if (stock !== undefined && (!Number.isInteger(stock) || stock < 0)) {
+      onToast(isArabic ? 'الكمية يجب أن تكون رقماً صحيحاً موجباً أو صفراً.' : 'Stock must be a whole number greater than or equal to zero.');
+      return;
+    }
+    if (prodMarkets.length === 0) {
+      onToast(isArabic ? 'اختر سوقاً واحداً على الأقل لعرض المنتج.' : 'Choose at least one market for this product.');
+      return;
+    }
 
     const newProd: Product = {
-      id: editingProductId ?? `prod-${Date.now()}`,
+      id: editingProductId ?? `prod-${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
       category: prodCat,
-      markets: ['eg', 'ksa'],
+      markets: prodMarkets,
       name: { ar: prodNameAr.trim(), en: prodNameEn.trim() },
       description: { ar: prodDescAr.trim(), en: prodDescEn.trim() },
       price: { eg: egPrice, ksa: ksaPrice },
@@ -255,11 +353,18 @@ export function AdminDashboard({
       brand: prodBrand.trim() || undefined,
       badge: prodBadge.trim() || undefined,
       featured: prodFeatured,
+      stock,
       variants: prodVariants
         .split(',')
         .map((v) => v.trim())
         .filter(Boolean),
     };
+
+    const existingProduct = editingProductId ? products.find((product) => product.id === editingProductId) : undefined;
+    if (existingProduct && existingProduct.stock !== stock) {
+      const stockSaved = await onSetProductStock(newProd.id, stock ?? null);
+      if (!stockSaved) return;
+    }
 
     if (editingProductId) {
       setProducts((prev) => prev.map((p) => (p.id === editingProductId ? newProd : p)));
@@ -289,6 +394,8 @@ export function AdminDashboard({
     setProdBrand(prod.brand ?? '');
     setProdBadge(prod.badge ?? '');
     setProdVariants((prod.variants ?? []).join(', '));
+    setProdStock(prod.stock === undefined ? '' : String(prod.stock));
+    setProdMarkets(prod.markets ?? ['eg', 'ksa']);
     setProdFeatured(Boolean(prod.featured));
     setProdAvailable(prod.available);
     setShowProductModal(true);
@@ -310,7 +417,7 @@ export function AdminDashboard({
   // Save / Update Car — creates a new listing, or updates the one being edited.
   const handleSaveCar = (e: React.FormEvent) => {
     e.preventDefault();
-    const id = editingCarId ?? `ZX-CAR-${Date.now().toString().slice(-4)}`;
+    const id = editingCarId ?? `ZX-CAR-${crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`;
     const existing = vehicles.find((v) => v.id === id);
     const photo = carPhoto || existing?.photo || '/images/demo-sedan.svg';
 
@@ -319,6 +426,9 @@ export function AdminDashboard({
       title: { ar: carTitleAr.trim() || 'سيارة جديدة', en: carTitleEn.trim() || 'New Vehicle' },
       location: { ar: carLocation, en: carLocation },
       price: Number(carPrice) || existing?.price || 1000000,
+      deal: carDeal,
+      rentalPeriod: carDeal === 'Rent' ? carRentalPeriod : undefined,
+      oldPrice: carDeal === 'Rent' ? undefined : existing?.oldPrice,
       area: existing?.area ?? 0,
       region: (carLocation as Vehicle['region']) || 'Cairo',
       photo,
@@ -351,6 +461,8 @@ export function AdminDashboard({
     setCarMake(v.make);
     setCarYear(String(v.year));
     setCarPrice(String(v.price));
+    setCarDeal(v.deal ?? 'Sale');
+    setCarRentalPeriod(v.rentalPeriod ?? 'Day');
     setCarLocation(v.region);
     setCarCondition(v.condition);
     setCarPhoto(v.photo);
@@ -367,7 +479,7 @@ export function AdminDashboard({
   // Save / Update Property.
   const handleSaveProperty = (e: React.FormEvent) => {
     e.preventDefault();
-    const id = editingPropId ?? `ZX-PROP-${Date.now().toString().slice(-4)}`;
+    const id = editingPropId ?? `ZX-PROP-${crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`;
     const existing = properties.find((p) => p.id === id);
     const fallbackPhoto =
       propType === 'Villa' ? '/images/demo-villa.svg' : propType === 'Land' ? '/images/demo-land.svg' : '/images/demo-apartment.svg';
@@ -424,11 +536,67 @@ export function AdminDashboard({
   };
 
   // Update Order Status
-  const handleUpdateOrderStatus = (orderId: string, status: CustomerOrder['status']) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
-    );
+  const handleUpdateOrderStatus = async (orderId: string, status: CustomerOrder['status']) => {
+    const order = orders.find((item) => item.id === orderId);
+    if (!order || order.status === status) return;
+    if (!await onUpdateOrderStatus(orderId, status)) return;
+    setOrders((prev) => prev.map((item) => item.id === orderId ? {
+      ...item,
+      status,
+      ...(status === 'cancelled' ? { stockAdjusted: false } : order.status === 'cancelled' ? { stockAdjusted: true } : {}),
+    } : item));
     onToast(isArabic ? `تم تعديل حالة الطلب إلى: ${status}` : `Order status updated to: ${status}`);
+  };
+
+  const handleSaveShipping = async (order: CustomerOrder) => {
+    const details = shippingDrafts[order.id] ?? {
+      shippingCarrier: order.shippingCarrier ?? '',
+      trackingNumber: order.trackingNumber ?? '',
+      trackingUrl: order.trackingUrl ?? '',
+    };
+    if (details.trackingUrl && !/^https:\/\//i.test(details.trackingUrl)) {
+      onToast(isArabic ? 'رابط التتبع يجب أن يبدأ بـ https://' : 'Tracking links must start with https://');
+      return;
+    }
+    if (!await onUpdateOrderShipping(order.id, details)) {
+      onToast(isArabic ? 'تعذر حفظ بيانات الشحنة. تحقق من اتصال قاعدة البيانات وتطبيق التحديثات.' : 'Could not save shipment details. Check the database connection and migrations.');
+      return;
+    }
+    setOrders((current) => current.map((item) => item.id === order.id ? { ...item, ...details } : item));
+    onToast(isArabic ? 'تم حفظ شركة الشحن ورقم التتبع' : 'Carrier and tracking details saved');
+  };
+
+  const handleExportOrdersCsv = () => {
+    const columns = ['id', 'createdAt', 'customer', 'phone', 'market', 'city', 'status', 'paymentMethod', 'paymentStatus', 'shippingCarrier', 'trackingNumber', 'trackingUrl', 'subtotal', 'discount', 'shippingFee', 'total'];
+    const rows = filteredOrders.map((order) => [order.id, order.createdAt, order.customer, order.phone, order.market, order.city, order.status, order.paymentMethod, order.paymentStatus ?? '', order.shippingCarrier, order.trackingNumber, order.trackingUrl, order.subtotal, order.discount, order.shippingFee, order.total]);
+    const csv = `\uFEFF${[columns, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')}`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `zexor-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    onToast(isArabic ? `تم تصدير ${filteredOrders.length} طلب بصيغة CSV` : `Exported ${filteredOrders.length} orders as CSV`);
+  };
+
+  const handleExportCustomersCsv = () => {
+    const rows = customerRecords.map((customer) => [
+      customer.name,
+      customer.phone,
+      customer.orders.filter((order) => order.status !== 'cancelled').length,
+      customer.inquiries.length,
+      customer.orders.filter((order) => order.market === 'eg' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0),
+      customer.orders.filter((order) => order.market === 'ksa' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0),
+      [...customer.orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.createdAt ?? '',
+    ]);
+    const csv = `\uFEFF${[['name', 'phone', 'orders', 'inquiries', 'completed_spend_egp', 'completed_spend_sar', 'last_order'], ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')}`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `zexor-customers-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    onToast(isArabic ? `تم تصدير ${customerRecords.length} عميلاً` : `Exported ${customerRecords.length} customers`);
   };
 
   // Export JSON Backup
@@ -440,8 +608,13 @@ export function AdminDashboard({
       vehicles,
       properties,
       orders,
+      inbox,
       promoCodes,
-      settings,
+      // Telegram credentials are managed in the private settings table and
+      // should never be copied into a portable download.
+      settings: { ...settings, telegramBotToken: '', telegramChatId: '' },
+      socialLinks,
+      paymentMethods,
     };
     const jsonStr = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -463,33 +636,74 @@ export function AdminDashboard({
     if (!file) return;
     try {
       const raw = await file.text();
-      const parsed = JSON.parse(raw) as Record<string, unknown>;
-      if (!parsed || typeof parsed !== 'object') {
-        throw new Error('invalid');
-      }
+      const backup = validateStoreBackup(JSON.parse(raw) as unknown);
+      if (!backup) throw new Error('invalid');
       // Each store is optional, and only applied when the backup really carries
       // an array — restoring one section never silently wipes another.
-      if (Array.isArray(parsed.products)) setProducts(parsed.products as Product[]);
-      if (Array.isArray(parsed.categories)) setCategories(parsed.categories as DynamicCategory[]);
-      if (Array.isArray(parsed.vehicles)) setVehicles(parsed.vehicles as Vehicle[]);
-      if (Array.isArray(parsed.properties)) setProperties(parsed.properties as Property[]);
-      if (Array.isArray(parsed.orders)) setOrders(parsed.orders as CustomerOrder[]);
-      if (Array.isArray(parsed.promoCodes)) setPromoCodes(parsed.promoCodes as PromoCode[]);
-      if (parsed.settings && typeof parsed.settings === 'object') setSettings(parsed.settings as SiteSettings);
+      if (backup.products) setProducts(backup.products);
+      if (backup.categories) setCategories(backup.categories);
+      if (backup.vehicles) setVehicles(backup.vehicles);
+      if (backup.properties) setProperties(backup.properties);
+      if (backup.orders) setOrders(backup.orders);
+      if (backup.inbox) setInbox(backup.inbox);
+      if (backup.promoCodes) setPromoCodes(backup.promoCodes);
+      if (backup.settings) {
+        setSettings((current) => ({
+          ...current,
+          ...backup.settings,
+          telegramBotToken: current.telegramBotToken,
+          telegramChatId: current.telegramChatId,
+        }));
+      }
+      if (backup.socialLinks) {
+        const restoredLinks = backup.socialLinks.map((item) => ({
+          ...item,
+          id: typeof item.id === 'string' ? item.id : `social-${item.platform}`,
+          label: typeof item.label === 'string' ? item.label : item.platform,
+          handle: typeof item.handle === 'string' ? item.handle : '',
+          url: typeof item.url === 'string' ? item.url : '',
+          active: item.active !== false,
+          sortOrder: Number(item.sortOrder) || 0,
+        }));
+        const savedLinks = await Promise.all(restoredLinks.map(onSaveSocialLink));
+        if (savedLinks.some((saved) => !saved)) throw new Error('save-failed');
+      }
+      if (backup.paymentMethods) {
+        const restoredMethods = backup.paymentMethods.map((item) => ({
+          ...item,
+          id: typeof item.id === 'string' ? item.id : `pay-${item.market === 'ksa' ? 'ksa' : 'eg'}-${item.method}`,
+          market: item.market === 'ksa' ? 'ksa' as const : 'eg' as const,
+          label: typeof item.label === 'string' ? item.label : item.method,
+          accountName: typeof item.accountName === 'string' ? item.accountName : '',
+          accountNumber: typeof item.accountNumber === 'string' ? item.accountNumber : '',
+          instructions: { ar: typeof item.instructions?.ar === 'string' ? item.instructions.ar : '', en: typeof item.instructions?.en === 'string' ? item.instructions.en : '' },
+          active: item.active !== false,
+          sortOrder: Number(item.sortOrder) || 0,
+        }));
+        const savedMethods = await Promise.all(restoredMethods.map(onSavePaymentMethod));
+        if (savedMethods.some((saved) => !saved)) throw new Error('save-failed');
+      }
       onToast(isArabic ? 'تم استيراد النسخة الاحتياطية بنجاح!' : 'Backup restored successfully!');
-    } catch {
-      onToast(isArabic ? 'ملف غير صالح، تأكد أنه نسخة ZEXOR بصيغة JSON.' : 'Invalid file — please select a ZEXOR JSON backup.');
+    } catch (error) {
+      onToast(error instanceof Error && error.message === 'save-failed'
+        ? isArabic ? 'تم استيراد بعض البيانات، لكن تعذر حفظ طرق الدفع أو الروابط الاجتماعية سحابياً.' : 'Some data was imported, but payment methods or social links could not be saved to the cloud.'
+        : isArabic ? 'ملف غير صالح، تأكد أنه نسخة ZEXOR بصيغة JSON.' : 'Invalid file — please select a ZEXOR JSON backup.');
     } finally {
       if (importInputRef.current) importInputRef.current.value = '';
     }
   };
 
   // Wipes store content back to a blank slate (keeps the admin's hero/telegram settings).
-  const handleResetContent = () => {
+  const handleResetContent = async () => {
     const confirmed = window.confirm(
       isArabic ? 'هل تريد تفريغ المنتجات والأقسام والطلبات؟ لا يمكن التراجع.' : 'Clear all products, categories and orders? This cannot be undone.'
     );
     if (!confirmed) return;
+    const cloudOrdersCleared = await onClearOrders();
+    if (!cloudOrdersCleared) {
+      onToast(isArabic ? 'تعذر حذف الطلبات من قاعدة البيانات. لم يتم تنفيذ التفريغ.' : 'Could not clear cloud orders. Reset was cancelled.');
+      return;
+    }
     setProducts([]);
     setCategories([]);
     setOrders([]);
@@ -498,21 +712,10 @@ export function AdminDashboard({
 
   // Test Telegram Automation Notification
   const handleTestTelegramNotification = async () => {
-    if (!settings.telegramBotToken || !settings.telegramChatId) {
-      onToast(isArabic ? 'يرجى إدخال Bot Token و Chat ID أولاً في الإعدادات.' : 'Please enter Telegram Bot Token & Chat ID first.');
-      return;
-    }
-
-    try {
-      const text = encodeURIComponent(
-        `🚀 ZEXOR Notification Test:\nYour Telegram Bot automation is active and working perfectly!\nTimestamp: ${new Date().toLocaleTimeString()}`
-      );
-      const url = `https://api.telegram.org/bot${settings.telegramBotToken}/sendMessage?chat_id=${settings.telegramChatId}&text=${text}`;
-      await fetch(url, { method: 'POST' });
-      onToast(isArabic ? 'تم إرسال إشعار التجربة بنجاح إلى تليجرام!' : 'Telegram test notification sent!');
-    } catch {
-      onToast(isArabic ? 'تعذر الاتصال بـ Telegram API، تحقق من التوكن.' : 'Failed to reach Telegram API, check token.');
-    }
+    const sent = await sendTelegramTestNotification();
+    onToast(sent
+      ? isArabic ? 'تم إرسال إشعار التجربة بنجاح إلى تليجرام!' : 'Telegram test notification sent!'
+      : isArabic ? 'تعذر إرسال الإشعار. تحقق من بيانات Telegram وصلاحية المدير.' : 'Could not send the notification. Check Telegram settings and admin access.');
   };
 
   // Stats
@@ -522,23 +725,104 @@ export function AdminDashboard({
   // Inquiries still needing follow-up (anything not closed).
   const openInquiriesCount = inbox.filter((i) => i.status !== 'complete').length;
 
-  const handleUpdateInquiryStatus = (id: string, status: PlatformInquiry['status']) => {
+  const handleUpdateInquiryStatus = async (id: string, status: PlatformInquiry['status']) => {
+    if (!await onUpdateInquiryStatus(id, status)) return;
     setInbox((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
     onToast(isArabic ? 'تم تحديث حالة الاستفسار' : 'Inquiry status updated');
   };
 
-  const handleDeleteInquiry = (id: string) => {
+  const handleDeleteInquiry = async (id: string) => {
     if (window.confirm(isArabic ? 'حذف هذا الاستفسار؟' : 'Delete this inquiry?')) {
+      const deleted = await onDeleteInquiry(id);
+      if (!deleted) {
+        onToast(isArabic ? 'تعذر حذف الاستفسار من قاعدة البيانات.' : 'Could not delete the inquiry from the database.');
+        return;
+      }
       setInbox((prev) => prev.filter((i) => i.id !== id));
       onToast(isArabic ? 'تم حذف الاستفسار' : 'Inquiry deleted');
     }
   };
 
+  const handleAddPaymentMethod = () => {
+    const label = newPaymentMethodLabel.trim();
+    if (!label) return;
+    const method = `custom_${crypto.randomUUID().replaceAll('-', '').slice(0, 10)}`;
+    const item: PaymentMethod = {
+      id: `pay-${paymentMarket}-${method}`,
+      market: paymentMarket,
+      method,
+      label,
+      accountName: '',
+      accountNumber: '',
+      instructions: { ar: '', en: '' },
+      active: true,
+      sortOrder: paymentDraft.length,
+    };
+    setPaymentDraftState({ source: paymentMethods, value: [...paymentDraft, item] });
+    setNewPaymentMethodLabel('');
+  };
+
   const filteredOrders = orders.filter((o) => {
+    if (orderMarketFilter !== 'all' && o.market !== orderMarketFilter) return false;
     if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
     if (orderSearch && !`${o.id} ${o.customer} ${o.phone}`.toLowerCase().includes(orderSearch.toLowerCase())) return false;
     return true;
   });
+
+  const customerMap = new Map<string, { key: string; name: string; phone: string; orders: CustomerOrder[]; inquiries: PlatformInquiry[] }>();
+  for (const order of orders) {
+    const phoneKey = order.phone.replace(/\D/g, '') || order.phone.trim().toLowerCase();
+    const customer = customerMap.get(phoneKey) ?? { key: phoneKey, name: order.customer, phone: order.phone, orders: [], inquiries: [] };
+    customer.orders.push(order);
+    if (new Date(order.createdAt).getTime() > new Date(customer.orders[0]?.createdAt ?? 0).getTime()) customer.name = order.customer;
+    customerMap.set(phoneKey, customer);
+  }
+  for (const inquiry of inbox) {
+    const phoneKey = inquiry.phone.replace(/\D/g, '') || inquiry.phone.trim().toLowerCase();
+    const customer = customerMap.get(phoneKey) ?? { key: phoneKey, name: inquiry.name, phone: inquiry.phone, orders: [], inquiries: [] };
+    customer.inquiries.push(inquiry);
+    if (!customer.orders.length) customer.name = inquiry.name;
+    customerMap.set(phoneKey, customer);
+  }
+  const customerRecords = [...customerMap.values()].sort((a, b) => {
+    const aLatest = Math.max(0, ...a.orders.map((order) => new Date(order.createdAt).getTime()), ...a.inquiries.map((inquiry) => new Date(inquiry.createdAt).getTime()));
+    const bLatest = Math.max(0, ...b.orders.map((order) => new Date(order.createdAt).getTime()), ...b.inquiries.map((inquiry) => new Date(inquiry.createdAt).getTime()));
+    return bLatest - aLatest;
+  });
+  const customerBuyerCount = customerRecords.filter((customer) => customer.orders.some((order) => order.status !== 'cancelled')).length;
+  const managedStockProducts = products.filter((product) => product.stock !== undefined);
+  const lowStockProducts = managedStockProducts.filter((product) => (product.stock ?? 0) <= 5);
+  const recentOrders = [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
+  const salesDays = Array.from({ length: salesPeriodDays }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (salesPeriodDays - index - 1));
+    return date;
+  });
+  const localDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const salesTimeline = salesDays.map((date) => {
+    const dayOrders = orders.filter((order) => order.status === 'complete' && localDateKey(new Date(order.createdAt)) === localDateKey(date));
+    return {
+      date,
+      eg: dayOrders.filter((order) => order.market === 'eg').reduce((sum, order) => sum + order.total, 0),
+      ksa: dayOrders.filter((order) => order.market === 'ksa').reduce((sum, order) => sum + order.total, 0),
+      count: dayOrders.length,
+    };
+  });
+  const periodStart = salesDays[0]?.getTime() ?? 0;
+  const periodOrders = orders.filter((order) => new Date(order.createdAt).getTime() >= periodStart && order.status !== 'cancelled');
+  const periodCompletedOrders = periodOrders.filter((order) => order.status === 'complete');
+  const topProducts = new Map<string, { name: string; quantity: number; revenueEg: number; revenueKsa: number }>();
+  for (const order of periodCompletedOrders) {
+    for (const item of order.items) {
+      const current = topProducts.get(item.productId) ?? { name: item.name, quantity: 0, revenueEg: 0, revenueKsa: 0 };
+      current.quantity += item.quantity;
+      if (order.market === 'eg') current.revenueEg += item.egp * item.quantity;
+      else current.revenueKsa += item.sar * item.quantity;
+      topProducts.set(item.productId, current);
+    }
+  }
+  const bestSellers = [...topProducts.entries()].sort((a, b) => b[1].quantity - a[1].quantity).slice(0, 5);
 
   return (
     <div className="space-y-8">
@@ -597,17 +881,21 @@ export function AdminDashboard({
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[#e5ebe7] pb-3">
+      <div className="grid items-start gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
+      {/* Store admin navigation */}
+      <div className="zx-admin-tabs zx-no-bar sticky top-[4.5rem] z-30 -mx-2 flex flex-nowrap gap-2 overflow-x-auto border-b border-[#e5ebe7] bg-[var(--c-bg)]/95 px-2 pb-3 pt-2 backdrop-blur-xl lg:static lg:mx-0 lg:max-h-[calc(100vh-2rem)] lg:flex-col lg:items-stretch lg:overflow-y-auto lg:overflow-x-hidden lg:border-b-0 lg:border-e lg:bg-transparent lg:px-0 lg:pt-0 lg:pe-3 lg:backdrop-blur-none">
         {[
           { id: 'overview', label: isArabic ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
           { id: 'categories', label: isArabic ? 'الأقسام الديناميكية' : 'Categories', icon: Layers },
           { id: 'products', label: isArabic ? 'المنتجات والأسعار' : 'Products & Pricing', icon: ShoppingBag },
+          { id: 'inventory', label: isArabic ? `المخزون (${lowStockProducts.length})` : `Inventory (${lowStockProducts.length})`, icon: Boxes },
+          { id: 'customers', label: isArabic ? `العملاء (${customerRecords.length})` : `Customers (${customerRecords.length})`, icon: UsersRound },
           { id: 'cars', label: isArabic ? `معرض السيارات (${vehicles.length})` : `Vehicles (${vehicles.length})`, icon: CarFront },
           { id: 'properties', label: isArabic ? `إدارة العقارات (${properties.length})` : `Real Estate (${properties.length})`, icon: Home },
           { id: 'orders', label: isArabic ? `الطلبات الواردة (${pendingOrdersCount})` : `Orders (${pendingOrdersCount})`, icon: Clock },
           { id: 'inbox', label: isArabic ? `الاستفسارات (${openInquiriesCount})` : `Inquiries (${openInquiriesCount})`, icon: Inbox },
           { id: 'promos', label: isArabic ? 'أكواد الخصم' : 'Promo Codes', icon: Tag },
+          { id: 'channels', label: isArabic ? 'التواصل والدفع' : 'Social & Payments', icon: Share2 },
           { id: 'sales', label: isArabic ? 'العروض والكوبونات' : 'Sale & Coupons', icon: Percent },
           { id: 'design', label: isArabic ? 'التصميم والهوية' : 'Design & Brand', icon: Palette },
           { id: 'content', label: isArabic ? 'نصوص الموقع' : 'Site Content', icon: Type },
@@ -616,7 +904,7 @@ export function AdminDashboard({
           const Icon = tab.icon;
           return (
             <button
-              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition-all lg:w-full lg:justify-start ${
                 activeTab === tab.id
                   ? 'bg-[#314f43] text-white shadow-sm'
                   : 'bg-white text-[#64776c] hover:bg-[#edf4f0] hover:text-[#2f4a3b]'
@@ -632,6 +920,7 @@ export function AdminDashboard({
         })}
       </div>
 
+      <div className="min-w-0 space-y-6">
       {/* Tab 1: Overview */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
@@ -658,6 +947,125 @@ export function AdminDashboard({
               <p className="mt-2 text-2xl font-bold text-[#2e4739]">{inbox.length}</p>
             </div>
           </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            <div className="rounded-2xl border border-white bg-white/90 p-5 shadow-sm">
+              <div className="flex items-center justify-between"><h3 className="text-xs font-bold">{isArabic ? 'أحدث الطلبات' : 'Recent orders'}</h3><button className="text-[10px] font-semibold text-[#4e8066]" onClick={() => setActiveTab('orders')} type="button">{isArabic ? 'كل الطلبات ←' : 'All orders →'}</button></div>
+              {recentOrders.length ? <div className="mt-3 divide-y divide-[#edf1ee]">{recentOrders.map((order) => <button className="flex w-full items-center justify-between gap-3 py-2 text-start" key={order.id} onClick={() => { setOrderSearch(order.id); setOrderMarketFilter('all'); setOrderStatusFilter('all'); setOrderDetailsId(order.id); setActiveTab('orders'); }} type="button"><span><span className="block text-[11px] font-semibold">{order.customer} · {order.id}</span><span className="text-[9px] text-[#829288]">{new Date(order.createdAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB')}</span></span><span className="text-[10px] font-bold">{order.total.toLocaleString()} {order.market === 'eg' ? 'ج.م' : 'ر.س'}</span></button>)}</div> : <p className="mt-3 text-xs text-[#829288]">{isArabic ? 'لا توجد طلبات بعد.' : 'No orders yet.'}</p>}
+            </div>
+            <div className="rounded-2xl border border-white bg-white/90 p-5 shadow-sm">
+              <div className="flex items-center justify-between"><h3 className="text-xs font-bold">{isArabic ? 'تنبيهات المخزون' : 'Stock alerts'}</h3><button className="text-[10px] font-semibold text-[#4e8066]" onClick={() => { setInventoryLowOnly(true); setActiveTab('inventory'); }} type="button">{isArabic ? 'إدارة المخزون ←' : 'Manage inventory →'}</button></div>
+              {lowStockProducts.length ? <div className="mt-3 divide-y divide-[#edf1ee]">{lowStockProducts.slice(0, 5).map((product) => <div className="flex items-center justify-between gap-3 py-2 text-[11px]" key={product.id}><span className="font-semibold">{product.name[locale]}</span><span className={`rounded-full px-2 py-1 text-[9px] font-semibold ${product.stock === 0 ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>{product.stock === 0 ? (isArabic ? 'نفد' : 'Out') : `${product.stock} ${isArabic ? 'متبقي' : 'left'}`}</span></div>)}</div> : <p className="mt-3 text-xs text-[#829288]">{isArabic ? 'لا توجد تنبيهات مخزون. أضف كميات للمنتجات من شاشة المخزون.' : 'No low-stock alerts. Track quantities from Inventory.'}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'inventory' && (
+        <section className="space-y-5 rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-bold text-[#2f4437]">{isArabic ? 'مراقبة المخزون' : 'Inventory control'}</h2>
+              <p className="mt-1 text-[10px] text-[#788b80]">{isArabic ? 'تحديث الكميات هنا ينعكس مباشرة على صفحة المتجر. الكمية الفارغة تعني مخزوناً غير محدود.' : 'Stock edits apply directly to the storefront. Blank quantity means untracked stock.'}</p>
+            </div>
+            <button className={`rounded-full px-3.5 py-2 text-xs font-semibold ${inventoryLowOnly ? 'bg-amber-100 text-amber-800' : 'border border-[#dfe8e2] bg-white text-[#52685b]'}`} onClick={() => setInventoryLowOnly((value) => !value)} type="button">{isArabic ? `منخفض أو نافد (${lowStockProducts.length})` : `Low or out (${lowStockProducts.length})`}</button>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'منتجات بمخزون متتبع' : 'Stock tracked'}</span><p className="mt-1 text-xl font-bold">{managedStockProducts.length}</p></div>
+            <div className="rounded-2xl bg-amber-50 p-4"><span className="text-[10px] text-amber-700">{isArabic ? 'مخزون منخفض (٥ أو أقل)' : 'Low stock (5 or less)'}</span><p className="mt-1 text-xl font-bold text-amber-800">{lowStockProducts.filter((product) => (product.stock ?? 0) > 0).length}</p></div>
+            <div className="rounded-2xl bg-red-50 p-4"><span className="text-[10px] text-red-700">{isArabic ? 'نفد المخزون' : 'Out of stock'}</span><p className="mt-1 text-xl font-bold text-red-800">{managedStockProducts.filter((product) => product.stock === 0).length}</p></div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <input className="h-10 min-w-48 flex-1 rounded-full border border-[#dfe7e1] px-4 text-xs outline-none" onChange={(event) => setInventorySearch(event.target.value)} placeholder={isArabic ? 'ابحث عن منتج أو SKU…' : 'Search product or SKU…'} value={inventorySearch} />
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-[#edf1ee]">
+            <table className="w-full min-w-[620px] text-start text-xs text-[#3a5244]">
+              <thead className="bg-[#f7faf8]"><tr className="text-[10px] text-[#7e9085]"><th className="p-3 text-start">{isArabic ? 'المنتج' : 'Product'}</th><th className="p-3 text-start">SKU</th><th className="p-3 text-start">{isArabic ? 'الكمية المتاحة' : 'On hand'}</th><th className="p-3 text-start">{isArabic ? 'الحالة' : 'Status'}</th><th className="p-3 text-start">{isArabic ? 'تعديل' : 'Edit'}</th></tr></thead>
+              <tbody className="divide-y divide-[#edf1ee]">{products.filter((product) => product.stock !== undefined).filter((product) => !inventoryLowOnly || (product.stock ?? 0) <= 5).filter((product) => `${product.name.ar} ${product.name.en} ${product.sku ?? ''}`.toLowerCase().includes(inventorySearch.trim().toLowerCase())).map((product) => (
+                <tr key={product.id}>
+                  <td className="p-3"><div className="flex items-center gap-2"><img alt="" className="h-9 w-9 rounded-lg object-cover" src={publicAssetUrl(product.imageUrl)} /><span className="font-semibold">{product.name[locale]}</span></div></td>
+                  <td className="p-3 font-mono text-[10px]">{product.sku || '—'}</td>
+                  <td className="p-3"><input aria-label={`${isArabic ? 'كمية' : 'Quantity'} ${product.name.en}`} className="h-9 w-24 rounded-lg border border-[#dfe8e2] px-2 text-xs" min="0" onBlur={() => void onSetProductStock(product.id, product.stock ?? null)} onChange={(event) => { const value = event.target.value; const parsed = Number(value); setProducts((current) => current.map((item) => item.id === product.id ? { ...item, stock: value === '' ? undefined : Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : item.stock } : item)); }} type="number" value={product.stock ?? ''} /></td>
+                  <td className="p-3"><span className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${product.stock === 0 ? 'bg-red-50 text-red-700' : (product.stock ?? 0) <= 5 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{product.stock === 0 ? (isArabic ? 'نفد' : 'Out') : (product.stock ?? 0) <= 5 ? (isArabic ? 'منخفض' : 'Low') : (isArabic ? 'متاح' : 'In stock')}</span></td>
+                  <td className="p-3"><button className="rounded-full border border-[#dfe8e2] px-3 py-1.5 text-[10px]" onClick={() => startEditProduct(product)} type="button">{isArabic ? 'المنتج' : 'Product'}</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+          {managedStockProducts.length === 0 && <p className="rounded-2xl bg-[#f7faf8] p-5 text-center text-xs text-[#788b80]">{isArabic ? 'لم يتم تفعيل تتبع المخزون لأي منتج بعد. أضف كمية من شاشة تعديل المنتج.' : 'No products are tracked yet. Set a stock quantity in the product editor.'}</p>}
+        </section>
+      )}
+
+      {activeTab === 'customers' && (
+        <section className="space-y-5 rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h2 className="text-base font-bold text-[#2f4437]">{isArabic ? 'قاعدة العملاء' : 'Customer directory'}</h2><p className="mt-1 text-[10px] text-[#788b80]">{isArabic ? 'ملف موحد لكل رقم هاتف مع سجل الطلبات والإنفاق المكتمل.' : 'A unified profile per phone number with order history and completed spend.'}</p></div>
+            <div className="flex flex-wrap gap-2"><input className="h-10 min-w-48 rounded-full border border-[#dfe7e1] px-4 text-xs outline-none" onChange={(event) => setCustomerSearch(event.target.value)} placeholder={isArabic ? 'ابحث بالاسم أو الهاتف…' : 'Search name or phone…'} value={customerSearch} /><button className="flex h-10 items-center gap-1 rounded-full border border-[#dfe8e2] px-3 text-xs font-semibold" onClick={handleExportCustomersCsv} type="button"><Download className="h-3.5 w-3.5" />CSV</button></div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'إجمالي العملاء' : 'Customers'}</span><p className="mt-1 text-xl font-bold">{customerRecords.length}</p></div>
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'عملاء متكررون (٣ طلبات+)' : 'Repeat customers (3+ orders)'}</span><p className="mt-1 text-xl font-bold">{customerRecords.filter((customer) => customer.orders.filter((order) => order.status !== 'cancelled').length >= 3).length}</p></div>
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'متوسط عدد الطلبات' : 'Average orders per customer'}</span><p className="mt-1 text-xl font-bold">{customerBuyerCount ? (orders.filter((order) => order.status !== 'cancelled').length / customerBuyerCount).toFixed(1) : '0.0'}</p></div>
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-[#edf1ee]"><table className="w-full min-w-[800px] text-start text-xs text-[#3a5244]"><thead className="bg-[#f7faf8]"><tr className="text-[10px] text-[#7e9085]"><th className="p-3 text-start">{isArabic ? 'العميل' : 'Customer'}</th><th className="p-3 text-start">{isArabic ? 'الهاتف' : 'Phone'}</th><th className="p-3 text-start">{isArabic ? 'الطلبات' : 'Orders'}</th><th className="p-3 text-start">{isArabic ? 'الاستفسارات' : 'Inquiries'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق مصر' : 'Egypt spend'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق السعودية' : 'Saudi spend'}</th><th className="p-3 text-start">{isArabic ? 'آخر تواصل' : 'Last activity'}</th><th className="p-3 text-start">{isArabic ? 'التواصل' : 'Contact'}</th></tr></thead><tbody className="divide-y divide-[#edf1ee]">{customerRecords.filter((customer) => `${customer.name} ${customer.phone}`.toLowerCase().includes(customerSearch.trim().toLowerCase())).map((customer) => {
+            const latestOrder = [...customer.orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+            const latestInquiry = [...customer.inquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+            const lastActivity = [latestOrder?.createdAt, latestInquiry?.createdAt].filter(Boolean).sort().at(-1);
+            const spentEg = customer.orders.filter((order) => order.market === 'eg' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0);
+            const spentKsa = customer.orders.filter((order) => order.market === 'ksa' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0);
+            const validOrderCount = customer.orders.filter((order) => order.status !== 'cancelled').length;
+            return <tr key={customer.key}><td className="p-3 font-semibold">{customer.name}{validOrderCount >= 3 && <span className="ms-2 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] text-amber-800">VIP</span>}</td><td className="p-3 font-mono">{customer.phone}</td><td className="p-3">{validOrderCount}</td><td className="p-3">{customer.inquiries.length}</td><td className="p-3">{spentEg.toLocaleString()} ج.م</td><td className="p-3">{spentKsa.toLocaleString()} ر.س</td><td className="p-3">{lastActivity ? new Date(lastActivity).toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB') : '—'}</td><td className="p-3"><a className="rounded-full bg-[#314f43] px-3 py-1.5 text-[10px] text-white" href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} rel="noreferrer" target="_blank">WhatsApp</a></td></tr>;
+          })}</tbody></table></div>
+        </section>
+      )}
+
+      {activeTab === 'channels' && (
+        <div className="space-y-5 rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-bold text-[#2f4437]">{isArabic ? 'روابط التواصل وطرق الدفع حسب البلد' : 'Social links & market payment methods'}</h2>
+              <p className="text-[10px] text-[#788b80]">{siteDataReady ? (isArabic ? 'متصل بقاعدة البيانات' : 'Connected to database') : (isArabic ? 'حفظ محلي في هذا المتصفح' : 'Saved locally in this browser')}</p>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {socialDraft.map((item) => (
+              <form className="space-y-2 rounded-2xl border border-[#e5ebe7] p-4" key={item.id} onSubmit={(event) => { event.preventDefault(); void onSaveSocialLink(item).then((saved) => onToast(saved ? (isArabic ? 'تم حفظ رابط التواصل' : 'Social link saved') : (isArabic ? 'تعذر حفظ رابط التواصل' : 'Could not save social link'))); }}>
+                <h3 className="text-xs font-bold">{item.label}</h3>
+                <input aria-label="Handle" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="Handle" value={item.handle} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, handle: event.target.value } : entry) })} />
+                <input aria-label="URL" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="URL" value={item.url} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, url: event.target.value } : entry) })} />
+                <button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>
+              </form>
+            ))}
+            <div className="md:col-span-2">
+              <div className="mb-3 flex gap-2">
+                {(['eg', 'ksa'] as const).map((targetMarket) => (
+                  <button className={`rounded-full px-4 py-2 text-xs font-semibold ${paymentMarket === targetMarket ? 'bg-[#314f43] text-white' : 'border border-[#dce7df] text-[#52685b]'}`} key={targetMarket} onClick={() => setPaymentMarket(targetMarket)} type="button">
+                    {targetMarket === 'eg' ? (isArabic ? 'مصر · EGP' : 'Egypt · EGP') : (isArabic ? 'السعودية · SAR' : 'Saudi Arabia · SAR')}
+                  </button>
+                ))}
+              </div>
+              <p className="mb-3 rounded-xl bg-[#fff8e8] px-3 py-2 text-[10px] leading-5 text-[#795e2e]">
+                {isArabic
+                  ? 'الدفع الإلكتروني لمصر يمر عبر Paymob بعد نشر وظائف الدفع وإضافة مفاتيح التاجر كأسرار في Supabase. لا تضع أي مفتاح سري في لوحة المتجر.'
+                  : 'Egypt online payments use Paymob after deploying the payment functions and adding merchant credentials as Supabase secrets. Never put secret keys in this dashboard.'}
+              </p>
+              <form className="mb-4 flex gap-2" onSubmit={(event) => { event.preventDefault(); handleAddPaymentMethod(); }}>
+                <input aria-label={isArabic ? 'إضافة وسيلة دفع' : 'Add payment method'} className="h-10 flex-1 rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(event) => setNewPaymentMethodLabel(event.target.value)} placeholder={isArabic ? 'اسم وسيلة دفع جديدة لهذا البلد' : 'New payment method for this market'} value={newPaymentMethodLabel} />
+                <button className="flex items-center gap-1 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white" type="submit"><Plus className="h-3.5 w-3.5" />{isArabic ? 'إضافة' : 'Add'}</button>
+              </form>
+            </div>
+            {paymentDraft.filter((item) => item.market === paymentMarket).map((item) => (
+              <form className="space-y-2 rounded-2xl border border-[#e5ebe7] p-4" key={item.id} onSubmit={(event) => { event.preventDefault(); void onSavePaymentMethod(item).then((saved) => onToast(saved ? (isArabic ? 'تم حفظ طريقة الدفع' : 'Payment method saved') : (isArabic ? 'تعذر حفظ طريقة الدفع' : 'Could not save payment method'))); }}>
+                <h3 className="text-xs font-bold">{item.method}</h3>
+                <input aria-label="Payment label" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'اسم طريقة الدفع' : 'Payment method name'} value={item.label} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, label: event.target.value } : entry) })} />
+                <input aria-label="Account name" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'اسم الحساب' : 'Account name'} value={item.accountName} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, accountName: event.target.value } : entry) })} />
+                <input aria-label="Account number" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'رقم الحساب أو المحفظة' : 'Account or wallet number'} value={item.accountNumber} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, accountNumber: event.target.value } : entry) })} />
+                <input aria-label="Payment instructions Arabic" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="تعليمات الدفع بالعربية" value={item.instructions.ar} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, ar: event.target.value } } : entry) })} />
+                <input aria-label="Payment instructions English" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="Payment instructions in English" value={item.instructions.en} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, en: event.target.value } } : entry) })} />
+                <label className="flex items-center gap-2 text-xs"><input checked={item.active} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, active: event.target.checked } : entry) })} type="checkbox" />{isArabic ? 'إظهار طريقة الدفع للعملاء' : 'Show this method to customers'}</label>
+                <button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>
+              </form>
+            ))}
+          </div>
         </div>
       )}
 
@@ -671,8 +1079,8 @@ export function AdminDashboard({
               </h2>
               <p className="text-[10px] text-[#788b80]">
                 {isArabic
-                  ? 'أضف قسماً جديداً (مثل: إلكترونيات، ساعات) ليظهر فوراً في النافبار والفلتر دون تعديل كود!'
-                  : 'Add, rename, or toggle categories without touching code. Automatically reflects in Navbar.'}
+                  ? 'غيّر اسم أي قسم بالعربية والإنجليزية؛ الاسم يتحدث في القائمة الرئيسية وبوابات الأقسام وصفحاتها.'
+                  : 'Rename any section in Arabic and English. Names update in navigation, department cards, and section pages.'}
               </p>
             </div>
             <button
@@ -696,6 +1104,14 @@ export function AdminDashboard({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    aria-label={isArabic ? `تعديل اسم ${cat.name.ar}` : `Rename ${cat.name.en}`}
+                    className="p-1.5 text-[#496e5a] hover:text-[#234333]"
+                    onClick={() => handleEditCategory(cat)}
+                    type="button"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
                     className={`flex items-center gap-1 rounded-full px-3 py-1 text-[9px] font-semibold ${
                       cat.active ? 'bg-[#e4f6ec] text-[#347854]' : 'bg-[#f4eae9] text-[#9b5147]'
                     }`}
@@ -705,13 +1121,13 @@ export function AdminDashboard({
                     {cat.active ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                     {cat.active ? (isArabic ? 'مفعّل بالنافبار' : 'Active') : isArabic ? 'مخفي' : 'Hidden'}
                   </button>
-                  <button
+                  {!['cards', 'fashion', 'services', 'cars', 'property'].includes(cat.slug) && <button
                     className="p-1.5 text-[#a16f66] hover:text-[#c4493a]"
                     onClick={() => handleDeleteCategory(cat.id)}
                     type="button"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </button>}
                 </div>
               </div>
             ))}
@@ -725,8 +1141,8 @@ export function AdminDashboard({
                 onSubmit={handleSaveCategory}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#2e4337]">{isArabic ? 'إضافة قسم جديد' : 'Add New Category'}</h3>
-                  <button onClick={() => setShowCategoryModal(false)} type="button">
+                  <h3 className="text-sm font-bold text-[#2e4337]">{editingCategoryId ? isArabic ? 'تعديل اسم القسم' : 'Rename Section' : isArabic ? 'إضافة قسم جديد' : 'Add New Category'}</h3>
+                  <button onClick={() => { setShowCategoryModal(false); setEditingCategoryId(null); }} type="button">
                     <X className="h-4 w-4 text-[#72857a]" />
                   </button>
                 </div>
@@ -752,6 +1168,7 @@ export function AdminDashboard({
                     />
                   </div>
                   <div>
+                    {!editingCategoryId && <>
                     <label className="text-[10px] text-[#607368]">{isArabic ? 'الرابط المختصر (Slug)' : 'URL Slug'}</label>
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
@@ -759,13 +1176,14 @@ export function AdminDashboard({
                       placeholder="electronics"
                       value={newCatSlug}
                     />
+                    </>}
                   </div>
                 </div>
                 <button
                   className="mt-5 min-h-10 w-full rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
                   type="submit"
                 >
-                  {isArabic ? 'حفظ القسم وإظهاره فوراً' : 'Save & Publish Category'}
+                  {editingCategoryId ? isArabic ? 'حفظ الاسم الجديد' : 'Save New Name' : isArabic ? 'حفظ القسم وإظهاره فوراً' : 'Save & Publish Category'}
                 </button>
               </form>
             </div>
@@ -805,6 +1223,8 @@ export function AdminDashboard({
                 setProdBrand('');
                 setProdBadge('');
                 setProdVariants('');
+                setProdStock('');
+                setProdMarkets(['eg', 'ksa']);
                 setProdFeatured(false);
                 setProdAvailable(true);
                 setShowProductModal(true);
@@ -843,7 +1263,7 @@ export function AdminDashboard({
               .map((prod) => (
               <div className="flex items-center justify-between py-4" key={prod.id}>
                 <div className="flex items-center gap-3">
-                  <img alt={prod.name.ar} className="h-12 w-12 rounded-xl object-cover shadow-xs" src={prod.imageUrl} />
+                  <img alt={prod.name.ar} className="h-12 w-12 rounded-xl object-cover shadow-xs" src={publicAssetUrl(prod.imageUrl)} />
                   <div>
                     <h4 className="text-xs font-bold text-[#2c3f34]">
                       {prod.name.ar} · {prod.name.en}
@@ -859,6 +1279,11 @@ export function AdminDashboard({
                       )}
                       {prod.sku && (
                         <span className="font-mono text-[9px] text-[#8a9a90]">{prod.sku}</span>
+                      )}
+                      {prod.stock !== undefined && (
+                        <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${prod.stock === 0 ? 'bg-red-50 text-red-700' : prod.stock <= 5 ? 'bg-amber-50 text-amber-700' : 'bg-[#eef5f0] text-[#3f6c56]'}`}>
+                          {prod.stock === 0 ? (isArabic ? 'نفد المخزون' : 'Out of stock') : `${prod.stock} ${isArabic ? 'قطعة' : 'in stock'}`}
+                        </span>
                       )}
                       {prod.brand && (
                         <span className="rounded-full bg-[#eef5f0] px-2 py-0.5 text-[9px] font-semibold text-[#3f6c56]">
@@ -1065,6 +1490,14 @@ export function AdminDashboard({
                       value={prodVariants}
                     />
                   </div>
+                  <div>
+                    <label className="text-[10px] text-[#607368]">{isArabic ? 'كمية المخزون (اتركه فارغاً لمخزون غير محدود)' : 'Stock quantity (leave blank for untracked)'}</label>
+                    <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none" min="0" onChange={(e) => setProdStock(e.target.value)} placeholder={isArabic ? 'مثال: 25' : 'e.g. 25'} type="number" value={prodStock} />
+                  </div>
+                  <div className="flex items-center gap-3 rounded-2xl border border-[#dfe8e2] p-3">
+                    <span className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'أسواق العرض' : 'Markets'}</span>
+                    {(['eg', 'ksa'] as const).map((marketKey) => <label className="flex items-center gap-1.5 text-[10px]" key={marketKey}><input checked={prodMarkets.includes(marketKey)} onChange={(event) => setProdMarkets((current) => event.target.checked ? [...current, marketKey] : current.filter((item) => item !== marketKey))} type="checkbox" />{marketKey === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'Saudi Arabia')}</label>)}
+                  </div>
                   <div className="flex items-center gap-4 sm:col-span-2">
                     <label className="flex flex-1 items-center justify-between rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] p-3 text-xs font-semibold text-[#3b5546]">
                       <span>{isArabic ? 'منتج مميز (يظهر في المقدمة)' : 'Featured product'}</span>
@@ -1120,6 +1553,8 @@ export function AdminDashboard({
                 setCarMake('Mercedes-Benz');
                 setCarYear('2024');
                 setCarPrice('');
+                setCarDeal('Sale');
+                setCarRentalPeriod('Day');
                 setCarLocation('Cairo');
                 setCarCondition('Used');
                 setCarPhoto('');
@@ -1150,16 +1585,16 @@ export function AdminDashboard({
               .filter((v) => {
                 const q = inventorySearch.trim().toLowerCase();
                 if (!q) return true;
-                return `${v.title.ar} ${v.title.en} ${v.make} ${v.id}`.toLowerCase().includes(q);
+                return `${v.title.ar} ${v.title.en} ${v.make} ${v.id} ${v.deal ?? 'Sale'}`.toLowerCase().includes(q);
               })
               .map((v) => (
               <div className="flex items-center justify-between py-4" key={v.id}>
                 <div className="flex items-center gap-3">
-                  <img alt={v.title.ar} className="h-12 w-16 rounded-xl object-cover" src={v.photo} />
+                  <img alt={v.title.ar} className="h-12 w-16 rounded-xl object-cover" src={publicAssetUrl(v.photo)} />
                   <div>
                     <h4 className="text-xs font-bold text-[#2d4236]">{v.title.ar}</h4>
                     <p className="text-[10px] text-[#697d72]">
-                      {v.make} · {v.year} · {v.price.toLocaleString()} ج.م · {v.condition}
+                      {v.make} · {v.year} · {v.price.toLocaleString()} {v.region === 'Riyadh' || v.region === 'Jeddah' ? 'ر.س' : 'ج.م'}{v.deal === 'Rent' ? ` / ${isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[v.rentalPeriod ?? 'Day'] : (v.rentalPeriod ?? 'Day').toLowerCase()}` : ''} · {v.deal === 'Rent' ? (isArabic ? 'إيجار' : 'Rent') : isArabic ? 'بيع' : 'Sale'}
                     </p>
                   </div>
                 </div>
@@ -1215,9 +1650,24 @@ export function AdminDashboard({
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarYear(e.target.value)} type="number" value={carYear} />
                   </div>
                   <div>
-                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'السعر (ج.م / ر.س)' : 'Price (EGP / SAR)'}</label>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? carDeal === 'Rent' ? 'سعر الإيجار للفترة المختارة' : 'سعر البيع' : carDeal === 'Rent' ? 'Rental price for selected period' : 'Sale price'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarPrice(e.target.value)} required type="number" value={carPrice} />
                   </div>
+                  <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'نوع العرض' : 'Listing type'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs" onChange={(e) => setCarDeal(e.target.value as 'Sale' | 'Rent')} value={carDeal}>
+                      <option value="Sale">{isArabic ? 'للبيع' : 'For sale'}</option>
+                      <option value="Rent">{isArabic ? 'للإيجار' : 'For rent'}</option>
+                    </select>
+                  </div>
+                  {carDeal === 'Rent' && <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'مدة الإيجار' : 'Rental period'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs" onChange={(e) => setCarRentalPeriod(e.target.value as 'Day' | 'Week' | 'Month')} value={carRentalPeriod}>
+                      <option value="Day">{isArabic ? 'باليوم' : 'Per day'}</option>
+                      <option value="Week">{isArabic ? 'بالأسبوع' : 'Per week'}</option>
+                      <option value="Month">{isArabic ? 'بالشهر' : 'Per month'}</option>
+                    </select>
+                  </div>}
                   <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'المدينة' : 'City'}</label>
                     <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarLocation(e.target.value)} value={carLocation}>
@@ -1230,7 +1680,7 @@ export function AdminDashboard({
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'الحالة' : 'Condition'}</label>
                     <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setCarCondition(e.target.value as 'New' | 'Used')} value={carCondition}>
                       <option value="New">{isArabic ? 'جديد (زيرو)' : 'Brand New'}</option>
-                      <option value="Used">{isArabic ? 'مستعمل فاخر' : 'Certified Used'}</option>
+                      <option value="Used">{isArabic ? 'مستعمل' : 'Pre-owned'}</option>
                     </select>
                   </div>
                   <div className="sm:col-span-2">
@@ -1245,7 +1695,7 @@ export function AdminDashboard({
                         <UploadCloud className="h-3.5 w-3.5" />
                         {isArabic ? 'اختر صورة من جهازك' : 'Upload from Device'}
                       </button>
-                      {carPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={carPhoto} />}
+                      {carPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(carPhoto)} />}
                     </div>
                   </div>
                 </div>
@@ -1313,7 +1763,7 @@ export function AdminDashboard({
               .map((p) => (
               <div className="flex items-center justify-between py-4" key={p.id}>
                 <div className="flex items-center gap-3">
-                  <img alt={p.title.ar} className="h-12 w-16 rounded-xl object-cover" src={p.photo} />
+                  <img alt={p.title.ar} className="h-12 w-16 rounded-xl object-cover" src={publicAssetUrl(p.photo)} />
                   <div>
                     <h4 className="text-xs font-bold text-[#2d4236]">{p.title.ar}</h4>
                     <p className="text-[10px] text-[#697d72]">
@@ -1412,7 +1862,7 @@ export function AdminDashboard({
                         <UploadCloud className="h-3.5 w-3.5" />
                         {isArabic ? 'اختر صورة من جهازك' : 'Upload from Device'}
                       </button>
-                      {propPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={propPhoto} />}
+                      {propPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(propPhoto)} />}
                     </div>
                   </div>
                 </div>
@@ -1439,6 +1889,7 @@ export function AdminDashboard({
             </div>
 
             <div className="flex flex-wrap gap-2">
+              <button className="flex h-9 items-center gap-1.5 rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs font-semibold text-[#3b5949]" onClick={handleExportOrdersCsv} type="button"><Download className="h-3.5 w-3.5" />{isArabic ? 'تصدير CSV' : 'Export CSV'}</button>
               <div className="flex items-center gap-1.5 rounded-xl border border-[#dfe8e2] bg-white px-3 py-1 text-xs">
                 <Search className="h-3.5 w-3.5 text-[#72857a]" />
                 <input
@@ -1450,6 +1901,15 @@ export function AdminDashboard({
               </div>
               <select
                 className="h-9 rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2e4537] outline-none"
+                onChange={(e) => setOrderMarketFilter(e.target.value as typeof orderMarketFilter)}
+                value={orderMarketFilter}
+              >
+                <option value="all">{isArabic ? 'كل الأسواق' : 'All markets'}</option>
+                <option value="eg">{isArabic ? 'مصر' : 'Egypt'}</option>
+                <option value="ksa">{isArabic ? 'السعودية' : 'Saudi Arabia'}</option>
+              </select>
+              <select
+                className="h-9 rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2e4537] outline-none"
                 onChange={(e) => setOrderStatusFilter(e.target.value as typeof orderStatusFilter)}
                 value={orderStatusFilter}
               >
@@ -1457,6 +1917,7 @@ export function AdminDashboard({
                 <option value="new">{isArabic ? 'جديد (قيد المتابعة)' : 'New'}</option>
                 <option value="confirmed">{isArabic ? 'مؤكد' : 'Confirmed'}</option>
                 <option value="complete">{isArabic ? 'مكتمل' : 'Complete'}</option>
+                <option value="cancelled">{isArabic ? 'ملغي' : 'Cancelled'}</option>
               </select>
             </div>
           </div>
@@ -1475,7 +1936,8 @@ export function AdminDashboard({
               </thead>
               <tbody className="divide-y divide-[#edf1ee]">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id}>
+                  <Fragment key={order.id}>
+                  <tr>
                     <td className="py-3 font-mono font-bold">{order.id}</td>
                     <td className="py-3">
                       <div>
@@ -1492,24 +1954,56 @@ export function AdminDashboard({
                             ? 'bg-[#fff1de] text-[#a16d3e]'
                             : order.status === 'confirmed'
                               ? 'bg-[#e7f1fb] text-[#4777a8]'
-                              : 'bg-[#e4f6ec] text-[#347854]'
+                              : order.status === 'cancelled' ? 'bg-[#f1f2f1] text-[#69766f]' : 'bg-[#e4f6ec] text-[#347854]'
                         }`}
                       >
-                        {order.status === 'new' ? (isArabic ? 'جديد' : 'New') : order.status === 'confirmed' ? (isArabic ? 'مؤكد' : 'Confirmed') : isArabic ? 'مكتمل' : 'Complete'}
+                        {order.status === 'new' ? (isArabic ? 'جديد' : 'New') : order.status === 'confirmed' ? (isArabic ? 'مؤكد' : 'Confirmed') : order.status === 'cancelled' ? (isArabic ? 'ملغي' : 'Cancelled') : isArabic ? 'مكتمل' : 'Complete'}
                       </span>
                     </td>
                     <td className="py-3">
-                      <select
-                        className="rounded-lg border border-[#dfe8e2] bg-white px-2 py-1 text-[9px]"
-                        onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value as CustomerOrder['status'])}
-                        value={order.status}
-                      >
-                        <option value="new">{isArabic ? 'جديد' : 'New'}</option>
-                        <option value="confirmed">{isArabic ? 'مؤكد' : 'Confirmed'}</option>
-                        <option value="complete">{isArabic ? 'مكتمل' : 'Complete'}</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          aria-label={isArabic ? 'تحديث حالة الطلب' : 'Update order status'}
+                          className="rounded-lg border border-[#dfe8e2] bg-white px-2 py-1 text-[9px]"
+                          onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value as CustomerOrder['status'])}
+                          value={order.status}
+                        >
+                          <option value="new">{isArabic ? 'جديد' : 'New'}</option>
+                          <option value="confirmed">{isArabic ? 'مؤكد' : 'Confirmed'}</option>
+                          <option value="complete">{isArabic ? 'مكتمل' : 'Complete'}</option>
+                          <option value="cancelled">{isArabic ? 'ملغي' : 'Cancelled'}</option>
+                        </select>
+                        <button className="rounded-lg border border-[#dfe8e2] px-2 py-1 text-[9px]" onClick={() => setOrderDetailsId((current) => current === order.id ? null : order.id)} type="button">{orderDetailsId === order.id ? (isArabic ? 'إخفاء' : 'Hide') : (isArabic ? 'تفاصيل' : 'Details')}</button>
+                      </div>
                     </td>
                   </tr>
+                  {orderDetailsId === order.id && (
+                    <tr>
+                      <td className="bg-[#f7faf8] px-4 py-3" colSpan={6}>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <p className="font-semibold">{isArabic ? 'المنتجات' : 'Items'}</p>
+                            <ul className="mt-1 space-y-1 text-[10px]">{order.items.map((item, index) => <li key={`${item.productId}-${index}`}>{item.quantity} × {item.name}{item.variant ? ` · ${item.variant}` : ''}</li>)}</ul>
+                          </div>
+                          <div className="space-y-1 text-[10px]">
+                            <p><strong>{isArabic ? 'تاريخ الطلب:' : 'Placed:'}</strong> {new Date(order.createdAt).toLocaleString(isArabic ? 'ar-EG' : 'en-GB')}</p>
+                            <p><strong>{isArabic ? 'طريقة الدفع:' : 'Payment:'}</strong> {order.paymentMethod || '—'}</p>
+                            {order.paymentStatus && <p><strong>{isArabic ? 'حالة الدفع:' : 'Payment status:'}</strong> {order.paymentStatus === 'paid' ? (isArabic ? 'مدفوع' : 'Paid') : order.paymentStatus === 'pending' ? (isArabic ? 'بانتظار الدفع' : 'Awaiting payment') : order.paymentStatus === 'failed' ? (isArabic ? 'لم يكتمل الدفع' : 'Payment failed') : order.paymentStatus === 'refunded' ? (isArabic ? 'مسترد' : 'Refunded') : (isArabic ? 'غير مدفوع' : 'Unpaid')}</p>}
+                            <p><strong>{isArabic ? 'كود الخصم:' : 'Promo:'}</strong> {order.promoCode || '—'}</p>
+                            <p><strong>{isArabic ? 'الخصم:' : 'Discount:'}</strong> {order.discount} {order.market === 'eg' ? 'ج.م' : 'ر.س'}</p>
+                            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                              <input aria-label={isArabic ? 'شركة الشحن' : 'Shipping carrier'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: event.target.value, trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} placeholder={order.market === 'eg' ? (isArabic ? 'شركة الشحن (مثال: بوسطة)' : 'Carrier (e.g. Bosta)') : (isArabic ? 'شركة الشحن (مثال: أرامكس)' : 'Carrier (e.g. Aramex)')} value={shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? ''} />
+                              <input aria-label={isArabic ? 'رقم التتبع' : 'Tracking number'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '', trackingNumber: event.target.value, trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} placeholder={isArabic ? 'رقم التتبع' : 'Tracking number'} value={shippingDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ''} />
+                              <input aria-label={isArabic ? 'رابط تتبع الشحنة' : 'Shipment tracking link'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px] sm:col-span-2" dir="ltr" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '', trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: event.target.value } }))} placeholder="https://…" value={shippingDrafts[order.id]?.trackingUrl ?? order.trackingUrl ?? ''} />
+                              <button className="rounded-full bg-[#314f43] px-3 py-2 text-[10px] font-semibold text-white sm:col-span-2" onClick={() => void handleSaveShipping(order)} type="button">{isArabic ? 'حفظ بيانات الشحن' : 'Save shipment details'}</button>
+                            </div>
+                            <a className="mt-2 inline-flex rounded-full bg-[#314f43] px-3 py-1.5 text-white" href={`https://wa.me/${order.phone.replace(/\D/g, '')}`} rel="noreferrer" target="_blank">{isArabic ? 'مراسلة العميل على واتساب' : 'Message on WhatsApp'}</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
@@ -1535,8 +2029,13 @@ export function AdminDashboard({
             {inbox.length > 0 && (
               <button
                 className="flex items-center gap-1.5 rounded-full border border-[#d6e3db] bg-white px-3.5 py-2 text-xs font-semibold text-[#3b5949] hover:bg-[#edf5f0]"
-                onClick={() => {
+                onClick={async () => {
                   if (window.confirm(isArabic ? 'مسح كل الاستفسارات؟' : 'Clear all inquiries?')) {
+                    const cleared = await onClearInquiries();
+                    if (!cleared) {
+                      onToast(isArabic ? 'تعذر مسح الاستفسارات من قاعدة البيانات.' : 'Could not clear inquiries from the database.');
+                      return;
+                    }
                     setInbox([]);
                     onToast(isArabic ? 'تم مسح الاستفسارات' : 'Inquiries cleared');
                   }
@@ -1642,8 +2141,15 @@ export function AdminDashboard({
               const code = String(form.get('code') ?? '').trim().toUpperCase();
               const discount = Number(form.get('discount'));
               const expiresAt = String(form.get('expiry') ?? '');
-
-              if (!code || !discount || !expiresAt) return;
+              const expiryTime = Date.parse(`${expiresAt}T23:59:59.999`);
+              if (!/^[A-Z0-9_-]{3,24}$/.test(code) || !Number.isFinite(discount) || discount <= 0 || discount > 90 || !Number.isFinite(expiryTime) || expiryTime < Date.now()) {
+                onToast(isArabic ? 'تحقق من الكود ونسبة الخصم وتاريخ الانتهاء.' : 'Check the code, discount percentage, and expiry date.');
+                return;
+              }
+              if (promoCodes.some((promo) => promo.code.toUpperCase() === code)) {
+                onToast(isArabic ? 'كود الخصم موجود بالفعل.' : 'That promo code already exists.');
+                return;
+              }
               setPromoCodes((prev) => [{ code, discount, expiresAt, active: true }, ...prev]);
               onToast(isArabic ? `تم تفعيل الكود ${code} بنسبة ${discount}%!` : `Code ${code} activated!`);
               e.currentTarget.reset();
@@ -1683,6 +2189,34 @@ export function AdminDashboard({
       {/* Tab: Design & Brand — live brand tokens (colours, radius, font scale).
           These are written onto <html> as CSS variables by the storefront, so a
           change here restyles the whole site instantly. */}
+      {activeTab === 'sales' && (
+        <section className="space-y-5 rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><h2 className="text-base font-bold text-[#2f4437]">{isArabic ? 'تقارير المبيعات' : 'Sales analytics'}</h2><p className="mt-1 text-[10px] text-[#788b80]">{isArabic ? 'الإيرادات هنا للطلبات المكتملة فقط، وكل سوق بعملته.' : 'Revenue includes completed orders only; each market stays in its own currency.'}</p></div>
+            <select aria-label={isArabic ? 'فترة التقرير' : 'Report period'} className="h-10 rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs" onChange={(event) => setSalesPeriodDays(Number(event.target.value) as 7 | 30)} value={salesPeriodDays}><option value={7}>{isArabic ? 'آخر ٧ أيام' : 'Last 7 days'}</option><option value={30}>{isArabic ? 'آخر ٣٠ يوماً' : 'Last 30 days'}</option></select>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'طلبات الفترة' : 'Orders in period'}</span><p className="mt-1 text-xl font-bold">{periodOrders.length}</p></div>
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'مكتملة' : 'Completed'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.length}</p></div>
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'إيراد مصر' : 'Egypt revenue'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.filter((order) => order.market === 'eg').reduce((sum, order) => sum + order.total, 0).toLocaleString()} ج.م</p></div>
+            <div className="rounded-2xl bg-[#f4f8f5] p-4"><span className="text-[10px] text-[#788b80]">{isArabic ? 'إيراد السعودية' : 'Saudi revenue'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.filter((order) => order.market === 'ksa').reduce((sum, order) => sum + order.total, 0).toLocaleString()} ر.س</p></div>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {(['eg', 'ksa'] as const).map((marketKey) => {
+              const maximum = Math.max(1, ...salesTimeline.map((day) => day[marketKey]));
+              return <div className="rounded-2xl border border-[#edf1ee] p-4" key={marketKey}>
+                <h3 className="text-xs font-bold">{marketKey === 'eg' ? (isArabic ? 'إيرادات مصر · ج.م' : 'Egypt revenue · EGP') : (isArabic ? 'إيرادات السعودية · ر.س' : 'Saudi revenue · SAR')}</h3>
+                <div className="mt-5 flex h-40 items-end gap-1 overflow-x-auto border-b border-[#e8efea] pb-2">{salesTimeline.map((day) => <div className="flex h-full min-w-5 flex-1 flex-col items-center justify-end gap-1" key={localDateKey(day.date)} title={`${day.date.toLocaleDateString()} · ${day[marketKey].toLocaleString()} ${marketKey === 'eg' ? 'EGP' : 'SAR'} · ${day.count} orders`}><div className="w-full max-w-7 rounded-t-md bg-[#5a9677] transition-all" style={{ height: `${day[marketKey] ? Math.max(4, day[marketKey] / maximum * 100) : 0}%` }} /><span className="text-[8px] text-[#829288]">{day.date.toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB', { day: 'numeric', month: salesPeriodDays === 7 ? undefined : 'short' })}</span></div>)}</div>
+              </div>;
+            })}
+          </div>
+          <div className="rounded-2xl border border-[#edf1ee] p-4">
+            <h3 className="text-xs font-bold">{isArabic ? 'الأكثر مبيعاً في الفترة' : 'Top products in this period'}</h3>
+            {bestSellers.length ? <div className="mt-3 divide-y divide-[#edf1ee]">{bestSellers.map(([id, product], index) => <div className="flex items-center justify-between gap-3 py-2 text-xs" key={id}><span className="font-semibold">{index + 1}. {product.name}</span><span className="text-[#62786b]">{product.quantity} {isArabic ? 'قطعة' : 'sold'} · {product.revenueEg.toLocaleString()} ج.م / {product.revenueKsa.toLocaleString()} ر.س</span></div>)}</div> : <p className="mt-3 text-xs text-[#829288]">{isArabic ? 'لا توجد طلبات مكتملة في هذه الفترة.' : 'No completed orders in this period yet.'}</p>}
+          </div>
+        </section>
+      )}
+
       {activeTab === 'design' && (
         <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
           <h2 className="flex items-center gap-2 text-base font-bold text-[#2f4437]">
@@ -1918,6 +2452,36 @@ export function AdminDashboard({
       {/* Tab 8: Hero & Telegram Automation Settings */}
       {activeTab === 'settings' && (
         <div className="space-y-6">
+          <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#2f4437]">{isArabic ? 'الشحن والضريبة والدفع عند الاستلام' : 'Shipping, tax & cash on delivery'}</h3>
+            <p className="mt-1 text-[10px] text-[#788b80]">{isArabic ? 'تُطبّق هذه القيم على الإجمالي في صفحة الدفع حسب البلد.' : 'These settings update checkout totals for both markets.'}</p>
+            <div className="mt-4 rounded-2xl border border-[#e5ebe7] p-4">
+              <h4 className="text-xs font-bold text-[#3b5546]">{isArabic ? 'أسعار التوصيل التقديرية حسب المنطقة' : 'Estimated delivery fees by area'}</h4>
+              <p className="mt-1 text-[10px] leading-5 text-[#788b80]">{isArabic ? 'عدّل الرسوم لتطابق تعاقدك مع شركة الشحن. الأسعار تقديرية حتى تسجل السعر الفعلي من شركة الشحن.' : 'Match these fees to your carrier agreement. These are estimates until you enter your contracted carrier rates.'}</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {Object.entries(SHIPPING_RATES).map(([city, defaults]) => (
+                  <div className="rounded-xl bg-[#f7faf8] p-3" key={city}>
+                    <p className="mb-2 text-[10px] font-bold text-[#486253]">{city}</p>
+                    {(['eg', 'ksa'] as const).map((targetMarket) => (
+                      <label className="mb-1 block text-[9px] text-[#72847a]" key={targetMarket}>
+                        {targetMarket === 'eg' ? 'EGP' : 'SAR'}
+                        <input className="mt-1 h-8 w-full rounded-lg border border-[#dfe8e2] bg-white px-2 text-[10px]" min="0" max="100000" onChange={(event) => setSettings((previous) => ({ ...previous, shippingRates: { ...SHIPPING_RATES, ...previous.shippingRates, [city]: { ...defaults, ...previous.shippingRates?.[city], [targetMarket]: Math.max(0, Math.min(100000, Number(event.target.value) || 0)) } } }))} type="number" value={settings.shippingRates?.[city]?.[targetMarket] ?? defaults[targetMarket]} />
+                      </label>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'كوبون تلقائي لكل الزوار' : 'Automatic coupon for all visitors'}<select className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs" onChange={(event) => setSettings((previous) => ({ ...previous, autoPromoCode: event.target.value }))} value={settings.autoPromoCode ?? ''}><option value="">{isArabic ? 'بدون كوبون تلقائي' : 'No automatic coupon'}</option>{promoCodes.filter((promo) => promo.active && promo.discount > 0 && promo.discount <= 100).map((promo) => <option key={promo.code} value={promo.code}>{promo.code} ({promo.discount}%)</option>)}</select></label>
+              <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'الشحن المجاني عند طلب بقيمة (ج.م)' : 'Egypt free shipping threshold (EGP)'}<input className="mt-1 h-10 w-full rounded-xl border px-3 text-xs" min="0" onChange={(event) => setSettings((previous) => ({ ...previous, freeShippingThreshold: { ...previous.freeShippingThreshold, eg: Number(event.target.value) } }))} type="number" value={settings.freeShippingThreshold?.eg ?? 0} /></label>
+              <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'الشحن المجاني عند طلب بقيمة (ر.س)' : 'Saudi free shipping threshold (SAR)'}<input className="mt-1 h-10 w-full rounded-xl border px-3 text-xs" min="0" onChange={(event) => setSettings((previous) => ({ ...previous, freeShippingThreshold: { ...previous.freeShippingThreshold, ksa: Number(event.target.value) } }))} type="number" value={settings.freeShippingThreshold?.ksa ?? 0} /></label>
+              <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'ضريبة مصر (%)' : 'Egypt tax rate (%)'}<input className="mt-1 h-10 w-full rounded-xl border px-3 text-xs" max="100" min="0" onChange={(event) => setSettings((previous) => ({ ...previous, taxRateByMarket: { ...previous.taxRateByMarket, eg: Math.min(100, Math.max(0, Number(event.target.value))) } }))} type="number" value={settings.taxRateByMarket?.eg ?? settings.taxRate ?? 0} /></label>
+              <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'ضريبة السعودية (%)' : 'Saudi tax rate (%)'}<input className="mt-1 h-10 w-full rounded-xl border px-3 text-xs" max="100" min="0" onChange={(event) => setSettings((previous) => ({ ...previous, taxRateByMarket: { ...previous.taxRateByMarket, ksa: Math.min(100, Math.max(0, Number(event.target.value))) } }))} type="number" value={settings.taxRateByMarket?.ksa ?? settings.taxRate ?? 0} /></label>
+              <label className="flex items-center justify-between rounded-xl border border-[#dfe8e2] px-3 py-2 text-xs font-semibold text-[#3b5546]"><span>{isArabic ? 'الدفع عند الاستلام في مصر' : 'Egypt cash on delivery'}</span><input checked={settings.codEnabledByMarket?.eg ?? settings.codEnabled} className="h-4 w-4 accent-[#314f43]" onChange={(event) => setSettings((previous) => ({ ...previous, codEnabledByMarket: { ...previous.codEnabledByMarket, eg: event.target.checked } }))} type="checkbox" /></label>
+              <label className="flex items-center justify-between rounded-xl border border-[#dfe8e2] px-3 py-2 text-xs font-semibold text-[#3b5546]"><span>{isArabic ? 'الدفع عند الاستلام في السعودية' : 'Saudi cash on delivery'}</span><input checked={settings.codEnabledByMarket?.ksa ?? settings.codEnabled} className="h-4 w-4 accent-[#314f43]" onChange={(event) => setSettings((previous) => ({ ...previous, codEnabledByMarket: { ...previous.codEnabledByMarket, ksa: event.target.checked } }))} type="checkbox" /></label>
+            </div>
+          </div>
           {/* Section Visibility Toggles */}
           <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
             <h3 className="text-sm font-bold text-[#2f4437]">
@@ -1952,7 +2516,7 @@ export function AdminDashboard({
               <div className="flex items-center gap-2">
                 <Send className="h-5 w-5 text-[#357c5a]" />
                 <h3 className="text-sm font-bold text-[#2c533f]">
-                  {isArabic ? 'نظام إشعارات تليجرام التلقائي الفوري (Telegram Bot Automation)' : 'Instant Telegram Notification Automation'}
+                  {isArabic ? 'إعداد واختبار إشعارات تليجرام' : 'Telegram Notifications Setup & Test'}
                 </h3>
               </div>
               <button
@@ -1966,8 +2530,8 @@ export function AdminDashboard({
             </div>
             <p className="mt-1 text-[10px] leading-5 text-[#5e7d6d]">
               {isArabic
-                ? 'فور وصول طلب جديد أو رسالة من الموقع، يتم إرسال إشعار فوري بحسابك أو قناة الإدارة على تليجرام.'
-                : 'Instantly notify admin on Telegram upon new orders or inquiries.'}
+                ? 'بيانات البوت محفوظة للأدمن فقط. اختبر الاتصال بإرسال رسالة تجريبية.'
+                : 'Bot credentials are admin-only. Send a test message to verify the connection.'}
             </p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -2171,12 +2735,14 @@ export function AdminDashboard({
             </div>
             <p className="mt-3 text-[10px] leading-5 text-[#9aa8a0]">
               {isArabic
-                ? 'لتغيير كلمة مرور لوحة التحكم: أنشئ ملف .env في جذر المشروع واكتب VITE_ADMIN_PASSWORD=كلمة_السر_الجديدة ثم أعد التشغيل.'
-                : 'To change the admin password: create a .env file at the project root with VITE_ADMIN_PASSWORD=your-new-password, then restart.'}
+                ? 'إدارة كلمات المرور وصلاحيات الأدمن تتم من Supabase Auth وقائمة store_admins.'
+                : 'Manage administrator passwords in Supabase Auth and dashboard access in store_admins.'}
             </p>
           </div>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

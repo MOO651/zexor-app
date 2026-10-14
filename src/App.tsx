@@ -26,11 +26,16 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
   DEFAULT_SETTINGS,
   INITIAL_CATEGORIES,
+  normalizeCategories,
+  normalizeLegacySectionTitles,
+  normalizeStarterProductImages,
+  normalizeStarterVehicles,
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
@@ -61,6 +66,41 @@ const TrackingModal = lazy(() =>
 );
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { ProductCard } from './components/ProductCard';
+import { isSupabaseConfigured, supabase } from '../supabase';
+import {
+  blankPaymentMethod,
+  blankSocialLink,
+  clearAdminInquiries,
+  clearAdminOrders,
+  createCloudOrder,
+  createPaymobCheckout,
+  deleteAdminInquiry,
+  createCloudInquiry,
+  fetchAdminInquiries,
+  fetchPrivateSiteSecrets,
+  fetchAdminOrders,
+  fetchPaymentMethods,
+  fetchStoreContent,
+  fetchSiteSettings,
+  fetchSocialLinks,
+  pingSiteData,
+  savePaymentMethod,
+  saveAdminOrders,
+  saveAdminInquiries,
+  savePrivateSiteSecrets,
+  saveSiteSettings,
+  saveStoreContent,
+  setCloudProductStock,
+  updateCloudOrderStatus,
+  updateCloudOrderShipping,
+  updateCloudInquiryStatus,
+  saveSocialLink,
+  SOCIAL_PLATFORMS,
+  PAYMENT_METHODS_BY_MARKET,
+  type PaymentMethod,
+  type SocialLink,
+  type StoreContentKey,
+} from './lib/siteData';
 import type {
   CartLine,
   CustomerOrder,
@@ -78,7 +118,6 @@ import type {
   Vehicle,
 } from './types';
 import {
-  ADMIN_PASSWORD_FALLBACK,
   DEFAULT_LOCALE,
   currencySymbol,
   formatNumber,
@@ -86,7 +125,7 @@ import {
   isValidObjectArray,
   mergeSettings,
   money,
-  resolveAdminPassword,
+  publicAssetUrl,
   routeFromHash,
   whatsappLink,
   whatsappNumberFor,
@@ -105,16 +144,16 @@ const STORAGE = {
   settings: 'zexor-settings-v3',
 };
 
-// Admin password is read from an env var so the real secret is never committed.
-// Set VITE_ADMIN_PASSWORD in a local .env file to override the dev fallback.
-const ADMIN_PASSWORD = resolveAdminPassword();
-
 function readStorage<T>(key: string, fallback: T, isValid?: (value: unknown) => boolean): T {
   try {
     const value = window.localStorage.getItem(key);
     if (!value) return fallback;
     const parsed = JSON.parse(value) as unknown;
-    return isValid && !isValid(parsed) ? fallback : (parsed as T);
+    if (isValid && !isValid(parsed)) return fallback;
+    if (key === STORAGE.settings && parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return { ...parsed, telegramBotToken: '', telegramChatId: '' } as T;
+    }
+    return parsed as T;
   } catch {
     return fallback;
   }
@@ -128,7 +167,10 @@ function useStoredState<T>(key: string, initial: T, isValid?: (value: unknown) =
   const [value, setValue] = useState<T>(() => readStorage(key, initial, isValid));
   useEffect(() => {
     try {
-      window.localStorage.setItem(key, JSON.stringify(value));
+      const safeValue = key === STORAGE.settings && value && typeof value === 'object'
+        ? { ...(value as Record<string, unknown>), telegramBotToken: '', telegramChatId: '' }
+        : value;
+      window.localStorage.setItem(key, JSON.stringify(safeValue));
       onStorageWriteError?.(false);
     } catch {
       // storage quota or private mode fallback
@@ -140,6 +182,41 @@ function useStoredState<T>(key: string, initial: T, isValid?: (value: unknown) =
 
 function pageFromHash(): Route {
   return routeFromHash(window.location.hash);
+}
+
+function mergeRemoteRows<T extends { id: string; createdAt: string }>(
+  remoteRows: T[],
+  currentRows: T[],
+  previouslySyncedIds: Set<string>,
+): T[] {
+  const remoteIds = new Set(remoteRows.map((row) => row.id));
+  const pendingLocalRows = currentRows.filter((row) =>
+    !previouslySyncedIds.has(row.id) && !remoteIds.has(row.id),
+  );
+  return [...remoteRows, ...pendingLocalRows].sort((left, right) => {
+    const leftTime = Date.parse(left.createdAt) || 0;
+    const rightTime = Date.parse(right.createdAt) || 0;
+    return rightTime - leftTime;
+  });
+}
+
+function completeSocialRows(remoteRows: SocialLink[]): SocialLink[] {
+  return SOCIAL_PLATFORMS.map((platform, index) =>
+    remoteRows.find((row) => row.platform === platform) ?? blankSocialLink(platform, index),
+  );
+}
+
+function completePaymentRows(remoteRows: PaymentMethod[]): PaymentMethod[] {
+  const configured = (['eg', 'ksa'] as const).flatMap((market) =>
+    PAYMENT_METHODS_BY_MARKET[market].map((item, index) =>
+      remoteRows.find((row) => row.method === item.method && row.market === market)
+        ?? { ...blankPaymentMethod(item.method, market, index), active: item.active },
+    ),
+  );
+  const custom = remoteRows.filter((row) =>
+    !PAYMENT_METHODS_BY_MARKET[row.market].some((item) => item.method === row.method),
+  );
+  return [...configured, ...custom];
 }
 
 /**
@@ -226,6 +303,9 @@ function LogoMark({ compact = false }: { compact?: boolean }) {
   );
 }
 
+const sameCartLine = (left: CartLine, right: CartLine) =>
+  left.productId === right.productId && left.variant === right.variant && left.nfcCustomization === right.nfcCustomization;
+
 export default function App() {
   // 👇 التحقق السريع من الـ Hash لعرض الكارت فوراً من Supabase.
   // ملاحظة: هذا الفحص كان موضوعاً قبل الـ hooks (return مبكر) مما يخلّ بقواعد
@@ -255,11 +335,162 @@ export default function App() {
   const [vehicles, setVehicles] = useStoredState<Vehicle[]>('zexor-vehicles-v3', INITIAL_VEHICLES, isValidObjectArray);
   const [properties, setProperties] = useStoredState<Property[]>('zexor-properties-v3', INITIAL_PROPERTIES, isValidObjectArray);
   const [settings, setSettings] = useStoredState<SiteSettings>(STORAGE.settings, DEFAULT_SETTINGS, isValidObject);
+  useEffect(() => {
+    setCategories((current) => normalizeCategories(current));
+    setProducts((current) => normalizeStarterProductImages(current));
+    setVehicles((current) => normalizeStarterVehicles(current));
+  }, [setCategories, setProducts, setVehicles]);
+  // True once the settings document has been read from Supabase at least once.
+  // Every cloud write stays gated on this so a boot-time default can never race
+  // the initial read and overwrite the row that is still being fetched.
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [storeContentLoaded, setStoreContentLoaded] = useState(false);
+  const [cloudOrdersLoaded, setCloudOrdersLoaded] = useState(false);
+  const [cloudInquiriesLoaded, setCloudInquiriesLoaded] = useState(false);
+  const [privateSecretsLoaded, setPrivateSecretsLoaded] = useState(false);
+  const cloudOrderIds = useRef(new Set<string>());
+  const cloudInquiryIds = useRef(new Set<string>());
+
+  /*
+   * Supabase-backed stores. The admin dashboard edits these, and the storefront
+   * renders them (footer socials, wallet payment instructions at checkout).
+   * They seed with the built-in defaults so the site looks complete even before
+   * the tables exist in the database.
+   */
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(() =>
+    SOCIAL_PLATFORMS.map((platform, i) => {
+      const blank = blankSocialLink(platform, i);
+      // Instagram and TikTok start from the brand's live handle so the footer
+      // keeps working before the admin has saved anything.
+      if (platform === 'instagram') {
+        return { ...blank, handle: 'zexor.digtal.studio', url: 'https://www.instagram.com/zexor.digtal.studio' };
+      }
+      if (platform === 'tiktok') {
+        return { ...blank, handle: 'zexor.digtal.studio', url: 'https://www.tiktok.com/@zexor.digtal.studio' };
+      }
+      return blank;
+    }),
+  );
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() =>
+    (['eg', 'ksa'] as const).flatMap((market) => PAYMENT_METHODS_BY_MARKET[market].map((item, i) => ({
+      ...blankPaymentMethod(item.method, market, i),
+      active: item.active,
+      instructions: item.method === 'visa'
+        ? { ar: 'الدفع بالبطاقة عبر صفحة Paymob الآمنة بعد تأكيد الطلب.', en: 'Pay by card through Paymob’s secure checkout after order confirmation.' }
+        : item.method === 'fawry'
+          ? { ar: 'الدفع عبر فوري من صفحة Paymob الآمنة بعد تأكيد الطلب.', en: 'Pay through Fawry on Paymob’s secure checkout after order confirmation.' }
+          : blankPaymentMethod(item.method, market, i).instructions,
+    }))),
+  );
+  // Tracks whether the Supabase read has completed so the admin header can show
+  // a meaningful "database connected / offline fallback" badge.
+  const [siteDataReady, setSiteDataReady] = useState(false);
+
+  /*
+   * Pull every admin-managed value from Supabase once on boot. A `null` result
+   * means the table is missing or the network failed — in that case we keep
+   * whatever localStorage had, so the storefront never regresses.
+   */
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const [remoteSettings, remoteSocials, remotePayments, connected] = await Promise.all([
+        fetchSiteSettings(DEFAULT_SETTINGS),
+        fetchSocialLinks(),
+        fetchPaymentMethods(),
+        pingSiteData(),
+      ]);
+      if (!active) return;
+      if (remoteSettings) setSettings((current) => ({
+        ...remoteSettings,
+        telegramBotToken: current.telegramBotToken,
+        telegramChatId: current.telegramChatId,
+      }));
+      if (remoteSocials) {
+        // Keep every supported platform in the editor even if it has no row yet.
+        setSocialLinks(completeSocialRows(remoteSocials));
+      }
+      if (remotePayments) setPaymentMethods(completePaymentRows(remotePayments));
+      setSiteDataReady(connected);
+      setSettingsLoaded(true);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [setSettings]);
+
+  useEffect(() => {
+    let active = true;
+    const keys: StoreContentKey[] = ['products', 'categories', 'vehicles', 'properties', 'promo_codes'];
+    void Promise.all(keys.map((key) => fetchStoreContent<unknown>(key))).then((values) => {
+      if (!active) return;
+      const [remoteProducts, remoteCategories, remoteVehicles, remoteProperties, remotePromos] = values;
+      if (isValidObjectArray(remoteProducts)) setProducts(normalizeStarterProductImages(remoteProducts as Product[]));
+      if (isValidObjectArray(remoteCategories)) setCategories(normalizeCategories(remoteCategories as DynamicCategory[]));
+      if (isValidObjectArray(remoteVehicles)) setVehicles(normalizeStarterVehicles(remoteVehicles as Vehicle[]));
+      if (isValidObjectArray(remoteProperties)) setProperties(remoteProperties as Property[]);
+      if (isValidObjectArray(remotePromos)) setPromoCodes(remotePromos as PromoCode[]);
+      setStoreContentLoaded(true);
+    });
+    return () => { active = false; };
+  }, [setProducts, setCategories, setVehicles, setProperties, setPromoCodes]);
+
+  // Keep already-open storefront tabs aligned with published admin changes.
+  // Realtime is enabled only for publicly readable tables; order and inquiry
+  // payloads remain on the separately authenticated admin channel below.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    const refreshSettings = () => {
+      void fetchSiteSettings(DEFAULT_SETTINGS).then((remote) => {
+        if (!active || !remote) return;
+        setSettings((current) => ({
+          ...remote,
+          telegramBotToken: current.telegramBotToken,
+          telegramChatId: current.telegramChatId,
+        }));
+      });
+    };
+    const refreshSocials = () => {
+      void fetchSocialLinks(false).then((remote) => {
+        if (active && remote) setSocialLinks(completeSocialRows(remote));
+      });
+    };
+    const refreshPayments = () => {
+      void fetchPaymentMethods(false).then((remote) => {
+        if (active && remote) setPaymentMethods(completePaymentRows(remote));
+      });
+    };
+    const refreshContent = (payload: { new?: unknown; old?: unknown }) => {
+      const changedRow = (payload.new ?? payload.old) as { key?: unknown } | undefined;
+      const key = changedRow?.key;
+      if (typeof key !== 'string' || !['products', 'categories', 'vehicles', 'properties', 'promo_codes'].includes(key)) return;
+      void fetchStoreContent<unknown>(key as StoreContentKey).then((remote) => {
+        if (!active || !isValidObjectArray(remote)) return;
+        if (key === 'products') setProducts(normalizeStarterProductImages(remote as Product[]));
+        else if (key === 'categories') setCategories(normalizeCategories(remote as DynamicCategory[]));
+        else if (key === 'vehicles') setVehicles(normalizeStarterVehicles(remote as Vehicle[]));
+        else if (key === 'properties') setProperties(remote as Property[]);
+        else setPromoCodes(remote as PromoCode[]);
+      });
+    };
+    const channel = supabase.channel('zexor-published-store-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, refreshSettings)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'social_links' }, refreshSocials)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payment_methods' }, refreshPayments)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_content' }, refreshContent)
+      .subscribe();
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
+  }, [setCategories, setPaymentMethods, setProducts, setPromoCodes, setProperties, setSettings, setSocialLinks, setVehicles]);
+
   // Merge the persisted settings over the current defaults so a payload written
   // by an earlier build (before `brand`/`content`/`maintenanceText` existed) still
   // renders every field instead of crashing on an undefined lookup.
   const resolvedSettings = useMemo<SiteSettings>(
-    () => mergeSettings(DEFAULT_SETTINGS, settings),
+    () => normalizeLegacySectionTitles(mergeSettings(DEFAULT_SETTINGS, settings)),
     [settings],
   );
 
@@ -275,6 +506,18 @@ export default function App() {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [toast, setToast] = useState('');
+  const cloudSyncWarnings = useRef(new Set<string>());
+  const reportCloudSave = useCallback((key: string, saved: boolean, label: string) => {
+    if (saved) {
+      cloudSyncWarnings.current.delete(key);
+      return;
+    }
+    if (cloudSyncWarnings.current.has(key)) return;
+    cloudSyncWarnings.current.add(key);
+    setToast(locale === 'ar'
+      ? `تعذرت مزامنة ${label} مع قاعدة البيانات. راجع الاتصال قبل مغادرة الصفحة.`
+      : `Could not sync ${label} to the database. Check the connection before leaving.`);
+  }, [locale]);
 
   // NFC Customizer Modal State
   const [nfcModalOpen, setNfcModalOpen] = useState(false);
@@ -282,8 +525,21 @@ export default function App() {
 
   // Admin Login State
   const [adminAuthenticated, setAdminAuthenticated] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
+  const [adminAuthLoading, setAdminAuthLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      const { data: allowed, error } = await supabase.rpc('is_store_admin');
+      if (active && !error && allowed === true) setAdminAuthenticated(true);
+      else if (active) await supabase.auth.signOut();
+    });
+    return () => { active = false; };
+  }, []);
 
   const isArabic = locale === 'ar';
   const dir = isArabic ? 'rtl' : 'ltr';
@@ -317,6 +573,229 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  /*
+   * Mirror the settings document back to Supabase. Gated on `adminAuthenticated`
+   * so a public visitor's boot-time defaults can never overwrite the published
+   * row, and on `settingsLoaded` so the write cannot race the initial read.
+   */
+  useEffect(() => {
+    if (!settingsLoaded || !adminAuthenticated) return;
+    const timer = window.setTimeout(() => {
+      void saveSiteSettings(settings).then((saved) => reportCloudSave('settings', saved, isArabic ? 'إعدادات الموقع' : 'site settings'));
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [settings, settingsLoaded, adminAuthenticated, isArabic, reportCloudSave]);
+
+  useEffect(() => {
+    if (!storeContentLoaded || !adminAuthenticated) return;
+    const timer = window.setTimeout(() => {
+      void Promise.all([
+        saveStoreContent('products', products),
+        saveStoreContent('categories', categories),
+        saveStoreContent('vehicles', vehicles),
+        saveStoreContent('properties', properties),
+        saveStoreContent('promo_codes', promoCodes),
+      ]).then((results) => reportCloudSave('content', results.every(Boolean), isArabic ? 'بيانات المتجر' : 'store data'));
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [products, categories, vehicles, properties, promoCodes, storeContentLoaded, adminAuthenticated, isArabic, reportCloudSave]);
+
+  useEffect(() => {
+    if (!adminAuthenticated) return;
+    let active = true;
+    void fetchAdminOrders().then((remoteOrders) => {
+      if (!active) return;
+      if (remoteOrders) {
+        cloudOrderIds.current = new Set(remoteOrders.map((order) => order.id));
+        setOrders((localOrders) => {
+          const remoteIds = new Set(remoteOrders.map((order) => order.id));
+          return [...remoteOrders, ...localOrders.filter((order) => !remoteIds.has(order.id))];
+        });
+      }
+      setCloudOrdersLoaded(true);
+    });
+    return () => { active = false; };
+  }, [adminAuthenticated, setOrders]);
+
+  useEffect(() => {
+    if (!adminAuthenticated || !cloudOrdersLoaded) return;
+    const unimportedOrders = orders.filter((order) => !cloudOrderIds.current.has(order.id));
+    if (!unimportedOrders.length) return;
+    const timer = window.setTimeout(() => {
+      void saveAdminOrders(unimportedOrders).then((saved) => {
+        if (saved) unimportedOrders.forEach((order) => cloudOrderIds.current.add(order.id));
+        reportCloudSave('orders', saved, isArabic ? 'الطلبات' : 'orders');
+      });
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [adminAuthenticated, cloudOrdersLoaded, orders, isArabic, reportCloudSave]);
+
+  useEffect(() => {
+    if (!adminAuthenticated) return;
+    let active = true;
+    void fetchAdminInquiries().then((remoteInquiries) => {
+      if (!active) return;
+      if (remoteInquiries) {
+        cloudInquiryIds.current = new Set(remoteInquiries.map((inquiry) => inquiry.id));
+        setInbox((localInquiries) => {
+          const remoteIds = new Set(remoteInquiries.map((inquiry) => inquiry.id));
+          return [...remoteInquiries, ...localInquiries.filter((inquiry) => !remoteIds.has(inquiry.id))];
+        });
+      }
+      setCloudInquiriesLoaded(true);
+    });
+    return () => { active = false; };
+  }, [adminAuthenticated, setInbox]);
+
+  useEffect(() => {
+    if (!adminAuthenticated || !cloudInquiriesLoaded) return;
+    const unimportedInquiries = inbox.filter((inquiry) => !cloudInquiryIds.current.has(inquiry.id));
+    if (!unimportedInquiries.length) return;
+    const timer = window.setTimeout(() => {
+      void saveAdminInquiries(unimportedInquiries).then((saved) => {
+        if (saved) unimportedInquiries.forEach((inquiry) => cloudInquiryIds.current.add(inquiry.id));
+        reportCloudSave('inquiries', saved, isArabic ? 'الاستفسارات' : 'inquiries');
+      });
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [adminAuthenticated, cloudInquiriesLoaded, inbox, isArabic, reportCloudSave]);
+
+  useEffect(() => {
+    if (!adminAuthenticated) return;
+    let active = true;
+    const refreshOrders = () => {
+      void fetchAdminOrders().then((remoteOrders) => {
+        if (!active || !remoteOrders) return;
+        const previouslySyncedIds = cloudOrderIds.current;
+        cloudOrderIds.current = new Set(remoteOrders.map((order) => order.id));
+        setOrders((currentOrders) => mergeRemoteRows(remoteOrders, currentOrders, previouslySyncedIds));
+      });
+    };
+    const refreshInquiries = () => {
+      void fetchAdminInquiries().then((remoteInquiries) => {
+        if (!active || !remoteInquiries) return;
+        const previouslySyncedIds = cloudInquiryIds.current;
+        cloudInquiryIds.current = new Set(remoteInquiries.map((inquiry) => inquiry.id));
+        setInbox((currentInquiries) => mergeRemoteRows(remoteInquiries, currentInquiries, previouslySyncedIds));
+      });
+    };
+    const channel = supabase.channel('zexor-admin-live-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_orders' }, refreshOrders)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_inquiries' }, refreshInquiries)
+      .subscribe();
+    return () => {
+      active = false;
+      void supabase.removeChannel(channel);
+    };
+  }, [adminAuthenticated, setInbox, setOrders, setProducts]);
+
+  useEffect(() => {
+    if (!adminAuthenticated) return;
+    let active = true;
+    void fetchPrivateSiteSecrets().then((secrets) => {
+      if (!active) return;
+      if (secrets) {
+        setSettings((current) => ({ ...current, ...secrets }));
+        setPrivateSecretsLoaded(true);
+      }
+    });
+    return () => { active = false; };
+  }, [adminAuthenticated, setSettings]);
+
+  useEffect(() => {
+    if (!adminAuthenticated || !privateSecretsLoaded) return;
+    const timer = window.setTimeout(() => {
+      void savePrivateSiteSecrets({
+        telegramBotToken: settings.telegramBotToken,
+        telegramChatId: settings.telegramChatId,
+      }).then((saved) => reportCloudSave('private-settings', saved, isArabic ? 'إعدادات الإشعارات الخاصة' : 'private notification settings'));
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [adminAuthenticated, privateSecretsLoaded, settings.telegramBotToken, settings.telegramChatId, isArabic, reportCloudSave]);
+
+  const handleSaveSocialLink = useCallback(async (link: SocialLink) => {
+    const saved = await saveSocialLink(link);
+    if (saved) setSocialLinks((current) => current.map((item) => item.platform === saved.platform ? saved : item));
+    return Boolean(saved);
+  }, []);
+
+  const handleAddInquiry = useCallback((inquiry: PlatformInquiry) => {
+    setInbox((current) => [inquiry, ...current.filter((item) => item.id !== inquiry.id)]);
+    void createCloudInquiry(inquiry).then((saved) => {
+      if (!saved && isSupabaseConfigured) {
+        setToast(isArabic
+          ? 'تم فتح واتساب، لكن تعذر حفظ الرسالة في صندوق الإدارة.'
+          : 'WhatsApp opened, but the inquiry could not be saved to the admin inbox.');
+      }
+    });
+  }, [isArabic, setInbox]);
+
+  const handleDeleteCloudInquiry = useCallback(async (id: string) => {
+    const deleted = !isSupabaseConfigured || await deleteAdminInquiry(id);
+    if (deleted) cloudInquiryIds.current.delete(id);
+    return deleted;
+  }, []);
+
+  const handleClearCloudInquiries = useCallback(async () => {
+    const cleared = !isSupabaseConfigured || await clearAdminInquiries();
+    if (cleared) cloudInquiryIds.current.clear();
+    return cleared;
+  }, []);
+
+  const handleClearCloudOrders = useCallback(async () => {
+    const cleared = !isSupabaseConfigured || await clearAdminOrders();
+    if (cleared) cloudOrderIds.current.clear();
+    return cleared;
+  }, []);
+
+  const handleSetCloudProductStock = useCallback(async (productId: string, stock: number | null) => {
+    if (!isSupabaseConfigured) return true;
+    const saved = await setCloudProductStock(productId, stock);
+    if (saved) return true;
+    const currentCatalog = await fetchStoreContent<unknown>('products');
+    if (isValidObjectArray(currentCatalog)) setProducts(currentCatalog as Product[]);
+    setToast(isArabic ? 'تعذر تحديث المخزون في قاعدة البيانات.' : 'Could not update stock in the database.');
+    return false;
+  }, [isArabic, setProducts]);
+
+  const handleUpdateCloudOrderStatus = useCallback(async (orderId: string, status: CustomerOrder['status']) => {
+    if (!isSupabaseConfigured) return true;
+    const result = await updateCloudOrderStatus(orderId, status);
+    if (!result.accepted) {
+      setToast(result.reason === 'stock'
+        ? isArabic ? 'المخزون غير كافٍ لإعادة تفعيل الطلب. لم تتغير حالته.' : 'There is not enough stock to reopen this order. Its status was not changed.'
+        : isArabic ? 'تعذر تحديث حالة الطلب في قاعدة البيانات.' : 'Could not update the order status in the database.');
+      return false;
+    }
+    if (result.payload) {
+      setOrders((current) => current.map((order) => order.id === orderId ? result.payload! : order));
+    }
+    const currentCatalog = await fetchStoreContent<unknown>('products');
+    if (isValidObjectArray(currentCatalog)) setProducts(currentCatalog as Product[]);
+    return true;
+  }, [isArabic, setOrders, setProducts]);
+
+  const handleUpdateCloudOrderShipping = useCallback(async (orderId: string, details: Pick<CustomerOrder, 'shippingCarrier' | 'trackingNumber' | 'trackingUrl'>) => {
+    if (!isSupabaseConfigured) return true;
+    const updated = await updateCloudOrderShipping(orderId, details);
+    if (!updated) return false;
+    setOrders((current) => current.map((order) => order.id === orderId ? updated : order));
+    return true;
+  }, [setOrders]);
+
+  const handleUpdateCloudInquiryStatus = useCallback(async (inquiryId: string, status: PlatformInquiry['status']) => {
+    if (!isSupabaseConfigured) return true;
+    const saved = await updateCloudInquiryStatus(inquiryId, status);
+    if (!saved) setToast(isArabic ? 'تعذر تحديث حالة الاستفسار في قاعدة البيانات.' : 'Could not update inquiry status in the database.');
+    return saved;
+  }, [isArabic]);
+
+  const handleSavePaymentMethod = useCallback(async (method: PaymentMethod) => {
+    const saved = await savePaymentMethod(method);
+    if (saved) setPaymentMethods((current) => current.map((item) => item.market === saved.market && item.method === saved.method ? saved : item));
+    return Boolean(saved);
+  }, []);
+
   useEffect(() => {
     const sync = () => {
       const hash = pageFromHash();
@@ -335,12 +814,37 @@ export default function App() {
     document.documentElement.lang = locale;
     document.documentElement.dir = dir;
     document.documentElement.dataset.theme = theme;
+    const routeLabels: Record<string, Record<Locale, string>> = {
+      home: { ar: 'المتجر والاستوديو الرقمي', en: 'Store & Digital Studio' },
+      cards: categories.find((category) => category.slug === 'cards')?.name ?? { ar: 'زكسور لينك', en: 'ZEXOR LINK' },
+      fashion: categories.find((category) => category.slug === 'fashion')?.name ?? { ar: 'أتيليه زكسور', en: 'ZEXOR ATELIER' },
+      services: categories.find((category) => category.slug === 'services')?.name ?? { ar: 'زكسور ديجيتال', en: 'ZEXOR DIGITAL' },
+      cars: categories.find((category) => category.slug === 'cars')?.name ?? { ar: 'زكسور موتورز', en: 'ZEXOR MOTORS' },
+      property: categories.find((category) => category.slug === 'property')?.name ?? { ar: 'زكسور إستيتس', en: 'ZEXOR ESTATES' },
+      contact: { ar: 'تواصل معنا', en: 'Contact Us' },
+      pricing: { ar: 'الأسعار', en: 'Pricing' },
+      calculator: { ar: 'حاسبة التكلفة', en: 'Project Calculator' },
+      reviews: { ar: 'آراء العملاء', en: 'Customer Reviews' },
+      tracking: { ar: 'تتبع الطلب', en: 'Track an Order' },
+      dashboard: { ar: 'إدارة المتجر', en: 'Store Admin' },
+    };
+    const pageName = routeLabels[String(route)]?.[locale] ?? routeLabels.home[locale];
+    const title = `${pageName} | ZEXOR`;
+    document.title = title;
+    const description = locale === 'ar'
+      ? `${pageName} من ZEXOR — بطاقات NFC، أزياء، وخدمات رقمية في مصر والسعودية.`
+      : `${pageName} at ZEXOR — NFC cards, fashion and digital services in Egypt and Saudi Arabia.`;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
     try {
       window.localStorage.setItem(STORAGE.locale, locale);
     } catch {
       // ignore
     }
-  }, [dir, locale, theme]);
+  }, [categories, dir, locale, route, theme]);
 
   // Paint the admin-controlled brand tokens onto <html> as CSS variables. The
   // storefront's primary/accent surfaces read these, so a colour change in the
@@ -371,6 +875,11 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddToCart = (product: Product, customization?: NfcCustomization, variant?: string) => {
+    const quantityInCart = cart.filter((line) => line.productId === product.id).reduce((sum, line) => sum + line.quantity, 0);
+    if (product.stock !== undefined && quantityInCart >= product.stock) {
+      setToast(isArabic ? 'وصلت للكمية المتاحة من هذا المنتج.' : 'You have reached the available stock for this product.');
+      return;
+    }
     setCart((current) => {
       const existing = current.find(
         (line) => line.productId === product.id && line.variant === variant && !line.nfcCustomization,
@@ -420,28 +929,57 @@ export default function App() {
     );
   };
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPassword === ADMIN_PASSWORD) {
+    setAdminAuthLoading(true);
+    setAdminLoginError('');
+    try {
+      const { error: loginError } = await supabase.auth.signInWithPassword({ email: adminEmail.trim(), password: adminPassword });
+      if (loginError) {
+        setAdminLoginError(isArabic ? 'بيانات الدخول غير صحيحة أو خدمة الدخول غير مهيأة.' : 'Invalid credentials or authentication is not configured.');
+        return;
+      }
+      const { data: allowed, error } = await supabase.rpc('is_store_admin');
+      if (error || allowed !== true) {
+        await supabase.auth.signOut();
+        setAdminLoginError(isArabic ? 'هذا الحساب لا يملك صلاحية إدارة المتجر.' : 'This account is not authorized to administer this store.');
+        return;
+      }
+      setCloudOrdersLoaded(false);
+      setCloudInquiriesLoaded(false);
+      setPrivateSecretsLoaded(false);
+      cloudOrderIds.current.clear();
+      cloudInquiryIds.current.clear();
       setAdminAuthenticated(true);
       setAdminLoginError('');
       setAdminPassword('');
       setToast(isArabic ? 'مرحباً بك في لوحة تحكم ZEXOR' : 'Welcome to ZEXOR Studio Admin');
-    } else {
-      setAdminLoginError(isArabic ? 'كلمة المرور غير صحيحة، حاول مجدداً.' : 'Invalid password.');
+    } catch {
+      setAdminLoginError(isArabic ? 'تعذر الاتصال بخدمة الدخول. تحقق من الإنترنت وحاول مجدداً.' : 'Could not reach the sign-in service. Check your connection and try again.');
+    } finally {
+      setAdminAuthLoading(false);
     }
   };
 
   // Primary navigation: the five departments, kept short so the bar never wraps.
+  const categoryNameFor = useCallback((slug: string, fallback: string) =>
+    categories.find((category) => category.slug === slug)?.name[locale] ?? fallback,
+  [categories, locale]);
+  const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
+    Boolean(resolvedSettings.sectionVisibility[slug]) && (categories.find((category) => category.slug === slug)?.active ?? true),
+  [categories, resolvedSettings.sectionVisibility]);
+  const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
+    .filter(isDepartmentActive).length;
+
   const navItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [
       { route: 'home', label: isArabic ? 'الرئيسية' : 'Home' },
     ];
-    if (resolvedSettings.sectionVisibility.cards) items.push({ route: 'cards', label: isArabic ? 'بطاقات NFC' : 'NFC Cards' });
-    if (resolvedSettings.sectionVisibility.fashion) items.push({ route: 'fashion', label: isArabic ? 'الأزياء' : 'Streetwear' });
-    if (resolvedSettings.sectionVisibility.cars) items.push({ route: 'cars', label: isArabic ? 'السيارات' : 'Vehicles' });
-    if (resolvedSettings.sectionVisibility.property) items.push({ route: 'property', label: isArabic ? 'العقارات' : 'Real Estate' });
-    if (resolvedSettings.sectionVisibility.services) items.push({ route: 'services', label: isArabic ? 'الاستوديو' : 'Studio' });
+    if (isDepartmentActive('cards')) items.push({ route: 'cards', label: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK') });
+    if (isDepartmentActive('fashion')) items.push({ route: 'fashion', label: categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER') });
+    if (isDepartmentActive('cars')) items.push({ route: 'cars', label: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS') });
+    if (isDepartmentActive('property')) items.push({ route: 'property', label: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES') });
+    if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL') });
 
     // Dynamic categories created in Admin!
     categories
@@ -451,7 +989,7 @@ export default function App() {
       });
 
     return items;
-  }, [categories, isArabic, locale, resolvedSettings.sectionVisibility]);
+  }, [categories, categoryNameFor, isArabic, isDepartmentActive, locale]);
 
   // Secondary navigation: pricing, calculator, reviews, tracking, contact.
   // Rendered in a "More" menu so the bar stays uncluttered on every width.
@@ -653,7 +1191,7 @@ export default function App() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Search */}
             <button
-              aria-label="Search"
+              aria-label={isArabic ? 'بحث في المتجر' : 'Search the store'}
               className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
               onClick={() => setSearchOpen(true)}
               type="button"
@@ -663,7 +1201,7 @@ export default function App() {
 
             {/* Dark / Light Mode Toggle */}
             <button
-              aria-label="Toggle Dark Mode"
+              aria-label={isArabic ? (theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح') : (theme === 'light' ? 'Enable dark mode' : 'Enable light mode')}
               className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
               onClick={() => setTheme((curr) => (curr === 'light' ? 'dark' : 'light'))}
               type="button"
@@ -673,7 +1211,7 @@ export default function App() {
 
             {/* Wishlist */}
             <button
-              aria-label="Wishlist"
+              aria-label={isArabic ? 'قائمة المفضلة' : 'Wishlist'}
               className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
               onClick={() => setWishlistOpen(true)}
               type="button"
@@ -688,7 +1226,7 @@ export default function App() {
 
             {/* Quick Track Order Button */}
             <button
-              aria-label="Track Order"
+              aria-label={isArabic ? 'تتبع الطلب' : 'Track order'}
               className="flex h-9 items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
               onClick={() => setTrackingOpen(true)}
               title={isArabic ? 'تتبع الشحنة' : 'Track Order'}
@@ -700,7 +1238,7 @@ export default function App() {
 
             {/* Market & Region Switcher */}
             <button
-              aria-label="Toggle Market"
+              aria-label={isArabic ? 'تغيير الدولة' : 'Change country'}
               className="inline-flex min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
               onClick={() => {
                 const nextMarket: Market = market === 'eg' ? 'ksa' : 'eg';
@@ -715,7 +1253,7 @@ export default function App() {
 
             {/* Language Switch */}
             <button
-              aria-label="Language"
+              aria-label={isArabic ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
               className="inline-flex min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
               onClick={() => setLocale((curr) => (curr === 'ar' ? 'en' : 'ar'))}
               type="button"
@@ -726,7 +1264,7 @@ export default function App() {
 
             {/* Cart Drawer Button */}
             <button
-              aria-label="Cart"
+              aria-label={isArabic ? 'سلة المشتريات' : 'Shopping cart'}
               className="relative flex h-9 items-center gap-1.5 rounded-full bg-[#314f43] px-3.5 text-[10px] font-semibold text-white shadow-sm hover:bg-[#436e5d]"
               onClick={() => setCartOpen(true)}
               type="button"
@@ -799,6 +1337,14 @@ export default function App() {
           <div className="space-y-20">
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
+              departmentCount={activeDepartmentCount}
+              departmentNames={{
+                cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
+                fashion: categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'),
+                services: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL'),
+                cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
+                property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
+              }}
               heroAccent={resolvedSettings.heroAccent[locale]}
               heroImage={resolvedSettings.heroImage}
               heroText={resolvedSettings.heroText[locale]}
@@ -817,21 +1363,22 @@ export default function App() {
                 "Explore All 5 Departments" button. */}
             <div id="departments" className="scroll-mt-24">
               <CategoryShowcase
+                categories={categories}
                 isArabic={isArabic}
                 locale={locale}
                 navigate={navigate}
                 visible={{
-                  cards: resolvedSettings.sectionVisibility.cards,
-                  fashion: resolvedSettings.sectionVisibility.fashion,
-                  cars: resolvedSettings.sectionVisibility.cars,
-                  property: resolvedSettings.sectionVisibility.property,
-                  services: resolvedSettings.sectionVisibility.services,
+                  cards: isDepartmentActive('cards'),
+                  fashion: isDepartmentActive('fashion'),
+                  cars: isDepartmentActive('cars'),
+                  property: isDepartmentActive('property'),
+                  services: isDepartmentActive('services'),
                 }}
               />
             </div>
 
             {/* 3. Live Animated Stats Counter */}
-            <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#f7fbf8] to-[#eef5f0] p-6 shadow-sm sm:p-8">
+            <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#c4f2e9]/60 blur-3xl"
@@ -846,17 +1393,17 @@ export default function App() {
                     viewport={{ once: true }}
                     whileInView={{ opacity: 1, y: 0 }}
                   >
-                    <p className="zx-display bg-linear-to-br from-[#21362b] to-[#4e8e6f] bg-clip-text text-3xl text-transparent sm:text-4xl">
+                    <p className="zx-display zx-feature-value text-3xl sm:text-4xl">
                       {s.value}
                     </p>
-                    <p className="zx-eyebrow mt-2 text-[#7a8d83]">{s.label[locale]}</p>
+                    <p className="zx-eyebrow zx-feature-label mt-2">{s.label[locale]}</p>
                   </motion.div>
                 ))}
               </div>
             </section>
 
             {/* 3. Section 01: 3D Smart NFC Identity Cards Showcase */}
-            {resolvedSettings.sectionVisibility.cards && (
+            {isDepartmentActive('cards') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -885,6 +1432,7 @@ export default function App() {
                       <ProductCard
                         key={p.id}
                         product={p}
+                        categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
                         market={market}
                         locale={locale}
                         wishlisted={wishlist.includes(p.id)}
@@ -901,7 +1449,7 @@ export default function App() {
             )}
 
             {/* 4. Section 02: Streetwear Atelier Drop Showcase */}
-            {resolvedSettings.sectionVisibility.fashion && (
+            {isDepartmentActive('fashion') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -930,6 +1478,7 @@ export default function App() {
                       <ProductCard
                         key={p.id}
                         product={p}
+                        categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
                         market="eg"
                         locale={locale}
                         wishlisted={wishlist.includes(p.id)}
@@ -946,7 +1495,7 @@ export default function App() {
             )}
 
             {/* 5. Section 03: Digital Studio, Live Demos & Software Agency */}
-            {resolvedSettings.sectionVisibility.services && (
+            {isDepartmentActive('services') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -975,7 +1524,7 @@ export default function App() {
                       key={proj.id}
                     >
                       <div className="relative aspect-video overflow-hidden bg-[#e0eee5]">
-                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={proj.image} />
+                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={publicAssetUrl(proj.image)} />
                         <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-2.5 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
                           {proj.category[locale]}
                         </span>
@@ -1000,7 +1549,7 @@ export default function App() {
             )}
 
             {/* 6. Section 04: Luxury Car Showroom */}
-            {resolvedSettings.sectionVisibility.cars && (
+            {isDepartmentActive('cars') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -1029,7 +1578,7 @@ export default function App() {
                       key={car.id}
                     >
                       <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                        <img alt={car.title[locale]} className="h-full w-full object-cover" src={car.photo} />
+                        <img alt={car.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(car.photo)} />
                         <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
                           {car.id}
                         </span>
@@ -1038,20 +1587,21 @@ export default function App() {
                         <h3 className="text-sm font-bold text-[#2e4437]">{car.title[locale]}</h3>
                         <p className="mt-1 text-[10px] text-[#718478]">{car.location[locale]}</p>
                         <p className="mt-3 text-base font-extrabold text-[#2d4838]">
-                          {money(car.price, market, locale)}
+                          {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
+                          {car.deal === 'Rent' && <span className="ms-1 text-[10px] font-semibold text-[#718478]">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
                         </p>
                         <button
                           className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
                           onClick={() => {
                             const msg = isArabic
-                              ? `طلب حجز معاينة للسيارة ${car.id}: ${car.title.ar}`
-                              : `Booking inspection for ${car.id}: ${car.title.en}`;
+                              ? `${car.deal === 'Rent' ? 'طلب استئجار' : 'طلب حجز معاينة للسيارة'} ${car.id}: ${car.title.ar}`
+                              : `${car.deal === 'Rent' ? 'Rental inquiry' : 'Booking inspection'} for ${car.id}: ${car.title.en}`;
                             openWhatsApp(whatsappNumberFor(market, resolvedSettings), msg);
                           }}
                           type="button"
                         >
                           <MessageCircle className="h-3.5 w-3.5" />
-                          {isArabic ? 'احجز معاينة على واتساب' : 'Book Inspection'}
+                            {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة على واتساب' : 'Book Inspection'}
                         </button>
                       </div>
                     </TiltCard>
@@ -1061,7 +1611,7 @@ export default function App() {
             )}
 
             {/* 7. Section 05: Prime Real Estate Showcase */}
-            {resolvedSettings.sectionVisibility.property && (
+            {isDepartmentActive('property') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
@@ -1090,7 +1640,7 @@ export default function App() {
                       key={prop.id}
                     >
                       <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                        <img alt={prop.title[locale]} className="h-full w-full object-cover" src={prop.photo} />
+                        <img alt={prop.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(prop.photo)} />
                         <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
                           {prop.id}
                         </span>
@@ -1119,7 +1669,13 @@ export default function App() {
             )}
 
             {/* 8. Section 06: Client Testimonials & Reviews */}
-            <TestimonialsSection locale={locale} onToast={(msg) => setToast(msg)} />
+            <TestimonialsSection
+              locale={locale}
+              onContact={() => openWhatsApp(
+                whatsappNumberFor(market, resolvedSettings),
+                isArabic ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.',
+              )}
+            />
 
             {/* 9. Section 07: Interactive FAQ */}
             <FaqSection isArabic={isArabic} locale={locale} />
@@ -1177,9 +1733,7 @@ export default function App() {
                 <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
                   {isArabic ? 'بطاقات الهوية المتصلة' : 'Connected Identity'}
                 </span>
-                <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">
-                  {isArabic ? 'بطاقات NFC الذكية والمخصصة' : 'ZEXOR Smart NFC Cards'}
-                </h1>
+                <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK')}</h1>
                 <p className="mt-1.5 text-xs text-[#6e8076]">
                   {isArabic
                     ? 'شارك ملفك الشخصي أو التجاري بلمسة واحدة دون الحاجة لتطبيق أو أوراق.'
@@ -1205,6 +1759,7 @@ export default function App() {
                 <ProductCard
                   key={p.id}
                   product={p}
+                  categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
                   market={market}
                   locale={locale}
                   wishlisted={wishlist.includes(p.id)}
@@ -1227,9 +1782,7 @@ export default function App() {
               <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
                 {isArabic ? 'أتيليه زكسور للملابس' : 'ZEXOR Atelier'}
               </span>
-              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">
-                {isArabic ? 'تشكيلة الستريت وير والأزياء' : 'Streetwear & Apparel Collection'}
-              </h1>
+              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER')}</h1>
               <p className="mt-1.5 text-xs text-[#6e8076]">
                 {isArabic
                   ? 'أقمشة قطنية ثقيلة وقصّات واسعة مريحة بإصدارات محدودة وحصرية.'
@@ -1242,6 +1795,7 @@ export default function App() {
                 <ProductCard
                   key={p.id}
                   product={p}
+                  categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
                   market="eg"
                   locale={locale}
                   wishlisted={wishlist.includes(p.id)}
@@ -1262,7 +1816,8 @@ export default function App() {
           <AgencyPortfolio
             locale={locale}
             market={market}
-            onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
+            sectionName={categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL')}
+            onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
           />
         )}
@@ -1270,7 +1825,13 @@ export default function App() {
         {/* Route: Reviews Dedicated */}
         {route === 'reviews' && (
           <div className="space-y-10">
-            <TestimonialsSection locale={locale} onToast={(msg) => setToast(msg)} />
+          <TestimonialsSection
+            locale={locale}
+            onContact={() => openWhatsApp(
+              whatsappNumberFor(market, resolvedSettings),
+              isArabic ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.',
+            )}
+          />
           </div>
         )}
 
@@ -1280,7 +1841,8 @@ export default function App() {
             locale={locale}
             market={market}
             mode="cars"
-            onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
+            sectionName={categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS')}
+            onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
@@ -1293,7 +1855,8 @@ export default function App() {
             locale={locale}
             market={market}
             mode="property"
-            onInquiry={(inq) => setInbox((prev) => [inq, ...prev])}
+            sectionName={categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES')}
+            onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
@@ -1361,7 +1924,7 @@ export default function App() {
                 const details = String(form.get('details') ?? '');
 
                 const inq: PlatformInquiry = {
-                  id: `ZX-INQ-${Date.now().toString().slice(-6)}`,
+                  id: `ZX-INQ-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
                   createdAt: new Date().toISOString(),
                   type: 'contact',
                   title: `${name} · Contact Form`,
@@ -1373,7 +1936,7 @@ export default function App() {
                   message: details,
                   status: 'new',
                 };
-                setInbox((prev) => [inq, ...prev]);
+                handleAddInquiry(inq);
 
                 const text = isArabic
                   ? `رسالة تواصل جديدة:
@@ -1428,8 +1991,20 @@ Details: ${details}`;
               market={market}
               onLock={() => {
                 setAdminAuthenticated(false);
+                setCloudOrdersLoaded(false);
+                setCloudInquiriesLoaded(false);
+                setPrivateSecretsLoaded(false);
+                setSettings((current) => ({ ...current, telegramBotToken: '', telegramChatId: '' }));
+                void supabase.auth.signOut();
                 navigate('home');
               }}
+              onDeleteInquiry={handleDeleteCloudInquiry}
+              onClearInquiries={handleClearCloudInquiries}
+              onClearOrders={handleClearCloudOrders}
+              onSetProductStock={handleSetCloudProductStock}
+              onUpdateOrderStatus={handleUpdateCloudOrderStatus}
+              onUpdateOrderShipping={handleUpdateCloudOrderShipping}
+              onUpdateInquiryStatus={handleUpdateCloudInquiryStatus}
               onToast={(msg) => setToast(msg)}
               orders={orders}
               products={products}
@@ -1441,10 +2016,17 @@ Details: ${details}`;
               setPromoCodes={setPromoCodes}
               setInbox={setInbox}
               setProperties={setProperties}
+              settings={resolvedSettings}
               setSettings={setSettings}
               setVehicles={setVehicles}
-              settings={resolvedSettings}
               vehicles={vehicles}
+              /* Supabase-managed stores — written straight to the database so
+                 every visitor sees the admin's edits. */
+              socialLinks={socialLinks}
+              paymentMethods={paymentMethods}
+              onSaveSocialLink={handleSaveSocialLink}
+              onSavePaymentMethod={handleSavePaymentMethod}
+              siteDataReady={siteDataReady}
             />
           ) : (
             <div className="mx-auto max-w-md rounded-3xl border border-white bg-white/90 p-8 shadow-xl">
@@ -1455,18 +2037,32 @@ Details: ${details}`;
                 {isArabic ? 'دخول لوحة تحكم ZEXOR' : 'Studio Administration Access'}
               </h2>
               <p className="mt-1 text-xs text-[#73857b]">
-                {isArabic ? 'أدخل كلمة مرور الإدارة لفتح جميع أدوات التحكم.' : 'Enter admin studio password to unlock.'}
+                  {isArabic ? 'سجّل الدخول بحساب الإدارة المعتمد.' : 'Sign in with your authorized administrator account.'}
               </p>
 
               <form className="mt-6 space-y-4" onSubmit={handleAdminLogin}>
                 <div>
                   <label className="text-xs font-semibold text-[#405449]">
-                    {isArabic ? 'كلمة المرور' : 'Studio Password'}
+                    {isArabic ? 'البريد الإلكتروني' : 'Email'}
+                  </label>
+                  <input
+                    autoComplete="username"
+                    className="mt-1 h-11 w-full rounded-xl border border-[#dfe7e1] px-4 text-sm outline-none"
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    required
+                    type="email"
+                    value={adminEmail}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#405449]">
+                    {isArabic ? 'كلمة المرور' : 'Password'}
                   </label>
                   <input
                     className="mt-1 h-11 w-full rounded-xl border border-[#dfe7e1] px-4 text-sm tracking-widest outline-none"
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
+                    autoComplete="current-password"
                     type="password"
                     value={adminPassword}
                   />
@@ -1476,33 +2072,13 @@ Details: ${details}`;
                 )}
                 <button
                   className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white shadow-md hover:bg-[#436e5d]"
+                  disabled={adminAuthLoading}
                   type="submit"
                 >
                   <LockKeyhole className="h-4 w-4" />
-                  {isArabic ? 'فتح لوحة التحكم' : 'Unlock Dashboard'}
+                  {adminAuthLoading ? (isArabic ? 'جارٍ التحقق...' : 'Signing in...') : (isArabic ? 'دخول لوحة التحكم' : 'Sign in')}
                 </button>
               </form>
-
-              {/* Recovery hint — only while the built-in demo password is active.
-                  Set VITE_ADMIN_PASSWORD in a .env file to replace it. */}
-              {ADMIN_PASSWORD === ADMIN_PASSWORD_FALLBACK && (
-                <div className="mt-5 rounded-2xl border border-[#e3ede7] bg-[#f5faf7] p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#7a9384]">
-                    {isArabic ? 'كلمة المرور الافتراضية' : 'Default password'}
-                  </p>
-                  <p className="mt-1 text-xs text-[#4e6b5b]">
-                    {isArabic ? 'استخدم:' : 'Use:'}{' '}
-                    <code className="rounded-md bg-white px-2 py-0.5 font-bold tracking-wider text-[#26402f]">
-                      {ADMIN_PASSWORD_FALLBACK}
-                    </code>
-                  </p>
-                  <p className="mt-2 text-[10px] leading-5 text-[#7a9384]">
-                    {isArabic
-                      ? 'لتغييرها: أنشئ ملف .env واكتب فيه VITE_ADMIN_PASSWORD=كلمة_سرك_الجديدة'
-                      : 'To change it: create a .env file with VITE_ADMIN_PASSWORD=your-new-password'}
-                  </p>
-                </div>
-              )}
             </div>
           )
         )}
@@ -1511,12 +2087,14 @@ Details: ${details}`;
 
       {/* Site Footer: navigation, contact and legal */}
       <SiteFooter
+        categories={categories}
         isArabic={isArabic}
         locale={locale}
         market={market}
         navigate={navigate}
         onTrackOrder={() => setTrackingOpen(true)}
         settings={resolvedSettings}
+        sectionVisibility={resolvedSettings.sectionVisibility}
       />
 
       {/* 3. Floating WhatsApp Widget */}
@@ -1635,7 +2213,7 @@ Details: ${details}`;
                 .map((p) => (
                   <div className="flex items-center justify-between py-3" key={p.id}>
                     <div className="flex items-center gap-3">
-                      <img alt={p.name[locale]} className="h-12 w-12 rounded-xl object-cover" src={p.imageUrl} />
+                      <img alt={p.name[locale]} className="h-12 w-12 rounded-xl object-cover" src={publicAssetUrl(p.imageUrl)} />
                       <div>
                         <h4 className="text-xs font-bold text-[#2d4236]">{p.name[locale]}</h4>
                         <p className="text-[10px] text-[#55826c]">
@@ -1683,21 +2261,81 @@ Details: ${details}`;
         cart={cart}
         locale={locale}
         market={market}
+        paymentMethods={paymentMethods}
         onClose={() => setCartOpen(false)}
-        onOrderComplete={(order) => {
-          setOrders((prev) => [order, ...prev]);
+        onOrderComplete={async (order) => {
+          const stockAdjustedProductIds = products.filter((product) => product.stock !== undefined && order.items.some((item) => item.productId === product.id)).map((product) => product.id);
+          const completedOrder = { ...order, stockAdjusted: true, stockAdjustedProductIds };
+          const onlinePaymentRequested = order.market === 'eg' && ['visa', 'fawry'].includes(order.paymentMethodKey ?? '');
+          const cloudResult = await createCloudOrder(completedOrder);
+          if (cloudResult === 'stock_conflict') {
+            const latestProducts = await fetchStoreContent<unknown>('products');
+            if (isValidObjectArray(latestProducts)) setProducts(latestProducts as Product[]);
+            setToast(isArabic ? 'تغير المخزون أو لم يعد المنتج متاحًا. راجع السلة وحاول مجددًا.' : 'Stock changed or an item is no longer available. Review your cart and try again.');
+            return false;
+          }
+          if (cloudResult === 'price_changed') {
+            const [latestProducts, latestPromos, latestSettings] = await Promise.all([
+              fetchStoreContent<unknown>('products'),
+              fetchStoreContent<unknown>('promo_codes'),
+              fetchSiteSettings(DEFAULT_SETTINGS),
+            ]);
+            if (isValidObjectArray(latestProducts)) setProducts(latestProducts as Product[]);
+            if (isValidObjectArray(latestPromos)) setPromoCodes(latestPromos as PromoCode[]);
+            if (latestSettings) setSettings(latestSettings);
+            setToast(isArabic ? 'تغير السعر أو الخصم أو رسوم التوصيل. تم تحديث البيانات، راجع الإجمالي وحاول مجدداً.' : 'The price, discount, or delivery fee changed. Details were refreshed; review the total and try again.');
+            return false;
+          }
+          if (cloudResult === 'unavailable' || cloudResult === 'rejected') {
+            setToast(isArabic
+              ? 'تعذر حفظ الطلب والتحقق من المخزون. تحقق من اتصال المتجر وحاول مرة أخرى.'
+              : 'The order could not be saved or stock verified. Check the store connection and try again.');
+            return false;
+          }
+          if (onlinePaymentRequested && cloudResult === 'local_only') {
+            setToast(isArabic
+              ? 'الدفع الإلكتروني يحتاج اتصال المتجر بقاعدة البيانات. اختر الدفع عند الاستلام أو أعد المحاولة بعد عودة الاتصال.'
+              : 'Online payment needs the store database connection. Choose cash on delivery or try again when the connection is restored.');
+            return false;
+          }
+          const paymentUrl = onlinePaymentRequested && cloudResult === 'saved'
+            ? await createPaymobCheckout(order.id, order.phone)
+            : null;
+          setOrders((prev) => [completedOrder, ...prev.filter((existing) => existing.id !== completedOrder.id)]);
+          setProducts((prev) => prev.map((product) => {
+            if (product.stock === undefined || !stockAdjustedProductIds.includes(product.id)) return product;
+            const orderedQuantity = order.items.filter((item) => item.productId === product.id).reduce((sum, item) => sum + item.quantity, 0);
+            return orderedQuantity ? { ...product, stock: Math.max(0, product.stock - orderedQuantity) } : product;
+          }));
           setCart([]);
-          setToast(isArabic ? 'تم تأكيد طلبك بنجاح وفتح واتساب!' : 'Order confirmed & WhatsApp ready!');
+          if (onlinePaymentRequested && !paymentUrl) {
+            setToast(isArabic
+              ? 'تم تسجيل الطلب، لكن تعذر بدء الدفع الإلكتروني. لم يتم خصم أي مبلغ؛ سنفتح واتساب لمساعدتك.'
+              : 'Your order was recorded, but online payment could not start. No payment was taken; WhatsApp will open for help.');
+          } else {
+            setToast(cloudResult === 'local_only'
+              ? isArabic ? 'تم حفظ الطلب على هذا الجهاز وفتح واتساب، لكن المخزون لم يُحدّث سحابيًا.' : 'Order saved locally and WhatsApp opened, but cloud stock could not update.'
+              : onlinePaymentRequested
+                ? isArabic ? 'تم تسجيل الطلب، جارٍ فتح صفحة الدفع الآمنة.' : 'Order recorded. Opening secure payment.'
+                : isArabic ? 'تم تأكيد طلبك بنجاح وفتح واتساب!' : 'Order confirmed & WhatsApp ready!');
+          }
+          return { accepted: true, ...(paymentUrl ? { paymentUrl } : {}) };
         }}
-        onQuantityChange={(prodId, delta) => {
+        onQuantityChange={(targetLine, delta) => {
+          const product = products.find((item) => item.id === targetLine.productId);
+          const quantityForProduct = cart.filter((item) => item.productId === targetLine.productId).reduce((sum, item) => sum + item.quantity, 0);
+          if (delta > 0 && product?.stock !== undefined && quantityForProduct >= product.stock) {
+            setToast(isArabic ? 'لا توجد كمية إضافية متاحة.' : 'No additional stock is available.');
+            return;
+          }
           setCart((curr) =>
             curr
-              .map((line) => (line.productId === prodId ? { ...line, quantity: line.quantity + delta } : line))
+              .map((line) => (sameCartLine(line, targetLine) ? { ...line, quantity: line.quantity + delta } : line))
               .filter((line) => line.quantity > 0),
           );
         }}
-        onRemoveItem={(prodId) => {
-          setCart((curr) => curr.filter((line) => line.productId !== prodId));
+        onRemoveItem={(targetLine) => {
+          setCart((curr) => curr.filter((line) => !sameCartLine(line, targetLine)));
         }}
         onToast={(msg) => setToast(msg)}
         open={cartOpen}
