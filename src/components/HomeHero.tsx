@@ -85,8 +85,8 @@ type Props = {
 
 /** Rotating advertising headline words for the animated hero ticker. */
 const HERO_TICKER: Record<Locale, string[]> = {
-  en: ['CONNECTED IDENTITY', 'ZEXOR FASHION', 'DIGITAL STUDIO', 'VEHICLES', 'REAL ESTATE'],
-  ar: ['هوية متصلة', 'أزياء زكسور', 'استوديو رقمي', 'سيارات', 'عقارات'],
+  en: ['CONNECTED IDENTITY', 'ZEXOR FASHION', 'ZEXOR STUDIO', 'VEHICLES', 'REAL ESTATE'],
+  ar: ['هوية متصلة', 'أزياء زكسور', 'استوديو زكسور', 'سيارات', 'عقارات'],
 };
 
 export function HomeHero({
@@ -301,7 +301,7 @@ export function HomeHero({
 
               {/* 3. Studio 3D Card */}
               <motion.button
-                aria-label="Digital Studio"
+                aria-label="ZEXOR Studio"
                 className="zx-hero-studio group relative min-h-0 overflow-hidden rounded-2xl border text-start sm:rounded-3xl"
                 onClick={() => navigate('services')}
                 style={{ x: studioX, y: studioY, rotate: studioTilt }}
@@ -315,7 +315,7 @@ export function HomeHero({
                 <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-[#121c17]/90 via-[#121c17]/30 to-transparent" />
                 <span className="absolute inset-x-3 bottom-3 flex items-end justify-between text-white sm:inset-x-4 sm:bottom-4">
                   <div>
-                    <span className="block text-[7px] font-bold tracking-widest text-white/75">03 · ZEXOR DIGITAL</span>
+                    <span className="block text-[7px] font-bold tracking-widest text-white/75">03 · {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}</span>
                     <span className="mt-0.5 block text-xs font-bold sm:text-sm">
                       {isArabic ? 'مواقع وتطبيقات ومتاجر' : 'Web & App Studio'}
                     </span>

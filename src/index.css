@@ -639,6 +639,45 @@ textarea:focus-visible {
   background: #d8eee5;
 }
 
+/* Shared product and listing cards keep the same geometry on every route. */
+.zx-product {
+  border-radius: var(--zx-radius, 1.25rem);
+  border-color: var(--c-line);
+  background: var(--c-surface);
+  box-shadow: 0 12px 30px -26px rgba(22, 37, 28, 0.5);
+}
+
+.zx-product-media {
+  aspect-ratio: 1 / 1;
+}
+
+.zx-showcase-card {
+  border-radius: var(--zx-radius, 1.25rem);
+  border-color: var(--c-line);
+  background: var(--c-surface);
+  box-shadow: 0 12px 30px -26px rgba(22, 37, 28, 0.5);
+}
+
+.zx-showcase-card h3 {
+  color: var(--c-ink);
+}
+
+.zx-showcase-card p {
+  color: var(--c-muted);
+}
+
+[data-theme="dark"] .zx-product,
+[data-theme="dark"] .zx-showcase-card {
+  box-shadow: 0 14px 32px -28px rgba(0, 0, 0, 0.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-product:hover,
+  .zx-showcase-card:hover {
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

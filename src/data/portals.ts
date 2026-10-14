@@ -86,7 +86,7 @@ const ORDERED: Portal[] = [
   },
   {
     route: 'services',
-    title: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' },
+    title: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' },
     tagline: {
       en: 'Stores, platforms and apps engineered to convert.',
       ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',

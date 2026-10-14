@@ -14,7 +14,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR FASHION', ar: 'أزياء زكسور' }, icon: 'shirt', active: true },
   { id: 'fashion-hoodies', slug: 'hoodies', name: { en: 'Hoodies', ar: 'هوديز' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
   { id: 'fashion-t-shirts', slug: 't-shirts', name: { en: 'T-shirts', ar: 'تيشيرتات' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
-  { id: 'services', slug: 'services', name: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' }, icon: 'code', active: true },
+  { id: 'services', slug: 'services', name: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' }, icon: 'code', active: true },
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
 ];
@@ -22,7 +22,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
 const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
   cards: ['NFC Cards', 'Smart NFC Cards', 'بطاقات NFC', 'بطاقات NFC الذكية'],
   fashion: ['Streetwear', 'ZEXOR ATELIER', 'الملابس والأزياء', 'الأزياء والستريت وير', 'أتيليه زكسور'],
-  services: ['ZEXOR Digital', 'الخدمات الرقمية'],
+  services: ['ZEXOR Digital', 'ZEXOR DIGITAL', 'الخدمات الرقمية', 'زكسور ديجيتال'],
   cars: ['Vehicles', 'Vehicle Showroom', 'السيارات', 'معرض السيارات'],
   property: ['Real Estate', 'العقارات', 'العقارات الفاخرة'],
 };
@@ -363,8 +363,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroTitle: { en: 'Find what fits you', ar: 'اكتشف ما يناسبك' },
   heroAccent: { en: 'all in one place.', ar: 'في مكان واحد.' },
   heroText: {
-    en: 'Shop smart NFC identity and considered essentials, or work with our digital studio. Serving Egypt and Saudi Arabia.',
-    ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع الاستوديو الرقمي. نخدم مصر والسعودية.',
+    en: 'Shop smart NFC identity and considered essentials, or work with ZEXOR Studio. Serving Egypt and Saudi Arabia.',
+    ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع استوديو زكسور. نخدم مصر والسعودية.',
   },
   heroImage: '',
   whatsappEg: '201005556553',
@@ -522,12 +522,16 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
     en: [oldCopy.heroAccent.en, 'feel considered.'],
     ar: [oldCopy.heroAccent.ar, 'بكل تفصيلة.'],
   };
+  const legacyHeroText = {
+    en: [oldCopy.heroText.en, 'Shop smart NFC identity and considered essentials, or work with our digital studio. Serving Egypt and Saudi Arabia.'],
+    ar: [oldCopy.heroText.ar, 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع الاستوديو الرقمي. نخدم مصر والسعودية.'],
+  };
   if (legacyHeroTitle.en.includes(heroTitle.en)) heroTitle.en = DEFAULT_SETTINGS.heroTitle.en;
   if (legacyHeroTitle.ar.includes(heroTitle.ar)) heroTitle.ar = DEFAULT_SETTINGS.heroTitle.ar;
   if (legacyHeroAccent.en.includes(heroAccent.en)) heroAccent.en = DEFAULT_SETTINGS.heroAccent.en;
   if (legacyHeroAccent.ar.includes(heroAccent.ar)) heroAccent.ar = DEFAULT_SETTINGS.heroAccent.ar;
-  if (heroText.en === oldCopy.heroText.en) heroText.en = DEFAULT_SETTINGS.heroText.en;
-  if (heroText.ar === oldCopy.heroText.ar) heroText.ar = DEFAULT_SETTINGS.heroText.ar;
+  if (legacyHeroText.en.includes(heroText.en)) heroText.en = DEFAULT_SETTINGS.heroText.en;
+  if (legacyHeroText.ar.includes(heroText.ar)) heroText.ar = DEFAULT_SETTINGS.heroText.ar;
   if (announcementText.en === oldCopy.announcementText.en) announcementText.en = DEFAULT_SETTINGS.announcementText.en;
   if (announcementText.ar === oldCopy.announcementText.ar) announcementText.ar = DEFAULT_SETTINGS.announcementText.ar;
   return { ...settings, heroTitle, heroAccent, heroText, content, announcementText };

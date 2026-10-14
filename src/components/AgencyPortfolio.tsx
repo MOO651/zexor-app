@@ -80,8 +80,8 @@ I would like to discuss next steps.`;
 
   const handleDownloadProfile = () => {
     const profileContent = isArabic
-      ? `استوديو ZEXOR الرقمي\nتصميم وتطوير حلول رقمية للشركات ورواد الأعمال.\n\nخدماتنا\n• تصميم وتطوير المواقع التعريفية.\n• إنشاء المتاجر الإلكترونية.\n• تطوير تطبيقات الويب والأنظمة المخصصة.\n• تحسين تجربة الاستخدام ودعم الإطلاق.\n\nنبدأ بفهم احتياج المشروع، ثم نحدد النطاق والمدة والتكلفة قبل التنفيذ.\nللتواصل، استخدم وسائل التواصل الموجودة على موقعنا.`
-      : `ZEXOR DIGITAL STUDIO\nDigital design and development for businesses and founders.\n\nOUR SERVICES\n• Company and brand websites.\n• E-commerce stores.\n• Custom web applications and internal tools.\n• User experience and launch support.\n\nWe start by understanding the brief, then agree on scope, timing and cost before development.\nContact us through the channels listed on our website.`;
+      ? `استوديو زكسور\nتصميم وتطوير حلول رقمية للشركات ورواد الأعمال.\n\nخدماتنا\n• تصميم وتطوير المواقع التعريفية.\n• إنشاء المتاجر الإلكترونية.\n• تطوير تطبيقات الويب والأنظمة المخصصة.\n• تحسين تجربة الاستخدام ودعم الإطلاق.\n\nنبدأ بفهم احتياج المشروع، ثم نحدد النطاق والمدة والتكلفة قبل التنفيذ.\nللتواصل، استخدم وسائل التواصل الموجودة على موقعنا.`
+      : `ZEXOR STUDIO\nDigital design and development for businesses and founders.\n\nOUR SERVICES\n• Company and brand websites.\n• E-commerce stores.\n• Custom web applications and internal tools.\n• User experience and launch support.\n\nWe start by understanding the brief, then agree on scope, timing and cost before development.\nContact us through the channels listed on our website.`;
 
     const blob = new Blob([profileContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -115,10 +115,10 @@ I would like to discuss next steps.`;
         <div className="zx-agency-intro relative z-10 max-w-3xl">
           <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
             <Code2 className="h-4 w-4" />
-            ZEXOR / PORTFOLIO & DIGITAL AGENCY
+            {isArabic ? 'استوديو زكسور / أعمال مختارة' : 'ZEXOR STUDIO / SELECTED WORK'}
           </p>
           <h1 className={`mt-3 text-3xl font-semibold text-[#293d32] sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
-            {sectionName ?? (isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL')}
+            {sectionName ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
             {isArabic

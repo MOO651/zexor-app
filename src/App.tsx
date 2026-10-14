@@ -893,10 +893,10 @@ export default function App() {
     document.documentElement.dir = dir;
     document.documentElement.dataset.theme = theme;
     const routeLabels: Record<string, Record<Locale, string>> = {
-      home: { ar: 'المتجر والاستوديو الرقمي', en: 'Store & Digital Studio' },
+      home: { ar: 'المتجر واستوديو زكسور', en: 'Store & ZEXOR Studio' },
       cards: categories.find((category) => category.slug === 'cards')?.name ?? { ar: 'زكسور لينك', en: 'ZEXOR LINK' },
       fashion: categories.find((category) => category.slug === 'fashion')?.name ?? { ar: 'أزياء زكسور', en: 'ZEXOR FASHION' },
-      services: categories.find((category) => category.slug === 'services')?.name ?? { ar: 'زكسور ديجيتال', en: 'ZEXOR DIGITAL' },
+      services: categories.find((category) => category.slug === 'services')?.name ?? { ar: 'استوديو زكسور', en: 'ZEXOR STUDIO' },
       cars: categories.find((category) => category.slug === 'cars')?.name ?? { ar: 'زكسور موتورز', en: 'ZEXOR MOTORS' },
       property: categories.find((category) => category.slug === 'property')?.name ?? { ar: 'زكسور إستيتس', en: 'ZEXOR ESTATES' },
       contact: { ar: 'تواصل معنا', en: 'Contact Us' },
@@ -1064,7 +1064,7 @@ export default function App() {
     categories.find((category) => category.slug === slug)?.name[locale] ?? fallback,
   [categories, locale]);
   const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
-    Boolean(resolvedSettings.sectionVisibility[slug]) && (categories.find((category) => category.slug === slug)?.active ?? true),
+    (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
   const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
     .filter(isDepartmentActive).length;
@@ -1077,11 +1077,11 @@ export default function App() {
     if (isDepartmentActive('fashion')) items.push({ route: 'fashion', label: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION') });
     if (isDepartmentActive('cars')) items.push({ route: 'cars', label: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS') });
     if (isDepartmentActive('property')) items.push({ route: 'property', label: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES') });
-    if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL') });
+    if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO') });
 
     // Dynamic categories created in Admin!
     categories
-      .filter((c) => c.active && !['cards', 'fashion', 'services'].includes(c.slug))
+      .filter((c) => c.active && !['cards', 'fashion', 'services', 'cars', 'property'].includes(c.slug))
       .forEach((c) => {
         items.push({ route: c.slug, label: c.name[locale] });
       });
@@ -1136,7 +1136,7 @@ export default function App() {
 
     if ('برمجة مواقع موقع متجر متاجر استوديو تطوير code website websites app apps store development'.includes(q)) {
       matches.push({
-        title: isArabic ? 'خدمات البرمجة والاستوديو الرقمي' : 'Digital Studio & Packages',
+        title: isArabic ? 'خدمات استوديو زكسور' : 'ZEXOR Studio & Packages',
         desc: isArabic ? 'حاسبة التكلفة وباقات التطوير ومعاينة المشاريع' : 'Cost calculator & live demos',
         route: 'services',
       });
@@ -1447,7 +1447,7 @@ export default function App() {
               departmentNames={{
                 cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
                 fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
-                services: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL'),
+                services: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'),
                 cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
                 property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
               }}
@@ -1605,7 +1605,7 @@ export default function App() {
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
                     <span className="zx-eyebrow text-[#5e8b75]">
-                      03 / {isArabic ? 'الاستوديو وتطوير البرمجيات' : 'SOFTWARE & DIGITAL AGENCY'}
+                      03 / {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
                       {resolvedSettings.content.servicesTitle[locale]}
@@ -1676,7 +1676,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   {vehicles.map((car) => (
                     <TiltCard
                       className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
@@ -1753,7 +1753,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   {properties.map((prop) => (
                     <TiltCard
                       className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
@@ -1989,7 +1989,7 @@ export default function App() {
           <AgencyPortfolio
             locale={locale}
             market={market}
-            sectionName={categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL')}
+            sectionName={categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
             onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
           />

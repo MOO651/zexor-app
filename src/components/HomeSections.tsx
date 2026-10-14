@@ -76,8 +76,8 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     q: { en: 'Do you build websites and stores for businesses?', ar: 'هل تبنون مواقع ومتاجر للشركات؟' },
     a: {
-      en: 'Absolutely. Our digital studio builds stores, platforms, and apps. Use the cost calculator to get an instant estimate, then chat with us to start.',
-      ar: 'بالتأكيد. استوديو ZEXOR الرقمي يبني المتاجر والمنصات والتطبيقات. استخدم حاسبة التكلفة للحصول على تقدير فوري ثم تواصل معنا للبدء.',
+      en: 'Absolutely. ZEXOR Studio builds stores, platforms, and apps. Use the cost calculator for an initial estimate, then contact us to discuss your project.',
+      ar: 'بالتأكيد. استوديو زكسور يصمّم ويطوّر المتاجر والمنصات والتطبيقات. استخدم حاسبة التكلفة للحصول على تقدير أولي ثم تواصل معنا للبدء.',
     },
   },
 ];
@@ -276,7 +276,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
   ].filter((link) => isCategoryActive(link.slug) && sectionVisibility[link.slug as keyof typeof sectionVisibility]);
 
   const companyLinks: { label: string; route: Route }[] = [
-    ...(isCategoryActive('services') && sectionVisibility.services ? [{ label: categories.find((category) => category.slug === 'services')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL'), route: 'services' as Route }] : []),
+    ...(isCategoryActive('services') && sectionVisibility.services ? [{ label: categories.find((category) => category.slug === 'services')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'), route: 'services' as Route }] : []),
     { label: isArabic ? 'باقات البرمجة' : 'Pricing', route: 'pricing' },
     { label: isArabic ? 'حاسبة التكلفة' : 'Calculator', route: 'calculator' },
     { label: isArabic ? 'آراء العملاء' : 'Reviews', route: 'reviews' },
