@@ -2401,6 +2401,7 @@ export function AdminDashboard({
                 className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-sm font-semibold text-[#2e4537] outline-none"
                 maxLength={32}
                 onChange={(event) => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, name: event.target.value } }))}
+                onBlur={() => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, name: previous.brand.name.trim() || 'ZEXOR' } }))}
                 placeholder="ZEXOR"
                 value={settings.brand.name}
               />

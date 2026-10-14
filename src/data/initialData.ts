@@ -498,13 +498,29 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
       content[typedKey] = DEFAULT_SETTINGS.content[typedKey] as never;
     }
   }
-  const oldAnnouncements = [
-    '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free nationwide delivery',
-    '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني لكل المحافظات',
-  ];
-  const announcementText = oldAnnouncements.includes(settings.announcementText.ar)
-    || oldAnnouncements.includes(settings.announcementText.en)
-    ? DEFAULT_SETTINGS.announcementText
-    : settings.announcementText;
-  return { ...settings, content, announcementText };
+  const heroTitle = { ...settings.heroTitle };
+  const heroAccent = { ...settings.heroAccent };
+  const heroText = { ...settings.heroText };
+  const announcementText = { ...settings.announcementText };
+  const oldCopy = {
+    heroTitle: { en: 'Where identity becomes', ar: 'حيث تصبح الهوية' },
+    heroAccent: { en: 'an experience.', ar: 'تجربة تُعاش.' },
+    heroText: {
+      en: 'One house for smart NFC identity, considered streetwear, a full digital studio, and curated vehicles and real estate across Egypt and Saudi Arabia.',
+      ar: 'بيت واحد لهوية NFC الذكية، وأزياء مدروسة، واستوديو رقمي متكامل، وسيارات وعقارات مختارة بعناية في مصر والسعودية.',
+    },
+    announcementText: {
+      en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free delivery above the order threshold',
+      ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+    },
+  };
+  if (heroTitle.en === oldCopy.heroTitle.en) heroTitle.en = DEFAULT_SETTINGS.heroTitle.en;
+  if (heroTitle.ar === oldCopy.heroTitle.ar) heroTitle.ar = DEFAULT_SETTINGS.heroTitle.ar;
+  if (heroAccent.en === oldCopy.heroAccent.en) heroAccent.en = DEFAULT_SETTINGS.heroAccent.en;
+  if (heroAccent.ar === oldCopy.heroAccent.ar) heroAccent.ar = DEFAULT_SETTINGS.heroAccent.ar;
+  if (heroText.en === oldCopy.heroText.en) heroText.en = DEFAULT_SETTINGS.heroText.en;
+  if (heroText.ar === oldCopy.heroText.ar) heroText.ar = DEFAULT_SETTINGS.heroText.ar;
+  if (announcementText.en === oldCopy.announcementText.en) announcementText.en = DEFAULT_SETTINGS.announcementText.en;
+  if (announcementText.ar === oldCopy.announcementText.ar) announcementText.ar = DEFAULT_SETTINGS.announcementText.ar;
+  return { ...settings, heroTitle, heroAccent, heroText, content, announcementText };
 }

@@ -940,10 +940,11 @@ export default function App() {
   useEffect(() => {
     const icon = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
     if (!icon) return;
-    icon.dataset.defaultHref ??= icon.href;
+    const defaultHref = icon.dataset.defaultHref || icon.href;
+    icon.dataset.defaultHref = defaultHref;
     icon.href = resolvedSettings.brand.logoUrl
-      ? publicAssetUrl(resolvedSettings.brand.logoUrl) ?? icon.dataset.defaultHref
-      : icon.dataset.defaultHref;
+      ? publicAssetUrl(resolvedSettings.brand.logoUrl) ?? defaultHref
+      : defaultHref;
   }, [resolvedSettings.brand.logoUrl]);
 
   useEffect(() => {
@@ -1215,7 +1216,7 @@ export default function App() {
             type="button"
           >
             <LogoMark compact logoUrl={resolvedSettings.brand.logoUrl} />
-            <span className="text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{resolvedSettings.brand.name}</span>
+            <span className="max-w-[8rem] truncate text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{resolvedSettings.brand.name}</span>
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}

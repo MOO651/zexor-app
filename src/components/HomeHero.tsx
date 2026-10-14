@@ -163,7 +163,7 @@ export function HomeHero({
       >
         {/* Top Tagline */}
         <div className="relative z-20 flex items-center justify-between gap-3">
-          <p className="text-[9px] font-bold tracking-[0.24em] text-[#69746c] sm:text-[10px]">
+          <p className="max-w-[58%] truncate text-[9px] font-bold tracking-[0.14em] text-[#69746c] sm:max-w-none sm:tracking-[0.24em] sm:text-[10px]">
             {brandName} · {isArabic ? 'هوية متصلة · أزياء · استوديو' : 'CONNECTED IDENTITY · FASHION · STUDIO'}
           </p>
           <div className="flex items-center gap-2">
