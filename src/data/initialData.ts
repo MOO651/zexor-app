@@ -360,8 +360,8 @@ export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  heroTitle: { en: 'Make every detail', ar: 'تصميم يليق' },
-  heroAccent: { en: 'feel considered.', ar: 'بكل تفصيلة.' },
+  heroTitle: { en: 'Find what fits you', ar: 'اكتشف ما يناسبك' },
+  heroAccent: { en: 'all in one place.', ar: 'في مكان واحد.' },
   heroText: {
     en: 'Shop smart NFC identity and considered essentials, or work with our digital studio. Serving Egypt and Saudi Arabia.',
     ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع الاستوديو الرقمي. نخدم مصر والسعودية.',
@@ -514,10 +514,18 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
       ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
     },
   };
-  if (heroTitle.en === oldCopy.heroTitle.en) heroTitle.en = DEFAULT_SETTINGS.heroTitle.en;
-  if (heroTitle.ar === oldCopy.heroTitle.ar) heroTitle.ar = DEFAULT_SETTINGS.heroTitle.ar;
-  if (heroAccent.en === oldCopy.heroAccent.en) heroAccent.en = DEFAULT_SETTINGS.heroAccent.en;
-  if (heroAccent.ar === oldCopy.heroAccent.ar) heroAccent.ar = DEFAULT_SETTINGS.heroAccent.ar;
+  const legacyHeroTitle = {
+    en: [oldCopy.heroTitle.en, 'Make every detail'],
+    ar: [oldCopy.heroTitle.ar, 'تصميم يليق'],
+  };
+  const legacyHeroAccent = {
+    en: [oldCopy.heroAccent.en, 'feel considered.'],
+    ar: [oldCopy.heroAccent.ar, 'بكل تفصيلة.'],
+  };
+  if (legacyHeroTitle.en.includes(heroTitle.en)) heroTitle.en = DEFAULT_SETTINGS.heroTitle.en;
+  if (legacyHeroTitle.ar.includes(heroTitle.ar)) heroTitle.ar = DEFAULT_SETTINGS.heroTitle.ar;
+  if (legacyHeroAccent.en.includes(heroAccent.en)) heroAccent.en = DEFAULT_SETTINGS.heroAccent.en;
+  if (legacyHeroAccent.ar.includes(heroAccent.ar)) heroAccent.ar = DEFAULT_SETTINGS.heroAccent.ar;
   if (heroText.en === oldCopy.heroText.en) heroText.en = DEFAULT_SETTINGS.heroText.en;
   if (heroText.ar === oldCopy.heroText.ar) heroText.ar = DEFAULT_SETTINGS.heroText.ar;
   if (announcementText.en === oldCopy.announcementText.en) announcementText.en = DEFAULT_SETTINGS.announcementText.en;
