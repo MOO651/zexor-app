@@ -85,7 +85,7 @@ type Props = {
 /** Rotating advertising headline words for the animated hero ticker. */
 const HERO_TICKER: Record<Locale, string[]> = {
   en: ['CONNECTED IDENTITY', 'ATELIER', 'DIGITAL STUDIO', 'VEHICLES', 'REAL ESTATE'],
-  ar: ['هوية متصلة', 'أتيليه', 'استوديو رقمي', 'سيارات', 'عقارات'],
+  ar: ['هوية متصلة', 'أزياء زكسور', 'استوديو رقمي', 'سيارات', 'عقارات'],
 };
 
 export function HomeHero({
@@ -226,16 +226,16 @@ export function HomeHero({
 
           {/* Right 3D Visual Floating Composition */}
           <div className="relative -mx-2 grid min-h-84 flex-1 grid-cols-[1.05fr_0.95fr] gap-3 sm:min-h-104 sm:gap-4 lg:mx-0 lg:min-h-130">
-            {/* 1. Atelier Fashion Card */}
+            {/* 1. ZEXOR Fashion Card */}
             <motion.button
-              aria-label="Atelier"
+              aria-label="ZEXOR Fashion"
               className="group relative min-h-80 overflow-hidden rounded-3xl bg-[#dedbd1] text-start shadow-[0_35px_80px_-35px_rgba(45,38,30,.45)] sm:min-h-100 sm:rounded-4xl"
               onClick={() => navigate('fashion')}
               style={{ x: fashionX, y: fashionY, scale: sceneScale }}
               type="button"
             >
               <img
-                alt="Atelier"
+                alt="ZEXOR Fashion"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 src={art.tee}
               />

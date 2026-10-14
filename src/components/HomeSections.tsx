@@ -268,7 +268,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
   const shopLinks: { label: string; route: Route; slug: string }[] = [
     { label: categories.find((category) => category.slug === 'cards')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور لينك' : 'ZEXOR LINK'), route: 'cards', slug: 'cards' },
-    { label: categories.find((category) => category.slug === 'fashion')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'), route: 'fashion', slug: 'fashion' },
+    { label: categories.find((category) => category.slug === 'fashion')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'), route: 'fashion', slug: 'fashion' },
     { label: categories.find((category) => category.slug === 'cars')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'), route: 'cars', slug: 'cars' },
     { label: categories.find((category) => category.slug === 'property')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'), route: 'property', slug: 'property' },
   ].filter((link) => isCategoryActive(link.slug) && sectionVisibility[link.slug as keyof typeof sectionVisibility]);

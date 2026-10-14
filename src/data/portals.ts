@@ -49,7 +49,7 @@ const ORDERED: Portal[] = [
   },
   {
     route: 'fashion',
-    title: { en: 'ZEXOR ATELIER', ar: 'أتيليه زكسور' },
+    title: { en: 'ZEXOR FASHION', ar: 'أزياء زكسور' },
     tagline: {
       en: 'Heavyweight streetwear released in limited runs.',
       ar: 'أزياء ثقيلة بإصدارات محدودة وحصرية.',

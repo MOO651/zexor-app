@@ -80,7 +80,7 @@ export function TrackingModal({
 
   const steps = [
     { id: 'new', label: isArabic ? 'تم استلام الطلب وتأكيده' : 'Order Received & Confirmed', desc: isArabic ? 'تمت مراجعة المنتجات واعتمادها في النظام.' : 'Items registered and verified.' },
-    { id: 'processing', label: isArabic ? 'قيد التجهيز والتغليف' : 'Processing & Packaging', desc: isArabic ? 'تجهيز الكروت والملابس في الأتيليه والتغليف الفاخر.' : 'Customization & premium packaging in progress.' },
+    { id: 'processing', label: isArabic ? 'قيد التجهيز والتغليف' : 'Processing & Packaging', desc: isArabic ? 'تجهيز المنتجات والتغليف الفاخر.' : 'Customization & premium packaging in progress.' },
     { id: 'shipping', label: isArabic ? 'تم تسجيل بيانات الشحنة' : 'Shipment details added', desc: isArabic ? 'استخدم رقم التتبع أو رابط شركة الشحن عند ظهوره.' : 'Use the carrier tracking number or link when available.' },
     { id: 'complete', label: isArabic ? 'تم التسليم بنجاح' : 'Delivered Successfully', desc: isArabic ? 'وصلت الشحنة للعميل بنجاح.' : 'Order has reached customer.' },
   ];

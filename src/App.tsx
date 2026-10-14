@@ -817,7 +817,7 @@ export default function App() {
     const routeLabels: Record<string, Record<Locale, string>> = {
       home: { ar: 'المتجر والاستوديو الرقمي', en: 'Store & Digital Studio' },
       cards: categories.find((category) => category.slug === 'cards')?.name ?? { ar: 'زكسور لينك', en: 'ZEXOR LINK' },
-      fashion: categories.find((category) => category.slug === 'fashion')?.name ?? { ar: 'أتيليه زكسور', en: 'ZEXOR ATELIER' },
+      fashion: categories.find((category) => category.slug === 'fashion')?.name ?? { ar: 'أزياء زكسور', en: 'ZEXOR FASHION' },
       services: categories.find((category) => category.slug === 'services')?.name ?? { ar: 'زكسور ديجيتال', en: 'ZEXOR DIGITAL' },
       cars: categories.find((category) => category.slug === 'cars')?.name ?? { ar: 'زكسور موتورز', en: 'ZEXOR MOTORS' },
       property: categories.find((category) => category.slug === 'property')?.name ?? { ar: 'زكسور إستيتس', en: 'ZEXOR ESTATES' },
@@ -976,7 +976,7 @@ export default function App() {
       { route: 'home', label: isArabic ? 'الرئيسية' : 'Home' },
     ];
     if (isDepartmentActive('cards')) items.push({ route: 'cards', label: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK') });
-    if (isDepartmentActive('fashion')) items.push({ route: 'fashion', label: categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER') });
+    if (isDepartmentActive('fashion')) items.push({ route: 'fashion', label: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION') });
     if (isDepartmentActive('cars')) items.push({ route: 'cars', label: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS') });
     if (isDepartmentActive('property')) items.push({ route: 'property', label: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES') });
     if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL') });
@@ -1340,7 +1340,7 @@ export default function App() {
               departmentCount={activeDepartmentCount}
               departmentNames={{
                 cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
-                fashion: categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'),
+                fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
                 services: categoryNameFor('services', isArabic ? 'زكسور ديجيتال' : 'ZEXOR DIGITAL'),
                 cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
                 property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
@@ -1448,13 +1448,13 @@ export default function App() {
               </section>
             )}
 
-            {/* 4. Section 02: Streetwear Atelier Drop Showcase */}
+            {/* 4. Section 02: Streetwear Collection Showcase */}
             {isDepartmentActive('fashion') && (
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
                     <span className="zx-eyebrow text-[#5e8b75]">
-                      02 / {isArabic ? 'أتيليه الأزياء والستريت وير' : 'STREETWEAR ATELIER'}
+                      02 / {isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}
                     </span>
                     <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
                       {resolvedSettings.content.fashionTitle[locale]}
@@ -1780,9 +1780,9 @@ export default function App() {
           <div className="space-y-10">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
-                {isArabic ? 'أتيليه زكسور للملابس' : 'ZEXOR Atelier'}
+                {isArabic ? 'أزياء زكسور' : 'ZEXOR Fashion'}
               </span>
-              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('fashion', isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER')}</h1>
+              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION')}</h1>
               <p className="mt-1.5 text-xs text-[#6e8076]">
                 {isArabic
                   ? 'أقمشة قطنية ثقيلة وقصّات واسعة مريحة بإصدارات محدودة وحصرية.'

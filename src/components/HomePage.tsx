@@ -178,11 +178,11 @@ export function HomePage({
         </section>
       )}
 
-      {/* 5. Section 02: Streetwear Atelier Drop Showcase */}
+      {/* 5. Section 02: Streetwear Collection Showcase */}
       {sectionVisibility.fashion && (
         <section className="space-y-6">
           <SectionHeading
-            eyebrow={`02 / ${isArabic ? 'أتيليه الأزياء والستريت وير' : 'STREETWEAR ATELIER'}`}
+            eyebrow={`02 / ${isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}`}
             title={content.fashionTitle[locale]}
             actionLabel={isArabic ? 'استعراض التشكيلة' : 'View Drop'}
             onAction={() => navigate('fashion')}

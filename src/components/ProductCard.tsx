@@ -64,7 +64,7 @@ export function ProductCard({
   const categoryLabel = customCategoryLabel ?? (product.category === 'cards'
     ? isArabic ? 'هوية رقمية متصلة' : 'CONNECTED IDENTITY'
     : product.category === 'fashion'
-      ? isArabic ? 'أتيليه زكسور' : 'ZEXOR ATELIER'
+      ? isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'
       : isArabic ? 'الاستوديو الرقمي' : 'DIGITAL STUDIO');
 
   return (

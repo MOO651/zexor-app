@@ -11,7 +11,7 @@ import { art, photos } from './imagery';
 
 export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'cards', slug: 'cards', name: { en: 'ZEXOR LINK', ar: 'زكسور لينك' }, icon: 'credit', active: true },
-  { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR ATELIER', ar: 'أتيليه زكسور' }, icon: 'shirt', active: true },
+  { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR FASHION', ar: 'أزياء زكسور' }, icon: 'shirt', active: true },
   { id: 'services', slug: 'services', name: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' }, icon: 'code', active: true },
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
@@ -19,7 +19,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
 
 const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
   cards: ['NFC Cards', 'Smart NFC Cards', 'بطاقات NFC', 'بطاقات NFC الذكية'],
-  fashion: ['Streetwear', 'الملابس والأزياء', 'الأزياء والستريت وير'],
+  fashion: ['Streetwear', 'ZEXOR ATELIER', 'الملابس والأزياء', 'الأزياء والستريت وير', 'أتيليه زكسور'],
   services: ['ZEXOR Digital', 'الخدمات الرقمية'],
   cars: ['Vehicles', 'Vehicle Showroom', 'السيارات', 'معرض السيارات'],
   property: ['Real Estate', 'العقارات', 'العقارات الفاخرة'],
@@ -111,8 +111,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     markets: ['eg'],
     name: { en: 'After Hours Heavyweight Hoodie', ar: 'هودي أفتر آورز الفاخر' },
     description: {
-      en: 'A relaxed heavyweight hoodie with a soft brushed interior, released in a limited ZEXOR Atelier run.',
-      ar: 'هودي بقصّة مريحة وخامة داخلية ناعمة، ضمن إصدار محدود من ZEXOR Atelier.',
+      en: 'A relaxed heavyweight hoodie with a soft brushed interior, released in a limited ZEXOR collection.',
+      ar: 'هودي بقصّة مريحة وخامة داخلية ناعمة، ضمن إصدار محدود من مجموعة زكسور.',
     },
     price: { eg: 999, ksa: 0 },
     icon: 'shirt',
