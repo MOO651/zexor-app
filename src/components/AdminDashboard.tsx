@@ -30,7 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import { art } from '../data/imagery';
-import { SHIPPING_RATES } from '../data/initialData';
+import { INITIAL_CATEGORIES, SHIPPING_RATES } from '../data/initialData';
 import { publicAssetUrl } from '../utils';
 import type {
   CustomerOrder,
@@ -174,6 +174,10 @@ export function AdminDashboard({
   const [newCatNameAr, setNewCatNameAr] = useState('');
   const [newCatNameEn, setNewCatNameEn] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
+  const [newCatParentSlug, setNewCatParentSlug] = useState('');
+  const [newShippingArea, setNewShippingArea] = useState('');
+  const [newShippingCarrier, setNewShippingCarrier] = useState('');
+  const [carrierMarket, setCarrierMarket] = useState<Market>(market);
 
   // Add / Edit Product Modal State
   const [showProductModal, setShowProductModal] = useState(false);
@@ -183,6 +187,7 @@ export function AdminDashboard({
   const [prodDescAr, setProdDescAr] = useState('');
   const [prodDescEn, setProdDescEn] = useState('');
   const [prodCat, setProdCat] = useState('cards');
+  const [prodSubcategoryId, setProdSubcategoryId] = useState('');
   const [prodPriceEg, setProdPriceEg] = useState('');
   const [prodPriceKsa, setProdPriceKsa] = useState('');
   const [prodOldPriceEg, setProdOldPriceEg] = useState('');
@@ -262,29 +267,47 @@ export function AdminDashboard({
     e.preventDefault();
     if (!newCatNameAr || !newCatNameEn) return;
     if (editingCategoryId) {
+      const editedCategory = categories.find((category) => category.id === editingCategoryId);
       setCategories((prev) => prev.map((category) => category.id === editingCategoryId
-        ? { ...category, name: { ar: newCatNameAr.trim(), en: newCatNameEn.trim() } }
+        ? {
+          ...category,
+          name: { ar: newCatNameAr.trim(), en: newCatNameEn.trim() },
+          parentSlug: newCatParentSlug || undefined,
+        }
         : category));
+      if (editedCategory?.parentSlug !== newCatParentSlug) {
+        setProducts((prev) => prev.map((product) => product.subcategoryId === editedCategory?.slug
+          ? { ...product, category: newCatParentSlug || product.category, subcategoryId: newCatParentSlug ? product.subcategoryId : undefined }
+          : product));
+      }
       setEditingCategoryId(null);
       setNewCatNameAr('');
       setNewCatNameEn('');
       setNewCatSlug('');
+      setNewCatParentSlug('');
       setShowCategoryModal(false);
       onToast(isArabic ? 'تم تحديث اسم القسم في المتجر' : 'Section name updated across the store');
       return;
     }
-    const slug = (newCatSlug || newCatNameEn.toLowerCase().replace(/\s+/g, '-')).trim();
+    const slug = (newCatSlug || newCatNameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''))
+      .trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    if (!slug || categories.some((category) => category.slug === slug)) {
+      onToast(isArabic ? 'الرابط المختصر مستخدم بالفعل أو غير صالح.' : 'That slug is already used or invalid.');
+      return;
+    }
     const newCat: DynamicCategory = {
-      id: `cat-${Date.now()}`,
+      id: `cat-${crypto.randomUUID().replaceAll('-', '').slice(0, 12)}`,
       name: { ar: newCatNameAr.trim(), en: newCatNameEn.trim() },
       slug,
       icon: 'sparkles',
       active: true,
+      ...(newCatParentSlug ? { parentSlug: newCatParentSlug } : {}),
     };
     setCategories((prev) => [...prev, newCat]);
     setNewCatNameAr('');
     setNewCatNameEn('');
     setNewCatSlug('');
+    setNewCatParentSlug('');
     setEditingCategoryId(null);
     setShowCategoryModal(false);
     onToast(isArabic ? 'تمت إضافة القسم الجديد بنجاح!' : 'New category created successfully!');
@@ -295,6 +318,7 @@ export function AdminDashboard({
     setNewCatNameAr(category.name.ar);
     setNewCatNameEn(category.name.en);
     setNewCatSlug(category.slug);
+    setNewCatParentSlug(category.parentSlug ?? '');
     setShowCategoryModal(true);
   };
 
@@ -305,8 +329,19 @@ export function AdminDashboard({
   };
 
   const handleDeleteCategory = (catId: string) => {
+    const target = categories.find((category) => category.id === catId);
+    if (target && !target.parentSlug && products.some((product) => product.category === target.slug)) {
+      onToast(isArabic ? 'انقل المنتجات لقسم آخر أولاً قبل حذف هذا القسم.' : 'Move this category’s products before deleting it.');
+      return;
+    }
     if (window.confirm(isArabic ? 'هل أنت متأكد من حذف هذا القسم؟' : 'Delete this category?')) {
+      const deletedCategory = target;
       setCategories((prev) => prev.filter((c) => c.id !== catId));
+      if (deletedCategory?.parentSlug) {
+        setProducts((prev) => prev.map((product) => product.subcategoryId === deletedCategory.slug
+          ? { ...product, subcategoryId: undefined }
+          : product));
+      }
       onToast(isArabic ? 'تم حذف القسم' : 'Category removed');
     }
   };
@@ -340,6 +375,7 @@ export function AdminDashboard({
     const newProd: Product = {
       id: editingProductId ?? `prod-${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
       category: prodCat,
+      subcategoryId: prodCat === 'fashion' && prodSubcategoryId ? prodSubcategoryId : undefined,
       markets: prodMarkets,
       name: { ar: prodNameAr.trim(), en: prodNameEn.trim() },
       description: { ar: prodDescAr.trim(), en: prodDescEn.trim() },
@@ -385,6 +421,7 @@ export function AdminDashboard({
     setProdDescAr(prod.description.ar);
     setProdDescEn(prod.description.en);
     setProdCat(prod.category);
+    setProdSubcategoryId(prod.subcategoryId ?? '');
     setProdPriceEg(String(prod.price.eg));
     setProdPriceKsa(String(prod.price.ksa));
     setProdOldPriceEg(prod.oldPrice ? String(prod.oldPrice.eg) : '');
@@ -1075,32 +1112,43 @@ export function AdminDashboard({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-[#2f4437]">
-                {isArabic ? 'إدارة الأقسام الديناميكية (Dynamic Categories)' : 'Dynamic Categories Manager'}
+                {isArabic ? 'إدارة الأقسام والمجموعات' : 'Categories & Collections'}
               </h2>
               <p className="text-[10px] text-[#788b80]">
                 {isArabic
-                  ? 'غيّر اسم أي قسم بالعربية والإنجليزية؛ الاسم يتحدث في القائمة الرئيسية وبوابات الأقسام وصفحاتها.'
-                  : 'Rename any section in Arabic and English. Names update in navigation, department cards, and section pages.'}
+                  ? 'أضف أقساماً فرعية داخل الأزياء، واربط المنتجات بها، وعدّل أسماء الأقسام أو أخفها من هنا.'
+                  : 'Add Fashion collections, assign products, rename categories, or hide them from the storefront here.'}
               </p>
             </div>
             <button
               className="flex items-center gap-1.5 rounded-full bg-[#314f43] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d]"
-              onClick={() => setShowCategoryModal(true)}
+              onClick={() => {
+                setEditingCategoryId(null);
+                setNewCatNameAr('');
+                setNewCatNameEn('');
+                setNewCatSlug('');
+                setNewCatParentSlug('');
+                setShowCategoryModal(true);
+              }}
               type="button"
             >
               <Plus className="h-3.5 w-3.5" />
-              {isArabic ? 'إضافة قسم جديد' : 'New Category'}
+              {isArabic ? 'إضافة قسم أو قسم فرعي' : 'Add Category'}
             </button>
           </div>
 
           <div className="mt-6 divide-y divide-[#edf1ee]">
             {categories.map((cat) => (
-              <div className="flex items-center justify-between py-3.5" key={cat.id}>
+              <div className={`flex items-center justify-between py-3.5 ${cat.parentSlug ? 'ps-5' : ''}`} key={cat.id}>
                 <div>
                   <h4 className="text-xs font-bold text-[#2c3f34]">
-                    {cat.name.ar} · {cat.name.en}
+                    {cat.parentSlug ? '↳ ' : ''}{cat.name.ar} · {cat.name.en}
                   </h4>
-                  <p className="text-[9px] text-[#819288]">Slug: #{cat.slug}</p>
+                  <p className="text-[9px] text-[#819288]">
+                    {cat.parentSlug
+                      ? `${isArabic ? 'قسم فرعي داخل' : 'Subcategory of'} ${categories.find((parent) => parent.slug === cat.parentSlug)?.name[locale] ?? cat.parentSlug} · `
+                      : ''}Slug: #{cat.slug}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -1119,9 +1167,11 @@ export function AdminDashboard({
                     type="button"
                   >
                     {cat.active ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                    {cat.active ? (isArabic ? 'مفعّل بالنافبار' : 'Active') : isArabic ? 'مخفي' : 'Hidden'}
+                    {cat.active ? (cat.parentSlug ? (isArabic ? 'ظاهر' : 'Visible') : (isArabic ? 'مفعّل بالنافبار' : 'Active')) : isArabic ? 'مخفي' : 'Hidden'}
                   </button>
-                  {!['cards', 'fashion', 'services', 'cars', 'property'].includes(cat.slug) && <button
+                  {!['cards', 'fashion', 'services', 'cars', 'property'].includes(cat.slug)
+                    && !INITIAL_CATEGORIES.some((builtIn) => builtIn.id === cat.id && builtIn.parentSlug)
+                    && <button
                     className="p-1.5 text-[#a16f66] hover:text-[#c4493a]"
                     onClick={() => handleDeleteCategory(cat.id)}
                     type="button"
@@ -1142,7 +1192,7 @@ export function AdminDashboard({
               >
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-[#2e4337]">{editingCategoryId ? isArabic ? 'تعديل اسم القسم' : 'Rename Section' : isArabic ? 'إضافة قسم جديد' : 'Add New Category'}</h3>
-                  <button onClick={() => { setShowCategoryModal(false); setEditingCategoryId(null); }} type="button">
+                  <button onClick={() => { setShowCategoryModal(false); setEditingCategoryId(null); setNewCatNameAr(''); setNewCatNameEn(''); setNewCatSlug(''); setNewCatParentSlug(''); }} type="button">
                     <X className="h-4 w-4 text-[#72857a]" />
                   </button>
                 </div>
@@ -1167,6 +1217,18 @@ export function AdminDashboard({
                       value={newCatNameEn}
                     />
                   </div>
+                  {(!editingCategoryId || !['cards', 'fashion', 'services', 'cars', 'property'].includes(categories.find((category) => category.id === editingCategoryId)?.slug ?? '')) && (
+                    <div>
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'القسم الرئيسي (اختياري)' : 'Parent department (optional)'}</label>
+                      <select className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs" onChange={(event) => setNewCatParentSlug(event.target.value)} value={newCatParentSlug}>
+                        <option value="">{isArabic ? 'قسم رئيسي مستقل' : 'Top-level category'}</option>
+                        {categories.filter((category) => category.slug === 'fashion').map((category) => (
+                          <option key={category.id} value={category.slug}>{category.name[locale]}</option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-[9px] leading-4 text-[#819288]">{isArabic ? 'اختر الأزياء لإضافة قسم فرعي يظهر داخل صفحة الأزياء.' : 'Choose Fashion to create a collection inside the Fashion page.'}</p>
+                    </div>
+                  )}
                   <div>
                     {!editingCategoryId && <>
                     <label className="text-[10px] text-[#607368]">{isArabic ? 'الرابط المختصر (Slug)' : 'URL Slug'}</label>
@@ -1214,6 +1276,7 @@ export function AdminDashboard({
                 setProdDescAr('');
                 setProdDescEn('');
                 setProdCat('cards');
+                setProdSubcategoryId('');
                 setProdPriceEg('');
                 setProdPriceKsa('');
                 setProdOldPriceEg('');
@@ -1257,7 +1320,8 @@ export function AdminDashboard({
                 return (
                   prod.name.ar.toLowerCase().includes(q) ||
                   prod.name.en.toLowerCase().includes(q) ||
-                  prod.category.toLowerCase().includes(q)
+                  prod.category.toLowerCase().includes(q) ||
+                  (categories.find((category) => category.slug === prod.subcategoryId)?.name[locale] ?? '').toLowerCase().includes(q)
                 );
               })
               .map((prod) => (
@@ -1271,6 +1335,11 @@ export function AdminDashboard({
                     <p className="mt-0.5 flex flex-wrap items-center gap-2 text-[10px] text-[#426b56]">
                       <span>
                         {prod.price.eg} ج.م / {prod.price.ksa} ر.س
+                      </span>
+                      <span className="rounded-full bg-[#eef5f0] px-2 py-0.5 text-[9px] font-semibold text-[#426b56]">
+                        {categories.find((category) => category.slug === prod.subcategoryId)?.name[locale]
+                          ?? categories.find((category) => category.slug === prod.category)?.name[locale]
+                          ?? prod.category}
                       </span>
                       {prod.oldPrice && (
                         <span className="text-[#99a79f] line-through">
@@ -1377,16 +1446,27 @@ export function AdminDashboard({
                     <label className="text-[10px] text-[#607368]">{isArabic ? 'القسم' : 'Category'}</label>
                     <select
                       className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs outline-none"
-                      onChange={(e) => setProdCat(e.target.value)}
+                      onChange={(e) => { setProdCat(e.target.value); setProdSubcategoryId(''); }}
                       value={prodCat}
                     >
-                      {categories.map((c) => (
+                      {categories.filter((category) => !category.parentSlug).map((c) => (
                         <option key={c.id} value={c.slug}>
                           {c.name.ar}
                         </option>
                       ))}
                     </select>
                   </div>
+                  {categories.some((category) => category.parentSlug === prodCat) && (
+                    <div>
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'القسم الفرعي' : 'Collection'}</label>
+                      <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs outline-none" onChange={(event) => setProdSubcategoryId(event.target.value)} value={prodSubcategoryId}>
+                        <option value="">{isArabic ? 'بدون قسم فرعي' : 'No subcategory'}</option>
+                        {categories.filter((category) => category.parentSlug === prodCat).map((category) => (
+                          <option key={category.id} value={category.slug}>{category.name[locale]}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* Image Upload Integration */}
                   <div>
@@ -1992,7 +2072,11 @@ export function AdminDashboard({
                             <p><strong>{isArabic ? 'كود الخصم:' : 'Promo:'}</strong> {order.promoCode || '—'}</p>
                             <p><strong>{isArabic ? 'الخصم:' : 'Discount:'}</strong> {order.discount} {order.market === 'eg' ? 'ج.م' : 'ر.س'}</p>
                             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                              <input aria-label={isArabic ? 'شركة الشحن' : 'Shipping carrier'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: event.target.value, trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} placeholder={order.market === 'eg' ? (isArabic ? 'شركة الشحن (مثال: بوسطة)' : 'Carrier (e.g. Bosta)') : (isArabic ? 'شركة الشحن (مثال: أرامكس)' : 'Carrier (e.g. Aramex)')} value={shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? ''} />
+                              <select aria-label={isArabic ? 'شركة الشحن' : 'Shipping carrier'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: event.target.value === '__other__' ? (settings.shippingCarriers?.[order.market]?.includes(current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '') ? '' : current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '') : event.target.value, trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} value={(settings.shippingCarriers?.[order.market] ?? []).includes(shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '') ? shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '' : '__other__'}>
+                                <option value="__other__">{isArabic ? 'شركة أخرى / اكتب الاسم' : 'Other / enter name'}</option>
+                                {(settings.shippingCarriers?.[order.market] ?? []).map((carrier) => <option key={carrier} value={carrier}>{carrier}</option>)}
+                              </select>
+                              {(!(settings.shippingCarriers?.[order.market] ?? []).includes(shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '')) && <input aria-label={isArabic ? 'اسم شركة الشحن الأخرى' : 'Other carrier name'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" maxLength={100} onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: event.target.value, trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} placeholder={isArabic ? 'اكتب اسم شركة الشحن' : 'Enter carrier name'} value={shippingDrafts[order.id]?.shippingCarrier ?? order.shippingCarrier ?? ''} />}
                               <input aria-label={isArabic ? 'رقم التتبع' : 'Tracking number'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px]" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '', trackingNumber: event.target.value, trackingUrl: current[order.id]?.trackingUrl ?? order.trackingUrl ?? '' } }))} placeholder={isArabic ? 'رقم التتبع' : 'Tracking number'} value={shippingDrafts[order.id]?.trackingNumber ?? order.trackingNumber ?? ''} />
                               <input aria-label={isArabic ? 'رابط تتبع الشحنة' : 'Shipment tracking link'} className="rounded-lg border border-[#dfe8e2] bg-white px-2.5 py-2 text-[10px] sm:col-span-2" dir="ltr" onChange={(event) => setShippingDrafts((current) => ({ ...current, [order.id]: { ...current[order.id], shippingCarrier: current[order.id]?.shippingCarrier ?? order.shippingCarrier ?? '', trackingNumber: current[order.id]?.trackingNumber ?? order.trackingNumber ?? '', trackingUrl: event.target.value } }))} placeholder="https://…" value={shippingDrafts[order.id]?.trackingUrl ?? order.trackingUrl ?? ''} />
                               <button className="rounded-full bg-[#314f43] px-3 py-2 text-[10px] font-semibold text-white sm:col-span-2" onClick={() => void handleSaveShipping(order)} type="button">{isArabic ? 'حفظ بيانات الشحن' : 'Save shipment details'}</button>
@@ -2458,19 +2542,87 @@ export function AdminDashboard({
             <div className="mt-4 rounded-2xl border border-[#e5ebe7] p-4">
               <h4 className="text-xs font-bold text-[#3b5546]">{isArabic ? 'أسعار التوصيل التقديرية حسب المنطقة' : 'Estimated delivery fees by area'}</h4>
               <p className="mt-1 text-[10px] leading-5 text-[#788b80]">{isArabic ? 'عدّل الرسوم لتطابق تعاقدك مع شركة الشحن. الأسعار تقديرية حتى تسجل السعر الفعلي من شركة الشحن.' : 'Match these fees to your carrier agreement. These are estimates until you enter your contracted carrier rates.'}</p>
+              <form className="mt-3 flex flex-wrap gap-2" onSubmit={(event) => {
+                event.preventDefault();
+                const area = newShippingArea.trim();
+                if (!area || area.length > 80 || Object.keys(settings.shippingRates ?? {}).some((name) => name.toLocaleLowerCase() === area.toLocaleLowerCase())) {
+                  onToast(isArabic ? 'اكتب اسم منطقة جديداً (حتى 80 حرفاً).' : 'Enter a new area name (up to 80 characters).');
+                  return;
+                }
+                setSettings((previous) => ({
+                  ...previous,
+                  shippingRates: { ...SHIPPING_RATES, ...previous.shippingRates, [area]: { eg: 0, ksa: 0 } },
+                  shippingAreas: { ...previous.shippingAreas, eg: [...(previous.shippingAreas?.eg ?? []), area] },
+                }));
+                setNewShippingArea('');
+              }}>
+                <input className="h-10 min-w-48 flex-1 rounded-xl border border-[#dfe8e2] px-3 text-xs" maxLength={80} onChange={(event) => setNewShippingArea(event.target.value)} placeholder={isArabic ? 'اسم منطقة / مدينة جديدة' : 'New city or delivery area'} value={newShippingArea} />
+                <button className="rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white" type="submit">{isArabic ? 'إضافة منطقة' : 'Add area'}</button>
+              </form>
               <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {Object.entries(SHIPPING_RATES).map(([city, defaults]) => (
-                  <div className="rounded-xl bg-[#f7faf8] p-3" key={city}>
-                    <p className="mb-2 text-[10px] font-bold text-[#486253]">{city}</p>
-                    {(['eg', 'ksa'] as const).map((targetMarket) => (
-                      <label className="mb-1 block text-[9px] text-[#72847a]" key={targetMarket}>
-                        {targetMarket === 'eg' ? 'EGP' : 'SAR'}
-                        <input className="mt-1 h-8 w-full rounded-lg border border-[#dfe8e2] bg-white px-2 text-[10px]" min="0" max="100000" onChange={(event) => setSettings((previous) => ({ ...previous, shippingRates: { ...SHIPPING_RATES, ...previous.shippingRates, [city]: { ...defaults, ...previous.shippingRates?.[city], [targetMarket]: Math.max(0, Math.min(100000, Number(event.target.value) || 0)) } } }))} type="number" value={settings.shippingRates?.[city]?.[targetMarket] ?? defaults[targetMarket]} />
-                      </label>
-                    ))}
-                  </div>
+                {Object.entries(settings.shippingRates ?? SHIPPING_RATES).map(([city, rates]) => {
+                  const defaults = SHIPPING_RATES[city] ?? { eg: 0, ksa: 0 };
+                  return (
+                    <div className="rounded-xl bg-[#f7faf8] p-3" key={city}>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="truncate text-[10px] font-bold text-[#486253]">{city}</p>
+                        <button aria-label={`${isArabic ? 'حذف منطقة' : 'Delete area'} ${city}`} className="text-[10px] font-semibold text-[#a16f66]" onClick={() => {
+                          setSettings((previous) => {
+                            const nextRates = { ...previous.shippingRates };
+                            delete nextRates[city];
+                            return { ...previous, shippingRates: nextRates, shippingAreas: { ...previous.shippingAreas, eg: previous.shippingAreas.eg.filter((area) => area !== city), ksa: previous.shippingAreas.ksa.filter((area) => area !== city) } };
+                          });
+                        }} type="button">{isArabic ? 'حذف' : 'Remove'}</button>
+                      </div>
+                      {(['eg', 'ksa'] as const).map((targetMarket) => (
+                        <div className="mb-2" key={targetMarket}>
+                          <label className="mb-1 flex items-center gap-1 text-[9px] text-[#72847a]">
+                            <input checked={settings.shippingAreas?.[targetMarket]?.includes(city) ?? defaults[targetMarket] > 0} className="accent-[#314f43]" onChange={(event) => setSettings((previous) => {
+                              const areas = previous.shippingAreas?.[targetMarket] ?? Object.keys(SHIPPING_RATES).filter((area) => SHIPPING_RATES[area][targetMarket] > 0);
+                              return { ...previous, shippingAreas: { ...previous.shippingAreas, [targetMarket]: event.target.checked ? [...areas, city] : areas.filter((area) => area !== city) } };
+                            })} type="checkbox" />
+                            {targetMarket === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'Saudi Arabia')}
+                          </label>
+                          <label className="block text-[9px] text-[#72847a]">{targetMarket === 'eg' ? 'EGP' : 'SAR'}
+                            <input className="mt-1 h-8 w-full rounded-lg border border-[#dfe8e2] bg-white px-2 text-[10px]" min="0" max="100000" onChange={(event) => setSettings((previous) => ({ ...previous, shippingRates: { ...previous.shippingRates, [city]: { ...(previous.shippingRates?.[city] ?? defaults), [targetMarket]: Math.max(0, Math.min(100000, Number(event.target.value) || 0)) } } }))} type="number" value={rates[targetMarket] ?? defaults[targetMarket]} />
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-[#e5ebe7] p-4">
+              <h4 className="text-xs font-bold text-[#3b5546]">{isArabic ? 'شركات الشحن' : 'Shipping companies'}</h4>
+              <p className="mt-1 text-[10px] text-[#788b80]">{isArabic ? 'أضف واحذف شركات الشحن لكل دولة؛ ستظهر في قائمة تجهيز الطلب.' : 'Manage the carrier list for each market; it appears when preparing an order.'}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(['eg', 'ksa'] as const).map((targetMarket) => (
+                  <button className={`rounded-full px-3 py-1.5 text-[10px] font-semibold ${carrierMarket === targetMarket ? 'bg-[#314f43] text-white' : 'bg-[#edf4f0] text-[#52685b]'}`} key={targetMarket} onClick={() => setCarrierMarket(targetMarket)} type="button">{targetMarket === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'Saudi Arabia')}</button>
                 ))}
               </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(settings.shippingCarriers?.[carrierMarket] ?? []).map((carrier) => (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#dfe8e2] bg-[#fbfdfa] px-3 py-1.5 text-[10px] font-semibold text-[#3b5546]" key={carrier}>
+                    {carrier}
+                    <button aria-label={`${isArabic ? 'حذف شركة الشحن' : 'Remove carrier'} ${carrier}`} className="text-[#a16f66]" onClick={() => setSettings((previous) => ({ ...previous, shippingCarriers: { ...previous.shippingCarriers, [carrierMarket]: previous.shippingCarriers[carrierMarket].filter((item) => item !== carrier) } }))} type="button">×</button>
+                  </span>
+                ))}
+              </div>
+              <form className="mt-3 flex flex-wrap gap-2" onSubmit={(event) => {
+                event.preventDefault();
+                const carrier = newShippingCarrier.trim();
+                const current = settings.shippingCarriers?.[carrierMarket] ?? [];
+                if (!carrier || carrier.length > 80 || current.some((item) => item.toLocaleLowerCase() === carrier.toLocaleLowerCase())) {
+                  onToast(isArabic ? 'اكتب اسم شركة جديداً (حتى 80 حرفاً).' : 'Enter a new carrier name (up to 80 characters).');
+                  return;
+                }
+                setSettings((previous) => ({ ...previous, shippingCarriers: { ...previous.shippingCarriers, [carrierMarket]: [...(previous.shippingCarriers?.[carrierMarket] ?? []), carrier] } }));
+                setNewShippingCarrier('');
+              }}>
+                <input className="h-9 min-w-48 flex-1 rounded-xl border border-[#dfe8e2] px-3 text-xs" maxLength={80} onChange={(event) => setNewShippingCarrier(event.target.value)} placeholder={isArabic ? 'اسم شركة الشحن' : 'Carrier name'} value={newShippingCarrier} />
+                <button className="rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white" type="submit">{isArabic ? 'إضافة شركة' : 'Add carrier'}</button>
+              </form>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label className="text-[10px] font-semibold text-[#607368]">{isArabic ? 'كوبون تلقائي لكل الزوار' : 'Automatic coupon for all visitors'}<select className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs" onChange={(event) => setSettings((previous) => ({ ...previous, autoPromoCode: event.target.value }))} value={settings.autoPromoCode ?? ''}><option value="">{isArabic ? 'بدون كوبون تلقائي' : 'No automatic coupon'}</option>{promoCodes.filter((promo) => promo.active && promo.discount > 0 && promo.discount <= 100).map((promo) => <option key={promo.code} value={promo.code}>{promo.code} ({promo.discount}%)</option>)}</select></label>

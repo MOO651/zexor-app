@@ -99,12 +99,12 @@ export function CheckoutDrawer({
     sortOrder: 0,
   }];
   const selectedPaymentMethod = marketPaymentMethods.find((method) => method.id === paymentMethodId);
-  const marketCities = market === 'eg'
-    ? ['Cairo', 'Giza', 'Alexandria', 'Delta Cities', 'Upper Egypt']
-    : ['Riyadh', 'Jeddah', 'Dammam', 'Other KSA'];
+  const marketCities = settings.shippingAreas?.[market]?.length
+    ? settings.shippingAreas[market]
+    : market === 'eg' ? ['Cairo'] : ['Riyadh'];
   const effectiveCity = marketCities.includes(selectedCity)
     ? selectedCity
-    : market === 'eg' ? 'Cairo' : 'Riyadh';
+    : marketCities[0];
 
   const isUsablePromo = (promo: PromoCode | undefined | null): promo is PromoCode => {
     if (!promo || !promo.active || !Number.isFinite(promo.discount) || promo.discount <= 0 || promo.discount > 100) return false;

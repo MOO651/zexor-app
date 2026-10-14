@@ -40,6 +40,7 @@ function hasUniqueIds<T>(values: T[], getId: (value: T) => string): boolean {
 function validProduct(value: unknown): value is Product {
   if (!isRecord(value) || !isRecord(value.price) || !isRecord(value.name) || !isRecord(value.description)) return false;
   return isText(value.id) && isText(value.category) && Array.isArray(value.markets)
+    && (value.subcategoryId === undefined || isText(value.subcategoryId))
     && value.markets.length > 0 && value.markets.every(isMarket)
     && isText(value.name.en) && isText(value.name.ar)
     && isText(value.description.en) && isText(value.description.ar)
@@ -60,7 +61,8 @@ function validProduct(value: unknown): value is Product {
 
 function validCategory(value: unknown): value is DynamicCategory {
   return isRecord(value) && isText(value.id) && isText(value.slug) && isText(value.icon)
-    && isTextPair(value.name) && typeof value.active === 'boolean';
+    && isTextPair(value.name) && typeof value.active === 'boolean'
+    && (value.parentSlug === undefined || isText(value.parentSlug));
 }
 
 function validVehicle(value: unknown): value is Vehicle {
@@ -141,8 +143,13 @@ function conformsToShape(value: unknown, shape: unknown): boolean {
   if (typeof shape === 'number') return isNumber(value);
   if (typeof shape === 'boolean') return typeof value === 'boolean';
   if (!isRecord(shape) || !isRecord(value)) return false;
-  return Object.entries(value).every(([key, item]) =>
-    Object.hasOwn(shape, key) && conformsToShape(item, shape[key]));
+  return Object.entries(value).every(([key, item]) => {
+    if (key === 'shippingRates') return isRecord(item) && Object.entries(item).every(([area, rates]) =>
+      isText(area) && isRecord(rates) && ['eg', 'ksa'].every((market) => isNumber(rates[market])));
+    if (key === 'shippingAreas') return isRecord(item) && ['eg', 'ksa'].every((market) => isTextArray(item[market]));
+    if (key === 'shippingCarriers') return isRecord(item) && ['eg', 'ksa'].every((market) => isTextArray(item[market]));
+    return Object.hasOwn(shape, key) && conformsToShape(item, shape[key]);
+  });
 }
 
 function validSettings(value: unknown): value is Partial<SiteSettings> {
@@ -151,6 +158,7 @@ function validSettings(value: unknown): value is Partial<SiteSettings> {
   const taxByMarket = value.taxRateByMarket;
   const shippingThreshold = value.freeShippingThreshold;
   const shippingRates = value.shippingRates;
+  const shippingAreas = value.shippingAreas;
   const discount = value.discountBanner;
   const brand = value.brand;
   return (taxRate === undefined || (isNumber(taxRate) && taxRate >= 0 && taxRate <= 100))
@@ -159,8 +167,11 @@ function validSettings(value: unknown): value is Partial<SiteSettings> {
     && (shippingThreshold === undefined || (isRecord(shippingThreshold)
       && ['eg', 'ksa'].every((market) => isNumber(shippingThreshold[market]) && Number(shippingThreshold[market]) >= 0)))
     && (shippingRates === undefined || (isRecord(shippingRates)
-      && Object.entries(shippingRates).every(([city, rates]) => Object.hasOwn(DEFAULT_SETTINGS.shippingRates, city)
+      && Object.entries(shippingRates).every(([city, rates]) => isText(city) && city.trim().length > 0 && city.length <= 80
         && isRecord(rates) && ['eg', 'ksa'].every((market) => isNumber(rates[market]) && Number(rates[market]) >= 0 && Number(rates[market]) <= 100000))))
+    && (shippingAreas === undefined || (isRecord(shippingAreas)
+      && ['eg', 'ksa'].every((market) => Array.isArray(shippingAreas[market])
+        && shippingAreas[market].every((city) => isText(city) && city.trim().length > 0 && city.length <= 80))))
     && (discount === undefined || (isRecord(discount) && isNumber(discount.percent) && discount.percent >= 0 && discount.percent <= 100))
     && (brand === undefined || (isRecord(brand) && isNumber(brand.radius) && brand.radius >= 0.5 && brand.radius <= 3
       && isNumber(brand.fontScale) && brand.fontScale >= 0.75 && brand.fontScale <= 1.25));
@@ -192,6 +203,15 @@ export function validateStoreBackup(value: unknown): StoreBackup | null {
     if (key === 'socialLinks' && !hasUniqueIds(candidate, (item) => String((item as SocialLink).platform).toLowerCase())) return null;
     if (key === 'paymentMethods' && !hasUniqueIds(candidate, (item) => `${(item as PaymentMethod).market}:${(item as PaymentMethod).method}`)) return null;
     Object.assign(backup, { [key]: candidate });
+  }
+  if (backup.categories && backup.products) {
+    const categoriesBySlug = new Map(backup.categories.map((category) => [category.slug, category]));
+    const hasInvalidSubcategory = backup.products.some((product) => {
+      if (!product.subcategoryId) return false;
+      const category = categoriesBySlug.get(product.subcategoryId);
+      return !category || category.parentSlug !== product.category;
+    });
+    if (hasInvalidSubcategory) return null;
   }
   if (value.settings !== undefined) {
     if (!validSettings(value.settings)) return null;

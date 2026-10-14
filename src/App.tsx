@@ -497,6 +497,7 @@ export default function App() {
   const [route, setRoute] = useState<Route>(pageFromHash);
   const [market, setMarket] = useState<Market>('eg');
   const [marketFilter, setMarketFilter] = useState<MarketFilter>('all');
+  const [selectedFashionSubcategory, setSelectedFashionSubcategory] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -1048,10 +1049,25 @@ export default function App() {
   }, [isArabic, locale, products, searchQuery]);
 
   // Products filtered for the current route
+  const activeFashionSubcategories = useMemo(
+    () => categories.filter((category) => category.parentSlug === 'fashion' && category.active),
+    [categories],
+  );
+  const fashionProductsInMarket = useMemo(() => products.filter((product) =>
+    product.available
+    && product.category === 'fashion'
+    && (marketFilter === 'all' || product.markets.includes(marketFilter))
+    && (!product.subcategoryId || activeFashionSubcategories.some((subcategory) => subcategory.slug === product.subcategoryId)),
+  ), [activeFashionSubcategories, marketFilter, products]);
+  const activeSelectedFashionSubcategory = activeFashionSubcategories.some((category) => category.slug === selectedFashionSubcategory)
+    ? selectedFashionSubcategory
+    : '';
   const currentCategoryProducts = products.filter(
     (p) =>
       p.available &&
       (route === 'cards' ? p.category === 'cards' : route === 'fashion' ? p.category === 'fashion' : true) &&
+      (route !== 'fashion' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'fashion' && category.active)) &&
+      (route !== 'fashion' || !activeSelectedFashionSubcategory || p.subcategoryId === activeSelectedFashionSubcategory) &&
       (marketFilter === 'all' || p.markets.includes(marketFilter)),
   );
 
@@ -1432,7 +1448,7 @@ export default function App() {
                       <ProductCard
                         key={p.id}
                         product={p}
-                        categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
+                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
                         market={market}
                         locale={locale}
                         wishlisted={wishlist.includes(p.id)}
@@ -1478,7 +1494,7 @@ export default function App() {
                       <ProductCard
                         key={p.id}
                         product={p}
-                        categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
+                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
                         market="eg"
                         locale={locale}
                         wishlisted={wishlist.includes(p.id)}
@@ -1821,12 +1837,45 @@ export default function App() {
               </p>
             </div>
 
+            {activeFashionSubcategories.length > 0 && (
+              <nav aria-label={isArabic ? 'أقسام الأزياء الفرعية' : 'Fashion collections'} className="flex flex-wrap gap-2">
+                <button
+                  aria-pressed={!activeSelectedFashionSubcategory}
+                  className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${!activeSelectedFashionSubcategory ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
+                  onClick={() => setSelectedFashionSubcategory('')}
+                  type="button"
+                >
+                  {isArabic ? `كل الأزياء (${fashionProductsInMarket.length})` : `All fashion (${fashionProductsInMarket.length})`}
+                </button>
+                {activeFashionSubcategories.map((subcategory) => {
+                  const count = fashionProductsInMarket.filter((product) => product.subcategoryId === subcategory.slug).length;
+                  const active = activeSelectedFashionSubcategory === subcategory.slug;
+                  return (
+                    <button
+                      aria-pressed={active}
+                      className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${active ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
+                      key={subcategory.id}
+                      onClick={() => setSelectedFashionSubcategory(subcategory.slug)}
+                      type="button"
+                    >
+                      {subcategory.name[locale]} <span className="ms-1 opacity-70">{count}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            )}
+
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {currentCategoryProducts.length === 0 && (
+                <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
+                  {isArabic ? 'لا توجد منتجات في هذا القسم حالياً.' : 'No products in this collection yet.'}
+                </p>
+              )}
               {currentCategoryProducts.map((p) => (
                 <ProductCard
                   key={p.id}
                   product={p}
-                  categoryLabel={categoryNameFor(p.category, p.category.toUpperCase())}
+                  categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
                   market="eg"
                   locale={locale}
                   wishlisted={wishlist.includes(p.id)}

@@ -12,6 +12,8 @@ import { art, photos } from './imagery';
 export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'cards', slug: 'cards', name: { en: 'ZEXOR LINK', ar: 'زكسور لينك' }, icon: 'credit', active: true },
   { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR FASHION', ar: 'أزياء زكسور' }, icon: 'shirt', active: true },
+  { id: 'fashion-hoodies', slug: 'hoodies', name: { en: 'Hoodies', ar: 'هوديز' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
+  { id: 'fashion-t-shirts', slug: 't-shirts', name: { en: 'T-shirts', ar: 'تيشيرتات' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
   { id: 'services', slug: 'services', name: { en: 'ZEXOR DIGITAL', ar: 'زكسور ديجيتال' }, icon: 'code', active: true },
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
@@ -52,11 +54,18 @@ export function normalizeStarterProductImages(products: Product[]): Product[] {
     commerce: photos.studioStore,
   };
   const correctedDefaults = new Map(INITIAL_PRODUCTS.map((product) => [product.id, product.imageUrl]));
-  return products.map((product) => (
-    product.imageUrl === previousDefaults[product.id]
-      ? { ...product, imageUrl: correctedDefaults.get(product.id) ?? product.imageUrl }
-      : product
-  ));
+  const defaultFashionSubcategories: Record<string, string> = { hoodie: 'hoodies', 'oversized-tee': 't-shirts' };
+  return products.map((product) => {
+    const isUntouchedStarter = product.imageUrl === previousDefaults[product.id];
+    if (!isUntouchedStarter) return product;
+    return {
+      ...product,
+      imageUrl: correctedDefaults.get(product.id) ?? product.imageUrl,
+      ...(product.category === 'fashion' && product.subcategoryId === undefined && defaultFashionSubcategories[product.id]
+        ? { subcategoryId: defaultFashionSubcategories[product.id] }
+        : {}),
+    };
+  });
 }
 
 export const INITIAL_PRODUCTS: Product[] = [
@@ -108,6 +117,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'hoodie',
     category: 'fashion',
+    subcategoryId: 'hoodies',
     markets: ['eg'],
     name: { en: 'After Hours Heavyweight Hoodie', ar: 'هودي أفتر آورز الفاخر' },
     description: {
@@ -124,6 +134,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'oversized-tee',
     category: 'fashion',
+    subcategoryId: 't-shirts',
     markets: ['eg'],
     name: { en: 'Signal Drop-Shoulder Tee', ar: 'تيشيرت سيجنال أوفرسايز' },
     description: {
@@ -384,6 +395,14 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
   freeShippingThreshold: { eg: 2000, ksa: 300 },
   shippingRates: SHIPPING_RATES,
+  shippingAreas: {
+    eg: Object.keys(SHIPPING_RATES).filter((area) => SHIPPING_RATES[area].eg > 0),
+    ksa: Object.keys(SHIPPING_RATES).filter((area) => SHIPPING_RATES[area].ksa > 0),
+  },
+  shippingCarriers: {
+    eg: ['Bosta', 'Mylerz', 'Aramex', 'DHL'],
+    ksa: ['Aramex', 'SMSA Express', 'SPL', 'DHL'],
+  },
   taxRate: 0,
   codEnabled: true,
   taxRateByMarket: { eg: 0, ksa: 0 },

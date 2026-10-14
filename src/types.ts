@@ -22,11 +22,15 @@ export type DynamicCategory = {
   slug: string;
   icon: string;
   active: boolean;
+  /** Optional parent department; set for an in-department subcategory. */
+  parentSlug?: string;
 };
 
 export type Product = {
   id: string;
   category: string; // can be dynamic category id or cards/fashion/services
+  /** Optional nested category slug, e.g. a fashion collection. */
+  subcategoryId?: string;
   markets: Market[];
   name: Record<Locale, string>;
   description: Record<Locale, string>;
@@ -219,6 +223,10 @@ export type SiteSettings = {
   freeShippingThreshold: Record<Market, number>;
   /** Store-configured delivery estimates indexed by checkout city and market. */
   shippingRates: Record<string, Record<Market, number>>;
+  /** Cities/areas offered at checkout in each market. */
+  shippingAreas: Record<Market, string[]>;
+  /** Editable carrier directory used while preparing shipment details. */
+  shippingCarriers: Record<Market, string[]>;
   /** Global tax / VAT percentage added at checkout. */
   taxRate: number;
   /** Optional market-specific rates and COD controls; legacy values remain fallbacks. */
