@@ -2079,15 +2079,8 @@ Details: ${details}`;
 
         {/* Route: Dashboard (Protected Admin) */}
         {route === 'dashboard' && (
-          adminAuthenticated || import.meta.env.DEV ? (
+          adminAuthenticated ? (
             <>
-            {!adminAuthenticated && import.meta.env.DEV && (
-              <div className="mx-auto mb-5 max-w-7xl rounded-2xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900" role="status">
-                {isArabic
-                  ? 'معاينة محلية فقط: التعديلات على هذا الجهاز ولا تُحفظ في متجر Supabase. تسجيل الدخول الحقيقي سيعمل بعد إعداد الحساب.'
-                  : 'Local preview only: edits stay on this device and are not published to Supabase. Real admin login will work after account setup.'}
-              </div>
-            )}
             <AdminDashboard
               categories={categories}
               inbox={inbox}
