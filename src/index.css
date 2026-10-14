@@ -382,6 +382,28 @@ textarea:focus-visible {
   border-color: rgba(78, 142, 111, 0.35);
 }
 
+.zx-market-card,
+.zx-showcase-card {
+  isolation: isolate;
+  backface-visibility: hidden;
+}
+
+[data-theme="dark"] .zx-market-card,
+[data-theme="dark"] .zx-showcase-card {
+  background-color: var(--c-surface) !important;
+  border-color: var(--c-line) !important;
+}
+
+[data-theme="dark"] .zx-market-card h3,
+[data-theme="dark"] .zx-showcase-card h3 {
+  color: var(--c-ink) !important;
+}
+
+[data-theme="dark"] .zx-market-card p,
+[data-theme="dark"] .zx-showcase-card p {
+  color: var(--c-muted) !important;
+}
+
 /* Two-line clamp for product copy keeps every card the same height. */
 .line-clamp-2 {
   display: -webkit-box;

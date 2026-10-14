@@ -119,6 +119,18 @@ Price: ${formatListingPrice(car.price, car.region)}${vehiclePricePeriod(car)}`;
     onWhatsApp(market, text);
   };
 
+  const openVehicleGallery = (vehicle: Vehicle) => {
+    setActiveVehicle(vehicle);
+    setActiveProperty(null);
+    setGalleryIndex(0);
+  };
+
+  const openPropertyGallery = (property: Property) => {
+    setActiveProperty(property);
+    setActiveVehicle(null);
+    setGalleryIndex(0);
+  };
+
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const itemTitle = activeVehicle ? activeVehicle.title[locale] : activeProperty ? activeProperty.title[locale] : '';
@@ -338,7 +350,7 @@ Listing: ${itemTitle}`;
 
       {/* Grid: Cars or Properties */}
       {mode === 'cars' ? (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredVehicles.length === 0 && (
             <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
               {isArabic ? 'لا توجد سيارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No vehicles match these filters in this market yet.'}
@@ -346,16 +358,22 @@ Listing: ${itemTitle}`;
           )}
           {filteredVehicles.map((car) => (
             <article
-              className="group flex flex-col overflow-hidden rounded-[1.75rem] border border-white bg-white shadow-[0_2px_10px_rgba(28,47,37,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_-20px_rgba(28,47,37,0.3)]"
+              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
               key={car.id}
             >
               {/* Image & Gallery Launcher */}
               <div
-                className="relative aspect-[1.4/1] cursor-pointer overflow-hidden bg-[#e8efeb]"
-                onClick={() => {
-                  setActiveVehicle(car);
-                  setGalleryIndex(0);
+                aria-label={isArabic ? `عرض صور ومواصفات ${car.title.ar}` : `View photos and specifications for ${car.title.en}`}
+                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-[#e8efeb]"
+                onClick={() => openVehicleGallery(car)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openVehicleGallery(car);
+                  }
                 }}
+                role="button"
+                tabIndex={0}
               >
                 <img
                   alt={car.title[locale]}
@@ -384,14 +402,6 @@ Listing: ${itemTitle}`;
                     {car.id}
                   </span>
                 </div>
-                {/* Price rides the image so the card body stays uncluttered. */}
-                <span className="absolute bottom-3 start-3 flex items-baseline gap-1.5 text-white drop-shadow">
-                  <span className="zx-display text-lg leading-none">
-                    {new Intl.NumberFormat('en-US').format(car.price)}
-                  </span>
-                  <span className="text-[10px] font-semibold opacity-85">{listingCurrency(car.region)}</span>
-                  {car.deal === 'Rent' && <span className="text-[10px] font-semibold opacity-85">{vehiclePricePeriod(car)}</span>}
-                </span>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
@@ -401,8 +411,11 @@ Listing: ${itemTitle}`;
               </div>
 
               {/* Card Details */}
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{car.title[locale]}</h3>
+              <div className="flex flex-1 flex-col p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-[#24382d]">{car.title[locale]}</h3>
+                  <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">{car.make}</span>
+                </div>
                 <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
                   <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
                   {car.location[locale]}
@@ -412,7 +425,7 @@ Listing: ${itemTitle}`;
                     Every value is localised: the enum values in the data are
                     English ("Sedan") and showing them raw put Latin words inside
                     an otherwise Arabic row. */}
-                <div className="mt-3.5 flex flex-wrap gap-1.5">
+                <div className="mt-3.5 flex min-h-14 flex-wrap content-start gap-1.5">
                   {[
                     String(car.year),
                     car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : isArabic ? 'مانيوال' : 'Manual',
@@ -429,7 +442,7 @@ Listing: ${itemTitle}`;
                         : (isArabic ? 'بنزين' : 'Petrol'),
                   ].map((spec) => (
                     <span
-                      className="rounded-lg border border-[#e3ece7] bg-[#f3f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]"
+                      className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2.5 py-1.5 text-[9px] font-semibold text-[#4b6d5b]"
                       key={spec}
                     >
                       {spec}
@@ -447,18 +460,28 @@ Listing: ${itemTitle}`;
                 )}
 
                 {/* Action Buttons */}
-                <div className="mt-auto flex gap-2 pt-4">
+                <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
+                  <div className="min-w-0">
+                    <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                    <span className="zx-display mt-1 flex flex-wrap items-baseline gap-x-1 text-lg leading-none text-[#24382d]">
+                      {new Intl.NumberFormat('en-US').format(car.price)}
+                      <span className="font-sans text-[10px] font-semibold">{listingCurrency(car.region)}{car.deal === 'Rent' ? vehiclePricePeriod(car) : ''}</span>
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
                   <button
-                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
+                    aria-label={car.deal === 'Rent' ? (isArabic ? 'اسأل عن الإيجار' : 'Ask about rental') : (isArabic ? 'احجز معاينة' : 'Book viewing')}
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#314f43] px-3 text-[10px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
                     onClick={() => handleCarWhatsApp(car)}
                     type="button"
                   >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة' : 'Book Viewing'}
+                    <MessageCircle className="h-4 w-4" />
+                    {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة' : 'Book viewing'}
                   </button>
                   <button
                     aria-label={isArabic ? 'التفاصيل' : 'Details'}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    title={isArabic ? 'التفاصيل والصور' : 'Photos and details'}
                     onClick={() => {
                       setActiveVehicle(car);
                       setGalleryIndex(0);
@@ -467,6 +490,7 @@ Listing: ${itemTitle}`;
                   >
                     <CalendarDays className="h-4 w-4" />
                   </button>
+                  </div>
                 </div>
               </div>
             </article>
@@ -474,7 +498,7 @@ Listing: ${itemTitle}`;
         </div>
       ) : (
         /* Real Estate Grid */
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredProperties.length === 0 && (
             <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
               {isArabic ? 'لا توجد عقارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No properties match these filters in this market yet.'}
@@ -482,15 +506,21 @@ Listing: ${itemTitle}`;
           )}
           {filteredProperties.map((prop) => (
             <article
-              className="group overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
               key={prop.id}
             >
               <div
-                className="relative aspect-[1.4/1] cursor-pointer overflow-hidden bg-[#e6ede8]"
-                onClick={() => {
-                  setActiveProperty(prop);
-                  setGalleryIndex(0);
+                aria-label={isArabic ? `عرض صور وتفاصيل ${prop.title.ar}` : `View photos and details for ${prop.title.en}`}
+                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-[#e6ede8]"
+                onClick={() => openPropertyGallery(prop)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openPropertyGallery(prop);
+                  }
                 }}
+                role="button"
+                tabIndex={0}
               >
                 <img
                   alt={prop.title[locale]}
@@ -512,12 +542,6 @@ Listing: ${itemTitle}`;
                 <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
                   {prop.id}
                 </span>
-                <span className="absolute bottom-3 start-3 flex items-baseline gap-1.5 text-white drop-shadow">
-                  <span className="zx-display text-lg leading-none">
-                    {new Intl.NumberFormat('en-US').format(prop.price)}
-                  </span>
-                  <span className="text-[10px] font-semibold opacity-85">{listingCurrency(prop.region)}</span>
-                </span>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
@@ -526,14 +550,19 @@ Listing: ${itemTitle}`;
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col p-5">
-                <h3 className="text-[13px] font-bold leading-6 text-[#24382d]">{prop.title[locale]}</h3>
+              <div className="flex flex-1 flex-col p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-[#24382d]">{prop.title[locale]}</h3>
+                  <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">
+                    {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
+                  </span>
+                </div>
                 <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
                   <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
                   {prop.location[locale]}
                 </p>
 
-                <div className="mt-3.5 flex flex-wrap gap-1.5">
+                <div className="mt-3.5 flex min-h-14 flex-wrap content-start gap-1.5">
                   {[
                     `${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`,
                     prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : '',
@@ -549,7 +578,7 @@ Listing: ${itemTitle}`;
                     .filter(Boolean)
                     .map((spec) => (
                       <span
-                        className="rounded-lg border border-[#e3ece7] bg-[#f3f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]"
+                        className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2.5 py-1.5 text-[9px] font-semibold text-[#4b6d5b]"
                         key={spec}
                       >
                         {spec}
@@ -566,21 +595,29 @@ Listing: ${itemTitle}`;
                   </p>
                 )}
 
-                <div className="mt-auto flex gap-2 pt-4">
+                <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
+                  <div className="min-w-0">
+                    <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                    <span className="zx-display mt-1 block text-lg leading-none text-[#24382d]">{formatListingPrice(prop.price, prop.region)}</span>
+                    {prop.deal === 'Rent' && <span className="mt-1 block text-[9px] text-[#839188]">{isArabic ? 'قيمة الإيجار حسب المدة' : 'Rental rate; confirm term'}</span>}
+                  </div>
+                  <div className="flex gap-2">
                   <button
-                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#314f43] px-3 text-[11px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
+                    aria-label={isArabic ? 'حجز معاينة' : 'Book viewing'}
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#314f43] px-3 text-[10px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
                     onClick={() => {
                       setActiveProperty(prop);
                       setGalleryIndex(0);
                     }}
                     type="button"
                   >
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    {isArabic ? 'حجز معاينة' : 'Book Viewing'}
+                    <CalendarDays className="h-4 w-4" />
+                    {isArabic ? 'احجز معاينة' : 'Book viewing'}
                   </button>
                   <button
                     aria-label={isArabic ? 'استفسار واتساب' : 'Ask on WhatsApp'}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    title={isArabic ? 'استفسار واتساب' : 'Ask on WhatsApp'}
                     onClick={() =>
                       onWhatsApp(
                         market,
@@ -593,6 +630,7 @@ Listing: ${itemTitle}`;
                   >
                     <MessageCircle className="h-4 w-4" />
                   </button>
+                  </div>
                 </div>
               </div>
             </article>
@@ -617,11 +655,14 @@ Listing: ${itemTitle}`;
               className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-white bg-white shadow-2xl"
               exit={{ opacity: 0, scale: 0.95 }}
               initial={{ opacity: 0, scale: 0.95 }}
+              aria-labelledby="listing-dialog-title"
+              aria-modal="true"
+              role="dialog"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-[#edf1ee] px-6 py-4">
                 <div>
-                  <h3 className="text-base font-bold text-[#2d4236]">
+                  <h3 className="text-base font-bold text-[#2d4236]" id="listing-dialog-title">
                     {activeVehicle ? activeVehicle.title[locale] : activeProperty?.title[locale]}
                   </h3>
                   <p className="text-[10px] text-[#7d8f85]">
@@ -711,7 +752,7 @@ Listing: ${itemTitle}`;
                   </div>
 
                   {/* Thumbnail Row */}
-                  <div className="flex gap-2">
+                <div className="zx-no-bar flex gap-2 overflow-x-auto pb-1">
                     {(activeVehicle ? activeVehicle.gallery : activeProperty?.gallery ?? []).map((img, idx) => (
                       <button
                         className={`aspect-video w-20 overflow-hidden rounded-xl border-2 transition-all ${
@@ -721,7 +762,7 @@ Listing: ${itemTitle}`;
                         onClick={() => setGalleryIndex(idx)}
                         type="button"
                       >
-                        <img alt="Thumbnail" className="h-full w-full object-cover" src={img} />
+                        <img alt={`${isArabic ? 'الصورة' : 'Photo'} ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" src={publicAssetUrl(img)} />
                       </button>
                     ))}
                   </div>
@@ -751,6 +792,29 @@ Listing: ${itemTitle}`;
                 {/* Right: Inspection Booking Form */}
                 <div className="flex flex-col justify-between">
                   <div>
+                    <div className="mb-4 rounded-2xl border border-[#e4ece6] bg-[#f7faf7] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-[9px] font-bold tracking-wide text-[#7d8f85]">{activeVehicle ? (isArabic ? 'السيارة' : 'VEHICLE') : (isArabic ? 'العقار' : 'PROPERTY')}</p>
+                          <p className="mt-1 text-xs font-bold text-[#2d4236]">{activeVehicle?.title[locale] ?? activeProperty?.title[locale]}</p>
+                          <p className="mt-1 text-[10px] text-[#718478]">{activeVehicle?.location[locale] ?? activeProperty?.location[locale]}</p>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[9px] font-bold text-[#527362]">
+                          {activeVehicle?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : activeProperty?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : (isArabic ? 'للبيع' : 'FOR SALE')}
+                        </span>
+                      </div>
+                      <p className="zx-display mt-3 text-xl text-[#2d4838]">
+                        {activeVehicle
+                          ? formatListingPrice(activeVehicle.price, activeVehicle.region)
+                          : activeProperty ? formatListingPrice(activeProperty.price, activeProperty.region) : ''}
+                        {activeVehicle?.deal === 'Rent' && <span className="ms-1 font-sans text-xs font-semibold">{vehiclePricePeriod(activeVehicle)}</span>}
+                      </p>
+                      <p className="mt-2 text-[10px] leading-5 text-[#718478]">
+                        {activeVehicle
+                          ? `${activeVehicle.make} · ${activeVehicle.year} · ${activeVehicle.mileage === 0 ? (isArabic ? 'زيرو' : 'New') : `${new Intl.NumberFormat('en-US').format(activeVehicle.mileage)} ${isArabic ? 'كم' : 'km'}`}`
+                          : activeProperty ? `${activeProperty.type} · ${new Intl.NumberFormat('en-US').format(activeProperty.area)} ${isArabic ? 'م²' : 'm²'} · ${activeProperty.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''}
+                      </p>
+                    </div>
                     <span className="text-[9px] font-bold uppercase tracking-wider text-[#688a77]">
                       {isArabic ? 'حجز موعد معاينة ميدانية' : 'Book In-Person Viewing'}
                     </span>

@@ -84,7 +84,7 @@ type Props = {
 
 /** Rotating advertising headline words for the animated hero ticker. */
 const HERO_TICKER: Record<Locale, string[]> = {
-  en: ['CONNECTED IDENTITY', 'ATELIER', 'DIGITAL STUDIO', 'VEHICLES', 'REAL ESTATE'],
+  en: ['CONNECTED IDENTITY', 'ZEXOR FASHION', 'DIGITAL STUDIO', 'VEHICLES', 'REAL ESTATE'],
   ar: ['هوية متصلة', 'أزياء زكسور', 'استوديو رقمي', 'سيارات', 'عقارات'],
 };
 
@@ -162,7 +162,7 @@ export function HomeHero({
         {/* Top Tagline */}
         <div className="relative z-20 flex items-center justify-between gap-3">
           <p className="text-[9px] font-bold tracking-[0.24em] text-[#69746c] sm:text-[10px]">
-            ZEXOR · CONNECTED IDENTITY · ATELIER · STUDIO
+            ZEXOR · CONNECTED IDENTITY · FASHION · STUDIO
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -244,7 +244,7 @@ export function HomeHero({
                 01 / {isArabic ? 'أزياء مصر' : 'APPAREL'}
               </span>
               <span className="absolute inset-x-4 bottom-4 text-white">
-                <span className="block text-[8px] tracking-wider text-white/70">ZEXOR ATELIER</span>
+                <span className="block text-[8px] tracking-wider text-white/70">ZEXOR FASHION</span>
                 <span className="mt-1 block text-lg font-bold leading-tight sm:text-xl">
                   {isArabic ? 'هودي وستريت وير فاخر' : 'After Hours Streetwear'}
                 </span>

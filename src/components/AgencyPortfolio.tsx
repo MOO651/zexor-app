@@ -82,7 +82,7 @@ I would like to discuss next steps.`;
     // Generate text/PDF format profile download
     const profileContent = `
 ==================================================
-           ZEXOR DIGITAL STUDIO & ATELIER
+           ZEXOR DIGITAL STUDIO & FASHION
      Design · Technology · Regional Innovation
 ==================================================
 
@@ -203,29 +203,30 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
         <div className="grid gap-6 md:grid-cols-3">
           {AGENCY_PROJECTS.map((proj) => (
             <motion.article
-              className="group overflow-hidden rounded-3xl border border-white bg-white/85 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white/85 shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
               key={proj.id}
               whileHover={{ y: -4 }}
             >
-              <div className="relative aspect-video w-full overflow-hidden bg-[#e0eee5]">
+              <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-[#e0eee5]">
                 <img
                   alt={proj.title[locale]}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
                   src={publicAssetUrl(proj.image)}
                 />
                 <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-white backdrop-blur-md">
                   {proj.category[locale]}
                 </span>
               </div>
-              <div className="p-5">
-                <h3 className="text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                <p className="mt-2 min-h-10 text-[11px] leading-5 text-[#6d7e74]">{proj.description[locale]}</p>
+              <div className="flex min-h-[250px] flex-col p-4 sm:p-5">
+                <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
+                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6d7e74]">{proj.description[locale]}</p>
 
                 {/* Tech tags */}
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {proj.tags.map((t) => (
                     <span
-                      className="rounded-full bg-[#eef5f1] px-2.5 py-0.5 text-[8px] font-medium text-[#4b6a5a]"
+                      className="rounded-full border border-[#e4ece6] bg-[#f5f8f5] px-2.5 py-1 text-[8px] font-medium text-[#4b6a5a]"
                       key={t}
                     >
                       {t}
@@ -233,9 +234,9 @@ React 19, TypeScript, Vite, Tailwind CSS v4, Next.js, Supabase, Vercel, Node.js
                   ))}
                 </div>
 
-                <div className="mt-5 border-t border-[#edf1ee] pt-3.5">
+                <div className="mt-auto border-t border-[#edf1ee] pt-3.5">
                   <a
-                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white transition-all hover:bg-[#45705e]"
+                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white transition-all hover:bg-[#45705e]"
                     href={proj.demoUrl}
                     rel="noreferrer"
                     target="_blank"

@@ -1519,21 +1519,22 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-3">
                   {AGENCY_PROJECTS.map((proj) => (
                     <TiltCard
-                      className="group overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
                       intensity={8}
                       key={proj.id}
                     >
-                      <div className="relative aspect-video overflow-hidden bg-[#e0eee5]">
-                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={publicAssetUrl(proj.image)} />
+                      <div className="relative aspect-[1.55/1] overflow-hidden bg-[#e0eee5]">
+                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(proj.image)} />
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/35 to-transparent" />
                         <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-2.5 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
                           {proj.category[locale]}
                         </span>
                       </div>
-                      <div className="p-5">
-                        <h3 className="text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                        <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">{proj.description[locale]}</p>
+                      <div className="flex min-h-[190px] flex-col p-4 sm:p-5">
+                        <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
+                        <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6c7d73]">{proj.description[locale]}</p>
                         <a
-                          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-[#436e5d]"
                           href={proj.demoUrl}
                           rel="noreferrer"
                           target="_blank"
@@ -1573,25 +1574,40 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-3">
                   {vehicles.map((car) => (
                     <TiltCard
-                      className="overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
                       intensity={8}
                       key={car.id}
                     >
-                      <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                        <img alt={car.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(car.photo)} />
-                        <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
-                          {car.id}
+                      <div className="relative aspect-[1.42/1] overflow-hidden bg-[#e5eee7]">
+                        <img alt={car.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(car.photo)} />
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/50 to-transparent" />
+                        <span className="absolute start-3 top-3 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">{car.id}</span>
+                        <span className="absolute end-3 top-3 rounded-full border border-white/20 bg-[#173b2d]/85 px-2.5 py-1 text-[9px] font-bold text-white backdrop-blur-md">
+                          {car.deal === 'Rent' ? isArabic ? 'للإيجار' : 'For rent' : isArabic ? 'للبيع' : 'For sale'}
                         </span>
                       </div>
-                      <div className="p-5">
-                        <h3 className="text-sm font-bold text-[#2e4437]">{car.title[locale]}</h3>
-                        <p className="mt-1 text-[10px] text-[#718478]">{car.location[locale]}</p>
-                        <p className="mt-3 text-base font-extrabold text-[#2d4838]">
-                          {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                          {car.deal === 'Rent' && <span className="ms-1 text-[10px] font-semibold text-[#718478]">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
-                        </p>
+                      <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="line-clamp-1 text-sm font-bold text-[#2e4437]">{car.title[locale]}</h3>
+                          <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">{car.make}</span>
+                        </div>
+                        <p className="mt-1.5 line-clamp-1 text-[10px] text-[#718478]">{car.location[locale]}</p>
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {[String(car.year), car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : (isArabic ? 'مانيوال' : 'Manual'), car.body].map((spec) => (
+                            <span className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]" key={spec}>
+                              {isArabic ? ({ Sedan: 'سيدان', SUV: 'دفع رباعي', Coupe: 'كوبيه' } as Record<string, string>)[spec] ?? spec : spec}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="mt-4 border-t border-[#edf1ee] pt-3">
+                          <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                          <p className="zx-display mt-1 text-lg text-[#2d4838]">
+                            {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
+                            {car.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-[#718478]">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
+                          </p>
+                        </div>
                         <button
-                          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] text-xs font-semibold text-white transition hover:bg-[#436e5d]"
                           onClick={() => {
                             const msg = isArabic
                               ? `${car.deal === 'Rent' ? 'طلب استئجار' : 'طلب حجز معاينة للسيارة'} ${car.id}: ${car.title.ar}`
@@ -1635,12 +1651,13 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-3">
                   {properties.map((prop) => (
                     <TiltCard
-                      className="overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
                       intensity={8}
                       key={prop.id}
                     >
-                      <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
-                        <img alt={prop.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(prop.photo)} />
+                      <div className="relative aspect-[1.42/1] overflow-hidden bg-[#e5eee7]">
+                        <img alt={prop.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(prop.photo)} />
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/50 to-transparent" />
                         <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
                           {prop.id}
                         </span>
@@ -1648,14 +1665,28 @@ export default function App() {
                           {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
                         </span>
                       </div>
-                      <div className="p-5">
-                        <h3 className="text-sm font-bold text-[#2e4437]">{prop.title[locale]}</h3>
-                        <p className="mt-1 text-[10px] text-[#718478]">{prop.location[locale]}</p>
-                        <p className="mt-3 text-base font-extrabold text-[#2d4838]">
-                          {money(prop.price, market, locale)}
-                        </p>
+                      <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-[#2e4437]">{prop.title[locale]}</h3>
+                          <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">
+                            {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
+                          </span>
+                        </div>
+                        <p className="mt-1.5 line-clamp-1 text-[10px] text-[#718478]">{prop.location[locale]}</p>
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {[`${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`, prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''].filter(Boolean).map((spec) => (
+                            <span className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]" key={spec}>{spec}</span>
+                          ))}
+                        </div>
+                        <div className="mt-4 border-t border-[#edf1ee] pt-3">
+                          <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                          <p className="zx-display mt-1 text-lg text-[#2d4838]">
+                            {money(prop.price, prop.region === 'Riyadh' || prop.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
+                          {prop.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-[#718478]">{isArabic ? 'إيجار' : 'rent'}</span>}
+                          </p>
+                        </div>
                         <button
-                          className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] text-xs font-semibold text-white transition hover:bg-[#436e5d]"
                           onClick={() => navigate('property')}
                           type="button"
                         >
