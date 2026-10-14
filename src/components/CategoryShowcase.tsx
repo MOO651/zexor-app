@@ -56,8 +56,8 @@ function PortalGate({
   const sx = useSpring(px, { stiffness: 130, damping: 20 });
   const sy = useSpring(py, { stiffness: 130, damping: 20 });
 
-  const rotateY = useTransform(sx, [0, 1], [-11, 11]);
-  const rotateX = useTransform(sy, [0, 1], [9, -9]);
+  const rotateY = useTransform(sx, [0, 1], [-4, 4]);
+  const rotateX = useTransform(sy, [0, 1], [3, -3]);
   const glareX = useTransform(sx, [0, 1], ['16%', '84%']);
   const glareY = useTransform(sy, [0, 1], ['10%', '90%']);
   // A template keeps the highlight bound to the live springs — reading glareX/Y
@@ -79,7 +79,7 @@ function PortalGate({
   return (
     <motion.button
       aria-label={`${title} — ${portal.tagline[locale]}`}
-      className="zx-portal group relative w-full text-start shadow-[0_36px_80px_-42px_rgba(6,16,11,.85)]"
+      className="zx-portal group relative w-full text-start shadow-[0_24px_54px_-38px_rgba(6,16,11,.72)]"
       initial={reduce ? undefined : { opacity: 0, y: 30, scale: 0.97 }}
       onPointerLeave={reset}
       onPointerMove={handleMove}
@@ -152,7 +152,7 @@ function PortalGate({
             {portal.meta[locale]}
           </span>
           <span className={`zx-display mt-1.5 block text-white ${wide ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'}`}>
-            {portal.title[locale]}
+            {title}
           </span>
           <span className="mt-1.5 block max-w-md text-[11px] leading-5 text-white/72">
             {portal.tagline[locale]}

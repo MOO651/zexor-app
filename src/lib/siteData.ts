@@ -248,6 +248,30 @@ export async function clearAdminOrders(): Promise<boolean> {
   }
 }
 
+/** Updates only the protected payload for an existing admin order. */
+export async function saveAdminOrder(order: CustomerOrder): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.from('store_orders')
+      .update({ payload: order })
+      .eq('id', order.id)
+      .select('id')
+      .maybeSingle();
+    return !error && data?.id === order.id;
+  } catch {
+    return false;
+  }
+}
+
+/** Permanently deletes one order; the dashboard asks for confirmation first. */
+export async function deleteAdminOrder(id: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.from('store_orders').delete().eq('id', id).select('id').maybeSingle();
+    return !error && data?.id === id;
+  } catch {
+    return false;
+  }
+}
+
 export async function createCloudInquiry(inquiry: PlatformInquiry): Promise<boolean> {
   try {
     const { error } = await supabase.rpc('create_store_inquiry', { inquiry_payload: inquiry });

@@ -15,6 +15,7 @@ import {
   Truck,
 } from 'lucide-react';
 import type { DynamicCategory, Locale, Market, Route } from '../types';
+import { publicAssetUrl } from '../utils';
 
 type Common = { locale: Locale; isArabic: boolean };
 
@@ -286,11 +287,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         {/* Brand */}
         <div>
-          <span className="text-[15px] font-bold tracking-[0.22em] text-[#34483e]">ZEXOR</span>
+          <div className="flex items-center gap-2.5">
+            {settings.brand.logoUrl && <img alt="" aria-hidden="true" className="h-9 w-9 rounded-xl border border-[#e2ebe5] bg-white object-contain p-1" src={publicAssetUrl(settings.brand.logoUrl)} />}
+            <span className="text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{settings.brand.name}</span>
+          </div>
           <p className="mt-3 max-w-xs text-xs leading-6 text-[#6c7d73]">
             {isArabic
-              ? 'علامة متصلة تجمع بطاقات الهوية الذكية، الأزياء، الاستوديو الرقمي، والسيارات والعقارات في تجربة واحدة.'
-              : 'A connected brand blending smart identity cards, streetwear, a digital studio, vehicles and real estate in one experience.'}
+              ? `${settings.brand.name} — كروت ذكية وأزياء وخدمات رقمية، بتجربة واحدة واضحة.`
+              : `${settings.brand.name} brings smart identity, considered apparel and digital services together in one place.`}
           </p>
           <div className="mt-4 flex items-center gap-2">
             <a

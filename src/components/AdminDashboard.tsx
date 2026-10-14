@@ -1,5 +1,7 @@
 import { Fragment, useState, useRef } from 'react';
 import {
+  Archive,
+  ArchiveRestore,
   BarChart3,
   CarFront,
   Boxes,
@@ -81,6 +83,8 @@ type Props = {
   onDeleteInquiry: (id: string) => Promise<boolean>;
   onClearInquiries: () => Promise<boolean>;
   onClearOrders: () => Promise<boolean>;
+  onSaveOrder: (order: CustomerOrder) => Promise<boolean>;
+  onDeleteOrder: (id: string) => Promise<boolean>;
   onSetProductStock: (productId: string, stock: number | null) => Promise<boolean>;
   onUpdateOrderStatus: (orderId: string, status: CustomerOrder['status']) => Promise<boolean>;
   onUpdateOrderShipping: (orderId: string, details: Pick<CustomerOrder, 'shippingCarrier' | 'trackingNumber' | 'trackingUrl'>) => Promise<boolean>;
@@ -116,6 +120,8 @@ export function AdminDashboard({
   onDeleteInquiry,
   onClearInquiries,
   onClearOrders,
+  onSaveOrder,
+  onDeleteOrder,
   onSetProductStock,
   onUpdateOrderStatus,
   onUpdateOrderShipping,
@@ -153,9 +159,11 @@ export function AdminDashboard({
 
   // Backup restore picker — a hidden file input opened by the "Restore" button.
   const importInputRef = useRef<HTMLInputElement>(null);
+  const brandLogoInputRef = useRef<HTMLInputElement>(null);
 
   // Search & Filter in Admin
   const [orderSearch, setOrderSearch] = useState('');
+  const [orderArchiveView, setOrderArchiveView] = useState<'active' | 'archived'>('active');
   const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | CustomerOrder['status']>('all');
   const [orderMarketFilter, setOrderMarketFilter] = useState<'all' | Market>('all');
   const [orderDetailsId, setOrderDetailsId] = useState<string | null>(null);
@@ -585,6 +593,37 @@ export function AdminDashboard({
     onToast(isArabic ? `تم تعديل حالة الطلب إلى: ${status}` : `Order status updated to: ${status}`);
   };
 
+  const handleArchiveOrder = async (order: CustomerOrder) => {
+    const archived = !order.archived;
+    const updatedOrder: CustomerOrder = {
+      ...order,
+      archived,
+      archivedAt: archived ? new Date().toISOString() : undefined,
+    };
+    if (!await onSaveOrder(updatedOrder)) {
+      onToast(isArabic ? 'تعذرت أرشفة الطلب في قاعدة البيانات.' : 'Could not update this order in the database.');
+      return;
+    }
+    setOrders((current) => current.map((item) => item.id === order.id ? updatedOrder : item));
+    onToast(archived
+      ? isArabic ? 'تم نقل الطلب إلى الأرشيف.' : 'Order moved to the archive.'
+      : isArabic ? 'تمت استعادة الطلب من الأرشيف.' : 'Order restored from the archive.');
+  };
+
+  const handleDeleteOrder = async (order: CustomerOrder) => {
+    const confirmed = window.confirm(isArabic
+      ? `حذف الطلب ${order.id} نهائيًا؟ لا يمكن التراجع. لو عايز تحتفظ بسجله استخدم الأرشيف.`
+      : `Permanently delete order ${order.id}? This cannot be undone. Archive it to keep its history.`);
+    if (!confirmed) return;
+    if (!await onDeleteOrder(order.id)) {
+      onToast(isArabic ? 'تعذر حذف الطلب من قاعدة البيانات.' : 'Could not delete this order from the database.');
+      return;
+    }
+    setOrders((current) => current.filter((item) => item.id !== order.id));
+    if (orderDetailsId === order.id) setOrderDetailsId(null);
+    onToast(isArabic ? 'تم حذف الطلب نهائيًا.' : 'Order permanently deleted.');
+  };
+
   const handleSaveShipping = async (order: CustomerOrder) => {
     const details = shippingDrafts[order.id] ?? {
       shippingCarrier: order.shippingCarrier ?? '',
@@ -800,6 +839,7 @@ export function AdminDashboard({
   };
 
   const filteredOrders = orders.filter((o) => {
+    if (Boolean(o.archived) !== (orderArchiveView === 'archived')) return false;
     if (orderMarketFilter !== 'all' && o.market !== orderMarketFilter) return false;
     if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) return false;
     if (orderSearch && !`${o.id} ${o.customer} ${o.phone}`.toLowerCase().includes(orderSearch.toLowerCase())) return false;
@@ -862,7 +902,7 @@ export function AdminDashboard({
   const bestSellers = [...topProducts.entries()].sort((a, b) => b[1].quantity - a[1].quantity).slice(0, 5);
 
   return (
-    <div className="space-y-8">
+    <div className="zx-admin space-y-8">
       {/* Top Bar */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
@@ -871,7 +911,7 @@ export function AdminDashboard({
             {isArabic ? 'لوحة التحكم وإدارة النظام المتكاملة' : 'Admin Operations & Settings Control'}
           </span>
           <h1 className="mt-1 text-2xl font-bold text-[#2d4236] sm:text-3xl">
-            {isArabic ? 'إدارة ZEXOR الشاملة (بدون تعديل كود)' : 'Fully Dynamic ZEXOR Control Center'}
+            {isArabic ? `إدارة ${settings.brand.name} الشاملة` : `Fully Dynamic ${settings.brand.name} Control Center`}
           </h1>
         </div>
 
@@ -1969,6 +2009,24 @@ export function AdminDashboard({
             </div>
 
             <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1 rounded-xl bg-[#f2f6f3] p-1">
+                <button
+                  aria-pressed={orderArchiveView === 'active'}
+                  className={`rounded-lg px-3 py-2 text-[10px] font-semibold transition ${orderArchiveView === 'active' ? 'bg-white text-[#294638] shadow-sm' : 'text-[#718278]'}`}
+                  onClick={() => setOrderArchiveView('active')}
+                  type="button"
+                >
+                  {isArabic ? `الطلبات (${orders.filter((order) => !order.archived).length})` : `Orders (${orders.filter((order) => !order.archived).length})`}
+                </button>
+                <button
+                  aria-pressed={orderArchiveView === 'archived'}
+                  className={`rounded-lg px-3 py-2 text-[10px] font-semibold transition ${orderArchiveView === 'archived' ? 'bg-white text-[#294638] shadow-sm' : 'text-[#718278]'}`}
+                  onClick={() => setOrderArchiveView('archived')}
+                  type="button"
+                >
+                  {isArabic ? `الأرشيف (${orders.filter((order) => order.archived).length})` : `Archive (${orders.filter((order) => order.archived).length})`}
+                </button>
+              </div>
               <button className="flex h-9 items-center gap-1.5 rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs font-semibold text-[#3b5949]" onClick={handleExportOrdersCsv} type="button"><Download className="h-3.5 w-3.5" />{isArabic ? 'تصدير CSV' : 'Export CSV'}</button>
               <div className="flex items-center gap-1.5 rounded-xl border border-[#dfe8e2] bg-white px-3 py-1 text-xs">
                 <Search className="h-3.5 w-3.5 text-[#72857a]" />
@@ -2003,7 +2061,7 @@ export function AdminDashboard({
           </div>
 
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full text-start text-xs text-[#3a5244]">
+            <table className="w-full min-w-[760px] text-start text-xs text-[#3a5244]">
               <thead>
                 <tr className="border-b border-[#edf1ee] text-[9px] uppercase tracking-wider text-[#7e9085]">
                   <th className="py-2 text-start">{isArabic ? 'رقم الطلب' : 'Order ID'}</th>
@@ -2054,6 +2112,22 @@ export function AdminDashboard({
                           <option value="cancelled">{isArabic ? 'ملغي' : 'Cancelled'}</option>
                         </select>
                         <button className="rounded-lg border border-[#dfe8e2] px-2 py-1 text-[9px]" onClick={() => setOrderDetailsId((current) => current === order.id ? null : order.id)} type="button">{orderDetailsId === order.id ? (isArabic ? 'إخفاء' : 'Hide') : (isArabic ? 'تفاصيل' : 'Details')}</button>
+                        <button
+                          aria-label={order.archived ? (isArabic ? 'استعادة الطلب' : 'Restore order') : (isArabic ? 'أرشفة الطلب' : 'Archive order')}
+                          className="rounded-lg border border-[#dfe8e2] p-1.5 text-[#496d58] transition hover:bg-[#edf5f0]"
+                          onClick={() => void handleArchiveOrder(order)}
+                          title={order.archived ? (isArabic ? 'استعادة من الأرشيف' : 'Restore from archive') : (isArabic ? 'نقل إلى الأرشيف' : 'Move to archive')}
+                          type="button"
+                        >
+                          {order.archived ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
+                        </button>
+                        <button
+                          aria-label={isArabic ? 'حذف الطلب نهائيًا' : 'Permanently delete order'}
+                          className="rounded-lg border border-[#f0d9d5] p-1.5 text-[#ad5e51] transition hover:bg-[#fff2ef]"
+                          onClick={() => void handleDeleteOrder(order)}
+                          title={isArabic ? 'حذف نهائي' : 'Delete permanently'}
+                          type="button"
+                        ><Trash2 className="h-3.5 w-3.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -2091,6 +2165,13 @@ export function AdminDashboard({
                 ))}
               </tbody>
             </table>
+            {filteredOrders.length === 0 && (
+              <p className="border-t border-[#edf1ee] px-4 py-12 text-center text-xs text-[#829288]">
+                {orderArchiveView === 'archived'
+                  ? isArabic ? 'الأرشيف فارغ حاليًا.' : 'The archive is empty.'
+                  : isArabic ? 'لا توجد طلبات مطابقة للفلاتر.' : 'No orders match these filters.'}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -2312,6 +2393,59 @@ export function AdminDashboard({
               ? 'غيّر ألوان العلامة ونصف القطر وحجم الخط وشاهد النتيجة على الموقع مباشرة.'
               : 'Change brand colours, corner radius and font scale — applied live across the site.'}
           </p>
+
+          <div className="mt-5 grid gap-4 rounded-2xl border border-[#e7efe9] bg-[#fbfdfa] p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <label className="block text-[10px] font-semibold text-[#486b59]">
+              {isArabic ? 'اسم المتجر الظاهر' : 'Store name'}
+              <input
+                className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-sm font-semibold text-[#2e4537] outline-none"
+                maxLength={32}
+                onChange={(event) => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, name: event.target.value } }))}
+                placeholder="ZEXOR"
+                value={settings.brand.name}
+              />
+            </label>
+            <label className="block text-[10px] font-semibold text-[#486b59]">
+              {isArabic ? 'رابط صورة الشعار (اختياري)' : 'Logo image URL (optional)'}
+              <input
+                className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2e4537] outline-none"
+                dir="ltr"
+                onChange={(event) => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: event.target.value } }))}
+                placeholder="https://… or /images/logo.png"
+                value={settings.brand.logoUrl}
+              />
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 1024 * 1024) {
+                    onToast(isArabic ? 'حجم الشعار يجب ألا يتجاوز ١ ميجابايت.' : 'Logo image must be 1 MB or smaller.');
+                    event.target.value = '';
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    if (typeof reader.result === 'string') {
+                      setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: reader.result as string } }));
+                      onToast(isArabic ? 'تم تحديث الشعار.' : 'Logo updated.');
+                    }
+                  };
+                  reader.readAsDataURL(file);
+                  event.target.value = '';
+                }}
+                ref={brandLogoInputRef}
+                type="file"
+              />
+              <button className="flex h-10 items-center gap-2 rounded-xl border border-[#dfe8e2] bg-white px-3 text-[10px] font-semibold text-[#3b5949]" onClick={() => brandLogoInputRef.current?.click()} type="button">
+                <UploadCloud className="h-4 w-4" />{isArabic ? 'رفع الشعار' : 'Upload logo'}
+              </button>
+              {settings.brand.logoUrl && <img alt={isArabic ? 'معاينة الشعار' : 'Logo preview'} className="h-10 w-10 rounded-xl border border-[#e7efe9] bg-white object-contain p-1" src={settings.brand.logoUrl.startsWith('data:') ? settings.brand.logoUrl : publicAssetUrl(settings.brand.logoUrl)} />}
+            </div>
+          </div>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-3">
             {([

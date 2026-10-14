@@ -85,6 +85,9 @@ export type CustomerOrder = {
   paymentMethod: string;
   paymentMethodKey?: string;
   paymentStatus?: 'unpaid' | 'pending' | 'paid' | 'failed' | 'refunded';
+  /** Orders can be archived without losing their customer or fulfillment history. */
+  archived?: boolean;
+  archivedAt?: string;
   shippingCarrier?: string;
   trackingNumber?: string;
   trackingUrl?: string;
@@ -256,6 +259,8 @@ export type SiteSettings = {
    * <html> so the whole site restyles without touching Tailwind classes.
    */
   brand: {
+    name: string;
+    logoUrl: string;
     primary: string; // buttons, active pills, primary surfaces
     accent: string; // highlights, glows, badge accents
     ink: string; // headline / body ink

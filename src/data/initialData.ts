@@ -360,11 +360,11 @@ export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  heroTitle: { en: 'Where identity becomes', ar: 'حيث تصبح الهوية' },
-  heroAccent: { en: 'an experience.', ar: 'تجربة تُعاش.' },
+  heroTitle: { en: 'Make every detail', ar: 'تصميم يليق' },
+  heroAccent: { en: 'feel considered.', ar: 'بكل تفصيلة.' },
   heroText: {
-    en: 'One house for smart NFC identity, considered streetwear, a full digital studio, and curated vehicles and real estate across Egypt and Saudi Arabia.',
-    ar: 'بيت واحد لهوية NFC الذكية، وأزياء مدروسة، واستوديو رقمي متكامل، وسيارات وعقارات مختارة بعناية في مصر والسعودية.',
+    en: 'Shop smart NFC identity and considered essentials, or work with our digital studio. Serving Egypt and Saudi Arabia.',
+    ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع الاستوديو الرقمي. نخدم مصر والسعودية.',
   },
   heroImage: '',
   whatsappEg: '201005556553',
@@ -381,8 +381,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   vodafoneCashNumber: '',
   vodafoneCashName: '',
   announcementText: {
-    en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free delivery above the order threshold',
-    ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+    en: '15% off NFC cards and selected apparel with code ZEXOR15 · Free delivery on qualifying orders',
+    ar: 'خصم ١٥٪ على كروت NFC وبعض قطع الأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
   },
   announcementActive: true,
   discountBanner: {
@@ -422,6 +422,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     tracking: true,
   },
   brand: {
+    name: 'ZEXOR',
+    logoUrl: '',
     primary: '#1f6b52',
     accent: '#77cdb5',
     ink: '#14241d',

@@ -70,6 +70,7 @@ export function TiltCard({
 
 type Props = {
   locale: Locale;
+  brandName: string;
   market: Market;
   onMarketChange: (m: Market) => void;
   navigate: (r: Route) => void;
@@ -90,6 +91,7 @@ const HERO_TICKER: Record<Locale, string[]> = {
 
 export function HomeHero({
   locale,
+  brandName,
   market,
   onMarketChange,
   navigate,
@@ -133,7 +135,7 @@ export function HomeHero({
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[2.5rem] border border-white/90 bg-[#f9f8f3] text-[#222923] shadow-xl sm:rounded-[3rem]">
+    <section className="relative overflow-hidden rounded-[2rem] border border-white/90 bg-[#f6f7f3] text-[#222923] shadow-lg sm:rounded-[2.5rem]">
       {/* Optional admin-uploaded hero backdrop, dimmed with a light veil so the
           headline and CTA stay legible in both languages. */}
       {heroImage && (
@@ -155,14 +157,14 @@ export function HomeHero({
       />
 
       <div
-        className="relative flex min-h-[82vh] flex-col justify-between p-6 sm:p-10 lg:p-12"
+        className="relative flex min-h-[68vh] flex-col justify-between p-6 sm:p-10 lg:p-12"
         onPointerLeave={resetPointer}
         onPointerMove={handlePointerMove}
       >
         {/* Top Tagline */}
         <div className="relative z-20 flex items-center justify-between gap-3">
           <p className="text-[9px] font-bold tracking-[0.24em] text-[#69746c] sm:text-[10px]">
-            ZEXOR · CONNECTED IDENTITY · FASHION · STUDIO
+            {brandName} · {isArabic ? 'هوية متصلة · أزياء · استوديو' : 'CONNECTED IDENTITY · FASHION · STUDIO'}
           </p>
           <div className="flex items-center gap-2">
             <button

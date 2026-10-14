@@ -370,6 +370,7 @@ textarea:focus-visible {
 /* Product card: a restrained lift + warmer shadow on hover so the whole grid
    feels like a curated storefront rather than a list of boxes. */
 .zx-product {
+  border-radius: var(--zx-radius, 1.75rem);
   transition:
     transform var(--zx-slow) var(--zx-ease),
     box-shadow var(--zx-slow) var(--zx-ease),
@@ -380,6 +381,52 @@ textarea:focus-visible {
   transform: translateY(-4px);
   box-shadow: 0 18px 40px -18px rgba(28, 47, 37, 0.28);
   border-color: rgba(78, 142, 111, 0.35);
+}
+
+/* A shared visual system for the admin workspace: consistent surfaces, fields,
+   and spacing across the many management screens. */
+.zx-admin {
+  --zx-admin-border: rgba(53, 97, 74, 0.13);
+  --zx-admin-shadow: 0 12px 32px -24px rgba(27, 49, 37, 0.34);
+}
+
+.zx-portal,
+.zx-market-card,
+.zx-showcase-card,
+.zx-tile {
+  border-radius: var(--zx-radius, 1.75rem);
+}
+
+.zx-admin [class*="rounded-3xl"][class*="bg-white"] {
+  border-color: var(--zx-admin-border);
+  box-shadow: var(--zx-admin-shadow);
+}
+
+.zx-admin :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+  border-color: var(--zx-admin-border);
+  border-radius: 0.85rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.zx-admin :is(input, select, textarea):focus-visible {
+  border-color: var(--zx-jade-bright);
+  box-shadow: 0 0 0 3px rgba(78, 142, 111, 0.13);
+}
+
+.zx-admin table thead {
+  background: color-mix(in srgb, var(--c-surface-2) 76%, transparent);
+}
+
+[data-theme="dark"] .zx-admin {
+  --zx-admin-border: rgba(214, 233, 222, 0.12);
+  --zx-admin-shadow: 0 16px 36px -26px rgba(0, 0, 0, 0.72);
+}
+
+[data-theme="dark"] .zx-admin [class*="bg-[#f"],
+[data-theme="dark"] .zx-admin [class*="bg-[#e"],
+[data-theme="dark"] .zx-admin [class*="bg-[#d"] {
+  background-color: var(--c-surface-2) !important;
+  color: var(--c-ink) !important;
 }
 
 .zx-market-card,

@@ -72,6 +72,7 @@ import {
   blankSocialLink,
   clearAdminInquiries,
   clearAdminOrders,
+  deleteAdminOrder,
   createCloudOrder,
   createPaymobCheckout,
   deleteAdminInquiry,
@@ -87,6 +88,7 @@ import {
   savePaymentMethod,
   saveAdminOrders,
   saveAdminInquiries,
+  saveAdminOrder,
   savePrivateSiteSecrets,
   saveSiteSettings,
   saveStoreContent,
@@ -297,19 +299,23 @@ function RouteFallback({ label }: { label: string }) {
   );
 }
 
-function LogoMark({ compact = false }: { compact?: boolean }) {
+function LogoMark({ compact = false, logoUrl = '' }: { compact?: boolean; logoUrl?: string }) {
   return (
     <span
       className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-[1.15rem] border border-white/80 bg-linear-to-br from-[#f5ffff] via-[#e5f8f3] to-[#f1eaff] shadow-md ${
         compact ? 'h-9 w-9 rounded-xl' : 'h-12 w-12'
       }`}
     >
-      <svg aria-hidden="true" className="relative z-10 h-[76%] w-[76%]" fill="none" viewBox="0 0 48 48">
-        <path d="M12 14.5h24L12 33.5h24" stroke="#344F47" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5.5" />
-        <path d="M35.5 11.5a17 17 0 0 1 3.7 5.2M12.1 36.5a17 17 0 0 1-3.4-5.1" stroke="#77CDB5" strokeLinecap="round" strokeWidth="2.5" />
-        <circle cx="36" cy="12" r="3" fill="#A986E8" />
-        <circle cx="12" cy="36" r="2.2" fill="#E6A68E" />
-      </svg>
+      {logoUrl ? (
+        <img alt="" aria-hidden="true" className="relative z-10 h-full w-full object-contain p-1" src={publicAssetUrl(logoUrl)} />
+      ) : (
+        <svg aria-hidden="true" className="relative z-10 h-[76%] w-[76%]" fill="none" viewBox="0 0 48 48">
+          <path d="M12 14.5h24L12 33.5h24" stroke="#344F47" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5.5" />
+          <path d="M35.5 11.5a17 17 0 0 1 3.7 5.2M12.1 36.5a17 17 0 0 1-3.4-5.1" stroke="#77CDB5" strokeLinecap="round" strokeWidth="2.5" />
+          <circle cx="36" cy="12" r="3" fill="#A986E8" />
+          <circle cx="12" cy="36" r="2.2" fill="#E6A68E" />
+        </svg>
+      )}
       <span aria-hidden="true" className="absolute -right-2 -top-3 h-8 w-8 rounded-full bg-white/75 blur-md" />
     </span>
   );
@@ -809,6 +815,17 @@ export default function App() {
     return cleared;
   }, []);
 
+  const handleSaveCloudOrder = useCallback(async (order: CustomerOrder) => {
+    if (!isSupabaseConfigured) return true;
+    return saveAdminOrder(order);
+  }, []);
+
+  const handleDeleteCloudOrder = useCallback(async (id: string) => {
+    const deleted = !isSupabaseConfigured || await deleteAdminOrder(id);
+    if (deleted) cloudOrderIds.current.delete(id);
+    return deleted;
+  }, []);
+
   const handleSetCloudProductStock = useCallback(async (productId: string, stock: number | null) => {
     if (!isSupabaseConfigured) return true;
     const saved = await setCloudProductStock(productId, stock);
@@ -890,11 +907,11 @@ export default function App() {
       dashboard: { ar: 'إدارة المتجر', en: 'Store Admin' },
     };
     const pageName = routeLabels[String(route)]?.[locale] ?? routeLabels.home[locale];
-    const title = `${pageName} | ZEXOR`;
+    const title = `${pageName} | ${resolvedSettings.brand.name}`;
     document.title = title;
     const description = locale === 'ar'
-      ? `${pageName} من ZEXOR — بطاقات NFC، أزياء، وخدمات رقمية في مصر والسعودية.`
-      : `${pageName} at ZEXOR — NFC cards, fashion and digital services in Egypt and Saudi Arabia.`;
+      ? `${pageName} من ${resolvedSettings.brand.name} — بطاقات NFC، أزياء، وخدمات رقمية في مصر والسعودية.`
+      : `${pageName} at ${resolvedSettings.brand.name} — NFC cards, fashion and digital services in Egypt and Saudi Arabia.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', description);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
@@ -905,7 +922,7 @@ export default function App() {
     } catch {
       // ignore
     }
-  }, [categories, dir, locale, route, theme]);
+  }, [categories, dir, locale, resolvedSettings.brand.name, route, theme]);
 
   // Paint the admin-controlled brand tokens onto <html> as CSS variables. The
   // storefront's primary/accent surfaces read these, so a colour change in the
@@ -919,6 +936,15 @@ export default function App() {
     root.style.setProperty('--zx-radius', `${brand.radius}rem`);
     root.style.fontSize = `${brand.fontScale * 100}%`;
   }, [resolvedSettings]);
+
+  useEffect(() => {
+    const icon = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');
+    if (!icon) return;
+    icon.dataset.defaultHref ??= icon.href;
+    icon.href = resolvedSettings.brand.logoUrl
+      ? publicAssetUrl(resolvedSettings.brand.logoUrl) ?? icon.dataset.defaultHref
+      : icon.dataset.defaultHref;
+  }, [resolvedSettings.brand.logoUrl]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -1188,8 +1214,8 @@ export default function App() {
             onClick={() => navigate('home')}
             type="button"
           >
-            <LogoMark compact />
-            <span className="text-[15px] font-bold tracking-[0.22em] text-[#34483e]">ZEXOR</span>
+            <LogoMark compact logoUrl={resolvedSettings.brand.logoUrl} />
+            <span className="text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{resolvedSettings.brand.name}</span>
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}
@@ -1415,6 +1441,7 @@ export default function App() {
           <div className="space-y-20">
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
+              brandName={resolvedSettings.brand.name}
               departmentCount={activeDepartmentCount}
               departmentNames={{
                 cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
@@ -2145,6 +2172,8 @@ Details: ${details}`;
                 navigate('home');
               }}
               onDeleteInquiry={handleDeleteCloudInquiry}
+              onDeleteOrder={handleDeleteCloudOrder}
+              onSaveOrder={handleSaveCloudOrder}
               onClearInquiries={handleClearCloudInquiries}
               onClearOrders={handleClearCloudOrders}
               onSetProductStock={handleSetCloudProductStock}
