@@ -347,6 +347,9 @@ export default function App() {
   const [vehicles, setVehicles] = useStoredState<Vehicle[]>('zexor-vehicles-v3', INITIAL_VEHICLES, isValidObjectArray);
   const [properties, setProperties] = useStoredState<Property[]>('zexor-properties-v3', INITIAL_PROPERTIES, isValidObjectArray);
   const [settings, setSettings] = useStoredState<SiteSettings>(STORAGE.settings, DEFAULT_SETTINGS, isValidObject);
+  const storeContentSnapshot = useRef({ products, categories, vehicles, properties, promoCodes });
+  storeContentSnapshot.current = { products, categories, vehicles, properties, promoCodes };
+  const syncedStoreContent = useRef<Record<StoreContentKey, string> | null>(null);
   useEffect(() => {
     setCategories((current) => normalizeCategories(current));
     setProducts((current) => normalizeStarterProductImages(current));
@@ -437,11 +440,33 @@ export default function App() {
     void Promise.all(keys.map((key) => fetchStoreContent<unknown>(key))).then((values) => {
       if (!active) return;
       const [remoteProducts, remoteCategories, remoteVehicles, remoteProperties, remotePromos] = values;
-      if (isValidObjectArray(remoteProducts)) setProducts(normalizeStarterProductImages(remoteProducts as Product[]));
-      if (isValidObjectArray(remoteCategories)) setCategories(normalizeCategories(remoteCategories as DynamicCategory[]));
-      if (isValidObjectArray(remoteVehicles)) setVehicles(normalizeStarterVehicles(remoteVehicles as Vehicle[]));
-      if (isValidObjectArray(remoteProperties)) setProperties(remoteProperties as Property[]);
-      if (isValidObjectArray(remotePromos)) setPromoCodes(remotePromos as PromoCode[]);
+      const loadedProducts = isValidObjectArray(remoteProducts)
+        ? normalizeStarterProductImages(remoteProducts as Product[])
+        : storeContentSnapshot.current.products;
+      const loadedCategories = isValidObjectArray(remoteCategories)
+        ? normalizeCategories(remoteCategories as DynamicCategory[])
+        : storeContentSnapshot.current.categories;
+      const loadedVehicles = isValidObjectArray(remoteVehicles)
+        ? normalizeStarterVehicles(remoteVehicles as Vehicle[])
+        : storeContentSnapshot.current.vehicles;
+      const loadedProperties = isValidObjectArray(remoteProperties)
+        ? remoteProperties as Property[]
+        : storeContentSnapshot.current.properties;
+      const loadedPromos = isValidObjectArray(remotePromos)
+        ? remotePromos as PromoCode[]
+        : storeContentSnapshot.current.promoCodes;
+      syncedStoreContent.current = {
+        products: JSON.stringify(loadedProducts),
+        categories: JSON.stringify(loadedCategories),
+        vehicles: JSON.stringify(loadedVehicles),
+        properties: JSON.stringify(loadedProperties),
+        promo_codes: JSON.stringify(loadedPromos),
+      };
+      if (isValidObjectArray(remoteProducts)) setProducts(loadedProducts);
+      if (isValidObjectArray(remoteCategories)) setCategories(loadedCategories);
+      if (isValidObjectArray(remoteVehicles)) setVehicles(loadedVehicles);
+      if (isValidObjectArray(remoteProperties)) setProperties(loadedProperties);
+      if (isValidObjectArray(remotePromos)) setPromoCodes(loadedPromos);
       setStoreContentLoaded(true);
     });
     return () => { active = false; };
@@ -599,7 +624,7 @@ export default function App() {
   }, [settings, settingsLoaded, adminAuthenticated, isArabic, reportCloudSave]);
 
   useEffect(() => {
-    if (!storeContentLoaded || !adminAuthenticated) return;
+    if (!storeContentLoaded || !adminAuthenticated || !syncedStoreContent.current) return;
     const timer = window.setTimeout(() => {
       const documents: [StoreContentKey, unknown, string, string][] = [
         ['products', products, 'المنتجات', 'products'],
@@ -608,12 +633,22 @@ export default function App() {
         ['properties', properties, 'العقارات', 'properties'],
         ['promo_codes', promoCodes, 'أكواد الخصم', 'promo codes'],
       ];
-      void Promise.all(documents.map(async ([key, value, labelAr, labelEn]) => ({
+      const changedDocuments = documents.filter(([key, value]) =>
+        JSON.stringify(value) !== syncedStoreContent.current?.[key],
+      );
+      if (!changedDocuments.length) return;
+      void Promise.all(changedDocuments.map(async ([key, value, labelAr, labelEn]) => ({
         key,
+        value,
         label: isArabic ? labelAr : labelEn,
         saved: await saveStoreContent(key, value),
       }))).then((results) => {
         const failed = results.filter((result) => !result.saved);
+        for (const result of results) {
+          if (result.saved && syncedStoreContent.current) {
+            syncedStoreContent.current[result.key] = JSON.stringify(result.value);
+          }
+        }
         if (failed.length) {
           console.error('ZEXOR store content sync failed:', failed.map(({ key }) => key));
         }
