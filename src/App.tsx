@@ -1439,7 +1439,7 @@ export default function App() {
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
         <Suspense fallback={<RouteFallback label={isArabic ? 'جارٍ التحميل…' : 'Loading…'} />}>
         {route === 'home' && (
-          <div className="space-y-20">
+          <div className="zx-home-flow space-y-20">
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
               brandName={resolvedSettings.brand.name}

@@ -135,7 +135,7 @@ export function HomeHero({
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-white/90 bg-[#f6f7f3] text-[#222923] shadow-lg sm:rounded-[2.5rem]">
+    <section className="zx-home-hero relative overflow-hidden rounded-[2rem] border text-[#222923] sm:rounded-[2.5rem]">
       {/* Optional admin-uploaded hero backdrop, dimmed with a light veil so the
           headline and CTA stay legible in both languages. */}
       {heroImage && (
@@ -157,13 +157,13 @@ export function HomeHero({
       />
 
       <div
-        className="relative flex min-h-[68vh] flex-col justify-between p-6 sm:p-10 lg:p-12"
+        className="zx-hero-inner relative flex min-h-[68vh] flex-col justify-between p-5 sm:p-9 lg:p-12"
         onPointerLeave={resetPointer}
         onPointerMove={handlePointerMove}
       >
         {/* Top Tagline */}
         <div className="relative z-20 flex items-center justify-between gap-3">
-          <p className="max-w-[58%] truncate text-[9px] font-bold tracking-[0.14em] text-[#69746c] sm:max-w-none sm:tracking-[0.24em] sm:text-[10px]">
+          <p className="zx-hero-topline max-w-[58%] truncate text-[9px] font-bold tracking-[0.14em] text-[#69746c] sm:max-w-none sm:tracking-[0.24em] sm:text-[10px]">
             {brandName} · {isArabic ? 'هوية متصلة · أزياء · استوديو' : 'CONNECTED IDENTITY · FASHION · STUDIO'}
           </p>
           <div className="flex items-center gap-2">
@@ -189,26 +189,26 @@ export function HomeHero({
         </div>
 
         {/* 3D Center Area: Left Typography, Right Interactive Parallax 3D Stack */}
-        <div className="relative z-20 my-auto grid items-center gap-8 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+        <div className="zx-hero-layout relative z-20 my-auto grid items-center gap-8 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
           {/* Typography */}
-          <div className="max-w-xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/60 px-3.5 py-1.5 text-[9px] font-bold tracking-widest text-[#567a68] shadow-xs backdrop-blur-md">
+          <div className="zx-hero-copy max-w-xl">
+            <span className="zx-hero-badge inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[9px] font-bold tracking-widest">
               <Sparkles className="h-3.5 w-3.5 text-[#5e967c]" />
               {isArabic ? 'العلامة المتصلة للخطوة القادمة' : 'A CONNECTED BRAND FOR WHAT’S NEXT'}
             </span>
 
-            <h1 className="zx-display mt-5 text-4xl text-[#1c2f25] sm:text-6xl md:text-7xl">
+            <h1 className="zx-display zx-hero-title mt-5 text-4xl sm:text-6xl md:text-7xl">
               {heroTitle}{' '}
-              <span className="italic font-normal text-[#ba7f6d]">{heroAccent}</span>
+              <span className="zx-hero-accent italic font-normal">{heroAccent}</span>
             </h1>
 
-            <p className="mt-5 max-w-lg text-sm leading-7 text-[#607166] sm:text-base">
+            <p className="zx-hero-description mt-5 max-w-lg text-sm leading-7 sm:text-base">
               {heroText}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <button
-                className="group flex min-h-12 items-center gap-2.5 rounded-full bg-[#16241d] px-6 text-xs font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.03] hover:bg-[#b97561]"
+                className="zx-hero-primary group flex min-h-12 items-center gap-2.5 rounded-full px-6 text-xs font-bold transition-all duration-300"
                 onClick={() => navigate('cards')}
                 type="button"
               >
@@ -217,7 +217,7 @@ export function HomeHero({
               </button>
 
               <button
-                className="flex min-h-12 items-center gap-2 rounded-full border border-[#d2dfd7] bg-white/80 px-5 text-xs font-bold text-[#355243] shadow-xs backdrop-blur-md transition-all hover:bg-white"
+                className="zx-hero-secondary flex min-h-12 items-center gap-2 rounded-full border px-5 text-xs font-bold transition-all"
                 onClick={() => document.getElementById('departments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 type="button"
               >
@@ -227,11 +227,11 @@ export function HomeHero({
           </div>
 
           {/* Right 3D Visual Floating Composition */}
-          <div className="relative -mx-2 grid min-h-84 flex-1 grid-cols-[1.05fr_0.95fr] gap-3 sm:min-h-104 sm:gap-4 lg:mx-0 lg:min-h-130">
+          <div className="zx-hero-collage relative -mx-2 grid min-h-84 flex-1 grid-cols-[1.05fr_0.95fr] gap-3 sm:min-h-104 sm:gap-4 lg:mx-0 lg:min-h-130">
             {/* 1. ZEXOR Fashion Card */}
             <motion.button
               aria-label="ZEXOR Fashion"
-              className="group relative min-h-80 overflow-hidden rounded-3xl bg-[#dedbd1] text-start shadow-[0_35px_80px_-35px_rgba(45,38,30,.45)] sm:min-h-100 sm:rounded-4xl"
+              className="zx-hero-fashion group relative min-h-80 overflow-hidden rounded-3xl text-start sm:min-h-100 sm:rounded-4xl"
               onClick={() => navigate('fashion')}
               style={{ x: fashionX, y: fashionY, scale: sceneScale }}
               type="button"
@@ -262,7 +262,7 @@ export function HomeHero({
               {/* 2. Interactive 3D NFC Card */}
               <motion.button
                 aria-label="NFC Card"
-                className="group relative min-h-0 overflow-hidden rounded-2xl border border-white/90 bg-[#e4ece4] text-start shadow-[0_25px_60px_-30px_rgba(35,55,42,.4)] sm:rounded-3xl"
+                className="zx-hero-nfc group relative min-h-0 overflow-hidden rounded-2xl border text-start sm:rounded-3xl"
                 onClick={() => navigate('cards')}
                 style={{ x: cardX, y: cardY, rotate: cardTilt }}
                 type="button"
@@ -302,7 +302,7 @@ export function HomeHero({
               {/* 3. Studio 3D Card */}
               <motion.button
                 aria-label="Digital Studio"
-                className="group relative min-h-0 overflow-hidden rounded-2xl border border-white/85 bg-[#203129] text-start shadow-[0_25px_60px_-30px_rgba(25,45,35,.4)] sm:rounded-3xl"
+                className="zx-hero-studio group relative min-h-0 overflow-hidden rounded-2xl border text-start sm:rounded-3xl"
                 onClick={() => navigate('services')}
                 style={{ x: studioX, y: studioY, rotate: studioTilt }}
                 type="button"
