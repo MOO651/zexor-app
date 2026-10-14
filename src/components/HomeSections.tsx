@@ -7,6 +7,7 @@ import {
   Mail,
   MapPin,
   MessageCircle,
+  LockKeyhole,
   Package,
   Send,
   ShieldCheck,
@@ -424,6 +425,15 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
             <Sparkles className="h-3 w-3 text-[#5e8b75]" />
             {isArabic ? 'صُنع بعناية في القاهرة والرياض.' : 'Crafted with care in Cairo & Riyadh.'}
           </span>
+          <button
+            aria-label={isArabic ? 'دخول لوحة الإدارة' : 'Open admin dashboard'}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#dce7df] bg-white/80 text-[#71877a] transition hover:border-[#b8cfc0] hover:bg-[#edf5f0] hover:text-[#314f43]"
+            onClick={() => navigate('dashboard')}
+            title={isArabic ? 'لوحة الإدارة' : 'Admin dashboard'}
+            type="button"
+          >
+            <LockKeyhole className="h-3 w-3" />
+          </button>
         </div>
       </div>
     </footer>

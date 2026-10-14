@@ -407,6 +407,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   codEnabled: true,
   taxRateByMarket: { eg: 0, ksa: 0 },
   codEnabledByMarket: { eg: true, ksa: true },
+  showOtherMarketProducts: { eg: false, ksa: false },
   autoPromoCode: '',
   sectionVisibility: {
     cards: true,

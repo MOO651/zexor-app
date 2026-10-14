@@ -2634,6 +2634,19 @@ export function AdminDashboard({
               <label className="flex items-center justify-between rounded-xl border border-[#dfe8e2] px-3 py-2 text-xs font-semibold text-[#3b5546]"><span>{isArabic ? 'الدفع عند الاستلام في السعودية' : 'Saudi cash on delivery'}</span><input checked={settings.codEnabledByMarket?.ksa ?? settings.codEnabled} className="h-4 w-4 accent-[#314f43]" onChange={(event) => setSettings((previous) => ({ ...previous, codEnabledByMarket: { ...previous.codEnabledByMarket, ksa: event.target.checked } }))} type="checkbox" /></label>
             </div>
           </div>
+          <div className="rounded-3xl border border-[#dce9e0] bg-white/90 p-6 shadow-sm">
+            <h3 className="text-sm font-bold text-[#2f4437]">{isArabic ? 'تخصيص المنتجات حسب الدولة' : 'Market-specific product visibility'}</h3>
+            <p className="mt-1 text-[10px] leading-5 text-[#788b80]">{isArabic ? 'عند إيقاف الاختيار، يرى الزائر منتجات السوق الذي اختاره فقط. فعّله للسماح له برؤية منتجات السوق الآخر أيضًا. المنتجات المشتركة بين السوقين تظل ظاهرة.' : 'When off, visitors see products for their selected market only. Turn it on to also show products reserved for the other market. Products assigned to both markets remain visible.'}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {(['eg', 'ksa'] as const).map((targetMarket) => (
+                <label className="flex items-center justify-between gap-3 rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] p-4 text-xs font-semibold text-[#3b5546]" key={targetMarket}>
+                  <span>{targetMarket === 'eg' ? (isArabic ? 'السماح لزوار مصر برؤية منتجات السعودية' : 'Show Saudi-only products to Egypt visitors') : (isArabic ? 'السماح لزوار السعودية برؤية منتجات مصر' : 'Show Egypt-only products to Saudi visitors')}</span>
+                  <input checked={settings.showOtherMarketProducts?.[targetMarket] ?? false} className="h-4 w-4 shrink-0 accent-[#314f43]" onChange={(event) => setSettings((previous) => ({ ...previous, showOtherMarketProducts: { ...previous.showOtherMarketProducts, [targetMarket]: event.target.checked } }))} type="checkbox" />
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Section Visibility Toggles */}
           <div className="rounded-3xl border border-white bg-white/85 p-6 shadow-sm">
             <h3 className="text-sm font-bold text-[#2f4437]">

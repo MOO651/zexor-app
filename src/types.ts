@@ -234,6 +234,8 @@ export type SiteSettings = {
   codEnabledByMarket: Record<Market, boolean>;
   /** Enables Cash on Delivery as a payment option. */
   codEnabled: boolean;
+  /** Let visitors in each market view products reserved for the other market. */
+  showOtherMarketProducts: Record<Market, boolean>;
   /** Coupon code applied site-wide automatically when set. */
   autoPromoCode: string;
   sectionVisibility: {

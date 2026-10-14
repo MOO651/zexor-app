@@ -107,7 +107,6 @@ import type {
   DynamicCategory,
   Locale,
   Market,
-  MarketFilter,
   NfcCustomization,
   PlatformInquiry,
   Product,
@@ -133,6 +132,7 @@ import {
 
 const STORAGE = {
   locale: 'zexor-locale',
+  market: 'zexor-market-v1',
   products: 'zexor-products-v3',
   categories: 'zexor-categories-v3',
   cart: 'zexor-cart-v3',
@@ -143,6 +143,18 @@ const STORAGE = {
   promoCodes: 'zexor-promo-codes-v3',
   settings: 'zexor-settings-v3',
 };
+
+function detectVisitorMarket(): Market {
+  try {
+    const stored = window.localStorage.getItem(STORAGE.market);
+    if (stored === 'eg' || stored === 'ksa') return stored;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timeZone === 'Asia/Riyadh') return 'ksa';
+  } catch {
+    // Fall back to Egypt if browser storage or locale detection is unavailable.
+  }
+  return 'eg';
+}
 
 function readStorage<T>(key: string, fallback: T, isValid?: (value: unknown) => boolean): T {
   try {
@@ -495,8 +507,7 @@ export default function App() {
   );
 
   const [route, setRoute] = useState<Route>(pageFromHash);
-  const [market, setMarket] = useState<Market>('eg');
-  const [marketFilter, setMarketFilter] = useState<MarketFilter>('all');
+  const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
   const [selectedFashionSubcategory, setSelectedFashionSubcategory] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -873,9 +884,19 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const effectiveMarketFilter = resolvedSettings.showOtherMarketProducts?.[market] ? 'all' : market;
+  const storefrontProducts = useMemo(() => products.filter((product) =>
+    product.available && (effectiveMarketFilter === 'all' || product.markets.includes(effectiveMarketFilter)),
+  ), [effectiveMarketFilter, products]);
+  const visibleProductIds = useMemo(() => new Set(storefrontProducts.map((product) => product.id)), [storefrontProducts]);
+  const storefrontCart = useMemo(() => cart.filter((line) => visibleProductIds.has(line.productId)), [cart, visibleProductIds]);
+  const cartCount = storefrontCart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddToCart = (product: Product, customization?: NfcCustomization, variant?: string) => {
+    if (!storefrontProducts.some((item) => item.id === product.id)) {
+      setToast(isArabic ? 'هذا المنتج غير متاح للسوق المحدد.' : 'This product is not available in the selected market.');
+      return;
+    }
     const quantityInCart = cart.filter((line) => line.productId === product.id).reduce((sum, line) => sum + line.quantity, 0);
     if (product.stock !== undefined && quantityInCart >= product.stock) {
       setToast(isArabic ? 'وصلت للكمية المتاحة من هذا المنتج.' : 'You have reached the available stock for this product.');
@@ -1010,7 +1031,7 @@ export default function App() {
     const q = searchQuery.toLowerCase();
     const matches: { title: string; desc: string; route: Route }[] = [];
 
-    products.forEach((p) => {
+    storefrontProducts.forEach((p) => {
       const haystack = `${p.name.ar} ${p.name.en} ${p.description.ar} ${p.description.en}`.toLowerCase();
       if (haystack.includes(q)) {
         matches.push({
@@ -1046,29 +1067,26 @@ export default function App() {
     }
 
     return matches;
-  }, [isArabic, locale, products, searchQuery]);
+  }, [isArabic, locale, searchQuery, storefrontProducts]);
 
   // Products filtered for the current route
   const activeFashionSubcategories = useMemo(
     () => categories.filter((category) => category.parentSlug === 'fashion' && category.active),
     [categories],
   );
-  const fashionProductsInMarket = useMemo(() => products.filter((product) =>
-    product.available
-    && product.category === 'fashion'
-    && (marketFilter === 'all' || product.markets.includes(marketFilter))
+  const fashionProductsInMarket = useMemo(() => storefrontProducts.filter((product) =>
+    product.category === 'fashion'
     && (!product.subcategoryId || activeFashionSubcategories.some((subcategory) => subcategory.slug === product.subcategoryId)),
-  ), [activeFashionSubcategories, marketFilter, products]);
+  ), [activeFashionSubcategories, storefrontProducts]);
   const activeSelectedFashionSubcategory = activeFashionSubcategories.some((category) => category.slug === selectedFashionSubcategory)
     ? selectedFashionSubcategory
     : '';
-  const currentCategoryProducts = products.filter(
+  const currentCategoryProducts = storefrontProducts.filter(
     (p) =>
       p.available &&
       (route === 'cards' ? p.category === 'cards' : route === 'fashion' ? p.category === 'fashion' : true) &&
       (route !== 'fashion' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'fashion' && category.active)) &&
-      (route !== 'fashion' || !activeSelectedFashionSubcategory || p.subcategoryId === activeSelectedFashionSubcategory) &&
-      (marketFilter === 'all' || p.markets.includes(marketFilter)),
+      (route !== 'fashion' || !activeSelectedFashionSubcategory || p.subcategoryId === activeSelectedFashionSubcategory),
   );
 
   return (
@@ -1208,7 +1226,7 @@ export default function App() {
             {/* Search */}
             <button
               aria-label={isArabic ? 'بحث في المتجر' : 'Search the store'}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] md:flex"
               onClick={() => setSearchOpen(true)}
               type="button"
             >
@@ -1218,7 +1236,7 @@ export default function App() {
             {/* Dark / Light Mode Toggle */}
             <button
               aria-label={isArabic ? (theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح') : (theme === 'light' ? 'Enable dark mode' : 'Enable light mode')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] sm:flex"
               onClick={() => setTheme((curr) => (curr === 'light' ? 'dark' : 'light'))}
               type="button"
             >
@@ -1228,7 +1246,7 @@ export default function App() {
             {/* Wishlist */}
             <button
               aria-label={isArabic ? 'قائمة المفضلة' : 'Wishlist'}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0]"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] md:flex"
               onClick={() => setWishlistOpen(true)}
               type="button"
             >
@@ -1243,7 +1261,7 @@ export default function App() {
             {/* Quick Track Order Button */}
             <button
               aria-label={isArabic ? 'تتبع الطلب' : 'Track order'}
-              className="flex h-9 items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
+              className="hidden h-9 items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0] lg:flex"
               onClick={() => setTrackingOpen(true)}
               title={isArabic ? 'تتبع الشحنة' : 'Track Order'}
               type="button"
@@ -1259,7 +1277,6 @@ export default function App() {
               onClick={() => {
                 const nextMarket: Market = market === 'eg' ? 'ksa' : 'eg';
                 setMarket(nextMarket);
-                setMarketFilter(nextMarket);
               }}
               type="button"
             >
@@ -1270,7 +1287,7 @@ export default function App() {
             {/* Language Switch */}
             <button
               aria-label={isArabic ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
-              className="inline-flex min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
+              className="hidden min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0] sm:inline-flex"
               onClick={() => setLocale((curr) => (curr === 'ar' ? 'en' : 'ar'))}
               type="button"
             >
@@ -1292,17 +1309,6 @@ export default function App() {
                   {cartCount}
                 </span>
               )}
-            </button>
-
-            {/* Admin Lock / Studio Access */}
-            <button
-              aria-label="Studio Admin"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#eef8f2] hover:text-[#325b46]"
-              onClick={() => navigate('dashboard')}
-              title={isArabic ? 'لوحة التحكم' : 'Studio Admin'}
-              type="button"
-            >
-              <LockKeyhole className="h-3.5 w-3.5" />
             </button>
 
             {/* Mobile Menu Hamburger */}
@@ -1339,6 +1345,13 @@ export default function App() {
                     {item.label}
                   </button>
                 ))}
+                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-[#e8eee9] pt-3 sm:grid-cols-3">
+                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setSearchOpen(true); setMenuOpen(false); }} type="button"><Search className="h-4 w-4" />{isArabic ? 'بحث' : 'Search'}</button>
+                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">{theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}{isArabic ? 'المظهر' : 'Theme'}</button>
+                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setWishlistOpen(true); setMenuOpen(false); }} type="button"><Heart className="h-4 w-4" />{isArabic ? 'المفضلة' : 'Wishlist'}</button>
+                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setTrackingOpen(true); setMenuOpen(false); }} type="button"><Truck className="h-4 w-4" />{isArabic ? 'تتبع الطلب' : 'Track order'}</button>
+                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button"><Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}</button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -1370,7 +1383,6 @@ export default function App() {
               navigate={navigate}
               onMarketChange={(m) => {
                 setMarket(m);
-                setMarketFilter(m);
               }}
             />
 
@@ -1441,7 +1453,7 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {products
+                  {storefrontProducts
                     .filter((p) => p.category === 'cards')
                     .slice(0, 3)
                     .map((p) => (
@@ -1487,7 +1499,7 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
-                  {products
+                  {storefrontProducts
                     .filter((p) => p.category === 'fashion')
                     .slice(0, 2)
                     .map((p) => (
@@ -1495,7 +1507,7 @@ export default function App() {
                         key={p.id}
                         product={p}
                         categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
-                        market="eg"
+                        market={market}
                         locale={locale}
                         wishlisted={wishlist.includes(p.id)}
                         renderPrice={(price, className) => (
@@ -1791,7 +1803,11 @@ export default function App() {
               {/* Direct Customize CTA */}
               <button
                 className="flex items-center gap-2 rounded-full bg-[#314f43] px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#436e5d]"
-                onClick={() => handleOpenNfcCustomizer(products[0])}
+                disabled={!storefrontProducts.some((product) => product.category === 'cards')}
+                onClick={() => {
+                  const product = storefrontProducts.find((item) => item.category === 'cards');
+                  if (product) handleOpenNfcCustomizer(product);
+                }}
                 type="button"
               >
                 <Fingerprint className="h-4 w-4" />
@@ -2288,7 +2304,7 @@ Details: ${details}`;
             </div>
 
             <div className="mt-4 max-h-80 divide-y divide-[#edf1ee] overflow-y-auto">
-              {products
+              {storefrontProducts
                 .filter((p) => wishlist.includes(p.id))
                 .map((p) => (
                   <div className="flex items-center justify-between py-3" key={p.id}>
@@ -2338,7 +2354,7 @@ Details: ${details}`;
 
       {/* 7. Interactive Cart & Checkout Drawer */}
       <CheckoutDrawer
-        cart={cart}
+        cart={storefrontCart}
         locale={locale}
         market={market}
         paymentMethods={paymentMethods}

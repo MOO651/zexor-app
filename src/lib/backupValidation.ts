@@ -148,6 +148,7 @@ function conformsToShape(value: unknown, shape: unknown): boolean {
       isText(area) && isRecord(rates) && ['eg', 'ksa'].every((market) => isNumber(rates[market])));
     if (key === 'shippingAreas') return isRecord(item) && ['eg', 'ksa'].every((market) => isTextArray(item[market]));
     if (key === 'shippingCarriers') return isRecord(item) && ['eg', 'ksa'].every((market) => isTextArray(item[market]));
+    if (key === 'showOtherMarketProducts') return isRecord(item) && ['eg', 'ksa'].every((market) => typeof item[market] === 'boolean');
     return Object.hasOwn(shape, key) && conformsToShape(item, shape[key]);
   });
 }

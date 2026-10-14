@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, MessageCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AGENCY_PROJECTS, STATS } from '../data/initialData';
-import type { Locale, Market, MarketFilter, Product, Property, Route, SiteSettings, Vehicle } from '../types';
+import type { Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
 import { money, publicAssetUrl, whatsappNumberFor } from '../utils';
 import { CategoryShowcase } from './CategoryShowcase';
 import { HomeHero, TiltCard } from './HomeHero';
@@ -50,7 +50,6 @@ type HomePageProps = {
   locale: Locale;
   isArabic: boolean;
   market: Market;
-  marketFilter: MarketFilter;
   products: Product[];
   vehicles: Vehicle[];
   properties: Property[];
@@ -91,8 +90,13 @@ export function HomePage({
   renderPrice,
 }: HomePageProps) {
   const { sectionVisibility, content } = settings;
-  const cards = products.filter((p) => p.category === 'cards');
-  const fashion = products.filter((p) => p.category === 'fashion');
+  const storefrontProducts = products.filter((product) => product.available && (
+    settings.showOtherMarketProducts?.[market]
+      ? true
+      : product.markets.includes(market)
+  ));
+  const cards = storefrontProducts.filter((p) => p.category === 'cards');
+  const fashion = storefrontProducts.filter((p) => p.category === 'fashion');
 
   return (
     <div className="space-y-20">
