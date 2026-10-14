@@ -57,7 +57,30 @@ export async function fetchStoreContent<T>(key: StoreContentKey): Promise<T | nu
 export async function saveStoreContent(key: StoreContentKey, value: unknown): Promise<boolean> {
   try {
     if (key === 'products') {
-      const { data, error } = await supabase.rpc('admin_save_products', { product_payload: value });
+      if (!Array.isArray(value)) {
+        console.error('Supabase product sync stopped: products value is not an array.');
+        return false;
+      }
+      const productsById = new Map<string, Record<string, unknown>>();
+      for (const product of value) {
+        if (!product || typeof product !== 'object' || Array.isArray(product)) {
+          console.error('Supabase product sync stopped: a product entry is not an object.');
+          return false;
+        }
+        const productRecord = product as Record<string, unknown>;
+        const productId = typeof productRecord.id === 'string' ? productRecord.id.trim() : '';
+        if (!productId) {
+          console.error('Supabase product sync stopped: a product is missing its id.');
+          return false;
+        }
+        if (productsById.has(productId)) {
+          console.warn(`Duplicate product id "${productId}" found during sync; keeping its latest entry.`);
+        }
+        productsById.set(productId, productRecord);
+      }
+      const { data, error } = await supabase.rpc('admin_save_products', {
+        product_payload: Array.from(productsById.values()),
+      });
       if (error) {
         console.error(`Supabase rejected store content document "${key}":`, error.message, error.code);
         return false;
