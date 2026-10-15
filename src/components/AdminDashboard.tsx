@@ -2542,7 +2542,7 @@ export function AdminDashboard({
               onClick={() => {
                 setSettings((prev) => ({
                   ...prev,
-                  brand: { primary: '#314f43', accent: '#4e8e6f', ink: '#21362b', radius: 1.5, fontScale: 1 },
+                  brand: { name: 'ZEXOR', logoUrl: '', primary: '#314f43', accent: '#4e8e6f', ink: '#21362b', radius: 1.5, fontScale: 1 },
                 }));
                 onToast(isArabic ? 'تمت استعادة الهوية الافتراضية' : 'Default brand restored');
               }}

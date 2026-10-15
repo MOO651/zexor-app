@@ -255,7 +255,12 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
 /* ------------------------------------------------------------------ */
 
 type FooterProps = Common & {
-  settings: { supportEmail: string; whatsappEg: string; whatsappKsa: string };
+  settings: {
+    supportEmail: string;
+    whatsappEg: string;
+    whatsappKsa: string;
+    brand: { name: string; logoUrl: string };
+  };
   sectionVisibility: { cards: boolean; fashion: boolean; cars: boolean; property: boolean; services: boolean };
   market: Market;
   navigate: (route: Route) => void;

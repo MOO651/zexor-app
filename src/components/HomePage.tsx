@@ -102,6 +102,7 @@ export function HomePage({
     <div className="space-y-20">
       {/* 1. Interactive 3D Parallax Hero */}
       <HomeHero
+        brandName={settings.brand.name}
         heroAccent={settings.heroAccent[locale]}
         heroImage={settings.heroImage}
         heroText={settings.heroText[locale]}
