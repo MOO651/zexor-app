@@ -6,6 +6,7 @@ import {
   CarFront,
   Boxes,
   Check,
+  Copy,
   Clock,
   Download,
   Eye,
@@ -497,6 +498,33 @@ export function AdminDashboard({
       setProducts((prev) => prev.filter((p) => p.id !== prodId));
       onToast(isArabic ? 'تم حذف المنتج' : 'Product deleted');
     }
+  };
+
+  const handleDuplicateProduct = (product: Product) => {
+    const duplicate: Product = {
+      ...product,
+      id: `ZX-P-${crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`,
+      name: { ar: `${product.name.ar} · نسخة`, en: `${product.name.en} · Copy` },
+      sku: product.sku ? `${product.sku}-COPY-${crypto.randomUUID().slice(0, 4).toUpperCase()}` : undefined,
+      available: false,
+      featured: false,
+      stock: undefined,
+    };
+    setProducts((current) => [duplicate, ...current]);
+    onToast(isArabic ? 'اتعملت نسخة مخفية من المنتج. راجع بياناتها ثم فعّلها.' : 'A hidden product copy was created. Review it, then make it available.');
+  };
+
+  const handleExportProductsCsv = () => {
+    const columns = ['id', 'sku', 'name_ar', 'name_en', 'category', 'subcategory', 'price_egp', 'price_sar', 'old_price_egp', 'old_price_sar', 'stock', 'markets', 'available', 'featured', 'image_url'];
+    const rows = products.map((product) => [product.id, product.sku ?? '', product.name.ar, product.name.en, product.category, product.subcategoryId ?? '', product.price.eg, product.price.ksa, product.oldPrice?.eg ?? '', product.oldPrice?.ksa ?? '', product.stock ?? '', (product.markets ?? ['eg', 'ksa']).join('|'), product.available, Boolean(product.featured), product.imageUrl ?? '']);
+    const csv = `\uFEFF${[columns, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')}`;
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `zexor-products-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    onToast(isArabic ? `تم تصدير ${products.length} منتج بصيغة CSV` : `Exported ${products.length} products as CSV`);
   };
 
   // Save / Update Car — creates a new listing, or updates the one being edited.
@@ -1065,6 +1093,7 @@ export function AdminDashboard({
               <span className="text-[10px] text-[#788a80]">{isArabic ? 'استفسارات المعاينة والتواصل' : 'Inquiries & Viewing'}</span>
               <p className="mt-2 text-2xl font-bold text-[#2e4739]">{inbox.length}</p>
             </div>
+            <button className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white px-4 text-xs font-semibold text-[#52685b] transition hover:bg-[#f4f8f5]" onClick={handleExportProductsCsv} type="button"><Download className="h-3.5 w-3.5" />{isArabic ? 'تصدير المنتجات CSV' : 'Export products CSV'}</button>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
             <div className="rounded-2xl border border-white bg-white/90 p-5 shadow-sm">
@@ -1493,6 +1522,15 @@ export function AdminDashboard({
                     type="button"
                   >
                     {prod.available ? (isArabic ? 'متوفر' : 'Available') : isArabic ? 'مخفي' : 'Hidden'}
+                  </button>
+                  <button
+                    aria-label={isArabic ? 'إنشاء نسخة من المنتج' : 'Duplicate product'}
+                    className="p-1.5 text-[#517663] hover:text-[#2d4b3b]"
+                    onClick={() => handleDuplicateProduct(prod)}
+                    title={isArabic ? 'إنشاء نسخة مخفية قابلة للتعديل' : 'Create an editable hidden copy'}
+                    type="button"
+                  >
+                    <Copy className="h-4 w-4" />
                   </button>
                   <button
                     className="p-1.5 text-[#517663] hover:text-[#2d4b3b]"
