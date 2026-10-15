@@ -4,6 +4,7 @@ import {
 } from 'framer-motion';
 import {
   ArrowUpRight,
+  BellRing,
   ChevronDown,
   Clock,
   Fingerprint,
@@ -608,6 +609,9 @@ export default function App() {
   // NFC Customizer Modal State
   const [nfcModalOpen, setNfcModalOpen] = useState(false);
   const [selectedNfcProduct, setSelectedNfcProduct] = useState<Product | null>(null);
+  const [restockProduct, setRestockProduct] = useState<Product | null>(null);
+  const [restockName, setRestockName] = useState('');
+  const [restockPhone, setRestockPhone] = useState('');
 
   // Admin Login State
   const [adminAuthenticated, setAdminAuthenticated] = useState(false);
@@ -1640,6 +1644,7 @@ export default function App() {
                           <PriceTag className={className} price={price} market={market} locale={locale} />
                         )}
                         onToggleWishlist={handleToggleWishlist}
+                        onNotifyAvailability={(item) => setRestockProduct(item)}
                         onAddToCart={(prod) => handleAddToCart(prod)}
                         onCustomize={handleOpenNfcCustomizer}
                       />
@@ -1688,6 +1693,7 @@ export default function App() {
                           <PriceTag className={className} price={price} market="eg" locale={locale} />
                         )}
                         onToggleWishlist={handleToggleWishlist}
+                        onNotifyAvailability={(item) => setRestockProduct(item)}
                         onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
                         badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
                       />
@@ -2001,6 +2007,7 @@ export default function App() {
                     <PriceTag className={className} price={price} market={market} locale={locale} />
                   )}
                   onToggleWishlist={handleToggleWishlist}
+                  onNotifyAvailability={(item) => setRestockProduct(item)}
                   onAddToCart={(prod) => handleAddToCart(prod)}
                   onCustomize={handleOpenNfcCustomizer}
                 />
@@ -2057,6 +2064,7 @@ export default function App() {
                     <PriceTag className={className} price={price} market="eg" locale={locale} />
                   )}
                   onToggleWishlist={handleToggleWishlist}
+                  onNotifyAvailability={(item) => setRestockProduct(item)}
                   onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
                   badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
                 />
@@ -2069,7 +2077,7 @@ export default function App() {
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
           <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
-          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
+          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
           <AgencyPortfolio
             locale={locale}
             market={market}
@@ -2149,7 +2157,7 @@ export default function App() {
             {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-[#e2ebe5] bg-white p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-[#d6eee2]' : index % 3 === 1 ? 'bg-linear-to-l from-[#f4e8db]' : 'bg-linear-to-l from-[#e5e1f2]'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-[#7b9184]">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-[#293f33]">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-[#f0f5f1] px-3 py-1.5 text-[10px] text-[#567362]">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
             <div className="space-y-5">
               <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
             </div>
           </section>
         )}
@@ -2537,6 +2545,66 @@ Details: ${details}`;
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {restockProduct && (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-120 flex items-center justify-center bg-[#10251c]/65 p-4 backdrop-blur-md"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            onClick={(event) => { if (event.target === event.currentTarget) setRestockProduct(null); }}
+          >
+            <motion.form
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-md overflow-hidden rounded-[1.7rem] border border-white/70 bg-[#fffefa] shadow-2xl"
+              exit={{ opacity: 0, y: 14, scale: 0.98 }}
+              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              onClick={(event) => event.stopPropagation()}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (restockPhone.replace(/\D/g, '').length < 7) {
+                  setToast(isArabic ? 'اكتب رقم هاتف صحيح عشان نقدر نبلغك.' : 'Enter a valid phone number so we can notify you.');
+                  return;
+                }
+                const inquiry: PlatformInquiry = {
+                  id: `ZX-INQ-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+                  createdAt: new Date().toISOString(),
+                  type: 'contact',
+                  title: isArabic ? `تنبيه توفر المنتج: ${restockProduct.name.ar}` : `Restock alert: ${restockProduct.name.en}`,
+                  name: restockName.trim(),
+                  phone: restockPhone.trim(),
+                  city: '',
+                  market,
+                  budget: '',
+                  message: `RESTOCK_ALERT · ${restockProduct.id} · ${restockProduct.name[locale]}`,
+                  status: 'new',
+                };
+                handleAddInquiry(inquiry);
+                setRestockProduct(null);
+                setRestockName('');
+                setRestockPhone('');
+                setToast(isArabic ? 'سجلنا طلب التنبيه. هنتواصل معاك لما المنتج يتوفر.' : 'You are on the restock list. We will contact you when it is available.');
+              }}
+            >
+              <div className="relative h-36 overflow-hidden bg-[#eaf1eb]">
+                <img alt="" className="h-full w-full object-cover opacity-90" src={publicAssetUrl(restockProduct.imageUrl || departmentImage(restockProduct.category))} />
+                <div className="absolute inset-0 bg-linear-to-t from-[#10251c]/80 via-[#10251c]/10 to-transparent" />
+                <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-4 text-white">
+                  <div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-white/70">{isArabic ? 'قائمة التنبيه' : 'RESTOCK ALERT'}</p><h3 className="mt-1 font-bold">{restockProduct.name[locale]}</h3></div>
+                  <button aria-label={isArabic ? 'إغلاق' : 'Close'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-black/20 backdrop-blur" onClick={() => setRestockProduct(null)} type="button"><X className="h-4 w-4" /></button>
+                </div>
+              </div>
+              <div className="space-y-4 p-5 sm:p-6">
+                <p className="text-xs leading-6 text-[#65766b]">{isArabic ? 'سيب بياناتك، وفريقنا هيبلغك أول ما المنتج يرجع متاح.' : 'Leave your details and our team will let you know when this item is available again.'}</p>
+                <label className="block text-[10px] font-semibold text-[#52675a]">{isArabic ? 'الاسم' : 'Name'}<input autoComplete="name" className="mt-1.5 h-11 w-full rounded-xl border border-[#dfe8e1] bg-white px-3 text-sm outline-none transition focus:border-[#5a8a6d] focus:ring-4 focus:ring-[#5a8a6d]/10" maxLength={100} onChange={(event) => setRestockName(event.target.value)} required value={restockName} /></label>
+                <label className="block text-[10px] font-semibold text-[#52675a]">{isArabic ? 'رقم الهاتف' : 'Phone'}<input autoComplete="tel" className="mt-1.5 h-11 w-full rounded-xl border border-[#dfe8e1] bg-white px-3 text-sm outline-none transition focus:border-[#5a8a6d] focus:ring-4 focus:ring-[#5a8a6d]/10" dir="ltr" maxLength={30} onChange={(event) => setRestockPhone(event.target.value)} required type="tel" value={restockPhone} /></label>
+                <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#244b38] px-4 text-xs font-bold text-white shadow-lg shadow-[#244b38]/15 transition hover:bg-[#31654a]" type="submit"><BellRing className="h-4 w-4" />{isArabic ? 'سجلني في قائمة التنبيه' : 'Notify me when available'}</button>
+              </div>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 6. Live NFC 3D Customizer Modal */}
       {selectedNfcProduct && (

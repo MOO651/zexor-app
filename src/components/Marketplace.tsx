@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
+  Bookmark,
+  BookmarkCheck,
+  GitCompareArrows,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -33,6 +36,18 @@ type Props = {
   subcategories?: DynamicCategory[];
 };
 
+type SavedMarketplaceSearch = {
+  regionFilter: string;
+  minPrice: string;
+  maxPrice: string;
+  conditionFilter: string;
+  dealFilter: string;
+  vehicleDealFilter: string;
+  propertyTypeFilter: string;
+  makeFilter: string;
+  selectedDepartmentCategory: string;
+};
+
 export function Marketplace({
   mode,
   locale,
@@ -56,6 +71,58 @@ export function Marketplace({
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [makeFilter, setMakeFilter] = useState('');
   const [selectedDepartmentCategory, setSelectedDepartmentCategory] = useState('');
+  const savedSearchKey = `zexor-saved-search:${mode}:${market}`;
+  const [savedSearch, setSavedSearch] = useState<SavedMarketplaceSearch | null>(() => {
+    try {
+      const stored = localStorage.getItem(savedSearchKey);
+      const parsed: unknown = stored ? JSON.parse(stored) : null;
+      const valid = parsed && typeof parsed === 'object' && ['regionFilter', 'minPrice', 'maxPrice', 'conditionFilter', 'dealFilter', 'vehicleDealFilter', 'propertyTypeFilter', 'makeFilter', 'selectedDepartmentCategory'].every((key) => typeof (parsed as Record<string, unknown>)[key] === 'string');
+      return valid ? parsed as SavedMarketplaceSearch : null;
+    } catch {
+      return null;
+    }
+  });
+  const [savedSearchMessage, setSavedSearchMessage] = useState('');
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [compareMessage, setCompareMessage] = useState('');
+
+  const saveCurrentSearch = () => {
+    const current: SavedMarketplaceSearch = { regionFilter, minPrice, maxPrice, conditionFilter, dealFilter, vehicleDealFilter, propertyTypeFilter, makeFilter, selectedDepartmentCategory };
+    try {
+      localStorage.setItem(savedSearchKey, JSON.stringify(current));
+      setSavedSearch(current);
+      setSavedSearchMessage(isArabic ? 'حفظنا اختيارات البحث على هذا الجهاز.' : 'Search filters saved on this device.');
+    } catch {
+      setSavedSearchMessage(isArabic ? 'تعذر الحفظ على هذا الجهاز.' : 'Could not save filters on this device.');
+    }
+  };
+
+  const applySavedSearch = () => {
+    if (!savedSearch) return;
+    setRegionFilter(savedSearch.regionFilter);
+    setMinPrice(savedSearch.minPrice);
+    setMaxPrice(savedSearch.maxPrice);
+    setConditionFilter(savedSearch.conditionFilter);
+    setDealFilter(savedSearch.dealFilter);
+    setVehicleDealFilter(savedSearch.vehicleDealFilter);
+    setPropertyTypeFilter(savedSearch.propertyTypeFilter);
+    setMakeFilter(savedSearch.makeFilter);
+    setSelectedDepartmentCategory(savedSearch.selectedDepartmentCategory);
+    setSavedSearchMessage(isArabic ? 'رجّعنا آخر بحث محفوظ.' : 'Your saved search has been restored.');
+  };
+
+  const toggleComparison = (id: string) => {
+    setCompareIds((current) => {
+      if (current.includes(id)) return current.filter((item) => item !== id);
+      if (current.length >= 3) {
+        setCompareMessage(isArabic ? 'يمكنك مقارنة 3 إعلانات كحد أقصى.' : 'You can compare up to 3 listings.');
+        return current;
+      }
+      setCompareMessage('');
+      return [...current, id];
+    });
+  };
 
   // Selected item modal / Slider / Booking
   const [activeVehicle, setActiveVehicle] = useState<Vehicle | null>(null);
@@ -228,6 +295,18 @@ Listing: ${itemTitle}`;
     }, 2500);
   };
 
+  const comparisonListings = mode === 'cars'
+    ? compareIds.flatMap((id) => {
+        const car = vehicleList.find((item) => item.id === id);
+        return car ? [{ id, title: car.title[locale], location: car.location[locale], photo: car.photo, price: formatListingPrice(car.price, car.region), deal: (car.deal ?? 'Rent') === 'Rent' ? (isArabic ? 'إيجار' : 'Rent') : (isArabic ? 'بيع' : 'Sale'), details: [car.make, String(car.year), car.mileage === 0 ? (isArabic ? 'زيرو' : 'New') : `${new Intl.NumberFormat('en-US').format(car.mileage)} ${isArabic ? 'كم' : 'km'}`, car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : (isArabic ? 'مانيوال' : 'Manual'), car.fuel] }]
+          : [];
+      })
+    : compareIds.flatMap((id) => {
+        const property = propertyList.find((item) => item.id === id);
+        return property ? [{ id, title: property.title[locale], location: property.location[locale], photo: property.photo, price: formatListingPrice(property.price, property.region), deal: property.deal === 'Rent' ? (isArabic ? 'إيجار' : 'Rent') : (isArabic ? 'بيع' : 'Sale'), details: [isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[property.type] : property.type, `${new Intl.NumberFormat('en-US').format(property.area)} ${isArabic ? 'م²' : 'm²'}`, `${property.rooms} ${isArabic ? 'غرف' : 'rooms'}`, `${property.bathrooms} ${isArabic ? 'حمام' : 'baths'}`, property.rentalPeriod ?? ''] }]
+          : [];
+      });
+
   return (
     <div className="zx-marketplace space-y-8">
       {/* Hero Banner */}
@@ -363,6 +442,14 @@ Listing: ${itemTitle}`;
             </>
           )}
         </div>
+        <div className="mt-4 flex flex-col justify-between gap-3 border-t border-[#e5ece6] pt-4 sm:flex-row sm:items-center">
+          <p aria-live="polite" className="text-[10px] text-[#718478]">{savedSearchMessage || (isArabic ? 'تقدر تحفظ معاييرك على هذا الجهاز وترجع لها لاحقًا.' : 'Save these filters on this device and restore them later.')}</p>
+          <div className="flex flex-wrap gap-2">
+            {savedSearch && <button className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[#d8e5dc] bg-white px-3.5 text-[10px] font-semibold text-[#466653] transition hover:border-[#9cbaa5] hover:bg-[#f5f8f4]" onClick={applySavedSearch} type="button"><BookmarkCheck className="h-3.5 w-3.5" />{isArabic ? 'استرجاع البحث المحفوظ' : 'Restore saved search'}</button>}
+            <button className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full bg-[#244b38] px-3.5 text-[10px] font-semibold text-white shadow-sm transition hover:bg-[#31654a]" onClick={saveCurrentSearch} type="button"><Bookmark className="h-3.5 w-3.5" />{isArabic ? 'حفظ البحث' : 'Save search'}</button>
+          </div>
+        </div>
+        {compareMessage && <p aria-live="polite" className="mt-3 text-xs font-semibold text-amber-700">{compareMessage}</p>}
       </section>
 
       {/* Grid: Cars or Properties */}
@@ -463,6 +550,8 @@ Listing: ${itemTitle}`;
                     </span>
                   ))}
                 </div>
+
+                <button aria-pressed={compareIds.includes(car.id)} className={`mt-3 inline-flex min-h-9 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-[10px] font-semibold transition ${compareIds.includes(car.id) ? 'border-[#315643] bg-[#edf5ef] text-[#315643]' : 'border-[#e3ece7] bg-white text-[#62766a] hover:border-[#9cbaa5]'}`} onClick={() => toggleComparison(car.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(car.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
 
                   {car.oldPrice && car.deal !== 'Rent' && (
                   <p className="mt-3 text-[10px] text-[#9aa7a0]">
@@ -597,6 +686,8 @@ Listing: ${itemTitle}`;
                     ))}
                 </div>
 
+                <button aria-pressed={compareIds.includes(prop.id)} className={`mt-3 inline-flex min-h-9 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-[10px] font-semibold transition ${compareIds.includes(prop.id) ? 'border-[#315643] bg-[#edf5ef] text-[#315643]' : 'border-[#e3ece7] bg-white text-[#62766a] hover:border-[#9cbaa5]'}`} onClick={() => toggleComparison(prop.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(prop.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
+
                 {prop.oldPrice && (
                   <p className="mt-3 text-[10px] text-[#9aa7a0]">
                     {isArabic ? 'كان:' : 'Was:'}{' '}
@@ -648,6 +739,13 @@ Listing: ${itemTitle}`;
           ))}
         </div>
       )}
+
+      <AnimatePresence>
+        {compareIds.length > 0 && !compareOpen && <motion.div animate={{ y: 0, opacity: 1 }} className="fixed inset-x-3 bottom-4 z-80 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl border border-white/70 bg-[#203c2e] p-3 text-white shadow-2xl" initial={{ y: 24, opacity: 0 }}><span className="text-xs font-semibold">{isArabic ? `قارن ${compareIds.length} إعلانات (حتى 3)` : `Compare ${compareIds.length} listings (up to 3)`}</span><div className="flex gap-2"><button className="min-h-10 rounded-xl bg-white px-4 text-xs font-bold text-[#203c2e]" onClick={() => setCompareOpen(true)} type="button">{isArabic ? 'ابدأ المقارنة' : 'Compare now'}</button><button aria-label={isArabic ? 'مسح المقارنة' : 'Clear comparison'} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/25" onClick={() => setCompareIds([])} type="button"><X className="h-4 w-4" /></button></div></motion.div>}
+      </AnimatePresence>
+      <AnimatePresence>
+        {compareOpen && <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#17231e]/60 p-3 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) setCompareOpen(false); }}><motion.section aria-labelledby="comparison-title" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl" initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} role="dialog"><header className="flex items-center justify-between border-b border-[#e8eee9] p-5"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#6d8b78]">{isArabic ? 'اختيار أوضح' : 'A clearer choice'}</p><h2 className="mt-1 text-lg font-bold text-[#24382d]" id="comparison-title">{isArabic ? 'مقارنة الإعلانات' : 'Compare listings'}</h2></div><button aria-label={isArabic ? 'إغلاق' : 'Close'} className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e0e9e2]" onClick={() => setCompareOpen(false)} type="button"><X className="h-4 w-4" /></button></header><div className="zx-no-bar grid max-h-[calc(90vh-80px)] gap-3 overflow-auto p-4 sm:grid-cols-2 lg:grid-cols-3">{comparisonListings.map((listing) => <article className="overflow-hidden rounded-2xl border border-[#e5ece6]" key={listing.id}><img alt={listing.title} className="h-40 w-full object-cover" src={publicAssetUrl(listing.photo)} /><div className="space-y-3 p-4"><div><h3 className="font-bold text-[#24382d]">{listing.title}</h3><p className="mt-1 flex items-center gap-1 text-xs text-[#718478]"><MapPin className="h-3.5 w-3.5" />{listing.location}</p></div><p className="text-lg font-bold text-[#315643]">{listing.price}</p><p className="rounded-lg bg-[#f1f6f2] px-3 py-2 text-xs font-semibold text-[#456451]">{listing.deal}</p><ul className="space-y-2 text-xs text-[#617368]">{listing.details.filter(Boolean).map((detail, index) => <li className="border-b border-[#edf1ee] pb-2" key={`${listing.id}-${index}`}>{detail}</li>)}</ul><button className="min-h-10 w-full rounded-xl bg-[#315643] text-xs font-bold text-white" onClick={() => { const car = vehicleList.find((item) => item.id === listing.id); const property = propertyList.find((item) => item.id === listing.id); setCompareOpen(false); if (car) { setActiveVehicle(car); setGalleryIndex(0); } else if (property) { setActiveProperty(property); setGalleryIndex(0); } }} type="button">{isArabic ? 'عرض التفاصيل وطلب معاينة' : 'View details & request viewing'}</button><button className="min-h-9 w-full text-xs font-semibold text-[#8a5e51]" onClick={() => toggleComparison(listing.id)} type="button">{isArabic ? 'إزالة من المقارنة' : 'Remove from comparison'}</button></div></article>)}</div></motion.section></div>}
+      </AnimatePresence>
 
       {/* Modal: Interactive Gallery Slider + Map + Inspection Scheduler */}
       <AnimatePresence>

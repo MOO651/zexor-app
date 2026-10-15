@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Fingerprint, Heart, ShoppingBag, Sparkles } from 'lucide-react';
+import { BellRing, Fingerprint, Heart, ShoppingBag, Sparkles } from 'lucide-react';
 import { art } from '../data/imagery';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -13,6 +13,7 @@ type ProductCardProps = {
   renderPrice: (price: number, className: string) => ReactNode;
   onToggleWishlist: (product: Product) => void;
   onAddToCart: (product: Product, variant?: string) => void;
+  onNotifyAvailability?: (product: Product) => void;
   onCustomize?: (product: Product) => void;
   badge?: string;
   categoryLabel?: string;
@@ -37,6 +38,7 @@ export function ProductCard({
   renderPrice,
   onToggleWishlist,
   onAddToCart,
+  onNotifyAvailability,
   onCustomize,
   badge,
   categoryLabel: customCategoryLabel,
@@ -64,6 +66,7 @@ export function ProductCard({
     customize: isArabic ? 'تخصيص الكارت' : 'Personalize',
     addToCart: isArabic ? 'إضافة إلى السلة' : 'Add to bag',
     size: isArabic ? 'المقاس' : 'Size',
+    notify: isArabic ? 'نبّهني عند التوفر' : 'Notify me when available',
   };
   const categoryLabel = customCategoryLabel ?? (product.category === 'cards'
     ? isArabic ? 'هوية رقمية متصلة' : 'CONNECTED IDENTITY'
@@ -169,7 +172,16 @@ export function ProductCard({
           </div>}
         </div>
 
-        {onCustomize ? (
+        {soldOut && onNotifyAvailability ? (
+          <button
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-zx-primary/25 bg-zx-surface-2 text-[12px] font-bold text-zx-primary shadow-sm transition-all hover:-translate-y-0.5 hover:bg-zx-surface focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-primary/20"
+            onClick={() => onNotifyAvailability(product)}
+            type="button"
+          >
+            <BellRing aria-hidden="true" className="h-4 w-4" />
+            {labels.notify}
+          </button>
+        ) : onCustomize ? (
           <div className="flex gap-2">
             <button
               className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-zx-primary px-4 text-[12px] font-bold text-zx-on-primary shadow-md shadow-zx-primary/15 transition-all hover:-translate-y-0.5 hover:bg-zx-primary-hover hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-primary/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
