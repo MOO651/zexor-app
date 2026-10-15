@@ -17,7 +17,10 @@ import {
 } from 'lucide-react';
 import { INITIAL_PROPERTIES, INITIAL_VEHICLES } from '../data/initialData';
 import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../types';
+import type { DynamicCategory } from '../types';
 import { publicAssetUrl } from '../utils';
+import { DepartmentBanner } from './DepartmentBanner';
+import { art } from '../data/imagery';
 
 type Props = {
   mode: 'cars' | 'property';
@@ -28,6 +31,8 @@ type Props = {
   onInquiry: (inquiry: PlatformInquiry) => void;
   onWhatsApp: (market: Market, message: string) => void;
   sectionName?: string;
+  banner?: DynamicCategory;
+  subcategories?: DynamicCategory[];
 };
 
 export function Marketplace({
@@ -39,6 +44,8 @@ export function Marketplace({
   onInquiry,
   onWhatsApp,
   sectionName,
+  banner,
+  subcategories = [],
 }: Props) {
   const isArabic = locale === 'ar';
   // Filters
@@ -50,6 +57,7 @@ export function Marketplace({
   const [vehicleDealFilter, setVehicleDealFilter] = useState('');
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [makeFilter, setMakeFilter] = useState('');
+  const [selectedDepartmentCategory, setSelectedDepartmentCategory] = useState('');
 
   // Selected item modal / Slider / Booking
   const [activeVehicle, setActiveVehicle] = useState<Vehicle | null>(null);
@@ -86,6 +94,11 @@ export function Marketplace({
 
   const filteredVehicles = vehicleList.filter((car) => {
     if (!inMarket(car.region)) return false;
+    if (selectedDepartmentCategory) {
+      const custom = subcategories.find((category) => category.slug === selectedDepartmentCategory);
+      const haystack = `${car.title[locale]} ${car.make} ${car.body} ${car.condition} ${car.region}`.toLowerCase();
+      if (!custom || (!haystack.includes(custom.slug.replaceAll('-', ' ')) && !haystack.includes(custom.name[locale].toLowerCase()) && !haystack.includes(custom.name.en.toLowerCase()))) return false;
+    }
     if (selectedRegion && car.region !== selectedRegion) return false;
     if (vehicleDealFilter && (car.deal ?? 'Sale') !== vehicleDealFilter) return false;
     if (makeFilter && car.make !== makeFilter) return false;
@@ -97,6 +110,11 @@ export function Marketplace({
 
   const filteredProperties = propertyList.filter((prop) => {
     if (!inMarket(prop.region)) return false;
+    if (selectedDepartmentCategory) {
+      const custom = subcategories.find((category) => category.slug === selectedDepartmentCategory);
+      const haystack = `${prop.title[locale]} ${prop.type} ${prop.deal} ${prop.region}`.toLowerCase();
+      if (!custom || (!haystack.includes(custom.slug.replaceAll('-', ' ')) && !haystack.includes(custom.name[locale].toLowerCase()) && !haystack.includes(custom.name.en.toLowerCase()))) return false;
+    }
     if (selectedRegion && prop.region !== selectedRegion) return false;
     if (dealFilter && prop.deal !== dealFilter) return false;
     if (propertyTypeFilter && prop.type !== propertyTypeFilter) return false;
@@ -183,7 +201,11 @@ Listing: ${itemTitle}`;
   return (
     <div className="space-y-10">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#d9f2e9] via-[#faf8f2] to-[#ecdff4] p-6 shadow-xl sm:p-10">
+      <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={mode === 'cars' ? (isArabic ? 'تصفح السيارات المتاحة للبيع أو الإيجار، وقارن المواصفات واحجز موعد المعاينة.' : 'Explore cars for sale or rent, compare their details and request a viewing.') : (isArabic ? 'اكتشف الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار واطلب معاينة.' : 'Explore homes, villas and land for sale or rent, then request a viewing.')} />
+      {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
+        { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
+      ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-10 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
+      <section id="department-content" className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#d9f2e9] via-[#faf8f2] to-[#ecdff4] p-6 shadow-xl sm:p-10">
         <div className="relative z-10 max-w-2xl">
           <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
             {mode === 'cars' ? <CarFront className="h-4 w-4" /> : <Home className="h-4 w-4" />}

@@ -24,6 +24,10 @@ export type DynamicCategory = {
   active: boolean;
   /** Optional parent department; set for an in-department subcategory. */
   parentSlug?: string;
+  /** Optional editable department banner copy and artwork. */
+  bannerTitle?: Record<Locale, string>;
+  bannerText?: Record<Locale, string>;
+  bannerImage?: string;
 };
 
 export type Product = {

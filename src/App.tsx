@@ -65,7 +65,9 @@ const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
 import { CategoryShowcase } from './components/CategoryShowcase';
+import { DepartmentBanner } from './components/DepartmentBanner';
 import { ProductCard } from './components/ProductCard';
+import { art } from './data/imagery';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   blankPaymentMethod,
@@ -1063,6 +1065,8 @@ export default function App() {
   const categoryNameFor = useCallback((slug: string, fallback: string) =>
     categories.find((category) => category.slug === slug)?.name[locale] ?? fallback,
   [categories, locale]);
+  const departmentFor = useCallback((slug: string) => categories.find((category) => category.slug === slug), [categories]);
+  const subcategoriesFor = useCallback((slug: string) => categories.filter((category) => category.parentSlug === slug && category.active), [categories]);
   const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
     (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
@@ -1161,9 +1165,23 @@ export default function App() {
     (p) =>
       p.available &&
       (route === 'cards' ? p.category === 'cards' : route === 'fashion' ? p.category === 'fashion' : true) &&
+      (route !== 'cards' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'cards' && category.active)) &&
+      (route !== 'cards' || !selectedFashionSubcategory || p.subcategoryId === selectedFashionSubcategory) &&
       (route !== 'fashion' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'fashion' && category.active)) &&
       (route !== 'fashion' || !activeSelectedFashionSubcategory || p.subcategoryId === activeSelectedFashionSubcategory),
   );
+  const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
+  const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
+    const category = departmentFor(slug);
+    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
+  };
+  const renderSubcategoryChips = (slug: string, count: (subcategorySlug?: string) => number) => {
+    const children = subcategoriesFor(slug);
+    if (!children.length) return null;
+    return <nav aria-label={isArabic ? 'الأقسام الفرعية' : 'Subcategories'} className="flex flex-wrap gap-2">{[
+      { slug: '', name: isArabic ? 'الكل' : 'All' }, ...children.map((category) => ({ slug: category.slug, name: category.name[locale] })),
+    ].map((item) => <button aria-pressed={selectedFashionSubcategory === item.slug} className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${selectedFashionSubcategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedFashionSubcategory(item.slug)} type="button">{item.name}<span className="ms-2 opacity-70">{count(item.slug || undefined)}</span></button>)}</nav>;
+  };
 
   return (
     <div
@@ -1864,18 +1882,9 @@ export default function App() {
         {/* Route: Cards */}
         {route === 'cards' && (
           <div className="space-y-10">
-            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-              <div>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
-                  {isArabic ? 'بطاقات الهوية المتصلة' : 'Connected Identity'}
-                </span>
-                <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK')}</h1>
-                <p className="mt-1.5 text-xs text-[#6e8076]">
-                  {isArabic
-                    ? 'شارك ملفك الشخصي أو التجاري بلمسة واحدة دون الحاجة لتطبيق أو أوراق.'
-                    : 'Share your contact details, portfolio and socials with a single tap.'}
-                </p>
-              </div>
+            {departmentBanner('cards', isArabic ? 'هويتك الرقمية، بلمسة واحدة' : 'Your identity, one tap away', isArabic ? 'بطاقات NFC عملية وأنيقة تربط تفاصيلك المهنية والاجتماعية مباشرة بهاتفك.' : 'Thoughtful NFC cards that connect your professional identity and social profiles in one tap.')}
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              {renderSubcategoryChips('cards', (subcategory) => storefrontProducts.filter((product) => product.category === 'cards' && (!subcategory ? true : product.subcategoryId === subcategory)).length)}
 
               {/* Direct Customize CTA */}
               <button
@@ -1918,17 +1927,7 @@ export default function App() {
         {/* Route: Fashion */}
         {route === 'fashion' && (
           <div className="space-y-10">
-            <div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
-                {isArabic ? 'أزياء زكسور' : 'ZEXOR Fashion'}
-              </span>
-              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">{categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION')}</h1>
-              <p className="mt-1.5 text-xs text-[#6e8076]">
-                {isArabic
-                  ? 'أقمشة قطنية ثقيلة وقصّات واسعة مريحة بإصدارات محدودة وحصرية.'
-                  : 'Independent drops with high-density cotton and confident silhouettes.'}
-              </p>
-            </div>
+            {departmentBanner('fashion', isArabic ? 'تفاصيل يومية، بطابع مختلف' : 'Everyday pieces, a distinct point of view', isArabic ? 'اختيارات أزياء مريحة بقصّات واضحة وتفاصيل مدروسة تناسب يومك.' : 'Considered everyday essentials with confident silhouettes and thoughtful details.')}
 
             {activeFashionSubcategories.length > 0 && (
               <nav aria-label={isArabic ? 'أقسام الأزياء الفرعية' : 'Fashion collections'} className="flex flex-wrap gap-2">
@@ -1986,13 +1985,13 @@ export default function App() {
 
         {/* Route: Services (Agency, Portfolio, Calculator, Reviews, CV) */}
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
-          <AgencyPortfolio
+          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}<AgencyPortfolio
             locale={locale}
             market={market}
             sectionName={categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
             onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
-          />
+          /></div>
         )}
 
         {/* Route: Reviews Dedicated */}
@@ -2015,6 +2014,8 @@ export default function App() {
             market={market}
             mode="cars"
             sectionName={categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS')}
+            banner={departmentFor('cars')}
+            subcategories={subcategoriesFor('cars')}
             onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
@@ -2029,6 +2030,8 @@ export default function App() {
             market={market}
             mode="property"
             sectionName={categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES')}
+            banner={departmentFor('property')}
+            subcategories={subcategoriesFor('property')}
             onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}

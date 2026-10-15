@@ -183,6 +183,11 @@ export function AdminDashboard({
   const [newCatNameEn, setNewCatNameEn] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
   const [newCatParentSlug, setNewCatParentSlug] = useState('');
+  const [newCatBannerTitleAr, setNewCatBannerTitleAr] = useState('');
+  const [newCatBannerTitleEn, setNewCatBannerTitleEn] = useState('');
+  const [newCatBannerTextAr, setNewCatBannerTextAr] = useState('');
+  const [newCatBannerTextEn, setNewCatBannerTextEn] = useState('');
+  const [newCatBannerImage, setNewCatBannerImage] = useState('');
   const [newShippingArea, setNewShippingArea] = useState('');
   const [newShippingCarrier, setNewShippingCarrier] = useState('');
   const [carrierMarket, setCarrierMarket] = useState<Market>(market);
@@ -281,6 +286,9 @@ export function AdminDashboard({
           ...category,
           name: { ar: newCatNameAr.trim(), en: newCatNameEn.trim() },
           parentSlug: newCatParentSlug || undefined,
+          bannerTitle: { ar: newCatBannerTitleAr.trim(), en: newCatBannerTitleEn.trim() },
+          bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
+          bannerImage: newCatBannerImage.trim(),
         }
         : category));
       if (editedCategory?.parentSlug !== newCatParentSlug) {
@@ -293,6 +301,7 @@ export function AdminDashboard({
       setNewCatNameEn('');
       setNewCatSlug('');
       setNewCatParentSlug('');
+      setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
       setShowCategoryModal(false);
       onToast(isArabic ? 'تم تحديث اسم القسم في المتجر' : 'Section name updated across the store');
       return;
@@ -310,12 +319,16 @@ export function AdminDashboard({
       icon: 'sparkles',
       active: true,
       ...(newCatParentSlug ? { parentSlug: newCatParentSlug } : {}),
+      bannerTitle: { ar: newCatBannerTitleAr.trim(), en: newCatBannerTitleEn.trim() },
+      bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
+      bannerImage: newCatBannerImage.trim(),
     };
     setCategories((prev) => [...prev, newCat]);
     setNewCatNameAr('');
     setNewCatNameEn('');
     setNewCatSlug('');
     setNewCatParentSlug('');
+    setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
     setEditingCategoryId(null);
     setShowCategoryModal(false);
     onToast(isArabic ? 'تمت إضافة القسم الجديد بنجاح!' : 'New category created successfully!');
@@ -327,6 +340,11 @@ export function AdminDashboard({
     setNewCatNameEn(category.name.en);
     setNewCatSlug(category.slug);
     setNewCatParentSlug(category.parentSlug ?? '');
+    setNewCatBannerTitleAr(category.bannerTitle?.ar ?? '');
+    setNewCatBannerTitleEn(category.bannerTitle?.en ?? '');
+    setNewCatBannerTextAr(category.bannerText?.ar ?? '');
+    setNewCatBannerTextEn(category.bannerText?.en ?? '');
+    setNewCatBannerImage(category.bannerImage ?? '');
     setShowCategoryModal(true);
   };
 
@@ -1156,8 +1174,8 @@ export function AdminDashboard({
               </h2>
               <p className="text-[10px] text-[#788b80]">
                 {isArabic
-                  ? 'أضف أقساماً فرعية داخل الأزياء، واربط المنتجات بها، وعدّل أسماء الأقسام أو أخفها من هنا.'
-                  : 'Add Fashion collections, assign products, rename categories, or hide them from the storefront here.'}
+                  ? 'أنشئ أقساماً فرعية داخل أي قسم، واربط المنتجات بها، وعدّل بانر كل قسم ونصوصه وصورته من هنا.'
+                  : 'Create subcategories in any department, assign products, and edit each department banner, copy and image here.'}
               </p>
             </div>
             <button
@@ -1168,6 +1186,7 @@ export function AdminDashboard({
                 setNewCatNameEn('');
                 setNewCatSlug('');
                 setNewCatParentSlug('');
+                setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
                 setShowCategoryModal(true);
               }}
               type="button"
@@ -1227,11 +1246,11 @@ export function AdminDashboard({
           {showCategoryModal && (
             <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 p-4">
               <form
-                className="w-full max-w-md rounded-3xl border border-white bg-white p-6 shadow-2xl"
+                className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white bg-white p-6 shadow-2xl"
                 onSubmit={handleSaveCategory}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-[#2e4337]">{editingCategoryId ? isArabic ? 'تعديل اسم القسم' : 'Rename Section' : isArabic ? 'إضافة قسم جديد' : 'Add New Category'}</h3>
+                  <h3 className="text-sm font-bold text-[#2e4337]">{editingCategoryId ? isArabic ? 'تعديل القسم وتصميمه' : 'Edit department design' : isArabic ? 'إضافة قسم جديد' : 'Add New Category'}</h3>
                   <button onClick={() => { setShowCategoryModal(false); setEditingCategoryId(null); setNewCatNameAr(''); setNewCatNameEn(''); setNewCatSlug(''); setNewCatParentSlug(''); }} type="button">
                     <X className="h-4 w-4 text-[#72857a]" />
                   </button>
@@ -1262,11 +1281,11 @@ export function AdminDashboard({
                       <label className="text-[10px] text-[#607368]">{isArabic ? 'القسم الرئيسي (اختياري)' : 'Parent department (optional)'}</label>
                       <select className="mt-1 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs" onChange={(event) => setNewCatParentSlug(event.target.value)} value={newCatParentSlug}>
                         <option value="">{isArabic ? 'قسم رئيسي مستقل' : 'Top-level category'}</option>
-                        {categories.filter((category) => category.slug === 'fashion').map((category) => (
+                        {categories.filter((category) => !category.parentSlug && category.slug !== categories.find((entry) => entry.id === editingCategoryId)?.slug).map((category) => (
                           <option key={category.id} value={category.slug}>{category.name[locale]}</option>
                         ))}
                       </select>
-                      <p className="mt-1 text-[9px] leading-4 text-[#819288]">{isArabic ? 'اختر الأزياء لإضافة قسم فرعي يظهر داخل صفحة الأزياء.' : 'Choose Fashion to create a collection inside the Fashion page.'}</p>
+                      <p className="mt-1 text-[9px] leading-4 text-[#819288]">{isArabic ? 'اختر أي قسم رئيسي لإظهار المجموعة داخله.' : 'Choose any main department to show this collection inside it.'}</p>
                     </div>
                   )}
                   <div>
@@ -1279,6 +1298,17 @@ export function AdminDashboard({
                       value={newCatSlug}
                     />
                     </>}
+                  </div>
+                  <div className="border-t border-[#edf1ee] pt-3">
+                    <p className="mb-2 text-[10px] font-bold text-[#496e5a]">{isArabic ? 'بانر القسم المتحرك' : 'Animated department banner'}</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'عنوان البانر بالعربي' : 'Banner title (Arabic)'}<input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => setNewCatBannerTitleAr(e.target.value)} value={newCatBannerTitleAr} /></label>
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'عنوان البانر بالإنجليزي' : 'Banner title (English)'}<input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => setNewCatBannerTitleEn(e.target.value)} value={newCatBannerTitleEn} /></label>
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'وصف البانر بالعربي' : 'Banner description (Arabic)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-[#dfe8e2] p-3 text-xs" onChange={(e) => setNewCatBannerTextAr(e.target.value)} value={newCatBannerTextAr} /></label>
+                      <label className="text-[10px] text-[#607368]">{isArabic ? 'وصف البانر بالإنجليزي' : 'Banner description (English)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-[#dfe8e2] p-3 text-xs" onChange={(e) => setNewCatBannerTextEn(e.target.value)} value={newCatBannerTextEn} /></label>
+                    </div>
+                    <label className="mt-3 block text-[10px] text-[#607368]">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
+                    <p className="mt-1 text-[9px] text-[#819288]">{isArabic ? 'اترك الحقول فارغة لاستخدام التصميم والصورة الافتراضيين للقسم.' : 'Leave these fields empty to use the department’s built-in design and image.'}</p>
                   </div>
                 </div>
                 <button
