@@ -67,6 +67,7 @@ const TrackingModal = lazy(() =>
 );
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
+import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { isSupabaseConfigured, supabase } from '../supabase';
@@ -546,24 +547,39 @@ export default function App() {
   const [route, setRoute] = useState<Route>(pageFromHash);
   useEffect(() => {
     if (route === 'admin' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const targets = document.querySelectorAll<HTMLElement>(
-      '.zx-home-flow > section, .zx-department-board, .zx-marketplace > section, .zx-agency-page > section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card',
-    );
     if (!('IntersectionObserver' in window)) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
+        entry.target.classList.toggle('is-visible', entry.isIntersecting);
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -28px 0px' });
-    targets.forEach((target, index) => {
-      target.classList.add('zx-reveal');
-      target.style.setProperty('--zx-reveal-order', String(index % 5));
-      observer.observe(target);
+    const selector = '.zx-app-shell > main section, .zx-home-flow > section, .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
+    let order = 0;
+    const observeTargets = (root: ParentNode) => {
+      if (root instanceof HTMLElement && root.matches(selector) && !root.classList.contains('zx-reveal')) {
+        root.classList.add('zx-reveal');
+        root.style.setProperty('--zx-reveal-order', String(order++ % 5));
+        observer.observe(root);
+      }
+      root.querySelectorAll<HTMLElement>(selector).forEach((target) => {
+        if (target.classList.contains('zx-reveal')) return;
+        target.classList.add('zx-reveal');
+        target.style.setProperty('--zx-reveal-order', String(order++ % 5));
+        observer.observe(target);
+      });
+    };
+    const appRoot = document.querySelector('.zx-app-shell') ?? document.body;
+    observeTargets(appRoot);
+    const mutations = new MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach((node) => {
+        if (node instanceof Element) observeTargets(node);
+      }));
     });
-    return () => observer.disconnect();
+    mutations.observe(appRoot, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+    };
   }, [route]);
   const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string>>({});
@@ -1607,7 +1623,9 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {storefrontProducts
+                  {storefrontProducts.filter((p) => p.category === 'cards').slice(0, 3).length === 0 ? (
+                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف البطاقات' : 'Explore NFC cards'} description={isArabic ? 'نجهّز لك تجربة بطاقات تربط حضورك الرقمي بلمسة واحدة. تواصل معنا لمساعدتك في اختيار التصميم المناسب.' : 'We are preparing a considered NFC collection. Talk to our team and we will help you choose the right design.'} image={art.cardsPortal} locale={locale} onAction={() => navigate('cards')} title={isArabic ? 'هويتك الرقمية تبدأ من هنا' : 'Your connected identity starts here'} />
+                  ) : storefrontProducts
                     .filter((p) => p.category === 'cards')
                     .slice(0, 3)
                     .map((p) => (
@@ -1653,7 +1671,9 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
-                  {storefrontProducts
+                  {storefrontProducts.filter((p) => p.category === 'fashion').slice(0, 2).length === 0 ? (
+                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف الأزياء' : 'Explore fashion'} description={isArabic ? 'المجموعة الجديدة قيد التجهيز. استكشف قسم الأزياء أو تواصل معنا لمعرفة المتاح.' : 'The next fashion collection is being prepared. Explore the department or ask our team what is available.'} image={art.hoodie} locale={locale} onAction={() => navigate('fashion')} title={isArabic ? 'تفاصيل مختارة ليومك' : 'Thoughtful pieces for every day'} />
+                  ) : storefrontProducts
                     .filter((p) => p.category === 'fashion')
                     .slice(0, 2)
                     .map((p) => (
@@ -1754,7 +1774,9 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {vehicles.map((car) => (
+                  {vehicles.length === 0 ? (
+                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق السيارات' : 'Ask our vehicle team'} description={isArabic ? 'لا توجد سيارات منشورة في المعرض حالياً. فريقنا يساعدك في العثور على خيار الإيجار المناسب.' : 'There are no published vehicles in the showroom right now. Our team can help you find a rental that fits.'} image={art.vehiclesPortal} locale={locale} onAction={() => navigate('cars')} title={isArabic ? 'اختيارك القادم يبدأ من هنا' : 'Your next drive starts here'} />
+                  ) : vehicles.map((car) => (
                     <TiltCard
                       className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
                       intensity={8}
@@ -1831,7 +1853,9 @@ export default function App() {
                 </div>
 
                 <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {properties.map((prop) => (
+                  {properties.length === 0 ? (
+                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق العقارات' : 'Ask our property team'} description={isArabic ? 'لا توجد مساحات منشورة حالياً. أخبرنا بما تبحث عنه وسنساعدك في العثور على إيجار مناسب.' : 'There are no published spaces right now. Tell us what you need and we will help find a suitable rental.'} image={art.estatePortal} locale={locale} onAction={() => navigate('property')} title={isArabic ? 'مساحة تناسب خطوتك القادمة' : 'Find room for what comes next'} />
+                  ) : properties.map((prop) => (
                     <TiltCard
                       className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
                       intensity={8}
@@ -1963,7 +1987,9 @@ export default function App() {
             {/* Product Cards Grid — premium surface, image plate with a soft
                 inner ring, discount badge and a two-tier action row. */}
             <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {currentCategoryProducts.map((p) => (
+              {currentCategoryProducts.length === 0 ? (
+                <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن تصميم بطاقتك' : 'Ask about your NFC card'} description={isArabic ? 'تواصل مع فريقنا لتجهيز بطاقة NFC بتصميم يناسب هويتك، وسنخبرك بالتفاصيل المتاحة.' : 'Talk with our team about an NFC card designed around your identity, and we will share the available options.'} image={art.cardsPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في الاستفسار عن بطاقات NFC وتصميمها.' : 'Hello, I would like to ask about NFC cards and their design.')} title={isArabic ? 'بطاقتك المميزة تبدأ بفكرة' : 'Your signature card starts with an idea'} />
+              ) : currentCategoryProducts.map((p) => (
                 <ProductCard
                   key={p.id}
                   product={p}
@@ -2017,12 +2043,9 @@ export default function App() {
             )}
 
             <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {currentCategoryProducts.length === 0 && (
-                <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
-                  {isArabic ? 'لا توجد منتجات في هذا القسم حالياً.' : 'No products in this collection yet.'}
-                </p>
-              )}
-              {currentCategoryProducts.map((p) => (
+              {currentCategoryProducts.length === 0 ? (
+                <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن الأزياء' : 'Ask about the collection'} description={isArabic ? 'تواصل معنا لمعرفة التشكيلات المتاحة ومواعيد وصول القطع الجديدة.' : 'Contact us for current availability and details about the next fashion release.'} image={art.hoodie} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أود معرفة المتاح في قسم الأزياء.' : 'Hello, I would like to ask what is available in the fashion collection.')} title={isArabic ? 'اختيارات جديدة في الطريق' : 'A new edit is on the way'} />
+              ) : currentCategoryProducts.map((p) => (
                 <ProductCard
                   key={p.id}
                   product={p}
@@ -2046,7 +2069,7 @@ export default function App() {
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
           <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
-          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-8 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف خدمات لهذا القسم من إدارة المنتجات لتظهر هنا.' : 'Add services under this department in Admin to display them here.'}</p>}</div></section>
+          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
           <AgencyPortfolio
             locale={locale}
             market={market}
@@ -2126,7 +2149,7 @@ export default function App() {
             {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-[#e2ebe5] bg-white p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-[#d6eee2]' : index % 3 === 1 ? 'bg-linear-to-l from-[#f4e8db]' : 'bg-linear-to-l from-[#e5e1f2]'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-[#7b9184]">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-[#293f33]">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-[#f0f5f1] px-3 py-1.5 text-[10px] text-[#567362]">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
             <div className="space-y-5">
               <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف منتجات لهذا القسم من لوحة الإدارة لتظهر هنا.' : 'Add products to this department in Admin to show them here.'}</p> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
             </div>
           </section>
         )}

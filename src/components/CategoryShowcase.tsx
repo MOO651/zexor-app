@@ -45,10 +45,10 @@ function DepartmentTile({
       style={{ transformPerspective: 1000, transformStyle: 'preserve-3d' }}
       transition={{ duration: 0.45, delay: index * 0.06 }}
       type="button"
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: false, margin: '-50px' }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       whileHover={reduceMotion ? undefined : { y: -7, rotateX: 2, rotateY: isArabic ? -1.5 : 1.5, scale: 1.012 }}
-      whileTap={{ scale: 0.99 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.985, rotateX: -1.5 }}
     >
       <img
         alt=""

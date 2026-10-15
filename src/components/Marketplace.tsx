@@ -17,6 +17,7 @@ import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../type
 import type { DynamicCategory } from '../types';
 import { publicAssetUrl } from '../utils';
 import { DepartmentBanner } from './DepartmentBanner';
+import { DepartmentEmptyState } from './DepartmentEmptyState';
 import { art } from '../data/imagery';
 
 type Props = {
@@ -136,6 +137,21 @@ export function Marketplace({
     if (maxPrice && prop.price > Number(maxPrice)) return false;
     return true;
   });
+  const hasMarketListings = mode === 'cars'
+    ? vehicleList.some((car) => inMarket(car.region))
+    : propertyList.some((property) => inMarket(property.region));
+
+  const resetMarketplaceFilters = () => {
+    setRegionFilter('');
+    setMinPrice('');
+    setMaxPrice('');
+    setConditionFilter('');
+    setDealFilter('');
+    setVehicleDealFilter('');
+    setPropertyTypeFilter('');
+    setMakeFilter('');
+    setSelectedDepartmentCategory('');
+  };
 
   const handleCarWhatsApp = (car: Vehicle) => {
     const isRental = car.deal === 'Rent';
@@ -352,12 +368,9 @@ Listing: ${itemTitle}`;
       {/* Grid: Cars or Properties */}
       {mode === 'cars' ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredVehicles.length === 0 && (
-            <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
-              {isArabic ? 'لا توجد سيارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No vehicles match these filters in this market yet.'}
-            </p>
-          )}
-          {filteredVehicles.map((car) => (
+          {filteredVehicles.length === 0 ? (
+            <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل السيارات' : 'تواصل مع فريق السيارات') : (hasMarketListings ? 'Show all vehicles' : 'Ask our vehicle team')} description={isArabic ? (hasMarketListings ? 'غيّرنا لك العرض ليتوافق مع بحثك. امسح الفلاتر لرؤية جميع السيارات المتاحة في سوقك.' : 'المعرض يستقبل اختيارات جديدة باستمرار. أخبرنا بنوع السيارة ومدة الإيجار التي تناسبك.') : (hasMarketListings ? 'No vehicles match these filters. Clear them to see all available vehicles in your market.' : 'Our showroom is being curated. Tell us what kind of vehicle and rental period you need.')} image={art.vehiclesPortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن سيارة للإيجار. هل يمكنكم مساعدتي بالخيارات المتاحة؟' : 'Hello, I am looking for a rental vehicle. Could you share the available options?')} title={isArabic ? 'نبحث لك عن السيارة المناسبة' : 'Let us find the right drive for you'} />
+          ) : filteredVehicles.map((car) => (
             <article
               className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
               key={car.id}
@@ -500,12 +513,9 @@ Listing: ${itemTitle}`;
       ) : (
         /* Real Estate Grid */
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredProperties.length === 0 && (
-            <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
-              {isArabic ? 'لا توجد عقارات مطابقة للفلاتر في هذا السوق حاليًا.' : 'No properties match these filters in this market yet.'}
-            </p>
-          )}
-          {filteredProperties.map((prop) => (
+          {filteredProperties.length === 0 ? (
+            <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل المساحات' : 'تواصل مع فريق العقارات') : (hasMarketListings ? 'Show all spaces' : 'Ask our property team')} description={isArabic ? (hasMarketListings ? 'لا توجد نتائج بهذه المواصفات. امسح الفلاتر لاستكشاف كل المساحات المتاحة للإيجار.' : 'أخبرنا بالمدينة ونوع المساحة التي تبحث عنها، وسيساعدك فريقنا في الخيارات المتاحة للإيجار.') : (hasMarketListings ? 'No spaces match these filters. Clear them to explore all available rentals.' : 'Tell us which city and type of space you need, and our team can help with current rental options.')} image={art.estatePortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن عقار للإيجار. أود معرفة الخيارات المتاحة.' : 'Hello, I am looking for a property to rent. Please share the available options.')} title={isArabic ? 'مساحة مناسبة تستحق البحث' : 'The right space is worth finding'} />
+          ) : filteredProperties.map((prop) => (
             <article
               className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
               key={prop.id}
