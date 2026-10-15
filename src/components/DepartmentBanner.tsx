@@ -32,7 +32,7 @@ export function DepartmentBanner({ locale, name, title, text, image, accent = '#
   const BackArrow = isArabic ? ArrowRight : ArrowLeft;
   const NextArrow = isArabic ? ArrowLeft : ArrowRight;
   return (
-    <section className="relative isolate min-h-[290px] overflow-hidden rounded-[2rem] bg-[#19392f] shadow-[0_24px_70px_-35px_rgba(23,60,50,.8)] sm:min-h-[360px]">
+    <section className="zx-department-banner relative isolate min-h-[290px] overflow-hidden rounded-[2rem] bg-[#19392f] shadow-[0_24px_70px_-35px_rgba(23,60,50,.8)] sm:min-h-[360px]">
       <AnimatePresence mode="sync">
         <motion.img key={`bg-${slideIndex}-${current.image}`} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" src={publicAssetUrl(current.image || fallbackImage)} initial={{ opacity: 0, scale: 1.08, x: isArabic ? 24 : -24 }} animate={{ opacity: 1, scale: [1.02, 1.08, 1.02], x: [0, isArabic ? -8 : 8, 0] }} exit={{ opacity: 0, scale: 1.03 }} transition={{ duration: 1.1, ease: 'easeInOut' }} />
       </AnimatePresence>

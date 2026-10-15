@@ -296,7 +296,7 @@ Total: ${total} ${currency}`;
     >
       <motion.aside
         animate={{ x: 0 }}
-        className="flex h-full w-full max-w-md flex-col border-s border-white/80 bg-[#fbfdfa] shadow-2xl"
+        className="zx-checkout-drawer flex h-full w-full max-w-md flex-col border-s border-white/80 bg-[#fbfdfa] shadow-2xl"
         exit={{ x: isArabic ? '-100%' : '100%' }}
         initial={{ x: isArabic ? '-100%' : '100%' }}
         transition={{ type: 'spring', stiffness: 280, damping: 30 }}

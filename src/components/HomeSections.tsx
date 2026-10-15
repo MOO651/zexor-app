@@ -288,7 +288,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
   ];
 
   return (
-    <footer className="relative z-10 mt-16 border-t border-white/70 bg-white/70 backdrop-blur-xl">
+    <footer className="zx-site-footer relative z-10 mt-16 border-t border-white/70 bg-white/70 backdrop-blur-xl">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         {/* Brand */}
         <div>

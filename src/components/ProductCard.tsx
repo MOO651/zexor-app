@@ -70,7 +70,7 @@ export function ProductCard({
       : isArabic ? 'الاستوديو الرقمي' : 'DIGITAL STUDIO');
 
   return (
-    <article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-line bg-zx-surface">
+    <article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-3xl border border-zx-line bg-zx-surface">
       <div className="zx-product-media relative aspect-[4/3] overflow-hidden bg-zx-surface-2">
         {product.imageUrl && failedImageUrl !== product.imageUrl ? (
           <img
@@ -91,7 +91,7 @@ export function ProductCard({
 
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/30 via-black/5 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/35 via-black/5 to-transparent"
         />
 
         <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
@@ -110,7 +110,7 @@ export function ProductCard({
         <button
           aria-label={labels.wishlist}
           aria-pressed={wishlisted}
-          className={`absolute end-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/55 bg-white/90 shadow-lg backdrop-blur-xl transition-all hover:scale-105 hover:bg-white hover:text-[#a75245] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${wishlisted ? 'text-[#a75245]' : 'text-[#334d40]'}`}
+          className={`absolute end-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-[#f8f7f1]/90 shadow-md backdrop-blur-xl transition-all hover:scale-105 hover:bg-white hover:text-[#a75245] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${wishlisted ? 'text-[#a75245]' : 'text-[#334d40]'}`}
           onClick={() => onToggleWishlist(product)}
           type="button"
         >
@@ -125,33 +125,24 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3.5 p-4 sm:p-5">
-        <div className="min-h-[6.25rem]">
-          <p className="mb-2 line-clamp-1 text-[9px] font-bold tracking-[0.12em] text-zx-primary">
-            {categoryLabel}
-          </p>
-          <h3 className="line-clamp-1 text-[15px] font-bold leading-6 text-zx-ink sm:text-base">
-            {product.name[locale]}
-          </h3>
-          <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-zx-muted">
-            {product.description[locale]}
-          </p>
+      <div className="zx-product-body flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="zx-product-category line-clamp-1 text-[9px] font-bold tracking-[0.1em] text-zx-primary">{categoryLabel}</p>
+          {!soldOut && <span className="zx-product-availability flex shrink-0 items-center gap-1.5 text-[9px] font-semibold text-[#63806d]"><span className="h-1.5 w-1.5 rounded-full bg-[#74a47d]" />{isArabic ? 'متاح الآن' : 'Available now'}</span>}
         </div>
+        <h3 className="zx-product-name mt-2 line-clamp-1 text-base font-bold leading-6 text-zx-ink">{product.name[locale]}</h3>
+        <p className="zx-product-description mt-1 line-clamp-2 min-h-10 text-[11px] leading-5 text-zx-muted">{product.description[locale]}</p>
 
         {variants.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-[10px] font-semibold text-zx-muted">{labels.size}</p>
+          <div className="zx-product-variants mt-3 flex items-center gap-2">
+            <p className="shrink-0 text-[9px] font-semibold text-zx-muted">{labels.size}</p>
             <div aria-label={labels.size} className="flex flex-wrap gap-1.5" role="radiogroup">
               {variants.map((size) => {
                 const selected = size === variant;
                 return (
                   <button
                     aria-checked={selected}
-                    className={`flex h-8 min-w-9 items-center justify-center rounded-xl border px-2.5 text-[10px] font-bold transition-all ${
-                      selected
-                        ? 'border-zx-primary bg-zx-primary text-zx-on-primary shadow-sm'
-                        : 'border-zx-line bg-zx-surface text-zx-muted hover:border-zx-primary hover:text-zx-primary'
-                    }`}
+                    className={`flex h-7 min-w-8 items-center justify-center rounded-lg border px-2 text-[9px] font-bold transition ${selected ? 'border-zx-primary bg-zx-primary text-zx-on-primary' : 'border-zx-line bg-zx-surface text-zx-muted hover:border-zx-primary hover:text-zx-primary'}`}
                     key={size}
                     onClick={() => setVariant(size)}
                     role="radio"
@@ -165,21 +156,15 @@ export function ProductCard({
           </div>
         )}
 
-        <div className="zx-product-price mt-auto flex min-h-[4.25rem] items-center justify-between gap-2 border-t border-zx-line pt-3">
+        <div className="zx-product-price mt-auto flex min-h-16 items-end justify-between gap-2 border-t border-zx-line pt-3">
           <div className="min-w-0">
-            <p className="mb-1 text-[9px] font-semibold tracking-wide text-zx-muted">
-              {isArabic ? 'السعر' : 'PRICE'}
-            </p>
+            <p className="mb-1 text-[9px] font-semibold text-zx-muted">{isArabic ? 'السعر' : 'PRICE'}</p>
             {renderPrice(price, 'zx-display text-[23px] leading-none text-zx-ink')}
           </div>
-          {offer && (
-            <div className="flex flex-col items-end gap-1">
-              <span className="rounded-full bg-zx-sale/25 px-2 py-0.5 text-[9px] font-bold text-zx-on-sale">
-                {isArabic ? `وفّر ${offer.percent}٪` : `SAVE ${offer.percent}%`}
-              </span>
-              {renderPrice(offer.oldPrice, 'zx-strike text-[10px] text-zx-muted')}
-            </div>
-          )}
+          {offer && <div className="flex flex-col items-end gap-1">
+            <span className="rounded-full bg-zx-sale/25 px-2 py-0.5 text-[9px] font-bold text-zx-on-sale">{isArabic ? `خصم ${offer.percent}٪` : `${offer.percent}% OFF`}</span>
+            {renderPrice(offer.oldPrice, 'zx-strike text-[10px] text-zx-muted')}
+          </div>}
         </div>
 
         {onCustomize ? (
