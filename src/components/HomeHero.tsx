@@ -1,4 +1,5 @@
 import {
+  AnimatePresence,
   motion,
   useMotionValue,
   useReducedMotion,
@@ -6,19 +7,13 @@ import {
   useTransform,
 } from 'framer-motion';
 import {
-  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   ArrowUpRight,
-  BriefcaseBusiness,
-  CarFront,
-  ContactRound,
-  Fingerprint,
-  House,
-  Radio,
   Sparkles,
-  Shirt,
 } from 'lucide-react';
-import type { PointerEvent, ReactNode } from 'react';
-import { art } from '../data/imagery';
+import { useEffect, useState, type PointerEvent, type ReactNode } from 'react';
+import { PORTALS } from '../data/portals';
 import type { Locale, Market, Route } from '../types';
 import { publicAssetUrl } from '../utils';
 
@@ -88,12 +83,6 @@ type Props = {
   departmentCount?: number;
 };
 
-/** Rotating advertising headline words for the animated hero ticker. */
-const HERO_TICKER: Record<Locale, string[]> = {
-  en: ['CONNECTED IDENTITY', 'ZEXOR FASHION', 'ZEXOR STUDIO', 'VEHICLES', 'REAL ESTATE'],
-  ar: ['هوية متصلة', 'أزياء زكسور', 'استوديو زكسور', 'سيارات', 'عقارات'],
-};
-
 export function HomeHero({
   locale,
   brandName,
@@ -105,286 +94,186 @@ export function HomeHero({
   heroText,
   heroImage,
   departmentNames,
-  departmentCount = 5,
 }: Props) {
   const isArabic = locale === 'ar';
-  const tickerNames = departmentNames
-    ? (['cards', 'fashion', 'services', 'cars', 'property'] as const).map((key) => departmentNames[key] ?? HERO_TICKER[locale][['cards', 'fashion', 'services', 'cars', 'property'].indexOf(key)])
-    : HERO_TICKER[locale];
-  const departments = [
-    { route: 'cards' as const, icon: ContactRound, fallback: isArabic ? 'زكسور لينك' : 'ZEXOR LINK' },
-    { route: 'fashion' as const, icon: Shirt, fallback: isArabic ? 'الأزياء' : 'Fashion' },
-    { route: 'services' as const, icon: BriefcaseBusiness, fallback: isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO' },
-    { route: 'cars' as const, icon: CarFront, fallback: isArabic ? 'السيارات' : 'Motors' },
-    { route: 'property' as const, icon: House, fallback: isArabic ? 'العقارات' : 'Estates' },
+  const reduceMotion = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const departments = PORTALS.map((portal) => ({
+    ...portal,
+    name: departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale],
+  }));
+  const active = departments[activeIndex] ?? departments[0];
+  const PreviousIcon = isArabic ? ArrowRight : ArrowLeft;
+  const NextIcon = isArabic ? ArrowLeft : ArrowRight;
+  const slideCopy = [
+    { title: heroTitle, accent: heroAccent, text: heroText },
+    {
+      title: isArabic ? 'تفاصيل يومية،' : 'Made for the everyday.',
+      accent: isArabic ? 'بطابع مختلف.' : 'Never ordinary.',
+      text: activeIndex === 1 ? active.tagline[locale] : '',
+    },
+    {
+      title: isArabic ? 'حضورك الرقمي،' : 'Your next idea,',
+      accent: isArabic ? 'يبدأ من هنا.' : 'made real.',
+      text: activeIndex === 2 ? active.tagline[locale] : '',
+    },
+    {
+      title: isArabic ? 'مشوارك القادم،' : 'A better way',
+      accent: isArabic ? 'على اختيارك.' : 'to get there.',
+      text: activeIndex === 3 ? active.tagline[locale] : '',
+    },
+    {
+      title: isArabic ? 'مساحة تناسب' : 'Space for',
+      accent: isArabic ? 'خطوتك القادمة.' : 'what comes next.',
+      text: activeIndex === 4 ? active.tagline[locale] : '',
+    },
   ];
-  const pointerX = useMotionValue(0.5);
-  const pointerY = useMotionValue(0.5);
-  const smoothX = useSpring(pointerX, { stiffness: 65, damping: 20 });
-  const smoothY = useSpring(pointerY, { stiffness: 65, damping: 20 });
+  const copy = slideCopy[activeIndex] ?? slideCopy[0];
 
-  const fashionX = useTransform(smoothX, [0, 1], [-28, 28]);
-  const fashionY = useTransform(smoothY, [0, 1], [22, -22]);
-  const cardX = useTransform(smoothX, [0, 1], [24, -24]);
-  const cardY = useTransform(smoothY, [0, 1], [-18, 18]);
-  const sceneScale = useTransform(smoothX, [0, 1], [1.01, 1.05]);
-  const cardTilt = useTransform(smoothX, [0, 1], [-5, 5]);
-  const studioTilt = useTransform(smoothX, [0, 1], [4, -4]);
-  // Derived ranges must be declared unconditionally at the top level — calling
-  // useTransform inline in JSX would break the Rules of Hooks.
-  const studioX = useTransform(fashionX, (v) => -v * 0.6);
-  const studioY = useTransform(cardY, (v) => -v);
+  useEffect(() => {
+    if (reduceMotion) return;
+    const timer = window.setInterval(() => setActiveIndex((index) => (index + 1) % departments.length), 6500);
+    return () => window.clearInterval(timer);
+  }, [departments.length, reduceMotion]);
 
-  const handlePointerMove = (event: PointerEvent<HTMLElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    pointerX.set(Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)));
-    pointerY.set(Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height)));
-  };
-
-  const resetPointer = () => {
-    pointerX.set(0.5);
-    pointerY.set(0.5);
+  const step = (direction: number) => {
+    setActiveIndex((index) => (index + direction + departments.length) % departments.length);
   };
 
   return (
-    <section className="zx-home-hero relative overflow-hidden rounded-[2rem] border text-[#222923] sm:rounded-[2.5rem]">
-      {/* Optional admin-uploaded hero backdrop, dimmed with a light veil so the
-          headline and CTA stay legible in both languages. */}
-      {heroImage && (
-        <img
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
-          src={publicAssetUrl(heroImage)}
-        />
-      )}
-      {/* 3D Atmospheric Radial Glows */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_75%_35%,rgba(224,180,157,.32),transparent_40%),radial-gradient(ellipse_at_20%_72%,rgba(142,213,195,.28),transparent_38%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(rgba(71,99,85,.3)_1px,transparent_1px)] bg-size-[28px_28px]"
-      />
-
-      <div
-        className="zx-hero-inner relative flex min-h-[68vh] flex-col justify-between p-5 sm:p-9 lg:p-12"
-        onPointerLeave={resetPointer}
-        onPointerMove={handlePointerMove}
-      >
-        {/* Top Tagline */}
-        <div className="relative z-20 flex items-center justify-between gap-3">
-          <p className="zx-hero-topline max-w-[58%] truncate text-[9px] font-bold tracking-[0.14em] text-[#69746c] sm:max-w-none sm:tracking-[0.24em] sm:text-[10px]">
-            {brandName} · {isArabic ? 'هوية متصلة · أزياء · استوديو' : 'CONNECTED IDENTITY · FASHION · STUDIO'}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              className={`rounded-full px-2.5 py-1 text-[9px] font-bold transition-all ${
-                market === 'eg' ? 'bg-[#263b31] text-white shadow-xs' : 'bg-white/80 text-[#607367]'
-              }`}
-              onClick={() => onMarketChange('eg')}
-              type="button"
-            >
-              🇪🇬 {isArabic ? 'مصر' : 'Egypt'}
-            </button>
-            <button
-              className={`rounded-full px-2.5 py-1 text-[9px] font-bold transition-all ${
-                market === 'ksa' ? 'bg-[#263b31] text-white shadow-xs' : 'bg-white/80 text-[#607367]'
-              }`}
-              onClick={() => onMarketChange('ksa')}
-              type="button"
-            >
-              🇸🇦 {isArabic ? 'السعودية' : 'KSA'}
-            </button>
+    <section className="zx-home-hero zx-home-hero--showroom relative overflow-hidden rounded-[2rem] border text-[#222923]">
+      <div className="zx-hero-inner relative flex flex-col">
+        <div className="zx-hero-head relative z-20 flex items-center justify-between gap-4">
+          <div>
+            <p className="zx-hero-topline text-[9px] font-bold tracking-[.18em] sm:text-[10px]">
+              {brandName} <span aria-hidden="true" className="mx-1.5 opacity-40">/</span>
+              {isArabic ? 'اختيارات للحياة اليومية' : 'A HOUSE OF CONSIDERED CHOICES'}
+            </p>
+            <p className="mt-1 text-[9px] text-[#829087]">
+              {isArabic ? 'مصر والسعودية' : 'EGYPT & SAUDI ARABIA'}
+            </p>
+          </div>
+          <div className="zx-hero-market flex items-center gap-1 rounded-full border p-1">
+            {(['eg', 'ksa'] as const).map((option) => (
+              <button
+                aria-pressed={market === option}
+                className={`rounded-full px-3 py-1.5 text-[9px] font-bold transition ${market === option ? 'bg-[#244b38] text-white' : 'text-[#617267] hover:bg-white/70'}`}
+                key={option}
+                onClick={() => onMarketChange(option)}
+                type="button"
+              >
+                {option === 'eg' ? '🇪🇬' : '🇸🇦'} {option === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'KSA')}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* 3D Center Area: Left Typography, Right Interactive Parallax 3D Stack */}
-        <div className="zx-hero-layout relative z-20 my-auto grid items-center gap-8 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-          {/* Typography */}
-          <div className="zx-hero-copy max-w-xl">
-            <span className="zx-hero-badge inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[9px] font-bold tracking-widest">
-              <Sparkles className="h-3.5 w-3.5 text-[#5e967c]" />
-              {isArabic ? 'العلامة المتصلة للخطوة القادمة' : 'A CONNECTED BRAND FOR WHAT’S NEXT'}
-            </span>
+        <div className="zx-hero-stage relative z-10 grid flex-1 items-stretch">
+          <div className="zx-hero-copy relative z-10 flex flex-col justify-center">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: 14 }}
+                key={active.route}
+                transition={{ duration: reduceMotion ? 0.01 : 0.42, ease: 'easeOut' }}
+              >
+                <span className="zx-hero-badge inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[9px] font-bold tracking-widest">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {active.meta[locale]}
+                </span>
+                <h1 className="zx-display zx-hero-title mt-5">
+                {copy.title}{' '}
+                  <span className="zx-hero-accent">{copy.accent}</span>
+                </h1>
+                <p className="zx-hero-description mt-5 max-w-lg text-sm sm:text-base">
+                  {activeIndex === 0 ? copy.text : active.tagline[locale]}
+                </p>
+              </motion.div>
+            </AnimatePresence>
 
-            <h1 className="zx-display zx-hero-title mt-5 text-4xl sm:text-6xl md:text-7xl">
-              {heroTitle}{' '}
-              <span className="zx-hero-accent italic font-normal">{heroAccent}</span>
-            </h1>
-
-            <p className="zx-hero-description mt-5 max-w-lg text-sm leading-7 sm:text-base">
-              {heroText}
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <button
-                className="zx-hero-primary group flex min-h-12 items-center gap-2.5 rounded-full px-6 text-xs font-bold transition-all duration-300"
-                onClick={() => navigate('cards')}
+                className="zx-hero-primary group inline-flex min-h-12 items-center gap-2.5 px-6 text-xs font-bold transition"
+                onClick={() => navigate(active.route)}
                 type="button"
               >
-                <span>{isArabic ? `اكتشف ${departmentNames?.cards ?? 'زكسور لينك'}` : `Explore ${departmentNames?.cards ?? 'ZEXOR LINK'}`}</span>
+                {isArabic ? `اكتشف ${active.name}` : `Explore ${active.name}`}
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </button>
+              <span className="zx-hero-slide-count text-[10px] font-semibold tabular-nums">
+                {String(activeIndex + 1).padStart(2, '0')} <span className="opacity-40">/</span> {String(departments.length).padStart(2, '0')}
+              </span>
+            </div>
 
-              <button
-                className="zx-hero-secondary flex min-h-12 items-center gap-2 rounded-full border px-5 text-xs font-bold transition-all"
-                onClick={() => document.getElementById('departments')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                type="button"
-              >
-                <span>{isArabic ? `استعرض الأقسام (${departmentCount})` : `Explore Departments (${departmentCount})`}</span>
-              </button>
+            <div className="zx-hero-controls mt-8 flex items-center gap-2">
+              <button aria-label={isArabic ? 'القسم السابق' : 'Previous department'} className="zx-hero-arrow" onClick={() => step(-1)} type="button"><PreviousIcon className="h-4 w-4" /></button>
+              <div className="flex items-center gap-1.5" role="tablist" aria-label={isArabic ? 'اختيار القسم' : 'Choose a department'}>
+                {departments.map((department, index) => (
+                  <button
+                    aria-label={department.name}
+                    aria-selected={activeIndex === index}
+                    className={`zx-hero-dot ${activeIndex === index ? 'is-active' : ''}`}
+                    key={department.route}
+                    onClick={() => setActiveIndex(index)}
+                    role="tab"
+                    type="button"
+                  />
+                ))}
+              </div>
+              <button aria-label={isArabic ? 'القسم التالي' : 'Next department'} className="zx-hero-arrow" onClick={() => step(1)} type="button"><NextIcon className="h-4 w-4" /></button>
             </div>
           </div>
 
-          {/* Right 3D Visual Floating Composition */}
-          <div className="zx-hero-collage relative -mx-2 grid min-h-84 flex-1 grid-cols-[1.05fr_0.95fr] gap-3 sm:min-h-104 sm:gap-4 lg:mx-0 lg:min-h-130">
-            {/* 1. ZEXOR Fashion Card */}
-            <motion.button
-              aria-label="ZEXOR Fashion"
-              className="zx-hero-fashion group relative min-h-80 overflow-hidden rounded-3xl text-start sm:min-h-100 sm:rounded-4xl"
-              onClick={() => navigate('fashion')}
-              style={{ x: fashionX, y: fashionY, scale: sceneScale }}
-              type="button"
-            >
-              <img
-                alt="ZEXOR Fashion"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                src={art.tee}
+          <div className="zx-hero-visual relative isolate overflow-hidden">
+            <AnimatePresence mode="sync" initial={false}>
+              <motion.img
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover"
+                key={`${active.route}-${activeIndex === 0 ? heroImage : ''}`}
+                src={publicAssetUrl(activeIndex === 0 && heroImage ? heroImage : active.image)}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.025 }}
+                transition={{ duration: reduceMotion ? 0.01 : 0.75, ease: 'easeOut' }}
               />
-              <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
-              <span className="absolute start-4 top-4 rounded-full border border-white/50 bg-white/20 px-3 py-1.5 text-[8px] font-bold text-white backdrop-blur-md">
-                01 / {isArabic ? 'أزياء مصر' : 'APPAREL'}
+            </AnimatePresence>
+            <span aria-hidden="true" className="zx-hero-image-shade absolute inset-0" />
+            <span className="zx-hero-image-index absolute start-5 top-5 font-mono text-[10px] font-semibold tracking-[.18em] text-white/75">
+              Z / {String(activeIndex + 1).padStart(2, '0')}
+            </span>
+            <div className="zx-hero-image-caption absolute inset-x-4 bottom-4 flex items-end justify-between gap-4 rounded-2xl border border-white/20 p-4 text-white backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:p-5">
+              <div>
+                <span className="block text-[8px] font-bold tracking-[.2em] text-white/65">{brandName.toUpperCase()}</span>
+                <span className="zx-display mt-1 block text-xl sm:text-2xl">{active.name}</span>
+              </div>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10">
+                <active.icon className="h-4 w-4" />
               </span>
-              <span className="absolute inset-x-4 bottom-4 text-white">
-                <span className="block text-[8px] tracking-wider text-white/70">ZEXOR FASHION</span>
-                <span className="mt-1 block text-lg font-bold leading-tight sm:text-xl">
-                  {isArabic ? 'هودي وستريت وير فاخر' : 'After Hours Streetwear'}
-                </span>
-                <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/40 bg-white/20 px-3 py-1 text-[8px] font-semibold backdrop-blur-md">
-                  {isArabic ? 'إصدار محدود' : 'Limited Drop'}
-                  <ArrowUpRight className="h-3 w-3" />
-                </span>
-              </span>
-            </motion.button>
-
-            {/* Right Column Stack: NFC 3D Card + Studio 3D Card */}
-            <div className="grid min-h-80 grid-rows-2 gap-3 sm:min-h-100 sm:gap-4">
-              {/* 2. Interactive 3D NFC Card */}
-              <motion.button
-                aria-label="NFC Card"
-                className="zx-hero-nfc group relative min-h-0 overflow-hidden rounded-2xl border text-start sm:rounded-3xl"
-                onClick={() => navigate('cards')}
-                style={{ x: cardX, y: cardY, rotate: cardTilt }}
-                type="button"
-              >
-                <img
-                  alt="NFC"
-                  className="absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-                  src={art.cardsElite}
-                />
-                <span aria-hidden="true" className="absolute inset-0 bg-linear-to-br from-[#d4f0e4]/80 via-[#f8f6ed]/70 to-[#e4cebe]/80" />
-
-                <span className="absolute inset-3 flex flex-col justify-between rounded-xl border border-white/70 p-3 sm:rounded-2xl sm:p-4">
-                  <span className="flex items-start justify-between">
-                    <div>
-                      <span className="block text-[9px] font-extrabold tracking-[0.26em] text-[#2c4234]">ZEXOR</span>
-                      <span className="text-[7px] text-[#697d70]">SMART NFC PASS</span>
-                    </div>
-                    <Radio className="h-4 w-4 text-[#59836d]" />
-                  </span>
-                  <span className="flex items-end justify-between">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 text-[#4c7e65] shadow-xs">
-                      <Fingerprint className="h-5 w-5" strokeWidth={1.4} />
-                    </span>
-                    <span className="text-end">
-                      <span className="block text-[7px] text-[#74877b]">YOUR PROFILE</span>
-                      <span className="block text-xs font-bold text-[#2b4134]">
-                        {isArabic ? 'لمسة واحدة.' : 'One tap.'}
-                      </span>
-                    </span>
-                  </span>
-                </span>
-                <span className="absolute start-3 bottom-3 rounded-full bg-[#294234]/90 px-2.5 py-1 text-[7px] font-bold text-white">
-                  02 · {departmentNames?.cards ?? (isArabic ? 'زكسور لينك' : 'ZEXOR LINK')}
-                </span>
-              </motion.button>
-
-              {/* 3. Studio 3D Card */}
-              <motion.button
-                aria-label="ZEXOR Studio"
-                className="zx-hero-studio group relative min-h-0 overflow-hidden rounded-2xl border text-start sm:rounded-3xl"
-                onClick={() => navigate('services')}
-                style={{ x: studioX, y: studioY, rotate: studioTilt }}
-                type="button"
-              >
-                <img
-                  alt="Studio"
-                  className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-105"
-                  src={art.studioPortal}
-                />
-                <span aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-[#121c17]/90 via-[#121c17]/30 to-transparent" />
-                <span className="absolute inset-x-3 bottom-3 flex items-end justify-between text-white sm:inset-x-4 sm:bottom-4">
-                  <div>
-                    <span className="block text-[7px] font-bold tracking-widest text-white/75">03 · {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}</span>
-                    <span className="mt-0.5 block text-xs font-bold sm:text-sm">
-                      {isArabic ? 'مواقع وتطبيقات ومتاجر' : 'Web & App Studio'}
-                    </span>
-                  </div>
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </span>
-                </span>
-              </motion.button>
             </div>
           </div>
         </div>
 
-        {/* The five destinations stay visible in the hero, so visitors can
-            immediately see the whole ZEXOR experience without scrolling. */}
-        <nav aria-label={isArabic ? 'أقسام ZEXOR' : 'ZEXOR departments'} className="zx-hero-departments relative z-20 grid grid-cols-2 gap-2 border-t border-black/10 pt-4 sm:grid-cols-3 lg:grid-cols-5">
-          {departments.map(({ route, icon: Icon, fallback }, index) => (
-            <button
-              className="group flex min-h-12 items-center gap-2.5 rounded-2xl border border-black/10 bg-white/55 px-3 py-2 text-start text-[11px] font-semibold text-[#33483b] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#6d9b82]/60 hover:bg-white/90"
-              key={route}
-              onClick={() => navigate(route)}
-              type="button"
-            >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e5f1e9] text-[#507960] transition group-hover:bg-[#294a38] group-hover:text-white">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[8px] font-medium tracking-[.12em] text-[#829087]">0{index + 1}</span>
-                <span className="block truncate">{departmentNames?.[route] || fallback}</span>
-              </span>
-              <ArrowUpRight className="ms-auto h-3.5 w-3.5 shrink-0 text-[#81978a] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </button>
-          ))}
+        <nav aria-label={isArabic ? 'أقسام ZEXOR' : 'ZEXOR departments'} className="zx-hero-departments relative z-20 grid grid-cols-2 border-t pt-4 sm:grid-cols-3 lg:grid-cols-5">
+          {departments.map((department, index) => {
+            const Icon = department.icon;
+            return (
+              <button
+                aria-current={activeIndex === index ? 'true' : undefined}
+                className={`zx-hero-department ${activeIndex === index ? 'is-active' : ''}`}
+                key={department.route}
+                onClick={() => setActiveIndex(index)}
+                type="button"
+              >
+                <span className="zx-hero-department-number">0{index + 1}</span>
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 truncate">{department.name}</span>
+                <ArrowUpRight className="zx-hero-department-arrow ms-auto h-3.5 w-3.5 shrink-0" />
+              </button>
+            );
+          })}
         </nav>
-
-        {/* Bottom Prompts */}
-        <div className="relative z-20 flex flex-col gap-3 border-t border-black/5 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="zx-marquee zx-no-bar overflow-hidden">
-            <div className="zx-marquee-track">
-              {[...tickerNames, ...tickerNames, ...tickerNames, ...tickerNames].map(
-                (word, i) => (
-                  <span
-                    className="zx-eyebrow mx-4 inline-flex items-center gap-3 text-[#748278]"
-                    key={`${word}-${i}`}
-                  >
-                    {word}
-                    <span className="h-1 w-1 rounded-full bg-[#a6e6c4]" />
-                  </span>
-                ),
-              )}
-            </div>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-[9px] font-bold text-[#748278]">
-            <ArrowDown className="h-3.5 w-3.5 animate-bounce" />
-            {isArabic ? 'مرّر لاستعراض الأقسام' : 'SCROLL TO EXPLORE'}
-          </span>
-        </div>
       </div>
     </section>
   );
