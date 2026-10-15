@@ -20,6 +20,7 @@ import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../type
 import type { DynamicCategory } from '../types';
 import { publicAssetUrl } from '../utils';
 import { DepartmentBanner } from './DepartmentBanner';
+import { DepartmentHighlights } from './DepartmentHighlights';
 import { art } from '../data/imagery';
 
 type Props = {
@@ -201,7 +202,8 @@ Listing: ${itemTitle}`;
   return (
     <div className="space-y-10">
       {/* Hero Banner */}
-      <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={mode === 'cars' ? (isArabic ? 'تصفح السيارات المتاحة للبيع أو الإيجار، وقارن المواصفات واحجز موعد المعاينة.' : 'Explore cars for sale or rent, compare their details and request a viewing.') : (isArabic ? 'اكتشف الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار واطلب معاينة.' : 'Explore homes, villas and land for sale or rent, then request a viewing.')} />
+      <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={mode === 'cars' ? (isArabic ? 'تصفح السيارات المتاحة للبيع أو الإيجار، وقارن المواصفات واحجز موعد المعاينة.' : 'Explore cars for sale or rent, compare their details and request a viewing.') : (isArabic ? 'اكتشف الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار واطلب معاينة.' : 'Explore homes, villas and land for sale or rent, then request a viewing.')} />
+      <DepartmentHighlights department={mode} locale={locale} />
       {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
       ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-10 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}

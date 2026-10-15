@@ -188,6 +188,7 @@ export function AdminDashboard({
   const [newCatBannerTextAr, setNewCatBannerTextAr] = useState('');
   const [newCatBannerTextEn, setNewCatBannerTextEn] = useState('');
   const [newCatBannerImage, setNewCatBannerImage] = useState('');
+  const [newCatBannerAccent, setNewCatBannerAccent] = useState('#b7edcf');
   const [newShippingArea, setNewShippingArea] = useState('');
   const [newShippingCarrier, setNewShippingCarrier] = useState('');
   const [carrierMarket, setCarrierMarket] = useState<Market>(market);
@@ -289,6 +290,7 @@ export function AdminDashboard({
           bannerTitle: { ar: newCatBannerTitleAr.trim(), en: newCatBannerTitleEn.trim() },
           bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
           bannerImage: newCatBannerImage.trim(),
+          bannerAccent: newCatBannerAccent,
         }
         : category));
       if (editedCategory?.parentSlug !== newCatParentSlug) {
@@ -302,6 +304,7 @@ export function AdminDashboard({
       setNewCatSlug('');
       setNewCatParentSlug('');
       setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
+      setNewCatBannerAccent('#b7edcf');
       setShowCategoryModal(false);
       onToast(isArabic ? 'تم تحديث اسم القسم في المتجر' : 'Section name updated across the store');
       return;
@@ -322,6 +325,7 @@ export function AdminDashboard({
       bannerTitle: { ar: newCatBannerTitleAr.trim(), en: newCatBannerTitleEn.trim() },
       bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
       bannerImage: newCatBannerImage.trim(),
+      bannerAccent: newCatBannerAccent,
     };
     setCategories((prev) => [...prev, newCat]);
     setNewCatNameAr('');
@@ -329,6 +333,7 @@ export function AdminDashboard({
     setNewCatSlug('');
     setNewCatParentSlug('');
     setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
+    setNewCatBannerAccent('#b7edcf');
     setEditingCategoryId(null);
     setShowCategoryModal(false);
     onToast(isArabic ? 'تمت إضافة القسم الجديد بنجاح!' : 'New category created successfully!');
@@ -345,6 +350,7 @@ export function AdminDashboard({
     setNewCatBannerTextAr(category.bannerText?.ar ?? '');
     setNewCatBannerTextEn(category.bannerText?.en ?? '');
     setNewCatBannerImage(category.bannerImage ?? '');
+    setNewCatBannerAccent(category.bannerAccent ?? '#b7edcf');
     setShowCategoryModal(true);
   };
 
@@ -1187,6 +1193,7 @@ export function AdminDashboard({
                 setNewCatSlug('');
                 setNewCatParentSlug('');
                 setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
+                setNewCatBannerAccent('#b7edcf');
                 setShowCategoryModal(true);
               }}
               type="button"
@@ -1308,6 +1315,7 @@ export function AdminDashboard({
                       <label className="text-[10px] text-[#607368]">{isArabic ? 'وصف البانر بالإنجليزي' : 'Banner description (English)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-[#dfe8e2] p-3 text-xs" onChange={(e) => setNewCatBannerTextEn(e.target.value)} value={newCatBannerTextEn} /></label>
                     </div>
                     <label className="mt-3 block text-[10px] text-[#607368]">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
+                    <label className="mt-3 flex items-center gap-3 text-[10px] text-[#607368]">{isArabic ? 'لون التفاصيل' : 'Accent color'}<input aria-label={isArabic ? 'لون تفاصيل البانر' : 'Banner accent color'} className="h-9 w-14 cursor-pointer rounded-lg border border-[#dfe8e2] p-1" onChange={(e) => setNewCatBannerAccent(e.target.value)} type="color" value={/^#[0-9a-f]{6}$/i.test(newCatBannerAccent) ? newCatBannerAccent : '#b7edcf'} /><span className="font-mono">{newCatBannerAccent}</span></label>
                     <p className="mt-1 text-[9px] text-[#819288]">{isArabic ? 'اترك الحقول فارغة لاستخدام التصميم والصورة الافتراضيين للقسم.' : 'Leave these fields empty to use the department’s built-in design and image.'}</p>
                   </div>
                 </div>
@@ -1315,7 +1323,7 @@ export function AdminDashboard({
                   className="mt-5 min-h-10 w-full rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
                   type="submit"
                 >
-                  {editingCategoryId ? isArabic ? 'حفظ الاسم الجديد' : 'Save New Name' : isArabic ? 'حفظ القسم وإظهاره فوراً' : 'Save & Publish Category'}
+                  {editingCategoryId ? isArabic ? 'حفظ تصميم القسم' : 'Save department design' : isArabic ? 'إنشاء القسم ونشره' : 'Create & publish department'}
                 </button>
               </form>
             </div>

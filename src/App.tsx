@@ -66,6 +66,7 @@ const TrackingModal = lazy(() =>
 );
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
+import { DepartmentHighlights } from './components/DepartmentHighlights';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { isSupabaseConfigured, supabase } from '../supabase';
@@ -541,7 +542,7 @@ export default function App() {
 
   const [route, setRoute] = useState<Route>(pageFromHash);
   const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
-  const [selectedFashionSubcategory, setSelectedFashionSubcategory] = useState('');
+  const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -1085,7 +1086,7 @@ export default function App() {
 
     // Dynamic categories created in Admin!
     categories
-      .filter((c) => c.active && !['cards', 'fashion', 'services', 'cars', 'property'].includes(c.slug))
+      .filter((c) => c.active && !c.parentSlug && !['cards', 'fashion', 'services', 'cars', 'property'].includes(c.slug))
       .forEach((c) => {
         items.push({ route: c.slug, label: c.name[locale] });
       });
@@ -1158,29 +1159,40 @@ export default function App() {
     product.category === 'fashion'
     && (!product.subcategoryId || activeFashionSubcategories.some((subcategory) => subcategory.slug === product.subcategoryId)),
   ), [activeFashionSubcategories, storefrontProducts]);
-  const activeSelectedFashionSubcategory = activeFashionSubcategories.some((category) => category.slug === selectedFashionSubcategory)
-    ? selectedFashionSubcategory
+  const serviceSubcategories = categories.filter((category) => category.parentSlug === 'services' && category.active);
+  const serviceProducts = storefrontProducts.filter((product) => product.available && product.category === 'services'
+    && (!product.subcategoryId || serviceSubcategories.some((category) => category.slug === product.subcategoryId))
+    && (!selectedSubcategories.services || product.subcategoryId === selectedSubcategories.services));
+  const activeSelectedFashionSubcategory = activeFashionSubcategories.some((category) => category.slug === selectedSubcategories.fashion)
+    ? selectedSubcategories.fashion
     : '';
   const currentCategoryProducts = storefrontProducts.filter(
     (p) =>
       p.available &&
       (route === 'cards' ? p.category === 'cards' : route === 'fashion' ? p.category === 'fashion' : true) &&
       (route !== 'cards' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'cards' && category.active)) &&
-      (route !== 'cards' || !selectedFashionSubcategory || p.subcategoryId === selectedFashionSubcategory) &&
+      (route !== 'cards' || !selectedSubcategories.cards || p.subcategoryId === selectedSubcategories.cards) &&
       (route !== 'fashion' || !p.subcategoryId || categories.some((category) => category.slug === p.subcategoryId && category.parentSlug === 'fashion' && category.active)) &&
       (route !== 'fashion' || !activeSelectedFashionSubcategory || p.subcategoryId === activeSelectedFashionSubcategory),
   );
+  const currentDynamicDepartment = categories.find((category) => !category.parentSlug && category.slug === route && !['cards', 'fashion', 'services', 'cars', 'property'].includes(category.slug));
+  const dynamicDepartmentChildren = currentDynamicDepartment ? subcategoriesFor(currentDynamicDepartment.slug) : [];
+  const dynamicDepartmentProducts = currentDynamicDepartment ? storefrontProducts.filter((product) =>
+    product.available && product.category === currentDynamicDepartment.slug
+    && (!product.subcategoryId || dynamicDepartmentChildren.some((child) => child.slug === product.subcategoryId))
+    && (!selectedSubcategories[currentDynamicDepartment.slug] || product.subcategoryId === selectedSubcategories[currentDynamicDepartment.slug]),
+  ) : [];
   const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
   const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
     const category = departmentFor(slug);
-    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
+    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} accent={category?.bannerAccent} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
   };
   const renderSubcategoryChips = (slug: string, count: (subcategorySlug?: string) => number) => {
     const children = subcategoriesFor(slug);
     if (!children.length) return null;
     return <nav aria-label={isArabic ? 'الأقسام الفرعية' : 'Subcategories'} className="flex flex-wrap gap-2">{[
       { slug: '', name: isArabic ? 'الكل' : 'All' }, ...children.map((category) => ({ slug: category.slug, name: category.name[locale] })),
-    ].map((item) => <button aria-pressed={selectedFashionSubcategory === item.slug} className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${selectedFashionSubcategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedFashionSubcategory(item.slug)} type="button">{item.name}<span className="ms-2 opacity-70">{count(item.slug || undefined)}</span></button>)}</nav>;
+    ].map((item) => <button aria-pressed={selectedSubcategories[slug] === item.slug} className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${selectedSubcategories[slug] === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedSubcategories((current) => ({ ...current, [slug]: item.slug }))} type="button">{item.name}<span className="ms-2 opacity-70">{count(item.slug || undefined)}</span></button>)}</nav>;
   };
 
   return (
@@ -1883,6 +1895,7 @@ export default function App() {
         {route === 'cards' && (
           <div className="space-y-10">
             {departmentBanner('cards', isArabic ? 'هويتك الرقمية، بلمسة واحدة' : 'Your identity, one tap away', isArabic ? 'بطاقات NFC عملية وأنيقة تربط تفاصيلك المهنية والاجتماعية مباشرة بهاتفك.' : 'Thoughtful NFC cards that connect your professional identity and social profiles in one tap.')}
+            <DepartmentHighlights department="cards" locale={locale} />
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               {renderSubcategoryChips('cards', (subcategory) => storefrontProducts.filter((product) => product.category === 'cards' && (!subcategory ? true : product.subcategoryId === subcategory)).length)}
 
@@ -1928,13 +1941,14 @@ export default function App() {
         {route === 'fashion' && (
           <div className="space-y-10">
             {departmentBanner('fashion', isArabic ? 'تفاصيل يومية، بطابع مختلف' : 'Everyday pieces, a distinct point of view', isArabic ? 'اختيارات أزياء مريحة بقصّات واضحة وتفاصيل مدروسة تناسب يومك.' : 'Considered everyday essentials with confident silhouettes and thoughtful details.')}
+            <DepartmentHighlights department="fashion" locale={locale} />
 
             {activeFashionSubcategories.length > 0 && (
               <nav aria-label={isArabic ? 'أقسام الأزياء الفرعية' : 'Fashion collections'} className="flex flex-wrap gap-2">
                 <button
                   aria-pressed={!activeSelectedFashionSubcategory}
                   className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${!activeSelectedFashionSubcategory ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
-                  onClick={() => setSelectedFashionSubcategory('')}
+                  onClick={() => setSelectedSubcategories((current) => ({ ...current, fashion: '' }))}
                   type="button"
                 >
                   {isArabic ? `كل الأزياء (${fashionProductsInMarket.length})` : `All fashion (${fashionProductsInMarket.length})`}
@@ -1947,7 +1961,7 @@ export default function App() {
                       aria-pressed={active}
                       className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${active ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
                       key={subcategory.id}
-                      onClick={() => setSelectedFashionSubcategory(subcategory.slug)}
+                      onClick={() => setSelectedSubcategories((current) => ({ ...current, fashion: subcategory.slug }))}
                       type="button"
                     >
                       {subcategory.name[locale]} <span className="ms-1 opacity-70">{count}</span>
@@ -1985,7 +1999,10 @@ export default function App() {
 
         {/* Route: Services (Agency, Portfolio, Calculator, Reviews, CV) */}
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
-          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}<AgencyPortfolio
+          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}<DepartmentHighlights department="services" locale={locale} />
+          <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-8 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف خدمات لهذا القسم من إدارة المنتجات لتظهر هنا.' : 'Add services under this department in Admin to display them here.'}</p>}</div></section>
+          <AgencyPortfolio
             locale={locale}
             market={market}
             sectionName={categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
@@ -2037,6 +2054,36 @@ export default function App() {
             properties={properties}
             vehicles={vehicles}
           />
+        )}
+
+        {currentDynamicDepartment && (
+          <section className="space-y-10">
+            <DepartmentBanner locale={locale} name={currentDynamicDepartment.name[locale]} title={currentDynamicDepartment.bannerTitle?.[locale]} text={currentDynamicDepartment.bannerText?.[locale]} image={currentDynamicDepartment.bannerImage} accent={currentDynamicDepartment.bannerAccent} fallbackImage={art.studioPortal} fallbackTitle={isArabic ? `اكتشف ${currentDynamicDepartment.name.ar}` : `Discover ${currentDynamicDepartment.name.en}`} fallbackText={isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'} />
+            <div id="department-content" className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
+              <div className="rounded-[2rem] border border-[#e1ebe5] bg-white p-7 shadow-sm sm:p-9">
+                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#5e8b75]">{isArabic ? 'مساحة هذا القسم' : 'THE DEPARTMENT'}</span>
+                <h2 className="zx-display mt-4 text-2xl font-bold text-[#263f33] sm:text-3xl">{currentDynamicDepartment.name[locale]}</h2>
+                <p className="mt-3 text-sm leading-7 text-[#718278]">{currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'أضف وصفاً وصورة من لوحة الإدارة ليظهر هنا، ثم أضف المنتجات واربطها بالمجموعات المناسبة.' : 'Add a description and image in Admin, then assign products to this department and its collections.')}</p>
+                <div className="mt-7 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#eff6f1] px-4 py-2 text-[11px] font-semibold text-[#40604d]">{isArabic ? `${dynamicDepartmentProducts.length} منتج` : `${dynamicDepartmentProducts.length} products`}</span>
+                  <span className="rounded-full bg-[#f7f3eb] px-4 py-2 text-[11px] font-semibold text-[#806746]">{isArabic ? `${dynamicDepartmentChildren.length} مجموعة` : `${dynamicDepartmentChildren.length} collections`}</span>
+                </div>
+              </div>
+              <div className="relative min-h-64 overflow-hidden rounded-[2rem] bg-[#e4eee8] p-6 sm:p-9">
+                <img alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 mix-blend-multiply" src={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal)} />
+                <div className="absolute inset-0 bg-linear-to-t from-[#18382f]/85 via-[#18382f]/15 to-transparent" />
+                <div className="relative z-10 flex h-full min-h-52 flex-col justify-end text-white">
+                  <span className="text-[10px] font-bold uppercase tracking-[.2em] text-white/75">ZEXOR COLLECTIONS</span>
+                  <p className="mt-2 text-xl font-semibold">{currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale]}</p>
+                </div>
+              </div>
+            </div>
+            {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-[#e2ebe5] bg-white p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-[#d6eee2]' : index % 3 === 1 ? 'bg-linear-to-l from-[#f4e8db]' : 'bg-linear-to-l from-[#e5e1f2]'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-[#7b9184]">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-[#293f33]">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-[#f0f5f1] px-3 py-1.5 text-[10px] text-[#567362]">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
+            <div className="space-y-5">
+              <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف منتجات لهذا القسم من لوحة الإدارة لتظهر هنا.' : 'Add products to this department in Admin to show them here.'}</p> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
+            </div>
+          </section>
         )}
 
         {/* Route: Tracking */}

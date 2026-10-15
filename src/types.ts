@@ -28,6 +28,8 @@ export type DynamicCategory = {
   bannerTitle?: Record<Locale, string>;
   bannerText?: Record<Locale, string>;
   bannerImage?: string;
+  /** Accent used by the shared editorial department template. */
+  bannerAccent?: string;
 };
 
 export type Product = {
