@@ -36,6 +36,7 @@ import {
   normalizeLegacySectionTitles,
   normalizeStarterProductImages,
   normalizeStarterVehicles,
+  normalizeStarterProperties,
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
@@ -357,13 +358,16 @@ export default function App() {
   const [properties, setProperties] = useStoredState<Property[]>('zexor-properties-v3', INITIAL_PROPERTIES, isValidObjectArray);
   const [settings, setSettings] = useStoredState<SiteSettings>(STORAGE.settings, DEFAULT_SETTINGS, isValidObject);
   const storeContentSnapshot = useRef({ products, categories, vehicles, properties, promoCodes });
-  storeContentSnapshot.current = { products, categories, vehicles, properties, promoCodes };
+  useEffect(() => {
+    storeContentSnapshot.current = { products, categories, vehicles, properties, promoCodes };
+  }, [products, categories, vehicles, properties, promoCodes]);
   const syncedStoreContent = useRef<Record<StoreContentKey, string> | null>(null);
   useEffect(() => {
     setCategories((current) => normalizeCategories(current));
     setProducts((current) => normalizeStarterProductImages(current));
     setVehicles((current) => normalizeStarterVehicles(current));
-  }, [setCategories, setProducts, setVehicles]);
+    setProperties((current) => normalizeStarterProperties(current));
+  }, [setCategories, setProducts, setVehicles, setProperties]);
   // True once the settings document has been read from Supabase at least once.
   // Every cloud write stays gated on this so a boot-time default can never race
   // the initial read and overwrite the row that is still being fetched.
@@ -459,7 +463,7 @@ export default function App() {
         ? normalizeStarterVehicles(remoteVehicles as Vehicle[])
         : storeContentSnapshot.current.vehicles;
       const loadedProperties = isValidObjectArray(remoteProperties)
-        ? remoteProperties as Property[]
+        ? normalizeStarterProperties(remoteProperties as Property[])
         : storeContentSnapshot.current.properties;
       const loadedPromos = isValidObjectArray(remotePromos)
         ? remotePromos as PromoCode[]
@@ -516,7 +520,7 @@ export default function App() {
         if (key === 'products') setProducts(normalizeStarterProductImages(remote as Product[]));
         else if (key === 'categories') setCategories(normalizeCategories(remote as DynamicCategory[]));
         else if (key === 'vehicles') setVehicles(normalizeStarterVehicles(remote as Vehicle[]));
-        else if (key === 'properties') setProperties(remote as Property[]);
+        else if (key === 'properties') setProperties(normalizeStarterProperties(remote as Property[]));
         else setPromoCodes(remote as PromoCode[]);
       });
     };
@@ -1182,10 +1186,33 @@ export default function App() {
     && (!product.subcategoryId || dynamicDepartmentChildren.some((child) => child.slug === product.subcategoryId))
     && (!selectedSubcategories[currentDynamicDepartment.slug] || product.subcategoryId === selectedSubcategories[currentDynamicDepartment.slug]),
   ) : [];
+  const dynamicDepartmentSlides = currentDynamicDepartment
+    ? currentDynamicDepartment.bannerSlides?.length
+      ? currentDynamicDepartment.bannerSlides.map((slide) => ({ title: slide.title[locale] || currentDynamicDepartment.name[locale], text: slide.text[locale] || currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'), image: slide.image || currentDynamicDepartment.bannerImage || art.studioPortal }))
+      : [0, 1, 2].map((index) => ({ title: currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale], text: currentDynamicDepartment.bannerText?.[locale] || (isArabic ? `اكتشف اختيارات ${currentDynamicDepartment.name.ar} المصممة لتناسب احتياجك.` : `Explore ${currentDynamicDepartment.name.en}, curated around what you need.`), image: currentDynamicDepartment.bannerImage || dynamicDepartmentProducts[index]?.imageUrl || art.studioPortal }))
+    : [];
   const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
   const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
     const category = departmentFor(slug);
-    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} accent={category?.bannerAccent} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
+    const storyImages: Record<string, string[]> = {
+      cards: [art.cardsElite, art.cardsSocial, art.cardsBespoke],
+      fashion: [art.hoodie, art.tee, art.hoodie],
+      services: [art.studioWebsite, art.studioStore, art.studioPortal],
+      cars: [art.vehicleSedan, art.vehicleSuv, art.vehicleCoupe],
+      property: [art.propertyApartment, art.propertyVilla, art.propertyLand],
+    };
+    const storyTitles: Record<string, Record<Locale, string[]>> = {
+      cards: { ar: ['هويتك الرقمية، بلمسة واحدة', 'كل روابطك في مكان واحد', 'تفاصيل مصممة لتشبهك'], en: ['Your identity, one tap away', 'All your links in one place', 'Personal details, made yours'] },
+      fashion: { ar: ['تفاصيل يومية، بطابع مختلف', 'قصّات مريحة وواضحة', 'اكتشف اختياراتك الجديدة'], en: ['Everyday pieces, a distinct point of view', 'Comfortable, confident silhouettes', 'Find your next favorite'] },
+      services: { ar: ['نبني حضورك الرقمي', 'متجرك يبدأ من هنا', 'من الفكرة إلى الإطلاق'], en: ['Build a stronger digital presence', 'Your online store starts here', 'From first idea to launch'] },
+      cars: { ar: ['سيارة تناسب مشوارك', 'مساحة أوسع لخططك', 'تجربة قيادة مختلفة'], en: ['A car for your next journey', 'More space for your plans', 'A different driving experience'] },
+      property: { ar: ['مساحة تبدأ منها', 'بيت يناسب تفاصيل يومك', 'مساحة لخطوتك القادمة'], en: ['A place to begin', 'A home for the way you live', 'Room for your next chapter'] },
+    };
+    const extraSlides = category?.bannerSlides?.filter((slide) => slide.title?.[locale] || slide.text?.[locale] || slide.image).map((slide) => ({ title: slide.title?.[locale] || category.name[locale], text: slide.text?.[locale] || category.bannerText?.[locale] || fallbackText, image: slide.image || category.bannerImage || departmentImage(slug) })) ?? [];
+    const primaryConfigured = Boolean(category?.bannerTitle?.[locale] || category?.bannerText?.[locale] || category?.bannerImage);
+    const configuredSlides = primaryConfigured ? [{ title: category?.bannerTitle?.[locale] || category?.name[locale] || slug, text: category?.bannerText?.[locale] || fallbackText, image: category?.bannerImage || departmentImage(slug) }, ...extraSlides] : extraSlides;
+    const slides = configuredSlides.length ? configuredSlides : storyImages[slug].map((slideImage, index) => ({ title: storyTitles[slug][locale][index], text: index === 0 ? fallbackText : storyTitles[slug][locale][index], image: slideImage }));
+    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} accent={category?.bannerAccent} slides={slides} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
   };
   const renderSubcategoryChips = (slug: string, count: (subcategorySlug?: string) => number) => {
     const children = subcategoriesFor(slug);
@@ -1916,7 +1943,7 @@ export default function App() {
 
             {/* Product Cards Grid — premium surface, image plate with a soft
                 inner ring, discount badge and a two-tier action row. */}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {currentCategoryProducts.map((p) => (
                 <ProductCard
                   key={p.id}
@@ -1971,7 +1998,7 @@ export default function App() {
               </nav>
             )}
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {currentCategoryProducts.length === 0 && (
                 <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-10 text-center text-sm text-[#6f8378]">
                   {isArabic ? 'لا توجد منتجات في هذا القسم حالياً.' : 'No products in this collection yet.'}
@@ -2001,7 +2028,7 @@ export default function App() {
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
           <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}<DepartmentHighlights department="services" locale={locale} />
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-8 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف خدمات لهذا القسم من إدارة المنتجات لتظهر هنا.' : 'Add services under this department in Admin to display them here.'}</p>}</div></section>
+          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-8 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف خدمات لهذا القسم من إدارة المنتجات لتظهر هنا.' : 'Add services under this department in Admin to display them here.'}</p>}</div></section>
           <AgencyPortfolio
             locale={locale}
             market={market}
@@ -2058,7 +2085,7 @@ export default function App() {
 
         {currentDynamicDepartment && (
           <section className="space-y-10">
-            <DepartmentBanner locale={locale} name={currentDynamicDepartment.name[locale]} title={currentDynamicDepartment.bannerTitle?.[locale]} text={currentDynamicDepartment.bannerText?.[locale]} image={currentDynamicDepartment.bannerImage} accent={currentDynamicDepartment.bannerAccent} fallbackImage={art.studioPortal} fallbackTitle={isArabic ? `اكتشف ${currentDynamicDepartment.name.ar}` : `Discover ${currentDynamicDepartment.name.en}`} fallbackText={isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'} />
+            <DepartmentBanner locale={locale} name={currentDynamicDepartment.name[locale]} title={currentDynamicDepartment.bannerTitle?.[locale]} text={currentDynamicDepartment.bannerText?.[locale]} image={currentDynamicDepartment.bannerImage} accent={currentDynamicDepartment.bannerAccent} slides={dynamicDepartmentSlides} fallbackImage={art.studioPortal} fallbackTitle={isArabic ? `اكتشف ${currentDynamicDepartment.name.ar}` : `Discover ${currentDynamicDepartment.name.en}`} fallbackText={isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'} />
             <div id="department-content" className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
               <div className="rounded-[2rem] border border-[#e1ebe5] bg-white p-7 shadow-sm sm:p-9">
                 <span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#5e8b75]">{isArabic ? 'مساحة هذا القسم' : 'THE DEPARTMENT'}</span>

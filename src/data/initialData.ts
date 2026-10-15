@@ -185,8 +185,9 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     id: 'ZX-CAR-101',
     title: { en: 'Mercedes-Benz C200 AMG 2024', ar: 'مرسيدس C200 AMG موديل 2024' },
     location: { en: 'New Cairo · 5th Settlement', ar: 'القاهرة الجديدة · التجمع الخامس' },
-    price: 3650000,
-    oldPrice: 3800000,
+    price: 4200,
+    deal: 'Rent',
+    rentalPeriod: 'Day',
     area: 0,
     region: 'Cairo',
     photo: photos.vehicleSedan,
@@ -203,8 +204,9 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     id: 'ZX-CAR-204',
     title: { en: 'Range Rover Sport Dynamic 2025', ar: 'رنج روفر سبورت ديناميك 2025' },
     location: { en: 'Sheikh Zayed · Giza', ar: 'الشيخ زايد · الجيزة' },
-    price: 7450000,
-    oldPrice: 7800000,
+    price: 8500,
+    deal: 'Rent',
+    rentalPeriod: 'Day',
     area: 0,
     region: 'Giza',
     photo: photos.vehicleSuv,
@@ -241,11 +243,12 @@ export const INITIAL_VEHICLES: Vehicle[] = [
 
 /** Keep the built-in Porsche demo rental-enabled for returning local/cloud catalogs too. */
 export function normalizeStarterVehicles(vehicles: Vehicle[]): Vehicle[] {
-  return vehicles.map((vehicle) => vehicle.id === 'ZX-CAR-318'
-    && vehicle.price === 640000
-    && vehicle.title.en === 'Porsche 911 Carrera S Coupe 2023'
-    ? { ...vehicle, price: 640, oldPrice: 680, deal: 'Rent', rentalPeriod: 'Day' }
-    : vehicle);
+  return vehicles.map((vehicle) => {
+    if (vehicle.id === 'ZX-CAR-101' && vehicle.price === 3650000) return { ...vehicle, price: 4200, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Day' };
+    if (vehicle.id === 'ZX-CAR-204' && vehicle.price === 7450000) return { ...vehicle, price: 8500, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Day' };
+    if (vehicle.id === 'ZX-CAR-318' && vehicle.price === 640000 && vehicle.title.en === 'Porsche 911 Carrera S Coupe 2023') return { ...vehicle, price: 640, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Day' };
+    return { ...vehicle, deal: vehicle.deal ?? 'Rent', rentalPeriod: vehicle.deal === 'Sale' ? undefined : vehicle.rentalPeriod ?? 'Day' };
+  });
 }
 
 export const INITIAL_PROPERTIES: Property[] = [
@@ -253,14 +256,14 @@ export const INITIAL_PROPERTIES: Property[] = [
     id: 'ZX-PROP-017',
     title: { en: 'Luxury Palm Residence Apartment', ar: 'شقة فاخرة بكمبوند بالم ريزيدنس' },
     location: { en: 'New Cairo · Golden Square', ar: 'القاهرة الجديدة · المربع الذهبي' },
-    price: 4950000,
-    oldPrice: 5300000,
+    price: 35000,
     area: 185,
     region: 'Cairo',
     photo: photos.propertyApartment,
     gallery: [photos.propertyApartment, photos.propertyVilla, photos.propertyLand],
     type: 'Apartment',
-    deal: 'Sale',
+    deal: 'Rent',
+    rentalPeriod: 'Month',
     rooms: 3,
     floor: 3,
     bathrooms: 3,
@@ -271,13 +274,13 @@ export const INITIAL_PROPERTIES: Property[] = [
     title: { en: 'Standalone Courtyard Villa with Pool', ar: 'فيلا مستقلة بحمام سباحة وحديقة خاصة' },
     location: { en: 'Sheikh Zayed · Beverly Hills', ar: 'الشيخ زايد · بيفرلي هيلز' },
     price: 65000,
-    oldPrice: 75000,
     area: 420,
     region: 'Giza',
     photo: photos.propertyVilla,
     gallery: [photos.propertyVilla, photos.propertyApartment, photos.propertyLand],
     type: 'Villa',
     deal: 'Rent',
+    rentalPeriod: 'Month',
     rooms: 5,
     floor: 2,
     bathrooms: 5,
@@ -287,19 +290,29 @@ export const INITIAL_PROPERTIES: Property[] = [
     id: 'ZX-PROP-039',
     title: { en: 'Prime Commercial Plot / North District', ar: 'قطعة أرض تجارية مميزة بالحي الشمالي' },
     location: { en: 'Riyadh · North District', ar: 'الرياض · شمال الرياض' },
-    price: 2450000,
-    oldPrice: 2600000,
+    price: 180000,
     area: 650,
     region: 'Riyadh',
     photo: photos.propertyLand,
     gallery: [photos.propertyLand, photos.propertyVilla, photos.propertyApartment],
     type: 'Land',
-    deal: 'Sale',
+    deal: 'Rent',
+    rentalPeriod: 'Year',
     rooms: 0,
     floor: 0,
     bathrooms: 0,
   },
 ];
+
+/** Reclassify only unchanged starter examples; owner-submitted sale listings stay sales. */
+export function normalizeStarterProperties(properties: Property[]): Property[] {
+  return properties.map((property) => {
+    if (property.id === 'ZX-PROP-017' && property.price === 4950000) return { ...property, price: 35000, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Month' };
+    if (property.id === 'ZX-PROP-039' && property.price === 2450000) return { ...property, price: 180000, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Year' };
+    if (property.id === 'ZX-PROP-024' && property.price === 65000) return { ...property, oldPrice: undefined, deal: 'Rent', rentalPeriod: 'Month' };
+    return { ...property, deal: property.deal ?? 'Rent', rentalPeriod: property.deal === 'Sale' ? undefined : property.rentalPeriod ?? 'Month' };
+  });
+}
 
 export const AGENCY_PROJECTS: AgencyProject[] = [
   {

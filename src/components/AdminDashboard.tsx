@@ -32,6 +32,7 @@ import {
   X,
 } from 'lucide-react';
 import { art } from '../data/imagery';
+import { DepartmentBanner } from './DepartmentBanner';
 import { INITIAL_CATEGORIES, SHIPPING_RATES } from '../data/initialData';
 import { publicAssetUrl } from '../utils';
 import type {
@@ -189,6 +190,15 @@ export function AdminDashboard({
   const [newCatBannerTextEn, setNewCatBannerTextEn] = useState('');
   const [newCatBannerImage, setNewCatBannerImage] = useState('');
   const [newCatBannerAccent, setNewCatBannerAccent] = useState('#b7edcf');
+  const [newCatExtraSlides, setNewCatExtraSlides] = useState([
+    { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' },
+    { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' },
+  ]);
+  const updateCategorySlide = (index: number, field: 'title' | 'text' | 'image', localeKey: 'ar' | 'en', value: string) => setNewCatExtraSlides((current) => current.map((slide, slideIndex) => {
+    if (slideIndex !== index) return slide;
+    if (field === 'image') return { ...slide, image: value };
+    return { ...slide, [field]: { ...slide[field], [localeKey]: value } };
+  }));
   const [newShippingArea, setNewShippingArea] = useState('');
   const [newShippingCarrier, setNewShippingCarrier] = useState('');
   const [carrierMarket, setCarrierMarket] = useState<Market>(market);
@@ -227,7 +237,7 @@ export function AdminDashboard({
   const [carMake, setCarMake] = useState('Mercedes-Benz');
   const [carYear, setCarYear] = useState('2024');
   const [carPrice, setCarPrice] = useState('');
-  const [carDeal, setCarDeal] = useState<'Sale' | 'Rent'>('Sale');
+  const [carDeal, setCarDeal] = useState<'Sale' | 'Rent'>('Rent');
   const [carRentalPeriod, setCarRentalPeriod] = useState<'Day' | 'Week' | 'Month'>('Day');
   const [carLocation, setCarLocation] = useState('Cairo');
   const [carCondition, setCarCondition] = useState<'New' | 'Used'>('Used');
@@ -240,7 +250,8 @@ export function AdminDashboard({
   const [propTitleAr, setPropTitleAr] = useState('');
   const [propTitleEn, setPropTitleEn] = useState('');
   const [propType, setPropType] = useState<'Apartment' | 'Villa' | 'Land' | 'Shop'>('Apartment');
-  const [propDeal, setPropDeal] = useState<'Sale' | 'Rent'>('Sale');
+  const [propDeal, setPropDeal] = useState<'Sale' | 'Rent'>('Rent');
+  const [propRentalPeriod, setPropRentalPeriod] = useState<'Month' | 'Year'>('Month');
   const [propPrice, setPropPrice] = useState('');
   const [propArea, setPropArea] = useState('150');
   const [propRooms, setPropRooms] = useState('3');
@@ -291,6 +302,7 @@ export function AdminDashboard({
           bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
           bannerImage: newCatBannerImage.trim(),
           bannerAccent: newCatBannerAccent,
+          bannerSlides: newCatExtraSlides.filter((slide) => slide.image.trim() || slide.title.ar.trim() || slide.title.en.trim()).map((slide) => ({ ...slide, image: slide.image.trim() })),
         }
         : category));
       if (editedCategory?.parentSlug !== newCatParentSlug) {
@@ -305,6 +317,7 @@ export function AdminDashboard({
       setNewCatParentSlug('');
       setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
       setNewCatBannerAccent('#b7edcf');
+      setNewCatExtraSlides([{ title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }, { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }]);
       setShowCategoryModal(false);
       onToast(isArabic ? 'تم تحديث اسم القسم في المتجر' : 'Section name updated across the store');
       return;
@@ -326,6 +339,7 @@ export function AdminDashboard({
       bannerText: { ar: newCatBannerTextAr.trim(), en: newCatBannerTextEn.trim() },
       bannerImage: newCatBannerImage.trim(),
       bannerAccent: newCatBannerAccent,
+      bannerSlides: newCatExtraSlides.filter((slide) => slide.image.trim() || slide.title.ar.trim() || slide.title.en.trim()).map((slide) => ({ ...slide, image: slide.image.trim() })),
     };
     setCategories((prev) => [...prev, newCat]);
     setNewCatNameAr('');
@@ -334,6 +348,7 @@ export function AdminDashboard({
     setNewCatParentSlug('');
     setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
     setNewCatBannerAccent('#b7edcf');
+    setNewCatExtraSlides([{ title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }, { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }]);
     setEditingCategoryId(null);
     setShowCategoryModal(false);
     onToast(isArabic ? 'تمت إضافة القسم الجديد بنجاح!' : 'New category created successfully!');
@@ -351,6 +366,7 @@ export function AdminDashboard({
     setNewCatBannerTextEn(category.bannerText?.en ?? '');
     setNewCatBannerImage(category.bannerImage ?? '');
     setNewCatBannerAccent(category.bannerAccent ?? '#b7edcf');
+    setNewCatExtraSlides([0, 1].map((index) => category.bannerSlides?.[index] ?? { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }));
     setShowCategoryModal(true);
   };
 
@@ -530,7 +546,7 @@ export function AdminDashboard({
     setCarMake(v.make);
     setCarYear(String(v.year));
     setCarPrice(String(v.price));
-    setCarDeal(v.deal ?? 'Sale');
+    setCarDeal(v.deal ?? 'Rent');
     setCarRentalPeriod(v.rentalPeriod ?? 'Day');
     setCarLocation(v.region);
     setCarCondition(v.condition);
@@ -565,6 +581,7 @@ export function AdminDashboard({
       gallery: existing?.gallery?.length ? existing.gallery : [photo],
       type: propType,
       deal: propDeal,
+      rentalPeriod: propDeal === 'Rent' ? propRentalPeriod : undefined,
       rooms: Number(propRooms) || 3,
       floor: existing?.floor ?? 2,
       bathrooms: existing?.bathrooms ?? 2,
@@ -588,7 +605,8 @@ export function AdminDashboard({
     setPropTitleAr(p.title.ar);
     setPropTitleEn(p.title.en);
     setPropType(p.type);
-    setPropDeal(p.deal);
+    setPropDeal(p.deal ?? 'Rent');
+    setPropRentalPeriod(p.rentalPeriod ?? 'Month');
     setPropPrice(String(p.price));
     setPropArea(String(p.area));
     setPropRooms(String(p.rooms));
@@ -1194,6 +1212,7 @@ export function AdminDashboard({
                 setNewCatParentSlug('');
                 setNewCatBannerTitleAr(''); setNewCatBannerTitleEn(''); setNewCatBannerTextAr(''); setNewCatBannerTextEn(''); setNewCatBannerImage('');
                 setNewCatBannerAccent('#b7edcf');
+                setNewCatExtraSlides([{ title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }, { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }]);
                 setShowCategoryModal(true);
               }}
               type="button"
@@ -1316,6 +1335,25 @@ export function AdminDashboard({
                     </div>
                     <label className="mt-3 block text-[10px] text-[#607368]">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
                     <label className="mt-3 flex items-center gap-3 text-[10px] text-[#607368]">{isArabic ? 'لون التفاصيل' : 'Accent color'}<input aria-label={isArabic ? 'لون تفاصيل البانر' : 'Banner accent color'} className="h-9 w-14 cursor-pointer rounded-lg border border-[#dfe8e2] p-1" onChange={(e) => setNewCatBannerAccent(e.target.value)} type="color" value={/^#[0-9a-f]{6}$/i.test(newCatBannerAccent) ? newCatBannerAccent : '#b7edcf'} /><span className="font-mono">{newCatBannerAccent}</span></label>
+                    <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                      {newCatExtraSlides.map((slide, index) => <div className="rounded-2xl border border-[#e5ece7] bg-[#f8faf8] p-3" key={`banner-slide-${index}`}>
+                        <p className="mb-2 text-[10px] font-bold text-[#496e5a]">{isArabic ? `الشريحة ${index + 2}` : `Slide ${index + 2}`}</p>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <input aria-label={isArabic ? 'عنوان الشريحة بالعربي' : 'Slide title Arabic'} className="h-9 rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => updateCategorySlide(index, 'title', 'ar', e.target.value)} placeholder={isArabic ? 'العنوان بالعربي' : 'Arabic title'} value={slide.title.ar} />
+                          <input aria-label={isArabic ? 'عنوان الشريحة بالإنجليزي' : 'Slide title English'} className="h-9 rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => updateCategorySlide(index, 'title', 'en', e.target.value)} placeholder={isArabic ? 'العنوان بالإنجليزي' : 'English title'} value={slide.title.en} />
+                          <textarea aria-label={isArabic ? 'وصف الشريحة بالعربي' : 'Slide text Arabic'} className="min-h-16 rounded-xl border border-[#dfe8e2] p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'ar', e.target.value)} placeholder={isArabic ? 'الوصف بالعربي' : 'Arabic description'} value={slide.text.ar} />
+                          <textarea aria-label={isArabic ? 'وصف الشريحة بالإنجليزي' : 'Slide text English'} className="min-h-16 rounded-xl border border-[#dfe8e2] p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'en', e.target.value)} placeholder={isArabic ? 'الوصف بالإنجليزي' : 'English description'} value={slide.text.en} />
+                        </div>
+                        <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="mt-2 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs" onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image} />
+                      </div>)}
+                    </div>
+                    <div className="mt-4 overflow-hidden rounded-[2rem] border border-[#e5ece7] p-2">
+                      <p className="mb-2 px-2 text-[10px] font-bold text-[#496e5a]">{isArabic ? 'معاينة مباشرة' : 'Live preview'}</p>
+                      <DepartmentBanner locale={locale} name={newCatNameAr || newCatNameEn || (isArabic ? 'القسم الجديد' : 'New department')} accent={newCatBannerAccent} slides={[
+                        { title: (locale === 'ar' ? newCatBannerTitleAr : newCatBannerTitleEn) || (newCatNameAr || newCatNameEn || (isArabic ? 'القسم الجديد' : 'New department')), text: (locale === 'ar' ? newCatBannerTextAr : newCatBannerTextEn) || (isArabic ? 'أضف وصفاً مميزاً لقسمك.' : 'Add a distinctive description for your department.'), image: newCatBannerImage || art.studioPortal },
+                        ...newCatExtraSlides.filter((slide) => slide.title.ar || slide.title.en || slide.image).map((slide) => ({ title: slide.title[locale] || (newCatNameAr || newCatNameEn), text: slide.text[locale] || (isArabic ? 'وصف الشريحة' : 'Slide description'), image: slide.image || newCatBannerImage || art.studioPortal })),
+                      ]} fallbackTitle={isArabic ? 'عنوان القسم' : 'Department title'} fallbackText={isArabic ? 'وصف القسم' : 'Department description'} fallbackImage={art.studioPortal} />
+                    </div>
                     <p className="mt-1 text-[9px] text-[#819288]">{isArabic ? 'اترك الحقول فارغة لاستخدام التصميم والصورة الافتراضيين للقسم.' : 'Leave these fields empty to use the department’s built-in design and image.'}</p>
                   </div>
                 </div>
@@ -1711,7 +1749,7 @@ export function AdminDashboard({
                 setCarMake('Mercedes-Benz');
                 setCarYear('2024');
                 setCarPrice('');
-                setCarDeal('Sale');
+                setCarDeal('Rent');
                 setCarRentalPeriod('Day');
                 setCarLocation('Cairo');
                 setCarCondition('Used');
@@ -1743,7 +1781,7 @@ export function AdminDashboard({
               .filter((v) => {
                 const q = inventorySearch.trim().toLowerCase();
                 if (!q) return true;
-                return `${v.title.ar} ${v.title.en} ${v.make} ${v.id} ${v.deal ?? 'Sale'}`.toLowerCase().includes(q);
+                return `${v.title.ar} ${v.title.en} ${v.make} ${v.id} ${v.deal ?? 'Rent'}`.toLowerCase().includes(q);
               })
               .map((v) => (
               <div className="flex items-center justify-between py-4" key={v.id}>
@@ -1814,9 +1852,10 @@ export function AdminDashboard({
                   <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'نوع العرض' : 'Listing type'}</label>
                     <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs" onChange={(e) => setCarDeal(e.target.value as 'Sale' | 'Rent')} value={carDeal}>
-                      <option value="Sale">{isArabic ? 'للبيع' : 'For sale'}</option>
+                      <option value="Sale">{isArabic ? 'بيع بتفويض من المالك' : 'Owner-authorized sale'}</option>
                       <option value="Rent">{isArabic ? 'للإيجار' : 'For rent'}</option>
                     </select>
+                    <p className="mt-1 text-[9px] leading-4 text-[#819288]">{isArabic ? 'اختر البيع فقط إذا طلب المالك تسويق سيارته للبيع.' : 'Choose sale only when the owner has asked you to market their vehicle.'}</p>
                   </div>
                   {carDeal === 'Rent' && <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'مدة الإيجار' : 'Rental period'}</label>
@@ -1885,7 +1924,8 @@ export function AdminDashboard({
                 setPropTitleAr('');
                 setPropTitleEn('');
                 setPropType('Apartment');
-                setPropDeal('Sale');
+                setPropDeal('Rent');
+                setPropRentalPeriod('Month');
                 setPropPrice('');
                 setPropArea('150');
                 setPropRooms('3');
@@ -1925,7 +1965,7 @@ export function AdminDashboard({
                   <div>
                     <h4 className="text-xs font-bold text-[#2d4236]">{p.title.ar}</h4>
                     <p className="text-[10px] text-[#697d72]">
-                      {p.type} · {p.deal === 'Sale' ? (isArabic ? 'بيع' : 'Sale') : isArabic ? 'إيجار' : 'Rent'} · {p.price.toLocaleString()} ج.م
+                      {p.type} · {p.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? `إيجار ${p.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `Rent · ${p.rentalPeriod === 'Year' ? 'yearly' : 'monthly'}`} · {p.price.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -1984,12 +2024,19 @@ export function AdminDashboard({
                   <div>
                     <label className="text-[10px] text-[#5e7166]">{isArabic ? 'نوع العرض' : 'Deal'}</label>
                     <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropDeal(e.target.value as Property['deal'])} value={propDeal}>
-                      <option value="Sale">{isArabic ? 'للبيع' : 'Sale'}</option>
+                      <option value="Sale">{isArabic ? 'بيع بتفويض من المالك' : 'Owner-authorized sale'}</option>
                       <option value="Rent">{isArabic ? 'للإيجار' : 'Rent'}</option>
                     </select>
                   </div>
+                  {propDeal === 'Rent' && <div>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'مدة الإيجار' : 'Rental period'}</label>
+                    <select className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs" onChange={(e) => setPropRentalPeriod(e.target.value as 'Month' | 'Year')} value={propRentalPeriod}>
+                      <option value="Month">{isArabic ? 'شهري' : 'Monthly'}</option>
+                      <option value="Year">{isArabic ? 'سنوي' : 'Yearly'}</option>
+                    </select>
+                  </div>}
                   <div>
-                    <label className="text-[10px] text-[#5e7166]">{isArabic ? 'السعر' : 'Price'}</label>
+                    <label className="text-[10px] text-[#5e7166]">{isArabic ? propDeal === 'Rent' ? `قيمة الإيجار ${propRentalPeriod === 'Year' ? 'السنوية' : 'الشهرية'}` : 'سعر البيع بتفويض المالك' : propDeal === 'Rent' ? `Rent price (${propRentalPeriod === 'Year' ? 'yearly' : 'monthly'})` : 'Owner-authorized sale price'}</label>
                     <input className="mt-1 h-9 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" onChange={(e) => setPropPrice(e.target.value)} required type="number" value={propPrice} />
                   </div>
                   <div>

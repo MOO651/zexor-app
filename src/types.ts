@@ -30,6 +30,7 @@ export type DynamicCategory = {
   bannerImage?: string;
   /** Accent used by the shared editorial department template. */
   bannerAccent?: string;
+  bannerSlides?: { title: Record<Locale, string>; text: Record<Locale, string>; image: string }[];
 };
 
 export type Product = {
@@ -150,7 +151,7 @@ export type Vehicle = {
   title: Record<Locale, string>;
   location: Record<Locale, string>;
   price: number;
-  /** Defaults to Sale for listings created before rental support. */
+  /** Older listings without a deal are treated as rentals on the storefront. */
   deal?: 'Sale' | 'Rent';
   rentalPeriod?: 'Day' | 'Week' | 'Month';
   oldPrice?: number;
@@ -179,6 +180,7 @@ export type Property = {
   gallery: string[];
   type: 'Apartment' | 'Villa' | 'Land' | 'Shop';
   deal: 'Sale' | 'Rent';
+  rentalPeriod?: 'Month' | 'Year';
   rooms: number;
   floor: number;
   bathrooms: number;

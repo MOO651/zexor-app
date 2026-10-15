@@ -92,6 +92,23 @@ export function Marketplace({
   const vehiclePricePeriod = (vehicle: Vehicle) => vehicle.deal === 'Rent'
     ? isArabic ? ` / ${rentalPeriodLabel(vehicle)}` : ` / ${rentalPeriodLabel(vehicle)}`
     : '';
+  const marketplaceBannerText = mode === 'cars'
+    ? isArabic ? 'إيجار سيارات بالمدة التي تناسب احتياجك، مع إمكانية طلب موعد معاينة.' : 'Car rentals for the period you need, with viewing requests available.'
+    : isArabic ? 'مساحات متاحة للإيجار. وتظهر عروض البيع فقط بتفويض من المالك.' : 'Spaces available to rent. Sale listings are shown only with owner authorization.';
+  const defaultSlides = mode === 'cars'
+    ? [
+        { title: isArabic ? 'سيارة تناسب مشوارك' : 'A car for your next journey', text: marketplaceBannerText, image: art.vehicleSedan },
+        { title: isArabic ? 'مساحة أوسع لخططك' : 'More room for your plans', text: isArabic ? 'اكتشف خيارات السيارات للإيجار، واختر المدة المناسبة لك.' : 'Explore rental options and choose the period that works for you.', image: art.vehicleSuv },
+        { title: isArabic ? 'تجربة قيادة مختلفة' : 'A different driving experience', text: isArabic ? 'تصفح المعروض واحجز موعد المعاينة مع فريقنا.' : 'Browse the fleet and request a viewing with our team.', image: art.vehicleCoupe },
+      ]
+    : [
+        { title: isArabic ? 'مساحة تبدأ منها' : 'A place to begin', text: marketplaceBannerText, image: art.propertyApartment },
+        { title: isArabic ? 'بيت يناسب تفاصيل يومك' : 'A home for the way you live', text: isArabic ? 'شقق وفيلات متاحة للإيجار الشهري.' : 'Apartments and villas available to rent by the month.', image: art.propertyVilla },
+        { title: isArabic ? 'مساحة لخطوتك القادمة' : 'Room for your next chapter', text: isArabic ? 'تظهر عروض البيع فقط بعد تفويض المالك.' : 'Sale listings appear only with owner authorization.', image: art.propertyLand },
+      ];
+  const extraSlides = banner?.bannerSlides?.filter((slide) => slide.title?.[locale] || slide.text?.[locale] || slide.image).map((slide) => ({ title: slide.title?.[locale] || sectionName || '', text: slide.text?.[locale] || marketplaceBannerText, image: slide.image || banner.bannerImage || (mode === 'cars' ? art.vehiclesPortal : art.estatePortal) })) ?? [];
+  const primaryConfigured = Boolean(banner?.bannerTitle?.[locale] || banner?.bannerText?.[locale] || banner?.bannerImage);
+  const configuredSlides = primaryConfigured ? [{ title: banner?.bannerTitle?.[locale] || sectionName || '', text: banner?.bannerText?.[locale] || marketplaceBannerText, image: banner?.bannerImage || (mode === 'cars' ? art.vehiclesPortal : art.estatePortal) }, ...extraSlides] : extraSlides;
 
   const filteredVehicles = vehicleList.filter((car) => {
     if (!inMarket(car.region)) return false;
@@ -101,7 +118,7 @@ export function Marketplace({
       if (!custom || (!haystack.includes(custom.slug.replaceAll('-', ' ')) && !haystack.includes(custom.name[locale].toLowerCase()) && !haystack.includes(custom.name.en.toLowerCase()))) return false;
     }
     if (selectedRegion && car.region !== selectedRegion) return false;
-    if (vehicleDealFilter && (car.deal ?? 'Sale') !== vehicleDealFilter) return false;
+    if (vehicleDealFilter && (car.deal ?? 'Rent') !== vehicleDealFilter) return false;
     if (makeFilter && car.make !== makeFilter) return false;
     if (conditionFilter && car.condition !== conditionFilter) return false;
     if (minPrice && car.price < Number(minPrice)) return false;
@@ -202,7 +219,7 @@ Listing: ${itemTitle}`;
   return (
     <div className="space-y-10">
       {/* Hero Banner */}
-      <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={mode === 'cars' ? (isArabic ? 'تصفح السيارات المتاحة للبيع أو الإيجار، وقارن المواصفات واحجز موعد المعاينة.' : 'Explore cars for sale or rent, compare their details and request a viewing.') : (isArabic ? 'اكتشف الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار واطلب معاينة.' : 'Explore homes, villas and land for sale or rent, then request a viewing.')} />
+      <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} slides={configuredSlides?.length ? configuredSlides : defaultSlides} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={marketplaceBannerText} />
       <DepartmentHighlights department={mode} locale={locale} />
       {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
@@ -225,11 +242,11 @@ Listing: ${itemTitle}`;
           <p className="mt-3 text-sm leading-6 text-[#697a70]">
             {mode === 'cars'
               ? isArabic
-                ? 'تصفح السيارات المتاحة للبيع مع صور متعددة وسلايدر تكبير ومواصفات تفصيلية وحجز معاينة فورية بالرمز التعريفي.'
-                : 'Explore vehicle listings, compare specifications and arrange an inspection directly with our team.'
+                ? 'اختار سيارة للإيجار بالمدة المناسبة لك، واطلب موعد معاينة مباشرة.'
+                : 'Explore cars available to rent, compare specifications and request a viewing.'
               : isArabic
-                ? 'تصفح الشقق والفيلات والأراضي المتاحة للبيع أو الإيجار، واطلب موعد معاينة مباشرة.'
-                : 'Explore residential and commercial listings, then arrange an in-person viewing with our team.'}
+                ? 'اكتشف مساحات متاحة للإيجار، وحدد موعد المعاينة. وتظهر عروض البيع فقط بتفويض من المالك.'
+                : 'Explore spaces available to rent and request a viewing. Sale listings are shown only with the owner’s authorization.'}
           </p>
           <p className="zx-theme-panel mt-4 flex max-w-2xl items-start gap-2 rounded-2xl border px-3.5 py-3 text-[10px] leading-5 shadow-sm">
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#8a7043]" />
@@ -308,8 +325,8 @@ Listing: ${itemTitle}`;
                   onChange={(e) => setVehicleDealFilter(e.target.value)}
                   value={vehicleDealFilter}
                 >
-                  <option value="">{isArabic ? 'بيع وإيجار' : 'Sale & Rent'}</option>
-                  <option value="Sale">{isArabic ? 'للبيع' : 'For sale'}</option>
+                  <option value="">{isArabic ? 'كل العروض' : 'All listings'}</option>
+                  <option value="Sale">{isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale'}</option>
                   <option value="Rent">{isArabic ? 'للإيجار' : 'For rent'}</option>
                 </select>
               </div>
@@ -363,7 +380,7 @@ Listing: ${itemTitle}`;
                   value={dealFilter}
                 >
                   <option value="">{isArabic ? 'الكل' : 'All'}</option>
-                  <option value="Sale">{isArabic ? 'للبيع' : 'For Sale'}</option>
+                  <option value="Sale">{isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale'}</option>
                   <option value="Rent">{isArabic ? 'للإيجار' : 'For Rent'}</option>
                 </select>
               </div>
@@ -420,7 +437,7 @@ Listing: ${itemTitle}`;
                 </span>
                 <div className="absolute end-3 top-3 flex items-center gap-1.5">
                   <span className="rounded-full border border-white/20 bg-[#143b2d]/85 px-2.5 py-1 text-[9px] font-extrabold text-white backdrop-blur-md">
-                    {(car.deal ?? 'Sale') === 'Rent' ? isArabic ? 'للإيجار' : 'For Rent' : isArabic ? 'للبيع' : 'For Sale'}
+                    {(car.deal ?? 'Rent') === 'Rent' ? isArabic ? 'للإيجار' : 'For Rent' : isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale'}
                   </span>
                   <span className="rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
                     {car.id}
@@ -486,7 +503,7 @@ Listing: ${itemTitle}`;
                 {/* Action Buttons */}
                 <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
                   <div className="min-w-0">
-                    <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                    <span className="block text-[9px] font-semibold text-[#839188]">{car.deal === 'Rent' ? (isArabic ? 'قيمة الإيجار للفترة' : 'RENTAL RATE') : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
                     <span className="zx-display mt-1 flex flex-wrap items-baseline gap-x-1 text-lg leading-none text-[#24382d]">
                       {new Intl.NumberFormat('en-US').format(car.price)}
                       <span className="font-sans text-[10px] font-semibold">{listingCurrency(car.region)}{car.deal === 'Rent' ? vehiclePricePeriod(car) : ''}</span>
@@ -561,7 +578,7 @@ Listing: ${itemTitle}`;
                     prop.deal === 'Sale' ? 'bg-[#a6e6c4] text-[#14301f]' : 'bg-[#e6a68e] text-[#3a1a12]'
                   }`}
                 >
-                  {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'For Sale') : isArabic ? 'للإيجار' : 'For Rent'}
+                  {prop.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? 'للإيجار' : 'For Rent'}
                 </span>
                 <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
                   {prop.id}
@@ -621,9 +638,9 @@ Listing: ${itemTitle}`;
 
                 <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
                   <div className="min-w-0">
-                    <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
+                    <span className="block text-[9px] font-semibold text-[#839188]">{prop.deal === 'Rent' ? (isArabic ? `الإيجار ${prop.rentalPeriod === 'Year' ? 'السنوي' : 'الشهري'}` : `RENT · ${prop.rentalPeriod === 'Year' ? 'YEARLY' : 'MONTHLY'}`) : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
                     <span className="zx-display mt-1 block text-lg leading-none text-[#24382d]">{formatListingPrice(prop.price, prop.region)}</span>
-                    {prop.deal === 'Rent' && <span className="mt-1 block text-[9px] text-[#839188]">{isArabic ? 'قيمة الإيجار حسب المدة' : 'Rental rate; confirm term'}</span>}
+                    {prop.deal === 'Rent' && <span className="mt-1 block text-[9px] text-[#839188]">{isArabic ? 'اطلب تأكيد التوفر وشروط التعاقد' : 'Confirm availability and rental terms'}</span>}
                   </div>
                   <div className="flex gap-2">
                   <button
@@ -824,7 +841,7 @@ Listing: ${itemTitle}`;
                           <p className="mt-1 text-[10px] text-[#718478]">{activeVehicle?.location[locale] ?? activeProperty?.location[locale]}</p>
                         </div>
                         <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[9px] font-bold text-[#527362]">
-                          {activeVehicle?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : activeProperty?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : (isArabic ? 'للبيع' : 'FOR SALE')}
+                          {activeVehicle?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : activeProperty?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}
                         </span>
                       </div>
                       <p className="zx-display mt-3 text-xl text-[#2d4838]">
@@ -833,6 +850,7 @@ Listing: ${itemTitle}`;
                           : activeProperty ? formatListingPrice(activeProperty.price, activeProperty.region) : ''}
                         {activeVehicle?.deal === 'Rent' && <span className="ms-1 font-sans text-xs font-semibold">{vehiclePricePeriod(activeVehicle)}</span>}
                       </p>
+                      {activeProperty?.deal === 'Rent' && <p className="mt-1 text-[10px] text-[#718478]">{isArabic ? `إيجار ${activeProperty.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `${activeProperty.rentalPeriod === 'Year' ? 'Yearly' : 'Monthly'} rental`}</p>}
                       <p className="mt-2 text-[10px] leading-5 text-[#718478]">
                         {activeVehicle
                           ? `${activeVehicle.make} · ${activeVehicle.year} · ${activeVehicle.mileage === 0 ? (isArabic ? 'زيرو' : 'New') : `${new Intl.NumberFormat('en-US').format(activeVehicle.mileage)} ${isArabic ? 'كم' : 'km'}`}`
