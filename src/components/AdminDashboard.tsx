@@ -172,6 +172,7 @@ export function AdminDashboard({
   const [shippingDrafts, setShippingDrafts] = useState<Record<string, Pick<CustomerOrder, 'shippingCarrier' | 'trackingNumber' | 'trackingUrl'>>>({});
   // Free-text filter for the products table (matches Arabic or English names).
   const [productSearch, setProductSearch] = useState('');
+  const [productStatusFilter, setProductStatusFilter] = useState<'all' | 'available' | 'hidden' | 'low' | 'out'>('all');
   // Shared filter for the vehicle and property listings.
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryLowOnly, setInventoryLowOnly] = useState(false);
@@ -1093,7 +1094,6 @@ export function AdminDashboard({
               <span className="text-[10px] text-[#788a80]">{isArabic ? 'استفسارات المعاينة والتواصل' : 'Inquiries & Viewing'}</span>
               <p className="mt-2 text-2xl font-bold text-[#2e4739]">{inbox.length}</p>
             </div>
-            <button className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white px-4 text-xs font-semibold text-[#52685b] transition hover:bg-[#f4f8f5]" onClick={handleExportProductsCsv} type="button"><Download className="h-3.5 w-3.5" />{isArabic ? 'تصدير المنتجات CSV' : 'Export products CSV'}</button>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
             <div className="rounded-2xl border border-white bg-white/90 p-5 shadow-sm">
@@ -1455,19 +1455,32 @@ export function AdminDashboard({
                 value={productSearch}
               />
             </div>
+            <select aria-label={isArabic ? 'تصفية حالة المنتجات' : 'Filter products by status'} className="h-10 min-w-40 rounded-full border border-[#dfe7e1] bg-white px-4 text-xs text-[#52685b] outline-none focus:border-[#7fb59a]" onChange={(event) => setProductStatusFilter(event.target.value as typeof productStatusFilter)} value={productStatusFilter}>
+              <option value="all">{isArabic ? 'كل الحالات' : 'All statuses'}</option>
+              <option value="available">{isArabic ? 'متاح للبيع' : 'Available'}</option>
+              <option value="hidden">{isArabic ? 'مخفي' : 'Hidden'}</option>
+              <option value="low">{isArabic ? 'مخزون منخفض' : 'Low stock'}</option>
+              <option value="out">{isArabic ? 'نفد المخزون' : 'Out of stock'}</option>
+            </select>
+            <button className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white px-4 text-xs font-semibold text-[#52685b] transition hover:bg-[#f4f8f5]" onClick={handleExportProductsCsv} type="button"><Download className="h-3.5 w-3.5" />{isArabic ? 'تصدير المنتجات CSV' : 'Export products CSV'}</button>
           </div>
 
           <div className="mt-4 divide-y divide-[#edf1ee]">
             {products
               .filter((prod) => {
                 const q = productSearch.trim().toLowerCase();
-                if (!q) return true;
-                return (
+                const matchesSearch = !q || (
                   prod.name.ar.toLowerCase().includes(q) ||
                   prod.name.en.toLowerCase().includes(q) ||
                   prod.category.toLowerCase().includes(q) ||
                   (categories.find((category) => category.slug === prod.subcategoryId)?.name[locale] ?? '').toLowerCase().includes(q)
                 );
+                if (!matchesSearch) return false;
+                if (productStatusFilter === 'available' && (!prod.available || prod.stock === 0)) return false;
+                if (productStatusFilter === 'hidden' && prod.available) return false;
+                if (productStatusFilter === 'low' && (prod.stock === undefined || prod.stock === 0 || prod.stock > 5)) return false;
+                if (productStatusFilter === 'out' && prod.stock !== 0) return false;
+                return true;
               })
               .map((prod) => (
               <div className="flex items-center justify-between py-4" key={prod.id}>

@@ -1074,6 +1074,29 @@ export default function App() {
     );
   };
 
+  const handleShareProduct = async (product: Product) => {
+    const shareData = {
+      title: product.name[locale],
+      text: isArabic
+        ? `${product.name.ar}\n${product.description.ar}\nكود المنتج: ${product.id}`
+        : `${product.name.en}\n${product.description.en}\nProduct code: ${product.id}`,
+      url: window.location.href.split('#')[0],
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        setToast(isArabic ? 'تم نسخ تفاصيل المنتج ورابط المتجر للمشاركة.' : 'Product details and store link copied.');
+      } else {
+        setToast(isArabic ? 'المشاركة غير متاحة في هذا المتصفح.' : 'Sharing is unavailable in this browser.');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') return;
+      setToast(isArabic ? 'تعذرت مشاركة المنتج. حاول مرة أخرى.' : 'Could not share this product. Please try again.');
+    }
+  };
+
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminAuthLoading(true);
@@ -1644,6 +1667,7 @@ export default function App() {
                           <PriceTag className={className} price={price} market={market} locale={locale} />
                         )}
                         onToggleWishlist={handleToggleWishlist}
+                        onShare={handleShareProduct}
                         onNotifyAvailability={(item) => setRestockProduct(item)}
                         onAddToCart={(prod) => handleAddToCart(prod)}
                         onCustomize={handleOpenNfcCustomizer}
@@ -1693,6 +1717,7 @@ export default function App() {
                           <PriceTag className={className} price={price} market="eg" locale={locale} />
                         )}
                         onToggleWishlist={handleToggleWishlist}
+                        onShare={handleShareProduct}
                         onNotifyAvailability={(item) => setRestockProduct(item)}
                         onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
                         badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
@@ -2007,6 +2032,7 @@ export default function App() {
                     <PriceTag className={className} price={price} market={market} locale={locale} />
                   )}
                   onToggleWishlist={handleToggleWishlist}
+                  onShare={handleShareProduct}
                   onNotifyAvailability={(item) => setRestockProduct(item)}
                   onAddToCart={(prod) => handleAddToCart(prod)}
                   onCustomize={handleOpenNfcCustomizer}
@@ -2064,6 +2090,7 @@ export default function App() {
                     <PriceTag className={className} price={price} market="eg" locale={locale} />
                   )}
                   onToggleWishlist={handleToggleWishlist}
+                  onShare={handleShareProduct}
                   onNotifyAvailability={(item) => setRestockProduct(item)}
                   onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
                   badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
@@ -2077,7 +2104,7 @@ export default function App() {
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
           <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
-          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
+          <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
           <AgencyPortfolio
             locale={locale}
             market={market}
@@ -2157,7 +2184,7 @@ export default function App() {
             {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-[#e2ebe5] bg-white p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-[#d6eee2]' : index % 3 === 1 ? 'bg-linear-to-l from-[#f4e8db]' : 'bg-linear-to-l from-[#e5e1f2]'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-[#7b9184]">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-[#293f33]">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-[#f0f5f1] px-3 py-1.5 text-[10px] text-[#567362]">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
             <div className="space-y-5">
               <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
             </div>
           </section>
         )}

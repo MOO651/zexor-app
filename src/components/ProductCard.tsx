@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { BellRing, Fingerprint, Heart, ShoppingBag, Sparkles } from 'lucide-react';
+import { BellRing, Fingerprint, Heart, Share2, ShoppingBag, Sparkles } from 'lucide-react';
 import { art } from '../data/imagery';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -14,6 +14,7 @@ type ProductCardProps = {
   onToggleWishlist: (product: Product) => void;
   onAddToCart: (product: Product, variant?: string) => void;
   onNotifyAvailability?: (product: Product) => void;
+  onShare?: (product: Product) => void;
   onCustomize?: (product: Product) => void;
   badge?: string;
   categoryLabel?: string;
@@ -39,6 +40,7 @@ export function ProductCard({
   onToggleWishlist,
   onAddToCart,
   onNotifyAvailability,
+  onShare,
   onCustomize,
   badge,
   categoryLabel: customCategoryLabel,
@@ -67,6 +69,7 @@ export function ProductCard({
     addToCart: isArabic ? 'إضافة إلى السلة' : 'Add to bag',
     size: isArabic ? 'المقاس' : 'Size',
     notify: isArabic ? 'نبّهني عند التوفر' : 'Notify me when available',
+    share: isArabic ? 'مشاركة المنتج' : 'Share product',
   };
   const categoryLabel = customCategoryLabel ?? (product.category === 'cards'
     ? isArabic ? 'هوية رقمية متصلة' : 'CONNECTED IDENTITY'
@@ -121,6 +124,7 @@ export function ProductCard({
         >
           <Heart aria-hidden="true" className="h-[18px] w-[18px]" fill={wishlisted ? 'currentColor' : 'none'} />
         </button>
+        {onShare && <button aria-label={labels.share} className="absolute end-14 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/50 bg-[#f8f7f1]/90 text-[#334d40] shadow-md backdrop-blur-xl transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" onClick={() => onShare(product)} title={labels.share} type="button"><Share2 aria-hidden="true" className="h-[17px] w-[17px]" /></button>}
 
         {badge && (
           <span className="absolute bottom-3 start-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[#0f2a22]/90 px-3 py-1.5 text-[10px] font-bold text-white shadow-lg backdrop-blur-md">
