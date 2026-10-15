@@ -1223,13 +1223,13 @@ export default function App() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-[#f5f8f7] text-[#304239] transition-colors duration-300 selection:bg-[#d8eee5] selection:text-[#263e33]"
+      className="zx-app-shell relative min-h-screen overflow-hidden bg-[#f5f8f7] text-[#304239] transition-colors duration-300 selection:bg-[#d8eee5] selection:text-[#263e33]"
       data-theme={theme}
       dir={dir}
       lang={locale}
     >
       {/* Dynamic Background Glow Elements */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div aria-hidden="true" className="zx-ambient pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           animate={{ x: [0, 36, 0], y: [0, 24, 0] }}
           className="absolute -top-64 inset-s-[4%] h-168 w-2xl rounded-full bg-[#c4f2e9]/70 blur-[130px]"
@@ -1260,10 +1260,10 @@ export default function App() {
       )}
 
       {/* 2. Global Floating Navigation Bar */}
-      <header className="sticky top-2 z-50 px-3 sm:px-6">
+      <header className="zx-site-header sticky top-2 z-50 px-3 sm:px-6">
         <nav
           aria-label="Navigation"
-          className="zx-glass mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 rounded-full border border-white/90 px-3 shadow-lg sm:px-4"
+          className="zx-site-nav zx-glass mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-white/90 px-3 shadow-lg sm:px-5"
         >
           {/* Logo */}
           <button

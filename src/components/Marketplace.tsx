@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
-  CarFront,
   ChevronLeft,
   ChevronRight,
   Eye,
-  Home,
   MapPin,
   Maximize2,
   MessageCircle,
@@ -215,41 +213,14 @@ Listing: ${itemTitle}`;
   };
 
   return (
-    <div className="space-y-10">
+    <div className="zx-marketplace space-y-8">
       {/* Hero Banner */}
       <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} slides={configuredSlides?.length ? configuredSlides : defaultSlides} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={marketplaceBannerText} />
       {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
       ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-10 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
-      <section id="department-content" className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#d9f2e9] via-[#faf8f2] to-[#ecdff4] p-6 shadow-xl sm:p-10">
-        <div className="relative z-10 max-w-2xl">
-          <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
-            {mode === 'cars' ? <CarFront className="h-4 w-4" /> : <Home className="h-4 w-4" />}
-            ZEXOR / {sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')}
-          </p>
-          <h1 className="zx-h1 zx-display mt-3 text-[#21362b]">
-            {sectionName ?? (mode === 'cars'
-              ? isArabic
-                ? 'زكسور موتورز'
-                : 'ZEXOR MOTORS'
-              : isArabic
-                ? 'زكسور إستيتس'
-                : 'ZEXOR ESTATES')}
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-[#697a70]">
-            {mode === 'cars'
-              ? isArabic
-                ? 'اختار سيارة للإيجار بالمدة المناسبة لك، واطلب موعد معاينة مباشرة.'
-                : 'Explore cars available to rent, compare specifications and request a viewing.'
-              : isArabic
-                ? 'اكتشف مساحات متاحة للإيجار، وحدد موعد المعاينة. وتظهر عروض البيع فقط بتفويض من المالك.'
-                : 'Explore spaces available to rent and request a viewing. Sale listings are shown only with the owner’s authorization.'}
-          </p>
-        </div>
-      </section>
-
       {/* Filter Toolbar */}
-      <section className="rounded-3xl border border-white bg-white/85 p-5 shadow-sm sm:p-6">
+      <section id="department-content" className="zx-market-filters rounded-3xl border border-white bg-white/85 p-5 shadow-sm sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-xs font-bold text-[#354f40]">
             <SlidersHorizontal className="h-4 w-4" />

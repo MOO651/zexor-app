@@ -689,6 +689,489 @@ textarea:focus-visible {
   }
 }
 
+/* ZEXOR storefront visual system: editorial restraint, warm stone surfaces,
+   forest ink and a clearer sense of hierarchy across every public route. */
+.zx-app-shell {
+  --zx-ink: #17251e;
+  --zx-ink-soft: #34493d;
+  --zx-muted: #748178;
+  --zx-jade: #244b38;
+  --zx-jade-bright: #477b5d;
+  --zx-sand: #f5f3ed;
+  --zx-paper: #f7f6f1;
+  background: #f5f3ed !important;
+  color: #24372d;
+}
+
+.zx-app-shell > main {
+  max-width: 90rem;
+  padding-top: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.zx-ambient {
+  opacity: 0.34;
+}
+
+.zx-ambient > div:first-child {
+  background-color: rgba(201, 226, 211, 0.48) !important;
+  filter: blur(110px);
+}
+
+.zx-ambient > div:last-child {
+  background-color: rgba(225, 215, 198, 0.28) !important;
+  filter: blur(120px);
+}
+
+.zx-site-header {
+  top: 0.75rem;
+}
+
+.zx-site-nav {
+  height: 4.4rem;
+  border-color: rgba(220, 224, 214, 0.86) !important;
+  border-radius: 1.35rem !important;
+  background: rgba(252, 251, 247, 0.92) !important;
+  box-shadow: 0 16px 44px -32px rgba(25, 43, 33, 0.38), inset 0 1px 0 #fff;
+  backdrop-filter: blur(24px);
+}
+
+.zx-site-nav > button:first-child {
+  gap: 0.75rem;
+  padding-inline: 0.35rem 0.8rem;
+}
+
+.zx-site-nav > button:first-child > span {
+  font-size: 0.88rem;
+  letter-spacing: 0.19em;
+  color: #20382b;
+}
+
+.zx-site-nav > div button {
+  transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.zx-site-nav > div:first-of-type > button[aria-current="page"],
+.zx-site-nav > div:first-of-type > button.bg-\[\#e7f4ed\] {
+  background: #244b38;
+  color: #fff;
+}
+
+.zx-site-nav > div:first-of-type > button:hover {
+  color: #20382b;
+}
+
+.zx-home-flow {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3.5rem, 7vw, 6.75rem) !important;
+}
+
+.zx-home-flow > * {
+  margin-block-start: 0 !important;
+}
+
+.zx-home-flow > section,
+.zx-home-flow > div[id="departments"] {
+  scroll-margin-top: 6rem;
+}
+
+.zx-home-flow > section > div:first-child h2,
+.zx-home-flow > div[id="departments"] h2 {
+  letter-spacing: -0.045em;
+}
+
+.zx-home-hero {
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(219, 223, 211, 0.85);
+  border-radius: 2rem !important;
+  background: #f5f3ed;
+  box-shadow: 0 35px 90px -62px rgba(22, 42, 30, 0.56);
+}
+
+.zx-home-hero > div.pointer-events-none:not(img) {
+  opacity: 0.12;
+}
+
+.zx-hero-inner {
+  min-height: 0;
+  padding: clamp(1.25rem, 3.6vw, 3.5rem);
+}
+
+.zx-hero-layout {
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding-block: clamp(2rem, 5vw, 4.5rem);
+}
+
+.zx-hero-copy {
+  max-width: 38rem;
+}
+
+.zx-hero-title {
+  max-width: 10ch;
+  font-size: clamp(3.4rem, 7.5vw, 7.4rem);
+  letter-spacing: -0.075em;
+  line-height: 0.98;
+}
+
+html:lang(ar) .zx-hero-title {
+  max-width: 9ch;
+  font-size: clamp(2.8rem, 6.5vw, 6.3rem);
+  letter-spacing: -0.04em;
+  line-height: 1.23;
+}
+
+.zx-hero-accent {
+  color: #a06e4c;
+}
+
+.zx-hero-badge {
+  border-color: #d6ddcf;
+  background: rgba(255, 255, 255, 0.62);
+  color: #536b5a;
+  letter-spacing: 0.12em;
+}
+
+.zx-hero-description {
+  max-width: 32rem;
+  color: #67746a;
+  font-size: clamp(0.9rem, 1.1vw, 1.02rem);
+  line-height: 1.9;
+}
+
+.zx-hero-primary {
+  min-height: 3.25rem;
+  border-radius: 0.8rem;
+  background: #244b38;
+  padding-inline: 1.5rem;
+  color: white;
+}
+
+.zx-hero-secondary {
+  min-height: 3.25rem;
+  border-color: #d8ded4;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.62);
+  color: #34493d;
+}
+
+.zx-hero-collage {
+  min-height: clamp(26rem, 42vw, 40rem);
+  gap: 1rem;
+}
+
+.zx-hero-fashion,
+.zx-hero-nfc,
+.zx-hero-studio {
+  border-radius: 1.35rem !important;
+  box-shadow: 0 30px 70px -42px rgba(11, 26, 17, 0.56);
+}
+
+.zx-hero-fashion {
+  min-height: clamp(26rem, 42vw, 40rem);
+}
+
+.zx-hero-nfc,
+.zx-hero-studio {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.zx-hero-departments {
+  gap: 0.65rem;
+  border-color: rgba(74, 92, 76, 0.13);
+  padding-top: 1.25rem;
+}
+
+.zx-hero-departments button {
+  min-height: 3.75rem;
+  border-color: rgba(73, 91, 76, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 9px 24px -22px rgba(18, 47, 33, 0.65);
+}
+
+.zx-hero-departments button:hover {
+  background: #fff;
+  box-shadow: 0 14px 30px -22px rgba(28, 66, 43, 0.42);
+}
+
+.zx-home-flow .zx-portal {
+  min-height: 21rem;
+  border-radius: 1.3rem;
+  box-shadow: 0 26px 60px -42px rgba(13, 23, 18, 0.82);
+}
+
+.zx-home-flow .zx-portal-img {
+  filter: saturate(0.88) contrast(1.02);
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1), filter 700ms ease;
+}
+
+.zx-home-flow .zx-portal:hover .zx-portal-img {
+  filter: saturate(1.08) contrast(1.04);
+  transform: scale(1.045);
+}
+
+.zx-product {
+  overflow: hidden;
+  border-color: rgba(50, 70, 55, 0.12) !important;
+  border-radius: 1.25rem !important;
+  background: #fffefa !important;
+  box-shadow: 0 15px 44px -38px rgba(22, 42, 30, 0.62);
+}
+
+.zx-product:hover {
+  transform: translateY(-5px);
+  border-color: rgba(58, 105, 74, 0.32) !important;
+  box-shadow: 0 28px 60px -42px rgba(22, 42, 30, 0.52);
+}
+
+.zx-product-media {
+  aspect-ratio: 1 / 1;
+  background: #eeeee5;
+}
+
+.zx-product-media > img {
+  transition: transform 850ms cubic-bezier(0.2, 0.7, 0.2, 1), filter 500ms ease;
+}
+
+.zx-product:hover .zx-product-media > img {
+  transform: scale(1.055);
+}
+
+.zx-product > div:last-child {
+  gap: 1rem;
+  padding: 1.2rem;
+}
+
+.zx-showcase-card {
+  overflow: hidden;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 18px 48px -40px rgba(22, 42, 30, 0.6);
+}
+
+.zx-feature-band {
+  border-radius: 1.25rem;
+}
+
+.zx-market-card,
+.zx-tile {
+  border-radius: 1.25rem !important;
+}
+
+.zx-marketplace > .relative.isolate {
+  min-height: clamp(19rem, 34vw, 29rem);
+  border-radius: 1.5rem !important;
+}
+
+.zx-marketplace .zx-market-filters {
+  border-color: rgba(50, 70, 55, 0.12);
+  border-radius: 1.15rem;
+  background: rgba(255, 254, 250, 0.88);
+  box-shadow: 0 18px 52px -46px rgba(22, 42, 30, 0.58);
+}
+
+.zx-marketplace .zx-market-card {
+  border-color: rgba(50, 70, 55, 0.12);
+  background: #fffefa;
+  box-shadow: 0 16px 48px -40px rgba(22, 42, 30, 0.62);
+}
+
+.zx-marketplace .zx-market-card:hover {
+  border-color: rgba(58, 105, 74, 0.3);
+  box-shadow: 0 28px 60px -42px rgba(22, 42, 30, 0.52);
+}
+
+.zx-marketplace .zx-market-card > div:first-child {
+  aspect-ratio: 1.55 / 1;
+}
+
+.zx-site-header .zx-glass,
+.zx-site-nav {
+  transition: box-shadow 220ms ease, background-color 220ms ease;
+}
+
+[data-theme="dark"] {
+  background-color: #111a15 !important;
+}
+
+[data-theme="dark"] .zx-app-shell {
+  background: #111a15 !important;
+}
+
+[data-theme="dark"] .zx-site-nav {
+  border-color: rgba(230, 238, 229, 0.12) !important;
+  background: rgba(22, 33, 27, 0.94) !important;
+  box-shadow: 0 18px 48px -34px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="dark"] .zx-site-nav > button:first-child > span {
+  color: #e5ede4;
+}
+
+[data-theme="dark"] .zx-home-hero {
+  border-color: rgba(230, 238, 229, 0.11);
+  background: #17221b;
+  box-shadow: 0 35px 90px -62px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="dark"] .zx-hero-title {
+  color: #f0eee5;
+}
+
+[data-theme="dark"] .zx-hero-topline,
+[data-theme="dark"] .zx-hero-description {
+  color: #c0c9c0;
+}
+
+[data-theme="dark"] .zx-hero-accent {
+  color: #d5a18b;
+}
+
+[data-theme="dark"] .zx-hero-badge,
+[data-theme="dark"] .zx-hero-secondary,
+[data-theme="dark"] .zx-hero-departments button {
+  border-color: rgba(226, 235, 228, 0.15);
+  background: rgba(255, 255, 255, 0.055);
+  color: #d8e1d9;
+}
+
+[data-theme="dark"] .zx-hero-departments button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .zx-hero-departments button > span:first-child {
+  background: rgba(166, 230, 196, 0.12);
+  color: #a6e6c4;
+}
+
+[data-theme="dark"] .zx-product {
+  border-color: rgba(215, 229, 219, 0.1) !important;
+  background: #19251e !important;
+}
+
+[data-theme="dark"] .zx-product-media {
+  background: #202d24;
+}
+
+[data-theme="dark"] .zx-marketplace .zx-market-filters,
+[data-theme="dark"] .zx-marketplace .zx-market-card {
+  border-color: rgba(215, 229, 219, 0.1);
+  background: #19251e;
+}
+
+@media (max-width: 640px) {
+  .zx-app-shell > main {
+    padding-inline: 0.95rem;
+    padding-block: 1rem 3rem;
+  }
+
+  .zx-site-header {
+    padding-inline: 0.7rem;
+  }
+
+  .zx-site-nav {
+    height: 3.8rem;
+    gap: 0.35rem;
+    border-radius: 1.15rem !important;
+    padding-inline: 0.65rem;
+  }
+
+  .zx-site-nav > button:first-child > span {
+    max-width: 5.7rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.13em;
+  }
+
+  .zx-home-flow {
+    gap: 3.5rem !important;
+  }
+
+  .zx-home-hero {
+    border-radius: 1.35rem !important;
+  }
+
+  .zx-hero-inner {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .zx-hero-topline {
+    max-width: 45%;
+    font-size: 8px;
+  }
+
+  .zx-hero-layout {
+    gap: 1.5rem;
+    padding-block: 2.5rem 1.5rem;
+  }
+
+  .zx-hero-title {
+    max-width: 10ch;
+    font-size: clamp(2.8rem, 12vw, 4rem);
+  }
+
+  html:lang(ar) .zx-hero-title {
+    max-width: 10ch;
+    font-size: clamp(2.45rem, 10.7vw, 3.5rem);
+    line-height: 1.3;
+  }
+
+  .zx-hero-description {
+    font-size: 0.84rem;
+    line-height: 1.8;
+  }
+
+  .zx-hero-collage {
+    min-height: 27rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
+    gap: 0.55rem;
+  }
+
+  .zx-hero-fashion {
+    min-height: 27rem;
+  }
+
+  .zx-hero-fashion,
+  .zx-hero-nfc,
+  .zx-hero-studio {
+    border-radius: 1rem !important;
+  }
+
+  .zx-hero-departments {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .zx-hero-departments button {
+    min-height: 3.35rem;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    font-size: 10px;
+  }
+
+  .zx-hero-departments button > span:first-child {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 0.6rem;
+  }
+
+  .zx-hero-departments button:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 0.25rem);
+  }
+
+  .zx-home-flow .zx-portal {
+    min-height: 17rem;
+    border-radius: 1rem;
+  }
+
+  .zx-product > div:last-child {
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+}
+
 /* Editorial storefront refresh: quiet paper, deep ink and fewer decorative
    effects give the homepage a more deliberate retail identity. */
 .zx-home-flow {
