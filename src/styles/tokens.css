@@ -11,24 +11,24 @@
 
 :root {
   /* Brand — values taken from public/zexor-logo.svg */
-  --brand-forest: #0f2a22;
-  --brand-emerald: #1f6b52;
-  --brand-emerald-deep: #185541;
-  --brand-jade: #45675a;
-  --brand-mint: #77cdb5;
-  --brand-mint-soft: #e5f8f3;
+  --brand-forest: #10251c;
+  --brand-emerald: #28654d;
+  --brand-emerald-deep: #1d503b;
+  --brand-jade: #3c694f;
+  --brand-mint: #a5d8b8;
+  --brand-mint-soft: #e8f2e9;
   --brand-lilac: #a986e8;
   --brand-lilac-soft: #f1eaff;
-  --brand-peach: #e6a68e;
-  --brand-peach-soft: #fbece5;
+  --brand-peach: #d6b187;
+  --brand-peach-soft: #f5eee2;
 
   /* Semantic — light */
-  --c-bg: #f7f5ef;
-  --c-surface: #ffffff;
-  --c-surface-2: #eef3ef;
-  --c-ink: #14241d;
-  --c-muted: #5e6f66;
-  --c-line: rgba(31, 107, 82, 0.14);
+  --c-bg: #f5f3ed;
+  --c-surface: #fffefa;
+  --c-surface-2: #edf1e9;
+  --c-ink: #17251e;
+  --c-muted: #68786e;
+  --c-line: rgba(40, 101, 77, 0.15);
 
   /* The admin "Design" tab writes --zx-jade (primary) and --zx-jade-bright
      (accent) onto <html>, so primary/accent read from them. Everything else is
@@ -46,11 +46,11 @@
 }
 
 [data-theme='dark'] {
-  --c-bg: #0b1612;
-  --c-surface: #12211b;
-  --c-surface-2: #182b23;
-  --c-ink: #e8f1ec;
-  --c-muted: #9db3a8;
+  --c-bg: #0d1712;
+  --c-surface: #14221a;
+  --c-surface-2: #1b2c21;
+  --c-ink: #edf2e9;
+  --c-muted: #a8b7a9;
   --c-line: rgba(255, 255, 255, 0.1);
 
   --c-primary: var(--zx-jade, #25805f);

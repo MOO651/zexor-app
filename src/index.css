@@ -6,18 +6,18 @@
 
 :root {
   /* ---- ZEXOR design tokens -------------------------------------- */
-  --zx-ink: #16241d;
-  --zx-ink-soft: #2d4236;
-  --zx-muted: #6c7d73;
-  --zx-faint: #98a79f;
-  --zx-jade: #35614a;
-  --zx-jade-bright: #4e8e6f;
-  --zx-mint: #a6e6c4;
-  --zx-rose: #ba7f6d;
+  --zx-ink: #17251e;
+  --zx-ink-soft: #34483b;
+  --zx-muted: #6b786e;
+  --zx-faint: #97a297;
+  --zx-jade: #28654d;
+  --zx-jade-bright: #4f8967;
+  --zx-mint: #a5d8b8;
+  --zx-rose: #b78168;
   --zx-lilac: #a986e8;
-  --zx-sand: #f9f8f3;
-  --zx-paper: #f5f8f7;
-  --zx-line: rgba(53, 97, 74, 0.14);
+  --zx-sand: #f8f6ef;
+  --zx-paper: #f5f3ed;
+  --zx-line: rgba(40, 101, 77, 0.15);
 
   /* Brand display serif — luxury/advertising headline face */
   --zx-display: "Playfair Display Variable", "Alexandria Variable", Georgia, serif;
@@ -678,6 +678,237 @@ textarea:focus-visible {
   }
 }
 
+/* ZEXOR motion language: subtle depth, editorial entrances and soft light. */
+.zx-reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0) scale(0.99);
+  transition:
+    opacity 680ms cubic-bezier(0.2, 0.75, 0.25, 1),
+    transform 780ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  transition-delay: calc(var(--zx-reveal-order, 0) * 55ms);
+  will-change: opacity, transform;
+}
+
+.zx-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.zx-department-tile,
+.zx-product,
+.zx-market-card,
+.zx-showcase-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.zx-department-tile {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 1.35rem !important;
+  box-shadow: 0 22px 48px -28px rgba(13, 29, 20, 0.55);
+  transition: box-shadow 450ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 350ms ease;
+}
+
+.zx-department-tile:hover {
+  border-color: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 34px 64px -32px rgba(13, 29, 20, 0.7);
+}
+
+.zx-department-tile > img {
+  transform: translateZ(-8px) scale(1.035);
+  transition: transform 900ms cubic-bezier(0.2, 0.75, 0.25, 1), filter 700ms ease;
+  filter: saturate(0.84) contrast(1.025);
+}
+
+.zx-department-tile:hover > img {
+  transform: translateZ(8px) scale(1.09);
+  filter: saturate(1.06) contrast(1.04);
+}
+
+.zx-department-tile > span:last-child > span:last-child > span:last-child {
+  transition: transform 350ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.zx-department-tile:hover > span:last-child > span:last-child > span:last-child {
+  transform: translateX(4px);
+}
+
+.zx-product {
+  --product-edge: rgba(40, 101, 77, 0.13);
+  border-color: var(--product-edge) !important;
+  box-shadow: 0 12px 36px -28px rgba(19, 43, 29, 0.44), 0 2px 6px rgba(19, 43, 29, 0.035);
+  transition: border-color 380ms ease, box-shadow 500ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  will-change: transform;
+}
+
+.zx-product:hover {
+  --product-edge: rgba(40, 101, 77, 0.28);
+  box-shadow: 0 30px 62px -36px rgba(19, 43, 29, 0.58), 0 6px 16px rgba(19, 43, 29, 0.06);
+}
+
+.zx-product-media > img {
+  transform: translateZ(8px) scale(1.005);
+  transition: transform 900ms cubic-bezier(0.2, 0.75, 0.25, 1), filter 500ms ease;
+}
+
+.zx-product:hover .zx-product-media > img {
+  transform: translateZ(18px) scale(1.065);
+}
+
+.zx-product-body {
+  transform: translateZ(5px);
+}
+
+.zx-market-card,
+.zx-showcase-card {
+  box-shadow: 0 18px 46px -38px rgba(19, 43, 29, 0.5);
+  transition: transform 520ms cubic-bezier(0.2, 0.75, 0.25, 1), box-shadow 520ms ease, border-color 350ms ease;
+}
+
+.zx-market-card:hover,
+.zx-showcase-card:hover {
+  transform: perspective(1100px) translateY(-6px) rotateX(1deg);
+  box-shadow: 0 30px 58px -38px rgba(19, 43, 29, 0.56);
+}
+
+.zx-product.is-visible .zx-product-media > img,
+.zx-department-tile.is-visible > img,
+.zx-market-card.is-visible img,
+.zx-showcase-card.is-visible img {
+  animation: zx-art-drift 8s ease-in-out 3 alternate;
+}
+
+.zx-product.is-visible,
+.zx-department-tile.is-visible,
+.zx-market-card.is-visible,
+.zx-showcase-card.is-visible {
+  animation: zx-depth-float 8s ease-in-out infinite;
+  animation-iteration-count: 3;
+  animation-delay: calc(var(--zx-reveal-order, 0) * 180ms);
+}
+
+.zx-product-media,
+.zx-department-tile {
+  perspective: 1100px;
+}
+
+.zx-product-media::after,
+.zx-department-tile::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 28%, rgba(255, 255, 255, 0.14) 45%, rgba(255, 255, 255, 0.34) 50%, transparent 68%);
+  content: "";
+  transform: translateX(-120%) skewX(-16deg);
+}
+
+.zx-product.is-visible .zx-product-media::after,
+.zx-department-tile.is-visible::after {
+  animation: zx-light-pass 8s ease-in-out 2;
+}
+
+.zx-product-media > button,
+.zx-product-media > div {
+  z-index: 2;
+}
+
+.zx-department-tile > span:last-child {
+  position: relative;
+  z-index: 2;
+}
+
+.zx-department-tile::after {
+  background: linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.2) 50%, transparent 68%);
+  animation-delay: 1.4s;
+}
+
+@keyframes zx-art-drift {
+  from { translate: 0 0; }
+  to { translate: 0 -4px; }
+}
+
+@keyframes zx-depth-float {
+  0%, 100% { translate: 0 0 0; rotate: 0 1 0 0deg; }
+  50% { translate: 0 -2px 3px; rotate: 0 1 0 0.28deg; }
+}
+
+@keyframes zx-light-pass {
+  0%, 28% { transform: translateX(-120%) skewX(-16deg); }
+  66%, 100% { transform: translateX(120%) skewX(-16deg); }
+}
+
+.zx-site-nav {
+  box-shadow: 0 20px 52px -38px rgba(20, 45, 31, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: background-color 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+}
+
+.zx-site-nav button,
+.zx-app-shell main button:not(:disabled) {
+  transition-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.zx-app-shell :is(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+html:lang(en) .zx-app-shell :is(h1, h2, h3, .zx-display) {
+  letter-spacing: -0.035em;
+}
+
+html:lang(ar) .zx-app-shell :is(h1, h2, h3, .zx-display) {
+  letter-spacing: 0;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .zx-product {
+  --product-edge: rgba(211, 232, 214, 0.1);
+  box-shadow: 0 18px 46px -35px rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="dark"] .zx-product:hover {
+  --product-edge: rgba(165, 216, 184, 0.3);
+  box-shadow: 0 30px 64px -38px rgba(0, 0, 0, 0.95);
+}
+
+[data-theme="dark"] .zx-department-tile {
+  box-shadow: 0 24px 52px -28px rgba(0, 0, 0, 0.9);
+}
+
+@media (hover: none) {
+  .zx-product,
+  .zx-department-tile,
+  .zx-market-card,
+  .zx-showcase-card {
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .zx-product,
+  .zx-department-tile,
+  .zx-market-card,
+  .zx-showcase-card {
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .zx-product-media > img,
+  .zx-department-tile > img,
+  .zx-market-card img,
+  .zx-showcase-card img,
+  .zx-product-media::after,
+  .zx-department-tile::after {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -693,12 +924,12 @@ textarea:focus-visible {
    forest ink and a clearer sense of hierarchy across every public route. */
 .zx-app-shell {
   --zx-ink: #17251e;
-  --zx-ink-soft: #34493d;
-  --zx-muted: #748178;
-  --zx-jade: #244b38;
-  --zx-jade-bright: #477b5d;
-  --zx-sand: #f5f3ed;
-  --zx-paper: #f7f6f1;
+  --zx-ink-soft: #34483b;
+  --zx-muted: #6b786e;
+  --zx-jade: #28654d;
+  --zx-jade-bright: #4f8967;
+  --zx-sand: #f8f6ef;
+  --zx-paper: #f5f3ed;
   background: #f5f3ed !important;
   color: #24372d;
 }

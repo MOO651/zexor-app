@@ -42,11 +42,12 @@ function DepartmentTile({
       className="zx-department-tile group relative flex min-h-[18rem] w-full overflow-hidden text-start sm:min-h-[21rem] xl:min-h-[25rem]"
       initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
       onClick={() => navigate(portal.route)}
+      style={{ transformPerspective: 1000, transformStyle: 'preserve-3d' }}
       transition={{ duration: 0.45, delay: index * 0.06 }}
       type="button"
       viewport={{ once: true, margin: '-50px' }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      whileHover={reduceMotion ? undefined : { y: -5 }}
+      whileHover={reduceMotion ? undefined : { y: -7, rotateX: 2, rotateY: isArabic ? -1.5 : 1.5, scale: 1.012 }}
       whileTap={{ scale: 0.99 }}
     >
       <img

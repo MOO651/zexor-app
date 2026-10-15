@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Fingerprint, Heart, ShoppingBag, Sparkles } from 'lucide-react';
 import { art } from '../data/imagery';
 import type { Locale, Market, Product } from '../types';
@@ -52,6 +53,7 @@ export function ProductCard({
     variants.includes('L') ? 'L' : variants[0],
   );
   const [failedImageUrl, setFailedImageUrl] = useState('');
+  const reduceMotion = useReducedMotion();
   const fallbackImage = fallbackFor(product);
   const labels = {
     wishlist: wishlisted
@@ -70,7 +72,7 @@ export function ProductCard({
       : isArabic ? 'الاستوديو الرقمي' : 'DIGITAL STUDIO');
 
   return (
-    <article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-3xl border border-zx-line bg-zx-surface">
+    <motion.article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-3xl border border-zx-line bg-zx-surface" initial={reduceMotion ? undefined : { opacity: 0, y: 18 }} style={{ transformPerspective: 1100 }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} viewport={{ once: true, amount: 0.08 }} whileHover={reduceMotion ? undefined : { y: -5 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} whileTap={reduceMotion ? undefined : { scale: 0.985, rotateX: -1.5 }}>
       <div className="zx-product-media relative aspect-[4/3] overflow-hidden bg-zx-surface-2">
         {product.imageUrl && failedImageUrl !== product.imageUrl ? (
           <img
@@ -200,6 +202,6 @@ export function ProductCard({
           </button>
         )}
       </div>
-    </article>
+    </motion.article>
   );
 }

@@ -544,6 +544,27 @@ export default function App() {
   );
 
   const [route, setRoute] = useState<Route>(pageFromHash);
+  useEffect(() => {
+    if (route === 'admin' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const targets = document.querySelectorAll<HTMLElement>(
+      '.zx-home-flow > section, .zx-department-board, .zx-marketplace > section, .zx-agency-page > section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card',
+    );
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -28px 0px' });
+    targets.forEach((target, index) => {
+      target.classList.add('zx-reveal');
+      target.style.setProperty('--zx-reveal-order', String(index % 5));
+      observer.observe(target);
+    });
+    return () => observer.disconnect();
+  }, [route]);
   const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
