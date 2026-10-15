@@ -67,7 +67,6 @@ const TrackingModal = lazy(() =>
 );
 import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
-import { DepartmentHighlights } from './components/DepartmentHighlights';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { isSupabaseConfigured, supabase } from '../supabase';
@@ -1922,7 +1921,6 @@ export default function App() {
         {route === 'cards' && (
           <div className="space-y-10">
             {departmentBanner('cards', isArabic ? 'هويتك الرقمية، بلمسة واحدة' : 'Your identity, one tap away', isArabic ? 'بطاقات NFC عملية وأنيقة تربط تفاصيلك المهنية والاجتماعية مباشرة بهاتفك.' : 'Thoughtful NFC cards that connect your professional identity and social profiles in one tap.')}
-            <DepartmentHighlights department="cards" locale={locale} />
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               {renderSubcategoryChips('cards', (subcategory) => storefrontProducts.filter((product) => product.category === 'cards' && (!subcategory ? true : product.subcategoryId === subcategory)).length)}
 
@@ -1968,7 +1966,6 @@ export default function App() {
         {route === 'fashion' && (
           <div className="space-y-10">
             {departmentBanner('fashion', isArabic ? 'تفاصيل يومية، بطابع مختلف' : 'Everyday pieces, a distinct point of view', isArabic ? 'اختيارات أزياء مريحة بقصّات واضحة وتفاصيل مدروسة تناسب يومك.' : 'Considered everyday essentials with confident silhouettes and thoughtful details.')}
-            <DepartmentHighlights department="fashion" locale={locale} />
 
             {activeFashionSubcategories.length > 0 && (
               <nav aria-label={isArabic ? 'أقسام الأزياء الفرعية' : 'Fashion collections'} className="flex flex-wrap gap-2">
@@ -2026,7 +2023,7 @@ export default function App() {
 
         {/* Route: Services (Agency, Portfolio, Calculator, Reviews, CV) */}
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
-          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}<DepartmentHighlights department="services" locale={locale} />
+          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
           <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <p className="col-span-full rounded-3xl border border-dashed border-[#ccdcd2] bg-white/70 p-8 text-center text-sm text-[#6f8378]">{isArabic ? 'أضف خدمات لهذا القسم من إدارة المنتجات لتظهر هنا.' : 'Add services under this department in Admin to display them here.'}</p>}</div></section>
           <AgencyPortfolio

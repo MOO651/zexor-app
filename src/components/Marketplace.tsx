@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
   CarFront,
-  CircleAlert,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -20,7 +19,6 @@ import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../type
 import type { DynamicCategory } from '../types';
 import { publicAssetUrl } from '../utils';
 import { DepartmentBanner } from './DepartmentBanner';
-import { DepartmentHighlights } from './DepartmentHighlights';
 import { art } from '../data/imagery';
 
 type Props = {
@@ -220,7 +218,6 @@ Listing: ${itemTitle}`;
     <div className="space-y-10">
       {/* Hero Banner */}
       <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} slides={configuredSlides?.length ? configuredSlides : defaultSlides} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={marketplaceBannerText} />
-      <DepartmentHighlights department={mode} locale={locale} />
       {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
       ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-10 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
@@ -247,14 +244,6 @@ Listing: ${itemTitle}`;
               : isArabic
                 ? 'اكتشف مساحات متاحة للإيجار، وحدد موعد المعاينة. وتظهر عروض البيع فقط بتفويض من المالك.'
                 : 'Explore spaces available to rent and request a viewing. Sale listings are shown only with the owner’s authorization.'}
-          </p>
-          <p className="zx-theme-panel mt-4 flex max-w-2xl items-start gap-2 rounded-2xl border px-3.5 py-3 text-[10px] leading-5 shadow-sm">
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-[#8a7043]" />
-            <span>
-              {isArabic
-                ? 'العروض والصور المعروضة نماذج توضيحية. أكّد التوفر والسعر والصورة الفعلية مع فريق ZEXOR قبل الحجز.'
-                : 'Listings and photos are illustrative examples. Confirm availability, pricing and actual photos with ZEXOR before booking.'}
-            </span>
           </p>
         </div>
       </section>

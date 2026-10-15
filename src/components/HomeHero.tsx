@@ -8,9 +8,14 @@ import {
 import {
   ArrowDown,
   ArrowUpRight,
+  BriefcaseBusiness,
+  CarFront,
+  ContactRound,
   Fingerprint,
+  House,
   Radio,
   Sparkles,
+  Shirt,
 } from 'lucide-react';
 import type { PointerEvent, ReactNode } from 'react';
 import { art } from '../data/imagery';
@@ -106,6 +111,13 @@ export function HomeHero({
   const tickerNames = departmentNames
     ? (['cards', 'fashion', 'services', 'cars', 'property'] as const).map((key) => departmentNames[key] ?? HERO_TICKER[locale][['cards', 'fashion', 'services', 'cars', 'property'].indexOf(key)])
     : HERO_TICKER[locale];
+  const departments = [
+    { route: 'cards' as const, icon: ContactRound, fallback: isArabic ? 'زكسور لينك' : 'ZEXOR LINK' },
+    { route: 'fashion' as const, icon: Shirt, fallback: isArabic ? 'الأزياء' : 'Fashion' },
+    { route: 'services' as const, icon: BriefcaseBusiness, fallback: isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO' },
+    { route: 'cars' as const, icon: CarFront, fallback: isArabic ? 'السيارات' : 'Motors' },
+    { route: 'property' as const, icon: House, fallback: isArabic ? 'العقارات' : 'Estates' },
+  ];
   const pointerX = useMotionValue(0.5);
   const pointerY = useMotionValue(0.5);
   const smoothX = useSpring(pointerX, { stiffness: 65, damping: 20 });
@@ -328,6 +340,28 @@ export function HomeHero({
             </div>
           </div>
         </div>
+
+        {/* The five destinations stay visible in the hero, so visitors can
+            immediately see the whole ZEXOR experience without scrolling. */}
+        <nav aria-label={isArabic ? 'أقسام ZEXOR' : 'ZEXOR departments'} className="zx-hero-departments relative z-20 grid grid-cols-2 gap-2 border-t border-black/10 pt-4 sm:grid-cols-3 lg:grid-cols-5">
+          {departments.map(({ route, icon: Icon, fallback }, index) => (
+            <button
+              className="group flex min-h-12 items-center gap-2.5 rounded-2xl border border-black/10 bg-white/55 px-3 py-2 text-start text-[11px] font-semibold text-[#33483b] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#6d9b82]/60 hover:bg-white/90"
+              key={route}
+              onClick={() => navigate(route)}
+              type="button"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#e5f1e9] text-[#507960] transition group-hover:bg-[#294a38] group-hover:text-white">
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[8px] font-medium tracking-[.12em] text-[#829087]">0{index + 1}</span>
+                <span className="block truncate">{departmentNames?.[route] || fallback}</span>
+              </span>
+              <ArrowUpRight className="ms-auto h-3.5 w-3.5 shrink-0 text-[#81978a] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </button>
+          ))}
+        </nav>
 
         {/* Bottom Prompts */}
         <div className="relative z-20 flex flex-col gap-3 border-t border-black/5 pt-4 sm:flex-row sm:items-center sm:justify-between">
