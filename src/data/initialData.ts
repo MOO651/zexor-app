@@ -7,7 +7,7 @@ import type {
   Vehicle,
 } from '../types';
 
-import { art, photos } from './imagery';
+import { photos } from './imagery';
 
 export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'cards', slug: 'cards', name: { en: 'ZEXOR LINK', ar: 'زكسور لينك' }, icon: 'credit', active: true },
@@ -82,7 +82,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'credit',
     finish: 'pearl',
     available: true,
-    imageUrl: art.cardsElite,
+    imageUrl: photos.cardsElite,
   },
   {
     id: 'social',
@@ -97,7 +97,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'fingerprint',
     finish: 'mint',
     available: true,
-    imageUrl: art.cardsSocial,
+    imageUrl: photos.cardsSocial,
   },
   {
     id: 'custom',
@@ -112,7 +112,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'sparkles',
     finish: 'rose',
     available: true,
-    imageUrl: art.cardsBespoke,
+    imageUrl: photos.cardsBespoke,
   },
   {
     id: 'hoodie',
@@ -128,7 +128,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'shirt',
     finish: 'rose',
     available: true,
-    imageUrl: art.hoodie,
+    imageUrl: photos.hoodie,
     variants: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
   },
   {
@@ -145,7 +145,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'shirt',
     finish: 'lilac',
     available: true,
-    imageUrl: art.tee,
+    imageUrl: photos.tee,
     variants: ['S', 'M', 'L', 'XL', 'XXL'],
   },
   {
@@ -161,7 +161,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'code',
     finish: 'sky',
     available: true,
-    imageUrl: art.studioWebsite,
+    imageUrl: photos.studioWebsite,
   },
   {
     id: 'commerce',
@@ -176,7 +176,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     icon: 'layers',
     finish: 'lilac',
     available: true,
-    imageUrl: art.studioStore,
+    imageUrl: photos.studioStore,
   },
 ];
 
@@ -323,7 +323,7 @@ export const AGENCY_PROJECTS: AgencyProject[] = [
       en: 'Modern high-converting fashion store with cart drawer, currency switcher, and inventory management.',
       ar: 'متجر أزياء متكامل بتصميم عصري مع سلة جانبية تفاعلية وتحويل عملات سلس.',
     },
-    image: art.tee,
+    image: photos.tee,
     demoUrl: 'https://aura-luxury-demo.vercel.app',
     tags: ['React', 'Tailwind', 'Stripe', 'Framer Motion'],
   },
@@ -335,7 +335,7 @@ export const AGENCY_PROJECTS: AgencyProject[] = [
       en: 'Interactive listings filter, virtual tours, automated WhatsApp booking, and lead tracking.',
       ar: 'نظام فلترة عقارية متقدم، جولات افتراضية، وحجز مواعيد معاينة عبر واتساب.',
     },
-    image: art.studioStore,
+    image: photos.propertyVilla,
     demoUrl: 'https://apex-realestate-demo.vercel.app',
     tags: ['Next.js', 'Supabase', 'Leaflet', 'TypeScript'],
   },
@@ -347,7 +347,7 @@ export const AGENCY_PROJECTS: AgencyProject[] = [
       en: 'Instant contact sharing platform with analytics, vCard generation, and custom digital links.',
       ar: 'منصة مشاركة جهات الاتصال بلمسة NFC مع إحصائيات فورية وتوليد بطاقة vCard.',
     },
-    image: art.cardsElite,
+    image: photos.cardsElite,
     demoUrl: 'https://nexus-nfc-demo.vercel.app',
     tags: ['React 19', 'Vite', 'Tailwind v4', 'Web NFC API'],
   },
@@ -395,7 +395,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   vodafoneCashName: '',
   announcementText: {
     en: '15% off NFC cards and selected apparel with code ZEXOR15 · Free delivery on qualifying orders',
-    ar: 'خصم ١٥٪ على كروت NFC وبعض قطع الأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+    ar: 'خصم 15٪ على كروت NFC وبعض قطع الأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
   },
   announcementActive: true,
   discountBanner: {
@@ -433,13 +433,17 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     calculator: true,
     reviews: true,
     tracking: true,
+    stats: true,
+    faq: true,
+    newsletter: true,
+    cta: true,
   },
   brand: {
     name: 'ZEXOR',
     logoUrl: '',
-    primary: '#1f6b52',
-    accent: '#77cdb5',
-    ink: '#14241d',
+    primary: '#28654d',
+    accent: '#a5d8b8',
+    ink: '#17251e',
     radius: 1.5,
     fontScale: 1,
   },
@@ -524,7 +528,7 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
     },
     announcementText: {
       en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free delivery above the order threshold',
-      ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+      ar: '✦ إصدار الإطلاق — خصم 15٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
     },
   };
   const legacyHeroTitle = {

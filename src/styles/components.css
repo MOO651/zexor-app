@@ -1,0 +1,517 @@
+/* ---- Utilities used across the marketing surfaces ---------------- */
+
+/* Luxury display headline */
+.zx-display {
+  font-family: var(--zx-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.04;
+}
+
+/* ---- Form fields ----------------------------------------------------
+   A consistent label + control treatment. Without this, Arabic labels sat
+   flush against the control edge and the whole filter bar looked unfinished. */
+.zx-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--zx-text-muted);
+}
+
+/* Native selects get the platform arrow, which reads as cheap on a luxury
+   surface. Hide it and draw our own chevron via a background image. */
+.zx-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23a8e7bf' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 11px;
+  padding-inline-end: var(--zx-space-8);
+  transition: border-color var(--zx-fast, 180ms) ease, box-shadow var(--zx-fast, 180ms) ease;
+}
+
+html[dir='rtl'] .zx-select {
+  background-position: left 0.85rem center;
+}
+
+.zx-select:hover {
+  border-color: var(--zx-border-strong);
+}
+
+.zx-select:focus {
+  outline: none;
+  border-color: var(--zx-border-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zx-focus) 22%, transparent);
+}
+
+/* Small uppercase eyebrow label above section titles */
+.zx-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+}
+
+/* ---- Headings -------------------------------------------------------
+   Arabic and Latin need different metrics. Alexandria has tall ascenders and
+   deep descenders, so a size that looks right for English makes an Arabic
+   headline balloon to two oversized lines. `.zx-h1` / `.zx-h2` keep one scale
+   but switch the tracking and line-height per script. */
+.zx-h1 {
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4.4vw, 2.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.zx-h2 {
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+}
+
+/* Arabic: no negative tracking (it clips joined letters) and a taller leading. */
+html:lang(ar) .zx-h1,
+html:lang(ar) .zx-h2 {
+  letter-spacing: 0;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* Arabic body copy needs a little more air than the Latin default. */
+html:lang(ar) body {
+  line-height: 1.75;
+}
+
+/* Arabic form controls: Alexandria sits low, so labels and inputs align better
+   with a slightly larger line box. */
+html:lang(ar) input,
+html:lang(ar) select,
+html:lang(ar) textarea,
+html:lang(ar) label {
+  line-height: 1.6;
+}
+
+/* Frosted glass surface */
+.zx-glass {
+  background: color-mix(in srgb, var(--zx-bg-raised) 72%, transparent);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+/* Animated gradient sheen for advertising panels */
+.zx-sheen {
+  background-size: 220% 220%;
+  animation: zx-sheen 9s ease-in-out infinite;
+}
+
+@keyframes zx-sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Slow float used by decorative orbs */
+@keyframes zx-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+.zx-float {
+  animation: zx-float 7s ease-in-out infinite;
+}
+
+/* Vertical marquee for the brand ticker */
+@keyframes zx-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.zx-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: zx-marquee 26s linear infinite;
+}
+
+.zx-marquee:hover .zx-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Hide scrollbars on horizontal rails */
+.zx-no-bar {
+  scrollbar-width: none;
+}
+
+.zx-no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--zx-border-strong);
+  outline-offset: 3px;
+}
+
+/* A shared visual system for the admin workspace: consistent surfaces, fields,
+   and spacing across the many management screens. */
+.zx-admin {
+  --zx-admin-border: var(--zx-border);
+  --zx-admin-shadow: var(--zx-shadow-card);
+}
+
+.zx-portal,
+.zx-market-card,
+.zx-showcase-card,
+.zx-tile {
+  border-radius: var(--zx-radius, 1.75rem);
+}
+
+.zx-admin [class*="rounded-3xl"][class*="bg-zx-elevated"] {
+  border-color: var(--zx-admin-border);
+  box-shadow: var(--zx-shadow-card);
+}
+
+.zx-admin :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+  min-height: 2.75rem;
+  border-color: var(--zx-admin-border);
+  border-radius: var(--zx-radius-md);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.zx-admin :is(input, select, textarea):focus-visible {
+  border-color: var(--zx-jade-bright);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zx-focus) 22%, transparent);
+}
+
+.zx-admin table thead {
+  background: color-mix(in srgb, var(--zx-surface) 76%, transparent);
+}
+
+[data-theme="dark"] .zx-admin {
+  --zx-admin-border: var(--zx-border);
+  --zx-admin-shadow: var(--zx-shadow-card);
+}
+
+.zx-market-card,
+.zx-showcase-card {
+  isolation: isolate;
+  backface-visibility: hidden;
+}
+
+[data-theme="dark"] .zx-market-card,
+[data-theme="dark"] .zx-showcase-card {
+  background-color: var(--zx-bg-raised) !important;
+  border-color: var(--zx-border) !important;
+}
+
+[data-theme="dark"] .zx-market-card h3,
+[data-theme="dark"] .zx-showcase-card h3 {
+  color: var(--zx-text) !important;
+}
+
+[data-theme="dark"] .zx-market-card p,
+[data-theme="dark"] .zx-showcase-card p {
+  color: var(--zx-text-muted) !important;
+}
+
+/* Two-line clamp for product copy keeps every card the same height. */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Old-price strike.
+   The native `line-through` decorates each text run independently, so on mixed
+   bidi content (Eastern-Arabic numerals + "ج.م") it breaks into fragments and
+   looks torn. A pseudo-element draws one unbroken line across the whole label
+   instead, whatever the direction. */
+/* Old-price strike.
+   `line-through` on mixed bidi text (Eastern-Arabic digits + "ج.م") breaks into
+   fragments, and a pseudo-element strike inherits the RTL line box and drifts.
+   A linear-gradient painted across the text itself always sits on the vertical
+   centre of whatever glyphs are inside, in any script or direction. */
+.zx-strike {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 55%;
+  background-size: 100% 1.5px;
+  opacity: 0.85;
+  /* Without this the price can wrap, and the painted line spans only the first
+     line — which looked like the label was torn mid-word. */
+  white-space: nowrap;
+}
+
+/* Card hover lift used by showcase tiles */
+.zx-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--zx-radius, 1.75rem);
+  isolation: isolate;
+}
+
+.zx-tile img {
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zx-tile:hover img,
+.zx-tile:focus-visible img {
+  transform: scale(1.07);
+}
+
+/* ---- 3D interactive gateways (landing-page department portals) ---- */
+.zx-portal {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--zx-radius, 1.75rem);
+  background: var(--zx-emerald);
+  cursor: pointer;
+  isolation: isolate;
+  /* Explicit height so the plate fills the grid cell on every breakpoint. */
+  min-height: 16rem;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.zx-portal-img {
+  transform: scale(1.02);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.zx-portal:hover .zx-portal-img,
+.zx-portal:focus-visible .zx-portal-img {
+  transform: scale(1.09);
+}
+
+/* Soft mint halo behind gateways on hover — reads as a lit portal edge. */
+.zx-portal::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: var(--zx-space-1);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--zx-mint) 55%, transparent), transparent 45%, color-mix(in srgb, var(--zx-danger) 40%, transparent));
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(var(--zx-text-secondary) 0 0) content-box, linear-gradient(var(--zx-text-secondary) 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(var(--zx-text-secondary) 0 0) content-box, linear-gradient(var(--zx-text-secondary) 0 0);
+  mask-composite: exclude;
+}
+
+.zx-portal:hover::after,
+.zx-portal:focus-visible::after {
+  opacity: 1;
+}
+
+/* Mobile: tap feedback + native-feeling momentum rails. */
+@media (hover: none) {
+  .zx-portal:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Safe-area aware floating rails so widgets clear the iPhone home bar. */
+.zx-float-rail {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.zx-float-anchor {
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  border-color: var(--zx-border-strong);
+  box-shadow: var(--zx-shadow-float), var(--zx-glow);
+}
+
+.zx-whatsapp-float {
+  inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
+  color: var(--zx-on-primary);
+  background: var(--zx-emerald);
+}
+
+.zx-whatsapp-float :is(svg, span) { color: inherit; }
+
+.zx-back-to-top {
+  inset-inline-start: max(1rem, env(safe-area-inset-left, 0px));
+  color: var(--zx-text);
+  background: var(--zx-glass-strong);
+  backdrop-filter: blur(18px);
+}
+
+[dir="rtl"] .zx-whatsapp-float { inset-inline-end: max(1rem, env(safe-area-inset-left, 0px)); }
+[dir="rtl"] .zx-back-to-top { inset-inline-start: max(1rem, env(safe-area-inset-right, 0px)); }
+
+.zx-float-anchor:hover { transform: translateY(-3px); }
+
+.zx-site-footer {
+  position: relative;
+  margin-block-start: clamp(3rem, 9vh, 8rem);
+  border-block-start: 1px solid var(--zx-border);
+  color: var(--zx-footer-text);
+  background: var(--zx-footer-bg);
+  backdrop-filter: blur(24px);
+}
+
+.zx-site-footer > div:first-child { border-color: var(--zx-border); }
+.zx-site-footer > div:last-child {
+  border-color: var(--zx-border-strong);
+  color: var(--zx-footer-text);
+  background: transparent;
+}
+.zx-site-footer :is(h4, a, p, span, button) { color: inherit; }
+.zx-site-footer :is(h4, svg) { color: var(--zx-mint); }
+.zx-site-footer :is(a, button):hover { color: var(--zx-color-accent-text); }
+.zx-site-footer img { border-color: var(--zx-border); background: var(--zx-surface); }
+
+@media (max-width: 760px) {
+  .zx-whatsapp-float {
+    width: 3.25rem;
+    height: 3.25rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .zx-back-to-top { width: 3rem; height: 3rem; }
+  .zx-site-footer { margin-block-start: var(--zx-space-12); }
+}
+
+/* Modern scroll snap for the horizontal option rails on mobile. */
+.zx-snap-x {
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.zx-snap-x > * {
+  scroll-snap-align: start;
+}
+
+/* ---- Motion & polish consistency --------------------------------- */
+
+/* One shared easing + duration so every hover lift on the site matches. */
+:root {
+  --zx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --zx-fast: 180ms;
+  --zx-slow: 500ms;
+}
+
+/* Interactive cards/buttons share the same lift so nothing feels "off". */
+.zx-lift {
+  transition:
+    transform var(--zx-slow) var(--zx-ease),
+    box-shadow var(--zx-slow) var(--zx-ease),
+    border-color var(--zx-slow) var(--zx-ease);
+}
+
+.zx-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* A reliable 1px hairline that matches the token colour in both themes. */
+.zx-hairline {
+  border-color: var(--zx-line);
+}
+
+/* Section shell used by the landing page — consistent rhythm and radius. */
+.zx-section {
+  border-radius: var(--zx-radius-xl);
+  border: 1px solid color-mix(in srgb, var(--zx-border-strong) 90%, transparent);
+  background: linear-gradient(160deg, var(--zx-mint), var(--zx-mint));
+  box-shadow: var(--zx-shadow-card);
+}
+
+/* Keep actual primary actions thumb-sized without stretching compact option chips. */
+@media (pointer: coarse) {
+  .zx-site-nav button,
+  .zx-ui-button,
+  .zx-cine-cta,
+  .zx-cine-departments button,
+  [role='button'].zx-tap,
+  a.zx-tap {
+    min-height: 44px;
+  }
+}
+
+/* Tighter, comfortable tap targets on small screens. */
+@media (max-width: 640px) {
+  .zx-portal {
+    min-height: 15rem;
+  }
+
+  .zx-eyebrow {
+    letter-spacing: 0.2em;
+  }
+}
+
+/* Content-visibility: skip rendering of offscreen sections (perf).
+   The intrinsic size is a *placeholder* used before a section is measured, so it
+   is deliberately modest — an oversized value reserves blank space on the page. */
+.zx-lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 20rem;
+}
+
+::selection {
+  color: var(--zx-highlight-contrast);
+  background: var(--zx-highlight);
+}
+
+.zx-showcase-card {
+  border-radius: var(--zx-radius, 1.25rem);
+  border-color: var(--zx-border);
+  background: var(--zx-bg-raised);
+  box-shadow: var(--zx-shadow-card);
+}
+
+.zx-showcase-card h3 {
+  color: var(--zx-text);
+}
+
+.zx-showcase-card p {
+  color: var(--zx-text-muted);
+}
+
+[data-theme="dark"] .zx-product,
+[data-theme="dark"] .zx-showcase-card {
+  box-shadow: var(--zx-shadow-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-product:hover,
+  .zx-showcase-card:hover {
+    transform: none;
+  }
+}

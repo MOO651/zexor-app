@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowUpRight,
   Check,
@@ -23,10 +23,12 @@ type Props = {
   onInquiry: (inquiry: PlatformInquiry) => void;
   onWhatsApp: (market: Market, message: string) => void;
   sectionName?: string;
+  view?: 'overview' | 'pricing' | 'calculator';
 };
 
-export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp, sectionName }: Props) {
+export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp, sectionName, view = 'overview' }: Props) {
   const isArabic = locale === 'ar';
+  const reduceMotion = useReducedMotion();
   const currency = market === 'eg' ? (isArabic ? 'ج.م' : 'EGP') : isArabic ? 'ر.س' : 'SAR';
 
   // Calculator State
@@ -108,27 +110,41 @@ I would like to discuss next steps.`;
     { name: 'Node.js', role: isArabic ? 'خوادم خلفية' : 'Backend APIs', icon: '🟢' },
   ];
 
+  const pageTitle = view === 'pricing'
+    ? (isArabic ? 'أسعار واضحة وخيارات تناسب مشروعك' : 'Clear pricing for your next step')
+    : view === 'calculator'
+      ? (isArabic ? 'قدّر تكلفة مشروعك' : 'Estimate your project')
+      : (sectionName ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'));
+
   return (
-    <div className="zx-agency-page space-y-12">
+    <div className={`zx-agency-page zx-agency-page--${view} space-y-12`}>
       {/* 1. Header & Live Stats Counter */}
       <section className="zx-agency-hero relative overflow-hidden rounded-4xl border p-6 sm:p-10 lg:p-12">
         <div className="zx-agency-intro relative z-10 max-w-3xl">
-          <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
+          <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-zx-secondary">
             <Code2 className="h-4 w-4" />
-            {isArabic ? 'استوديو زكسور / أعمال مختارة' : 'ZEXOR STUDIO / SELECTED WORK'}
+            {view === 'pricing'
+              ? (isArabic ? 'استوديو زكسور / الباقات والأسعار' : 'ZEXOR STUDIO / PRICING')
+              : view === 'calculator'
+                ? (isArabic ? 'استوديو زكسور / تقدير التكلفة' : 'ZEXOR STUDIO / PROJECT ESTIMATE')
+                : (isArabic ? 'استوديو زكسور / أعمال مختارة' : 'ZEXOR STUDIO / SELECTED WORK')}
           </p>
-          <h1 className={`mt-3 text-3xl font-semibold text-[#293d32] sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
-            {sectionName ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
+          <h1 className={`mt-3 text-3xl font-semibold text-zx-ink sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
+            {pageTitle}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#697a70]">
-            {isArabic
+          <p className="mt-3 text-sm leading-6 text-zx-secondary">
+            {view === 'pricing'
+              ? (isArabic ? 'تعرّف على باقاتنا ونطاق كل باقة، ثم تواصل معنا لتحديد التفاصيل المناسبة لاحتياجك.' : 'Compare our starting packages, see what each includes, and contact us to shape the right scope.')
+              : view === 'calculator'
+                ? (isArabic ? 'اختر نوع المشروع والخصائص التي تحتاجها للحصول على تقدير مبدئي قابل للمناقشة.' : 'Choose your project type and requirements to get a practical starting estimate.')
+                : isArabic
             ? 'نصمّم ونطوّر مواقع ومتاجر وتطبيقات تساعد مشروعك على الظهور والعمل بكفاءة. من الفكرة إلى الإطلاق، بخطوات واضحة تناسب احتياجك.'
               : 'We design and build websites, online stores and apps around your business needs, guiding each project from its first brief to launch.'}
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          {view === 'overview' && <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#2f4d3f] px-5 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#416957]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-zx-primary px-5 text-xs font-semibold text-zx-on-primary shadow-md transition-all hover:bg-zx-primary-hover"
               onClick={handleDownloadProfile}
               type="button"
             >
@@ -136,40 +152,65 @@ I would like to discuss next steps.`;
               {isArabic ? 'تحميل نبذة عن الاستوديو' : 'Download studio profile'}
             </button>
             {downloadSuccess && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#3b7355]">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zx-secondary">
                 <Check className="h-4 w-4" />
                 {isArabic ? 'تم تحميل الملف بنجاح!' : 'Profile downloaded successfully!'}
               </span>
             )}
-          </div>
+          </div>}
         </div>
 
+        {view !== 'overview' && (
+          <aside aria-hidden="true" className={`zx-agency-visual zx-agency-visual--${view}`}>
+            <div className="zx-agency-visual__window">
+              <div className="zx-agency-visual__topbar"><span /><span /><span /><b>ZEXOR STUDIO</b><Sparkles /></div>
+              {view === 'pricing' ? (
+                <div className="zx-agency-visual__plans">
+                  <div><i><MonitorSmartphone /></i><span>BRAND WEBSITE</span><b>01</b></div>
+                  <div><i><ShoppingBag /></i><span>ONLINE STORE</span><b>02</b></div>
+                  <div><i><Layers /></i><span>CUSTOM PLATFORM</span><b>03</b></div>
+                  <small>PLANS BUILT AROUND YOUR NEXT MOVE</small>
+                </div>
+              ) : (
+                <div className="zx-agency-visual__estimate">
+                  <span>PROJECT SCOPE</span>
+                  <b><i /><i /><i /></b>
+                  <div><span>Pages</span><strong>05</strong></div>
+                  <div><span>Language</span><strong>AR + EN</strong></div>
+                  <div><span>Integrations</span><strong>READY</strong></div>
+                  <small>YOUR IDEA, CLEARER BY DESIGN</small>
+                </div>
+              )}
+            </div>
+          </aside>
+        )}
+
         {/* Live Animated Stats Counter */}
-        <div className="zx-agency-stats mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {view === 'overview' && <div className="zx-agency-stats mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {STATS.map((s) => (
             <div
-              className="rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur-md"
+              className="rounded-2xl border border-zx-line bg-zx-elevated p-4 shadow-sm backdrop-blur-md"
               key={s.id}
             >
-              <p className="text-2xl font-bold tracking-tight text-[#2d4d3c] sm:text-3xl">{s.value}</p>
-              <p className="mt-1 text-[10px] text-[#6e8076]">{s.label[locale]}</p>
+              <p className="text-2xl font-bold tracking-tight text-zx-ink sm:text-3xl">{s.value}</p>
+              <p className="mt-1 text-[10px] text-zx-secondary">{s.label[locale]}</p>
             </div>
           ))}
-        </div>
+        </div>}
       </section>
 
       {/* 2. Live Demo Portfolio Section */}
-      <section className="zx-agency-projects">
+      {view === 'overview' && <section className="zx-agency-projects">
         <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-zx-secondary">
               {isArabic ? 'معاينة حية للمشاريع' : 'Live Interactive Demos'}
             </span>
-            <h2 className="mt-1 text-2xl font-bold text-[#2d4236]">
+            <h2 className="mt-1 text-2xl font-bold text-zx-ink">
               {isArabic ? 'نماذج تفاعلية مختارة' : 'Selected Interactive Demos'}
             </h2>
           </div>
-          <p className="text-xs text-[#7e8d84]">
+          <p className="text-xs text-zx-secondary">
             {isArabic ? 'اضغط "معاينة حية" لتجربة المنصة في نافذة جديدة' : 'Click "Live Demo" to experience the platform'}
           </p>
         </div>
@@ -177,30 +218,30 @@ I would like to discuss next steps.`;
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {AGENCY_PROJECTS.map((proj) => (
             <motion.article
-              className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white/85 shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
+              className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-line bg-zx-elevated shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-line hover:shadow-zx-card"
               key={proj.id}
-              whileHover={{ y: -4 }}
+              whileHover={reduceMotion ? undefined : { y: -4 }}
             >
-              <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-[#e0eee5]">
+              <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-zx-elevated">
                 <img
                   alt={proj.title[locale]}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                   src={publicAssetUrl(proj.image)}
                 />
-                <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-white backdrop-blur-md">
+                <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-ink backdrop-blur-md">
                   {proj.category[locale]}
                 </span>
               </div>
               <div className="zx-agency-project-copy flex min-h-[250px] flex-col p-4 sm:p-5">
-                <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6d7e74]">{proj.description[locale]}</p>
+                <h3 className="line-clamp-1 text-sm font-bold text-zx-ink">{proj.title[locale]}</h3>
+                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-zx-secondary">{proj.description[locale]}</p>
 
                 {/* Tech tags */}
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {proj.tags.map((t) => (
                     <span
-                      className="rounded-full border border-[#e4ece6] bg-[#f5f8f5] px-2.5 py-1 text-[8px] font-medium text-[#4b6a5a]"
+                      className="rounded-full border border-zx-line bg-zx-elevated px-2.5 py-1 text-[8px] font-medium text-zx-secondary"
                       key={t}
                     >
                       {t}
@@ -208,9 +249,9 @@ I would like to discuss next steps.`;
                   ))}
                 </div>
 
-                <div className="mt-auto border-t border-[#edf1ee] pt-3.5">
+                <div className="mt-auto border-t border-zx-line pt-3.5">
                   <a
-                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white transition-all hover:bg-[#45705e]"
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-zx-primary px-4 text-xs font-semibold text-zx-on-primary transition-all hover:bg-zx-primary-hover"
                     href={proj.demoUrl}
                     rel="noreferrer"
                     target="_blank"
@@ -223,19 +264,19 @@ I would like to discuss next steps.`;
             </motion.article>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* 3. Interactive Cost Calculator */}
-      <section className="zx-agency-calculator rounded-3xl border p-5 sm:p-8">
+      {view !== 'pricing' && <section className="zx-agency-calculator rounded-3xl border p-5 sm:p-8">
         <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#5e8f77]">
+          <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-zx-secondary">
             <Sparkles className="h-3.5 w-3.5" />
             {isArabic ? 'حاسبة التكلفة التفاعلية' : 'Interactive Project Cost Calculator'}
           </span>
-          <h2 className="mt-1 text-2xl font-bold text-[#2e4337]">
+          <h2 className="mt-1 text-2xl font-bold text-zx-ink">
             {isArabic ? 'احسب تكلفة موقعك أو متجرك فوراً' : 'Estimate Your Project Scope in Real Time'}
           </h2>
-          <p className="mt-1.5 text-xs text-[#708177]">
+          <p className="mt-1.5 text-xs text-zx-secondary">
             {isArabic
               ? 'اختر متطلبات مشروعك وميزانيتك لتظهر لك التكلفة التقديرية الفورية مع إمكانية إرسالها لمناقشة البدء فوراً.'
               : 'Configure your deliverables to receive a transparent starting scope and estimate.'}
@@ -246,7 +287,7 @@ I would like to discuss next steps.`;
           {/* Options Form */}
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-[#405649]">
+              <label className="text-xs font-semibold text-zx-ink">
                 {isArabic ? 'نوع المنصة المطلوبة:' : 'Project Type:'}
               </label>
               <div className="mt-2 grid grid-cols-3 gap-2">
@@ -260,8 +301,8 @@ I would like to discuss next steps.`;
                     <button
                       className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-all ${
                         kind === item.id
-                          ? 'border-[#3f6753] bg-[#eef7f1] text-[#2f4c3c] shadow-xs'
-                          : 'border-[#e0e8e2] bg-white text-[#6b7b71] hover:border-[#b4cdbd]'
+                          ? 'border-zx-line bg-zx-primary/20 text-zx-ink shadow-xs'
+                          : 'border-zx-line bg-zx-elevated text-zx-secondary hover:border-zx-line'
                       }`}
                       key={item.id}
                       onClick={() => setKind(item.id as typeof kind)}
@@ -277,13 +318,13 @@ I would like to discuss next steps.`;
 
             <div>
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#405649]">
+                <label className="text-xs font-semibold text-zx-ink">
                   {isArabic ? 'عدد الصفحات والشاشات:' : 'Estimated Number of Pages:'}
                 </label>
-                <span className="text-xs font-bold text-[#355343]">{pages} {isArabic ? 'صفحات' : 'pages'}</span>
+                <span className="text-xs font-bold text-zx-ink">{pages} {isArabic ? 'صفحات' : 'pages'}</span>
               </div>
               <input
-                className="mt-2 w-full accent-[#314f43]"
+                className="mt-2 w-full accent-zx-primary"
                 max="30"
                 min="1"
                 onChange={(e) => setPages(Number(e.target.value))}
@@ -294,30 +335,30 @@ I would like to discuss next steps.`;
 
             {/* Feature Toggles */}
             <div className="grid gap-2 sm:grid-cols-3">
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-line bg-zx-elevated p-3 text-xs text-zx-ink">
                 <input
                   checked={bilingual}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-primary"
                   onChange={(e) => setBilingual(e.target.checked)}
                   type="checkbox"
                 />
                 <span>{isArabic ? 'ثنائي اللغة (عربي / إنجليزي)' : 'Bilingual Support (AR/EN)'}</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-line bg-zx-elevated p-3 text-xs text-zx-ink">
                 <input
                   checked={seo}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-primary"
                   onChange={(e) => setSeo(e.target.checked)}
                   type="checkbox"
                 />
                 <span>{isArabic ? 'تهيئة محركات البحث (SEO)' : 'SEO Engine Optimization'}</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-line bg-zx-elevated p-3 text-xs text-zx-ink">
                 <input
                   checked={speedOptimization}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-primary"
                   onChange={(e) => setSpeedOptimization(e.target.checked)}
                   type="checkbox"
                 />
@@ -326,11 +367,11 @@ I would like to discuss next steps.`;
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-[#405649]">
+              <label className="text-xs font-semibold text-zx-ink">
                 {isArabic ? 'عدد الربط مع خدمات خارجية أو بوابات دفع:' : 'External API & Payment Integrations:'}
               </label>
               <select
-                className="mt-1.5 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#34483e] outline-none"
+                className="mt-1.5 min-h-11 w-full rounded-xl border border-zx-line bg-zx-elevated px-3 text-xs text-zx-ink outline-none focus-visible:ring-2 focus-visible:ring-zx-primary"
                 onChange={(e) => setCrmIntegrations(Number(e.target.value))}
                 value={crmIntegrations}
               >
@@ -345,19 +386,19 @@ I would like to discuss next steps.`;
           {/* Calculator Output Card */}
           <div className="zx-agency-estimate flex flex-col justify-between rounded-2xl border p-6">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#7e9989]">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-zx-secondary">
                 {isArabic ? 'ملخص التقدير الفوري' : 'Instant Cost Breakdown'}
               </span>
-              <p className="mt-3 text-3xl font-extrabold text-[#2a4537]">
+              <p className="mt-3 text-3xl font-extrabold text-zx-ink">
                 {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(totalEstimate)} {currency}
               </p>
-              <p className="mt-1 text-[10px] text-[#86968d]">
+              <p className="mt-1 text-[10px] text-zx-secondary">
                 {isArabic
                   ? 'تقدير أولي شفاف، يشمل التصميم والبرمجة والتجاوب الكامل.'
                   : 'Transparent starting estimate including design, development & testing.'}
               </p>
 
-              <div className="mt-5 space-y-2 border-t border-[#edf1ee] pt-4 text-xs text-[#526659]">
+              <div className="mt-5 space-y-2 border-t border-zx-line pt-4 text-xs text-zx-secondary">
                 <div className="flex justify-between">
                   <span>{isArabic ? 'الباقة الأساسية:' : 'Base Package:'}</span>
                   <span className="font-semibold">{basePrice} {currency}</span>
@@ -384,7 +425,7 @@ I would like to discuss next steps.`;
             </div>
 
             <button
-              className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#436e5d]"
+              className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-zx-primary px-4 text-xs font-semibold text-zx-on-primary shadow-md transition-all hover:bg-zx-primary-hover"
               type="submit"
             >
               <MessageCircle className="h-4 w-4" />
@@ -393,15 +434,15 @@ I would like to discuss next steps.`;
             </button>
           </div>
         </form>
-      </section>
+      </section>}
 
       {/* 4. Pricing Tables */}
-      <section className="zx-agency-pricing">
+      {view !== 'calculator' && <section className="zx-agency-pricing">
         <div className="mb-6 text-center">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-zx-secondary">
             {isArabic ? 'باقات البرمجة والتطوير' : 'Transparent Pricing Packages'}
           </span>
-          <h2 className="mt-1 text-2xl font-bold text-[#2d4236]">
+          <h2 className="mt-1 text-2xl font-bold text-zx-ink">
             {isArabic ? 'خطط مرنة تناسب مرحلة نموك' : 'Clear Starting Tiers for Every Stage'}
           </h2>
         </div>
@@ -447,28 +488,28 @@ I would like to discuss next steps.`;
               <div
                 className={`zx-agency-tier relative flex flex-col justify-between rounded-3xl border p-6 transition-all ${
                   tier.popular
-                    ? 'border-[#3f6753] bg-linear-to-b from-white via-[#f3f9f5] to-white shadow-xl ring-2 ring-[#4d7d65]/20'
-                    : 'border-white bg-white/80'
+                    ? 'border-zx-line bg-linear-to-b from-zx-elevated via-zx-surface to-zx-elevated shadow-xl ring-2 ring-zx-accent'
+                    : 'border-zx-line bg-zx-elevated'
                 }`}
                 key={tier.id}
               >
                 {tier.popular && (
-                  <span className="absolute -top-3 inset-x-0 mx-auto w-fit rounded-full bg-[#314f43] px-3 py-1 text-[9px] font-bold text-white shadow-sm">
+                  <span className="absolute -top-3 inset-x-0 mx-auto w-fit rounded-full bg-zx-cinematic px-3 py-1 text-[9px] font-bold text-zx-ink shadow-sm">
                     {isArabic ? 'الأكثر طلباً' : 'Most Popular'}
                   </span>
                 )}
                 <div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#e7f4ed] text-[#47775f]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zx-elevated text-zx-secondary">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-4 text-base font-bold text-[#2d4236]">{tier.title}</h3>
-                  <p className="mt-1 text-[11px] text-[#718278]">{tier.desc}</p>
-                  <p className="mt-4 text-2xl font-extrabold text-[#314f43]">{tier.price}</p>
+                  <h3 className="mt-4 text-base font-bold text-zx-ink">{tier.title}</h3>
+                  <p className="mt-1 text-[11px] text-zx-secondary">{tier.desc}</p>
+                  <p className="mt-4 text-2xl font-extrabold text-zx-ink">{tier.price}</p>
 
-                  <ul className="mt-6 space-y-2.5 border-t border-[#edf1ee] pt-4 text-xs text-[#526659]">
+                  <ul className="mt-6 space-y-2.5 border-t border-zx-line pt-4 text-xs text-zx-secondary">
                     {tier.features.map((feat) => (
                       <li className="flex items-center gap-2" key={feat}>
-                        <Check className="h-4 w-4 shrink-0 text-[#477f62]" />
+                        <Check className="h-4 w-4 shrink-0 text-zx-secondary" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -478,8 +519,8 @@ I would like to discuss next steps.`;
                 <button
                   className={`mt-8 min-h-11 w-full rounded-full text-xs font-semibold shadow-xs transition-all ${
                     tier.popular
-                      ? 'bg-[#314f43] text-white hover:bg-[#436e5d]'
-                      : 'border border-[#d2e3d8] bg-white text-[#385b49] hover:bg-[#eef6f1]'
+                      ? 'bg-zx-primary text-zx-on-primary hover:bg-zx-primary-hover'
+                      : 'border border-zx-line bg-zx-elevated text-zx-ink hover:bg-zx-elevated'
                   }`}
                   onClick={() =>
                     onWhatsApp(
@@ -497,31 +538,31 @@ I would like to discuss next steps.`;
             );
           })}
         </div>
-      </section>
+      </section>}
 
       {/* 6. Tech Stack Badges */}
-      <section className="zx-agency-toolkit rounded-3xl border p-6 text-center">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-[#729381]">
+      {view === 'overview' && <section className="zx-agency-toolkit rounded-3xl border p-6 text-center">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-zx-secondary">
           {isArabic ? 'التقنيات والأدوات المستخدمة' : 'Our Engineering Toolkit'}
         </span>
-        <h3 className="mt-1 text-lg font-bold text-[#30473a]">
+        <h3 className="mt-1 text-lg font-bold text-zx-ink">
           {isArabic ? 'أحدث التقنيات البرمجية فائقة الأداء' : 'Built With Modern High-Performance Technologies'}
         </h3>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {techStack.map((tech) => (
             <div
-              className="flex items-center gap-2 rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] px-4 py-2.5 shadow-xs"
+              className="flex items-center gap-2 rounded-2xl border border-zx-line bg-zx-elevated px-4 py-2.5 shadow-xs"
               key={tech.name}
             >
               <span className="text-base">{tech.icon}</span>
               <div className="text-start">
-                <p className="text-xs font-bold text-[#2f4639]">{tech.name}</p>
-                <p className="text-[8px] text-[#7c8d83]">{tech.role}</p>
+                <p className="text-xs font-bold text-zx-ink">{tech.name}</p>
+                <p className="text-[8px] text-zx-secondary">{tech.role}</p>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }

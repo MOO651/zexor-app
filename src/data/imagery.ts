@@ -7,7 +7,7 @@
  * studio. Real photographs cannot be generated or downloaded by the codebase, so
  * every slot resolves through this registry instead of being hard-coded:
  *
- * 1. `photos.*` — drop a real photograph into `public/images/` using the exact
+ * 1. `photos.*` — drop a WebP photograph into `public/images/` using the exact
  *    filename listed in `PHOTO_FILENAMES` and it is picked up automatically, with
  *    no code change anywhere else.
  * 2. Until a photo is present, the slot falls back to the locally-authored
@@ -23,28 +23,28 @@
  */
 export const PHOTO_FILENAMES = {
   // NFC cards — shoot each finish on a plain surface, top-down.
-  cardsElite: 'nfc-card.jpg',
-  cardsSocial: 'social-profile.jpg',
-  cardsBespoke: 'custom-identity.jpg',
-  cardsLifestyle: 'nfc-card.jpg',
+  cardsElite: 'nfc-card.webp',
+  cardsSocial: 'social-profile.webp',
+  cardsBespoke: 'custom-identity.webp',
+  cardsLifestyle: 'nfc-card.webp',
   // Apparel — flat-lay or on-model, plain background.
-  hoodie: 'streetwear-hoodie.jpg',
-  tee: 'streetwear-collection.jpg',
-  apparelLifestyle: 'streetwear-collection.jpg',
+  hoodie: 'streetwear-hoodie.webp',
+  tee: 'streetwear-collection.webp',
+  apparelLifestyle: 'streetwear-collection.webp',
   // Digital studio — screenshots of real work, or your desk setup.
-  studioWebsite: 'digital-studio.jpg',
-  studioStore: 'digital-commerce.jpg',
-  studioWorkspace: 'digital-studio.jpg',
+  studioWebsite: 'digital-studio.webp',
+  studioStore: 'digital-commerce.webp',
+  studioWorkspace: 'digital-studio.webp',
   // Vehicles — 3/4 front, clean background.
-  vehicleSedan: 'vehicle-sedan.jpg',
-  vehicleSuv: 'vehicle-suv.jpg',
-  vehicleCoupe: 'vehicle-coupe.jpg',
+  vehicleSedan: 'vehicle-sedan.webp',
+  vehicleSuv: 'vehicle-suv.webp',
+  vehicleCoupe: 'vehicle-coupe.webp',
   // Real estate — wide interior / exterior.
-  propertyApartment: 'property-apartment.jpg',
-  propertyVilla: 'property-villa.jpg',
-  propertyLand: 'property-land.jpg',
+  propertyApartment: 'property-apartment.webp',
+  propertyVilla: 'property-villa.webp',
+  propertyLand: 'property-land.webp',
   // Hero + section banners.
-  hero: 'digital-studio.jpg',
+  hero: 'digital-studio.webp',
 } as const;
 
 const IMG = `${import.meta.env.BASE_URL}images/`;
@@ -69,6 +69,19 @@ export const photos = {
   propertyLand: IMG + PHOTO_FILENAMES.propertyLand,
   hero: IMG + PHOTO_FILENAMES.hero,
 } as const;
+
+/**
+ * Optional short, muted clips for the five hero letter windows. Keep these
+ * unset until licensed, optimized video files are supplied; the photo windows
+ * remain the default and fallback on every device.
+ */
+export const cinematicHeroVideos: Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string | null> = {
+  cards: null,
+  fashion: null,
+  services: null,
+  cars: null,
+  property: null,
+};
 
 /** Locally-authored artwork, used until a real photo is supplied. */
 export const art = {

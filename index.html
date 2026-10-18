@@ -4,8 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5f8f7" />
-    <meta name="description" content="ZEXOR connects NFC business cards, considered streetwear, and digital experiences across Egypt and Saudi Arabia." />
+    <meta name="theme-color" content="#f5f3ed" />
+    <script>
+      (() => {
+        let theme = null;
+        try {
+          const stored = localStorage.getItem('zexor-theme');
+          theme = stored ? JSON.parse(stored) : null;
+          if (theme !== 'light' && theme !== 'dark') theme = stored;
+        } catch {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = theme;
+        const color = theme === 'dark' ? '#0d1712' : '#f5f3ed';
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+      })();
+    </script>
+    <meta name="description" content="ZEXOR — Design · Technology · Culture. NFC identity, considered streetwear, stays and mobility for Egypt and Saudi Arabia." />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="ZEXOR — Design · Technology · Culture" />
     <meta property="og:description" content="NFC identity, considered streetwear, and digital experiences for Egypt and Saudi Arabia." />

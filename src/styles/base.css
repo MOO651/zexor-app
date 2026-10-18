@@ -1,0 +1,45 @@
+html:lang(ar),
+html:lang(ar) body {
+  font-family: var(--zx-font-arabic);
+}
+
+/* Arabic uses Alexandria for display too — Playfair has no Arabic glyphs. */
+html:lang(ar) .zx-display {
+  font-family: "Alexandria Variable", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--zx-bg);
+  color: var(--zx-text);
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+/* Theme-aware feature surfaces keep large home-page panels in sync with the
+   selected theme instead of relying on a collection of light-only gradients. */
+.zx-feature-band {
+  border: 1px solid var(--zx-border);
+  background: linear-gradient(135deg, var(--zx-bg-raised), var(--zx-surface));
+  color: var(--zx-text);
+}
+
+.zx-feature-band .zx-feature-value {
+  color: var(--zx-mint);
+}
+
+.zx-feature-band .zx-feature-label {
+  color: var(--zx-text-muted);
+}
+
+.zx-theme-panel {
+  border-color: var(--zx-border);
+  background: var(--zx-bg-raised);
+  color: var(--zx-text);
+}

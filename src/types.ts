@@ -260,6 +260,10 @@ export type SiteSettings = {
     calculator: boolean;
     reviews: boolean;
     tracking: boolean;
+    stats: boolean;
+    faq: boolean;
+    newsletter: boolean;
+    cta: boolean;
   };
   /**
    * Brand design tokens applied live to the storefront as CSS variables.

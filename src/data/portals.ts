@@ -44,7 +44,7 @@ const ORDERED: Portal[] = [
     meta: { en: 'Elite · Social · Bespoke', ar: 'إيليت · سوشيال · مخصص' },
     image: photos.cardsLifestyle,
     icon: CreditCard,
-    accent: '#a6e6c4',
+    accent: 'var(--zx-mint)',
     span: 'wide',
   },
   {
@@ -57,7 +57,20 @@ const ORDERED: Portal[] = [
     meta: { en: 'Limited · 450 GSM', ar: 'إصدار محدود · 450 جرام' },
     image: photos.apparelLifestyle,
     icon: Shirt,
-    accent: '#e0b49d',
+    accent: 'var(--zx-mint)',
+    span: 'wide',
+  },
+  {
+    route: 'services',
+    title: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' },
+    tagline: {
+      en: 'Stores, platforms and apps engineered to convert.',
+      ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',
+    },
+    meta: { en: 'Web · Commerce · Apps', ar: 'ويب · تجارة · تطبيقات' },
+    image: photos.studioWebsite,
+    icon: Code2,
+    accent: 'var(--zx-mint)',
     span: 'wide',
   },
   {
@@ -70,7 +83,7 @@ const ORDERED: Portal[] = [
     meta: { en: 'Daily · Weekly · Monthly', ar: 'يومي · أسبوعي · شهري' },
     image: photos.vehicleCoupe,
     icon: Car,
-    accent: '#b8d8c7',
+    accent: 'var(--zx-mint)',
   },
   {
     route: 'property',
@@ -82,20 +95,7 @@ const ORDERED: Portal[] = [
     meta: { en: 'Monthly · Yearly · Selected spaces', ar: 'شهري · سنوي · مساحات مختارة' },
     image: photos.propertyVilla,
     icon: Building2,
-    accent: '#a9c4e8',
-  },
-  {
-    route: 'services',
-    title: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' },
-    tagline: {
-      en: 'Stores, platforms and apps engineered to convert.',
-      ar: 'متاجر ومنصات وتطبيقات مبنية لتحقيق النتائج.',
-    },
-    meta: { en: 'Web · Commerce · Apps', ar: 'ويب · تجارة · تطبيقات' },
-    image: photos.studioWebsite,
-    icon: Code2,
-    accent: '#9fd8e8',
-    span: 'wide',
+    accent: 'var(--zx-mint)',
   },
 ];
 

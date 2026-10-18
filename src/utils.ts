@@ -32,7 +32,7 @@ export function currencySymbol(market: Market, locale: Locale): string {
  * Formats a number for display.
  *
  * Always uses Latin digits (`en`) even in Arabic. Eastern-Arabic numerals
- * ("٤٥٠") render mirrored and mis-ordered once they sit next to an Arabic
+ * ("450") render mirrored and mis-ordered once they sit next to an Arabic
  * currency word inside an RTL flex row — the digits are mirrored glyph-by-glyph
  * by the shaping engine. Latin digits carry the price unambiguously, which is
  * also the convention on premium Arabic storefronts. The Arabic currency word

@@ -20,6 +20,14 @@ export default defineConfig({
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) {
               return 'motion-vendor';
             }
+            // Keep WebGL code off the initial route bundle. The 3D card is a
+            // lazy-loaded home-hero enhancement, and its renderer/helpers must
+            // remain lazy as well.
+            if (/\/node_modules\/three\/src\/renderers\//.test(id)) return 'three-renderer-vendor';
+            if (/\/node_modules\/three\//.test(id)) return 'three-core-vendor';
+            if (/\/@react-three\/|\/maath\/|\/suspend-react\/|\/camera-controls\/|\/meshline\/|\/troika-/.test(id)) {
+              return 'three-vendor';
+            }
             if (id.includes('lucide-react')) return 'icons-vendor';
             return 'vendor';
           }
@@ -27,7 +35,9 @@ export default defineConfig({
         },
       },
     },
-    // The remaining app chunk is still sizeable; keep the ceiling realistic.
-    chunkSizeWarningLimit: 600,
+    // Three.js core is a separate dynamic-only chunk for the hero card (about
+    // 187 KB gzipped); allow its larger minified source without hiding large
+    // chunks from the app's initial route bundle.
+    chunkSizeWarningLimit: 800,
   },
 })
