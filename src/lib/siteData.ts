@@ -656,6 +656,42 @@ export async function savePaymentMethod(method: PaymentMethod): Promise<PaymentM
   }
 }
 
+/** Deletes a social link from the authenticated admin managed table. */
+export async function deleteSocialLink(link: SocialLink): Promise<boolean> {
+  try {
+    if (!link.id || link.id.startsWith('social-')) {
+      const next = (readLocalRows<SocialLink>(LOCAL_SOCIALS_KEY) ?? []).filter((row) => row.platform !== link.platform);
+      localStorage.setItem(LOCAL_SOCIALS_KEY, JSON.stringify(next));
+      return true;
+    }
+    const { error } = await supabase.from('social_links').delete().eq('id', link.id);
+    if (error) return false;
+    const next = (readLocalRows<SocialLink>(LOCAL_SOCIALS_KEY) ?? []).filter((row) => row.platform !== link.platform);
+    localStorage.setItem(LOCAL_SOCIALS_KEY, JSON.stringify(next));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Deletes a payment method row without mixing the two market configurations. */
+export async function deletePaymentMethod(method: PaymentMethod): Promise<boolean> {
+  try {
+    if (!method.id || method.id.startsWith('pay-')) {
+      const next = (readLocalRows<PaymentMethod>(LOCAL_PAYMENTS_KEY) ?? []).filter((row) => !(row.method === method.method && row.market === method.market));
+      localStorage.setItem(LOCAL_PAYMENTS_KEY, JSON.stringify(next));
+      return true;
+    }
+    const { error } = await supabase.from('payment_methods').delete().eq('id', method.id);
+    if (error) return false;
+    const next = (readLocalRows<PaymentMethod>(LOCAL_PAYMENTS_KEY) ?? []).filter((row) => !(row.method === method.method && row.market === method.market));
+    localStorage.setItem(LOCAL_PAYMENTS_KEY, JSON.stringify(next));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Cheap connectivity probe used by the admin header to show DB status. */
 export async function pingSiteData(): Promise<boolean> {
   try {

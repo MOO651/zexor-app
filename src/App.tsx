@@ -78,6 +78,8 @@ import {
   clearAdminInquiries,
   clearAdminOrders,
   deleteAdminOrder,
+  deletePaymentMethod,
+  deleteSocialLink,
   createCloudOrder,
   createPaymobCheckout,
   deleteAdminInquiry,
@@ -220,9 +222,11 @@ function mergeRemoteRows<T extends { id: string; createdAt: string }>(
 }
 
 function completeSocialRows(remoteRows: SocialLink[]): SocialLink[] {
-  return SOCIAL_PLATFORMS.map((platform, index) =>
+  const builtIn = SOCIAL_PLATFORMS.map((platform, index) =>
     remoteRows.find((row) => row.platform === platform) ?? blankSocialLink(platform, index),
   );
+  const custom = remoteRows.filter((row) => !SOCIAL_PLATFORMS.includes(row.platform as typeof SOCIAL_PLATFORMS[number]));
+  return [...builtIn, ...custom];
 }
 
 function completePaymentRows(remoteRows: PaymentMethod[]): PaymentMethod[] {
@@ -829,8 +833,16 @@ export default function App() {
 
   const handleSaveSocialLink = useCallback(async (link: SocialLink) => {
     const saved = await saveSocialLink(link);
-    if (saved) setSocialLinks((current) => current.map((item) => item.platform === saved.platform ? saved : item));
+    if (saved) setSocialLinks((current) => current.some((item) => item.platform === saved.platform)
+      ? current.map((item) => item.platform === saved.platform ? saved : item)
+      : [...current, saved]);
     return Boolean(saved);
+  }, []);
+
+  const handleDeleteSocialLink = useCallback(async (link: SocialLink) => {
+    const deleted = await deleteSocialLink(link);
+    if (deleted) setSocialLinks((current) => current.filter((item) => item.platform !== link.platform));
+    return deleted;
   }, []);
 
   const handleAddInquiry = useCallback((inquiry: PlatformInquiry) => {
@@ -919,6 +931,12 @@ export default function App() {
     const saved = await savePaymentMethod(method);
     if (saved) setPaymentMethods((current) => current.map((item) => item.market === saved.market && item.method === saved.method ? saved : item));
     return Boolean(saved);
+  }, []);
+
+  const handleDeletePaymentMethod = useCallback(async (method: PaymentMethod) => {
+    const deleted = await deletePaymentMethod(method);
+    if (deleted) setPaymentMethods((current) => current.filter((item) => !(item.market === method.market && item.method === method.method)));
+    return deleted;
   }, []);
 
   useEffect(() => {
@@ -2354,7 +2372,9 @@ Details: ${details}`;
               socialLinks={socialLinks}
               paymentMethods={paymentMethods}
               onSaveSocialLink={handleSaveSocialLink}
+              onDeleteSocialLink={handleDeleteSocialLink}
               onSavePaymentMethod={handleSavePaymentMethod}
+              onDeletePaymentMethod={handleDeletePaymentMethod}
               siteDataReady={siteDataReady && adminAuthenticated}
             />
             </>

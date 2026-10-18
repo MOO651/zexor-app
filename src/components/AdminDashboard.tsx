@@ -48,7 +48,7 @@ import type {
   SiteSettings,
   Vehicle,
 } from '../types';
-import type { PaymentMethod, SocialLink } from '../lib/siteData';
+import { blankSocialLink, type PaymentMethod, type SocialLink } from '../lib/siteData';
 import { validateStoreBackup } from '../lib/backupValidation';
 import { sendTelegramTestNotification } from '../lib/siteData';
 
@@ -80,7 +80,9 @@ type Props = {
   socialLinks: SocialLink[];
   paymentMethods: PaymentMethod[];
   onSaveSocialLink: (link: SocialLink) => Promise<boolean>;
+  onDeleteSocialLink: (link: SocialLink) => Promise<boolean>;
   onSavePaymentMethod: (method: PaymentMethod) => Promise<boolean>;
+  onDeletePaymentMethod: (method: PaymentMethod) => Promise<boolean>;
   siteDataReady: boolean;
   onDeleteInquiry: (id: string) => Promise<boolean>;
   onClearInquiries: () => Promise<boolean>;
@@ -117,7 +119,9 @@ export function AdminDashboard({
   socialLinks,
   paymentMethods,
   onSaveSocialLink,
+  onDeleteSocialLink,
   onSavePaymentMethod,
+  onDeletePaymentMethod,
   siteDataReady,
   onDeleteInquiry,
   onClearInquiries,
@@ -153,6 +157,7 @@ export function AdminDashboard({
   const [paymentDraftState, setPaymentDraftState] = useState<{ source: PaymentMethod[]; value: PaymentMethod[] } | null>(null);
   const [paymentMarket, setPaymentMarket] = useState<Market>(market);
   const [newPaymentMethodLabel, setNewPaymentMethodLabel] = useState('');
+  const [newSocialLabel, setNewSocialLabel] = useState('');
   const socialDraft = socialDraftState?.source === socialLinks ? socialDraftState.value : socialLinks;
   const paymentDraft = paymentDraftState?.source === paymentMethods ? paymentDraftState.value : paymentMethods;
 
@@ -909,6 +914,48 @@ export function AdminDashboard({
     setNewPaymentMethodLabel('');
   };
 
+  const handleAddSocialLink = () => {
+    const label = newSocialLabel.trim();
+    if (!label) return;
+    const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || crypto.randomUUID().replaceAll('-', '').slice(0, 10);
+    const platform = `custom_${slug}`;
+    if (socialDraft.some((item) => item.platform === platform)) {
+      onToast(isArabic ? 'رابط بهذا الاسم موجود بالفعل.' : 'A social link with this name already exists.');
+      return;
+    }
+    const item = { ...blankSocialLink(platform, socialDraft.length), label, active: true };
+    setSocialDraftState({ source: socialLinks, value: [...socialDraft, item] });
+    setNewSocialLabel('');
+  };
+
+  const handleRemoveSocialLink = async (link: SocialLink) => {
+    if (!link.platform.startsWith('custom_')) {
+      onToast(isArabic ? 'يمكنك إخفاء الرابط الأساسي من زر التفعيل بدل حذفه.' : 'Built-in links can be hidden with the visibility toggle.');
+      return;
+    }
+    if (!window.confirm(isArabic ? `حذف رابط ${link.label}؟` : `Delete ${link.label}?`)) return;
+    if (!await onDeleteSocialLink(link)) {
+      onToast(isArabic ? 'تعذر حذف الرابط من قاعدة البيانات.' : 'Could not delete this link from the database.');
+      return;
+    }
+    setSocialDraftState(null);
+    onToast(isArabic ? 'تم حذف رابط التواصل.' : 'Social link deleted.');
+  };
+
+  const handleRemovePaymentMethod = async (method: PaymentMethod) => {
+    if (!method.method.startsWith('custom_')) {
+      onToast(isArabic ? 'أوقف طريقة الدفع من زر التفعيل بدل حذفها.' : 'Disable a built-in payment method instead of deleting it.');
+      return;
+    }
+    if (!window.confirm(isArabic ? `حذف طريقة الدفع ${method.label}؟` : `Delete payment method ${method.label}?`)) return;
+    if (!await onDeletePaymentMethod(method)) {
+      onToast(isArabic ? 'تعذر حذف طريقة الدفع من قاعدة البيانات.' : 'Could not delete this payment method from the database.');
+      return;
+    }
+    setPaymentDraftState(null);
+    onToast(isArabic ? 'تم حذف طريقة الدفع.' : 'Payment method deleted.');
+  };
+
   const filteredOrders = orders.filter((o) => {
     if (Boolean(o.archived) !== (orderArchiveView === 'archived')) return false;
     if (orderMarketFilter !== 'all' && o.market !== orderMarketFilter) return false;
@@ -1175,12 +1222,16 @@ export function AdminDashboard({
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
+            <form className="md:col-span-2 flex flex-wrap gap-2" onSubmit={(event) => { event.preventDefault(); handleAddSocialLink(); }}>
+              <input aria-label={isArabic ? 'اسم منصة التواصل' : 'Social platform name'} className="h-10 min-w-48 flex-1 rounded-xl border border-[#dfe8e2] px-3 text-xs" maxLength={40} onChange={(event) => setNewSocialLabel(event.target.value)} placeholder={isArabic ? 'أضف رابط تواصل مخصصًا، مثل يوتيوب' : 'Add a custom social link, e.g. YouTube'} value={newSocialLabel} />
+              <button className="flex h-10 items-center gap-1 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white" type="submit"><Plus className="h-3.5 w-3.5" />{isArabic ? 'إضافة رابط' : 'Add link'}</button>
+            </form>
             {socialDraft.map((item) => (
               <form className="space-y-2 rounded-2xl border border-[#e5ebe7] p-4" key={item.id} onSubmit={(event) => { event.preventDefault(); void onSaveSocialLink(item).then((saved) => onToast(saved ? (isArabic ? 'تم حفظ رابط التواصل' : 'Social link saved') : (isArabic ? 'تعذر حفظ رابط التواصل' : 'Could not save social link'))); }}>
-                <h3 className="text-xs font-bold">{item.label}</h3>
+                <input aria-label={isArabic ? 'اسم الرابط' : 'Link name'} className="h-9 w-full rounded-xl border px-3 text-xs font-bold" maxLength={80} value={item.label} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, label: event.target.value } : entry) })} />
                 <input aria-label="Handle" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="Handle" value={item.handle} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, handle: event.target.value } : entry) })} />
                 <input aria-label="URL" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="URL" value={item.url} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, url: event.target.value } : entry) })} />
-                <button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>
+                <div className="flex flex-wrap items-center justify-between gap-2"><label className="flex items-center gap-2 text-xs"><input checked={item.active} onChange={(event) => setSocialDraftState({ source: socialLinks, value: socialDraft.map((entry) => entry.id === item.id ? { ...entry, active: event.target.checked } : entry) })} type="checkbox" />{isArabic ? 'إظهار الرابط للعملاء' : 'Show link to customers'}</label><div className="flex gap-2"><button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>{item.platform.startsWith('custom_') && <button aria-label={isArabic ? 'حذف رابط التواصل' : 'Delete social link'} className="rounded-full border border-red-200 px-3 py-2 text-xs text-red-700" onClick={() => void handleRemoveSocialLink(item)} type="button"><Trash2 className="h-3.5 w-3.5" /></button>}</div></div>
               </form>
             ))}
             <div className="md:col-span-2">
@@ -1210,7 +1261,7 @@ export function AdminDashboard({
                 <input aria-label="Payment instructions Arabic" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="تعليمات الدفع بالعربية" value={item.instructions.ar} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, ar: event.target.value } } : entry) })} />
                 <input aria-label="Payment instructions English" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="Payment instructions in English" value={item.instructions.en} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, en: event.target.value } } : entry) })} />
                 <label className="flex items-center gap-2 text-xs"><input checked={item.active} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, active: event.target.checked } : entry) })} type="checkbox" />{isArabic ? 'إظهار طريقة الدفع للعملاء' : 'Show this method to customers'}</label>
-                <button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>
+                <div className="flex gap-2"><button className="rounded-full bg-[#314f43] px-4 py-2 text-xs text-white" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>{item.method.startsWith('custom_') && <button aria-label={isArabic ? 'حذف طريقة الدفع' : 'Delete payment method'} className="rounded-full border border-red-200 px-3 py-2 text-xs text-red-700" onClick={() => void handleRemovePaymentMethod(item)} type="button"><Trash2 className="h-3.5 w-3.5" /></button>}</div>
               </form>
             ))}
           </div>
