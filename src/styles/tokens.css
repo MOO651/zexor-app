@@ -1,98 +1,154 @@
-/* ==========================================================================
-   ZEXOR design tokens v1 — "Jade Luxe"
-   Anchored to the logo palette (deep jade, mint, lilac, peach) so the site and
-   the brand mark finally speak the same colour language.
-
-   Usage: put this file at src/styles/tokens.css and import it from index.css
-   right after the Tailwind import.
-   Naming: --brand-*  = fixed brand colours (from the logo)
-           --c-*      = semantic colours that flip between light and dark
-   ========================================================================== */
-
 :root {
-  /* Brand — values taken from public/zexor-logo.svg */
-  --brand-forest: #10251c;
-  --brand-emerald: #28654d;
-  --brand-emerald-deep: #1d503b;
-  --brand-jade: #3c694f;
-  --brand-mint: #a5d8b8;
-  --brand-mint-soft: #e8f2e9;
-  --brand-lilac: #a986e8;
-  --brand-lilac-soft: #f1eaff;
-  --brand-peach: #d6b187;
-  --brand-peach-soft: #f5eee2;
-
-  /* Semantic — light */
-  --c-bg: #f5f3ed;
-  --c-surface: #fffefa;
-  --c-surface-2: #edf1e9;
-  --c-ink: #17251e;
-  --c-muted: #68786e;
-  --c-line: rgba(40, 101, 77, 0.15);
-
-  /* The admin "Design" tab writes --zx-jade (primary) and --zx-jade-bright
-     (accent) onto <html>, so primary/accent read from them. Everything else is
-     fixed by this file. */
-  --c-primary: var(--zx-jade, var(--brand-emerald));
-  --c-primary-hover: color-mix(in srgb, var(--c-primary) 82%, black);
-  --c-on-primary: #ffffff;
-  --c-accent: var(--zx-jade-bright, var(--brand-mint));
-
-  --c-sale: var(--brand-peach);
-  --c-on-sale: var(--brand-forest);
-
-  --card-shadow: 0 1px 2px rgba(15, 42, 34, 0.04), 0 10px 28px -18px rgba(15, 42, 34, 0.22);
-  --card-shadow-hover: 0 2px 4px rgba(15, 42, 34, 0.05), 0 22px 44px -22px rgba(15, 42, 34, 0.32);
+  color-scheme: light;
+  --zx-bg: #F4F0E6;
+  --zx-surface: #FBF8F1;
+  --zx-surface-raised: #FFFFFF;
+  --zx-text: #12241B;
+  --zx-text-secondary: #3F5A4C;
+  --zx-text-muted: #6B7F73;
+  --zx-border: #E2DBC9;
+  --zx-accent: #164534;
+  --zx-accent-hover: #1F6B4F;
+  --zx-accent-contrast: #F4F0E6;
+  --zx-mint: #A9E5C0;
+  --zx-highlight: #C65F36;
+  --zx-highlight-contrast: #12241B;
+  --zx-sand: #E6D5B8;
+  --zx-sage: #8DB8A0;
+  --zx-metal-light: #EFE9DA;
+  --zx-footer-bg: #0E2A20;
+  --zx-footer-text: #EFE9DA;
+  --zx-scrim: rgb(8 20 15 / 55%);
+  --zx-cinematic: #0E2A20;
+  --zx-cinematic-gradient: linear-gradient(135deg, var(--zx-footer-bg), var(--zx-accent-hover));
+  --zx-golden-hour: color-mix(in srgb, var(--zx-highlight) 20%, transparent);
+  --zx-glass: color-mix(in srgb, var(--zx-surface-raised) 88%, transparent);
+  --zx-glass-strong: color-mix(in srgb, var(--zx-surface-raised) 96%, transparent);
+  --zx-border-strong: color-mix(in srgb, var(--zx-accent) 30%, var(--zx-border));
+  --zx-photo-grade: saturate(.88) sepia(.06) contrast(.97) brightness(1.02);
+  --zx-photo-scrim: linear-gradient(to top, var(--zx-scrim), transparent 72%);
+  --zx-shadow-card: 0 1px 2px color-mix(in srgb, var(--zx-footer-bg) 8%, transparent), 0 10px 28px -18px color-mix(in srgb, var(--zx-footer-bg) 32%, transparent);
+  --zx-shadow-float: 0 2px 4px color-mix(in srgb, var(--zx-footer-bg) 10%, transparent), 0 22px 44px -22px color-mix(in srgb, var(--zx-footer-bg) 42%, transparent);
+  --zx-glow: 0 0 2rem color-mix(in srgb, var(--zx-accent-hover) 18%, transparent);
+  --zx-shadow-inset: inset 0 1px color-mix(in srgb, var(--zx-surface-raised) 72%, transparent);
+  --zx-focus: var(--zx-accent);
+  --zx-danger: var(--zx-highlight);
+  --zx-success: var(--zx-accent);
+  --zx-warning: var(--zx-text-secondary);
+  --zx-container: 88rem;
+  --zx-display: "Playfair Display Variable", "Alexandria Variable", Georgia, serif;
+  --zx-font-body: "Manrope Variable", "Alexandria Variable", ui-sans-serif, system-ui, sans-serif;
+  --zx-font-arabic: "Alexandria Variable", "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --zx-type-display: clamp(3.75rem, 13vw, 12rem);
+  --zx-type-h1: clamp(2.15rem, 5.2vw, 4.75rem);
+  --zx-type-h2: clamp(1.75rem, 3.8vw, 3rem);
+  --zx-type-h3: clamp(1.2rem, 2vw, 1.75rem);
+  --zx-type-body: clamp(.92rem, 1vw, 1rem);
+  --zx-leading-display: 1.08;
+  --zx-leading-arabic: 1.85;
+  --zx-radius-xs: .25rem;
+  --zx-radius-sm: .7rem;
+  --zx-radius-md: 1rem;
+  --zx-radius-lg: 1.75rem;
+  --zx-radius-xl: 2rem;
+  --zx-radius-pill: 999px;
+  --zx-duration-fast: 180ms;
+  --zx-duration-base: 360ms;
+  --zx-duration-scene: 900ms;
+  --zx-ease-cinematic: cubic-bezier(.22, 1, .36, 1);
+  --card-shadow: var(--zx-shadow-card);
+  --card-shadow-hover: var(--zx-shadow-float);
+  font-family: var(--zx-font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
 }
 
-[data-theme='dark'] {
-  --c-bg: #0d1712;
-  --c-surface: #14221a;
-  --c-surface-2: #1b2c21;
-  --c-ink: #edf2e9;
-  --c-muted: #a8b7a9;
-  --c-line: rgba(255, 255, 255, 0.1);
-
-  --c-primary: var(--zx-jade, #25805f);
-  --c-primary-hover: color-mix(in srgb, var(--c-primary) 82%, white);
-  --c-on-primary: #ffffff;
-
-  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px -18px rgba(0, 0, 0, 0.6);
-  --card-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.35), 0 22px 44px -22px rgba(0, 0, 0, 0.7);
+[data-theme="dark"] {
+  color-scheme: dark;
+  --zx-bg: #07130E;
+  --zx-surface: #0E2018;
+  --zx-surface-raised: #143024;
+  --zx-text: #F2EEE3;
+  --zx-text-secondary: #BBD0C3;
+  --zx-text-muted: #86A092;
+  --zx-border: rgb(169 229 192 / 16%);
+  --zx-accent: #7FE0A8;
+  --zx-accent-hover: #A9E5C0;
+  --zx-accent-contrast: #07130E;
+  --zx-highlight: #F3935F;
+  --zx-highlight-contrast: #07130E;
+  --zx-sand: #3A4A3F;
+  --zx-footer-bg: #050E0A;
+  --zx-footer-text: #EFE9DA;
+  --zx-scrim: rgb(5 14 10 / 60%);
+  --zx-glass: color-mix(in srgb, var(--zx-surface) 88%, transparent);
+  --zx-glass-strong: color-mix(in srgb, var(--zx-surface) 96%, transparent);
+  --zx-border-strong: rgb(169 229 192 / 30%);
+  --zx-glow: 0 0 4rem color-mix(in srgb, var(--zx-accent) 18%, transparent);
+  --zx-shadow-inset: inset 0 1px color-mix(in srgb, var(--zx-footer-text) 7%, transparent);
+  --zx-focus: var(--zx-accent-hover);
+  --zx-danger: var(--zx-highlight);
+  --zx-warning: var(--zx-text-muted);
+  --card-shadow: var(--zx-shadow-card);
+  --card-shadow-hover: var(--zx-shadow-float);
 }
 
-/* Tailwind 4: expose the tokens as utilities (bg-zx-surface, text-zx-ink,
-   border-zx-line, bg-zx-primary …). `inline` keeps them pointing at the
-   runtime variables, so dark mode and the admin Design tab keep working. */
 @theme inline {
-  --color-zx-bg: var(--c-bg);
-  --color-zx-surface: var(--c-surface);
-  --color-zx-surface-2: var(--c-surface-2);
-  --color-zx-ink: var(--c-ink);
-  --color-zx-muted: var(--c-muted);
-  --color-zx-line: var(--c-line);
-  --color-zx-primary: var(--c-primary);
-  --color-zx-primary-hover: var(--c-primary-hover);
-  --color-zx-on-primary: var(--c-on-primary);
-  --color-zx-accent: var(--c-accent);
-  --color-zx-sale: var(--c-sale);
-  --color-zx-on-sale: var(--c-on-sale);
-  --color-zx-mint: var(--brand-mint);
-  --color-zx-lilac: var(--brand-lilac);
-  --color-zx-peach: var(--brand-peach);
-}
-
-/* Product / service card surface */
-.zx-card {
-  box-shadow: var(--card-shadow);
-  transition:
-    transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.zx-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: color-mix(in srgb, var(--brand-mint) 70%, transparent);
+  --color-zx-bg: var(--zx-bg);
+  --color-zx-surface: var(--zx-surface);
+  --color-zx-surface-raised: var(--zx-surface-raised);
+  --color-zx-surface-2: var(--zx-surface-raised);
+  --color-zx-text: var(--zx-text);
+  --color-zx-text-secondary: var(--zx-text-secondary);
+  --color-zx-text-muted: var(--zx-text-secondary);
+  --color-zx-ink: var(--zx-text);
+  --color-zx-secondary: var(--zx-text-secondary);
+  --color-zx-muted: var(--zx-text-secondary);
+  --color-zx-border: var(--zx-border);
+  --color-zx-line: var(--zx-border);
+  --color-zx-primary: var(--zx-accent);
+  --color-zx-primary-hover: var(--zx-accent-hover);
+  --color-zx-accent-contrast: var(--zx-accent-contrast);
+  --color-zx-on-primary: var(--zx-accent-contrast);
+  --color-zx-accent: var(--zx-accent);
+  --color-zx-mint: var(--zx-mint);
+  --color-zx-sage: var(--zx-sage);
+  --color-zx-sand: var(--zx-sand);
+  --color-zx-highlight: var(--zx-highlight);
+  --color-zx-sale: var(--zx-accent);
+  --color-zx-on-sale: var(--zx-accent-contrast);
+  --color-zx-danger: var(--zx-danger);
+  --color-zx-success: var(--zx-success);
+  --color-zx-warning: var(--zx-warning);
+  --color-zx-cinematic: var(--zx-cinematic);
+  --color-zx-elevated: var(--zx-surface-raised);
+  --color-zx-panel: var(--zx-surface);
+  --color-zx-glass: var(--zx-glass);
+  --color-zx-footer-bg: var(--zx-footer-bg);
+  --color-zx-footer-text: var(--zx-footer-text);
+  --color-zx-highlight-contrast: var(--zx-highlight-contrast);
+  --container-zx-container: var(--zx-container);
+  --font-sans: var(--zx-font-body);
+  --font-arabic: var(--zx-font-arabic);
+  --font-display: var(--zx-display);
+  --text-zx-display: var(--zx-type-display);
+  --text-zx-h1: var(--zx-type-h1);
+  --text-zx-h2: var(--zx-type-h2);
+  --text-zx-h3: var(--zx-type-h3);
+  --text-zx-body: var(--zx-type-body);
+  --shadow-zx-card: var(--zx-shadow-card);
+  --shadow-zx-float: var(--zx-shadow-float), var(--zx-glow);
+  --shadow-zx-inset: var(--zx-shadow-inset), var(--zx-shadow-card);
+  --radius-zx-xs: var(--zx-radius-xs);
+  --radius-zx-sm: var(--zx-radius-sm);
+  --radius-zx-md: var(--zx-radius-md);
+  --radius-zx-lg: var(--zx-radius-lg);
+  --radius-zx-xl: var(--zx-radius-xl);
+  --radius-zx-pill: var(--zx-radius-pill);
+  --duration-zx-fast: var(--zx-duration-fast);
+  --duration-zx-base: var(--zx-duration-base);
+  --duration-zx-scene: var(--zx-duration-scene);
 }

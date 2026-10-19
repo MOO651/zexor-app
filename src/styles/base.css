@@ -1,0 +1,106 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--zx-bg);
+  color-scheme: light;
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--zx-bg);
+  color: var(--zx-text);
+  font-family: var(--zx-font-body);
+  line-height: 1.6;
+  transition: background-color var(--zx-duration-base) ease, color var(--zx-duration-base) ease;
+}
+
+html:lang(ar),
+html:lang(ar) body {
+  font-family: var(--zx-font-arabic);
+}
+
+html:lang(ar) body {
+  line-height: var(--zx-leading-arabic);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--zx-focus);
+  outline-offset: 3px;
+}
+
+html :is(
+  [class~="text-[7px]"],
+  [class~="text-[8px]"],
+  [class~="text-[9px]"],
+  [class~="text-[10px]"],
+  [class~="text-[11px]"]
+) {
+  font-size: 0.75rem;
+}
+
+html:lang(en) :is(h1, h2, h3, .zx-display) {
+  letter-spacing: -0.035em;
+}
+
+html:lang(ar) :is(h1, h2, h3, .zx-display) {
+  letter-spacing: 0;
+  line-height: var(--zx-leading-arabic);
+  font-weight: 700;
+}
+
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a.zx-tap {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
