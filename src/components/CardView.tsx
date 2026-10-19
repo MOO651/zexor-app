@@ -70,42 +70,46 @@ export default function CardView() {
   const phoneUrl = card?.phone ? `tel:${card.phone.replace(/[^\d+]/g, '')}` : null;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#101713] px-4 py-12 text-white sm:px-6">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(84,145,111,0.2),_transparent_55%)]" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-48 -left-40 h-96 w-96 rounded-full border border-white/5" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zx-cinematic px-4 py-12 text-zx-footer-text sm:px-6">
+      <div aria-hidden="true" className="zx-mint-glow pointer-events-none absolute inset-0" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-48 -left-40 h-96 w-96 rounded-full border border-zx-border/5" />
       <div className="relative w-full max-w-md">
-        <a className="mb-8 inline-flex items-center gap-2 text-xs font-semibold text-white/55 transition hover:text-white" href="./">
+        <a className="mb-8 inline-flex min-h-11 items-center gap-2 rounded-lg text-xs font-semibold text-zx-footer-text/70 transition hover:text-zx-footer-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zx-cinematic" href="./">
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           العودة إلى ZEXOR
         </a>
 
-        <section aria-live="polite" className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#18211b]/90 shadow-[0_35px_100px_-35px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-          <div className="relative border-b border-white/[0.08] px-7 pb-8 pt-7 sm:px-9">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#9ac5a8]/70 to-transparent" />
+        <section aria-busy={loading} aria-live="polite" className="overflow-hidden rounded-[2rem] border border-zx-border/10 bg-zx-cinematic/90 shadow-zx-card backdrop-blur-xl">
+          <div className="relative border-b border-zx-border/[0.08] px-7 pb-8 pt-7 sm:px-9">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zx-accent/70 to-transparent" />
             <div className="flex items-center justify-between">
-              <a aria-label="ZEXOR" className="text-lg font-black tracking-[0.23em]" href="./">ZEXOR<span className="text-[#9ac5a8]">.</span></a>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#9ac5a8]/20 bg-[#9ac5a8]/[0.08] px-3 py-1.5 text-[10px] font-semibold tracking-wide text-[#b5d6be]">
+              <a aria-label="ZEXOR" className="inline-flex min-h-11 items-center rounded-lg text-lg font-black tracking-[0.23em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zx-cinematic" href="./">ZEXOR<span className="text-zx-text-secondary">.</span></a>
+              <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-zx-border/20 bg-zx-accent/[0.08] px-3 text-xs font-semibold tracking-wide text-zx-text-muted">
                 <Sparkles aria-hidden="true" className="h-3 w-3" /> بطاقة رقمية
               </span>
             </div>
-            <div className="mt-9 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-[#b5d6be]">
+            <div className="mt-9 flex h-14 w-14 items-center justify-center rounded-2xl border border-zx-border/10 bg-zx-surface-raised/[0.05] text-zx-text-muted">
               <CreditCard aria-hidden="true" className="h-6 w-6" />
             </div>
-            <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.22em] text-[#a2b7a8]">ZEXOR DIGITAL IDENTITY</p>
+            <p className="mt-6 text-xs font-bold uppercase tracking-[0.22em] text-zx-text-secondary">ZEXOR DIGITAL IDENTITY</p>
             {loading ? (
               <div className="mt-3 space-y-3" role="status">
-                <span className="block h-7 w-2/3 animate-pulse rounded-lg bg-white/10" />
-                <span className="block h-4 w-1/2 animate-pulse rounded-lg bg-white/[0.06]" />
+                <span className="block h-7 w-2/3 animate-pulse rounded-lg bg-zx-surface-raised/10 motion-reduce:animate-none" />
+                <span className="block h-4 w-1/2 animate-pulse rounded-lg bg-zx-surface-raised/[0.06] motion-reduce:animate-none" />
                 <span className="sr-only">جارٍ تحميل بيانات البطاقة</span>
+                <h1 className="sr-only">بطاقة زكسور الرقمية</h1>
               </div>
             ) : error ? (
-              <div className="mt-5 rounded-2xl border border-amber-200/10 bg-amber-100/[0.05] p-4 text-sm leading-7 text-white/70" role="alert">
-                {error}
-              </div>
+              <>
+                <h1 className="sr-only">بطاقة زكسور الرقمية</h1>
+                <div className="mt-5 rounded-2xl border border-zx-border/10 bg-zx-surface/[0.05] p-4 text-sm leading-7 text-zx-footer-text/70" role="alert">
+                  {error}
+                </div>
+              </>
             ) : (
               <>
                 <h1 className="mt-3 break-words text-3xl font-bold tracking-tight sm:text-4xl">{card?.client_name}</h1>
-                <p className="mt-2 text-sm leading-6 text-white/50">بطاقتك الرقمية، كل تفاصيلك المهمة في مكان واحد.</p>
+                <p className="mt-2 text-sm leading-6 text-zx-footer-text/50">بطاقتك الرقمية، كل تفاصيلك المهمة في مكان واحد.</p>
               </>
             )}
           </div>
@@ -113,15 +117,15 @@ export default function CardView() {
           {!loading && !error && card && (
             <div className="space-y-3 p-6 sm:p-8">
               {invoiceUrl ? (
-                <a className="group flex min-h-14 w-full items-center justify-between rounded-2xl bg-[#b5d6be] px-5 text-sm font-bold text-[#18211b] transition hover:bg-[#c7e4cf] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#b5d6be]/30" href={invoiceUrl} rel="noopener noreferrer" target="_blank">
+                <a className="group flex min-h-14 w-full items-center justify-between rounded-2xl bg-zx-accent px-5 text-sm font-bold text-zx-accent-contrast transition hover:bg-zx-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-accent/30" href={invoiceUrl} rel="noopener noreferrer" target="_blank">
                   <span>عرض الملف الشخصي أو الفاتورة</span>
                   <ExternalLink aria-hidden="true" className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </a>
               ) : (
-                <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs leading-6 text-white/55">لا يوجد رابط ملف شخصي مضاف لهذه البطاقة حاليًا.</p>
+                <p className="rounded-2xl border border-zx-border/10 bg-zx-surface-raised/[0.04] px-4 py-3 text-xs leading-6 text-zx-footer-text/55">لا يوجد رابط ملف شخصي مضاف لهذه البطاقة حاليًا.</p>
               )}
               {phoneUrl && (
-                <a className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] text-xs font-semibold text-white/75 transition hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/10" href={phoneUrl}>
+                <a className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-zx-border/10 bg-zx-surface-raised/[0.04] text-xs font-semibold text-zx-footer-text/75 transition hover:bg-zx-surface-raised/[0.08] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-border/10" href={phoneUrl}>
                   <Phone aria-hidden="true" className="h-3.5 w-3.5" />
                   اتصال مباشر
                   <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
@@ -131,7 +135,7 @@ export default function CardView() {
           )}
         </section>
 
-        <p className="mt-6 text-center text-[10px] tracking-wide text-white/35">هوية رقمية أنيقة من ZEXOR</p>
+        <p className="mt-6 text-center text-xs tracking-wide text-zx-footer-text/55">هوية رقمية أنيقة من ZEXOR</p>
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -84,17 +84,18 @@ const FAQ_ITEMS: FaqItem[] = [
 
 export function FaqSection({ locale, isArabic }: Common) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const reduceMotion = useReducedMotion();
 
   return (
     <section className="space-y-6">
       <div className="text-center">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
-          {isArabic ? '٦ / الأسئلة الشائعة' : '06 / FAQ'}
+        <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text">
+          {isArabic ? '06 / الأسئلة الشائعة' : '06 / FAQ'}
         </span>
-        <h2 className="mt-1 text-2xl font-bold text-[#2d4236] sm:text-3xl">
+        <h2 className="mt-1 text-2xl font-bold text-zx-text sm:text-3xl">
           {isArabic ? 'كل ما تحتاج معرفته قبل الطلب' : 'Everything You Need to Know'}
         </h2>
-        <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-[#6c7d73]">
+        <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-zx-text">
           {isArabic
             ? 'إجابات سريعة عن البطاقات والتوصيل والدفع وخدمات الاستوديو.'
             : 'Quick answers on cards, delivery, payments, and our studio services.'}
@@ -106,18 +107,20 @@ export function FaqSection({ locale, isArabic }: Common) {
           const open = openIndex === i;
           return (
             <div
-              className="overflow-hidden rounded-2xl border border-white bg-white/85 shadow-sm backdrop-blur-md"
+              className="overflow-hidden rounded-2xl border border-zx-border bg-zx-surface-raised/85 shadow-sm backdrop-blur-md"
               key={item.q[locale]}
             >
               <button
                 aria-expanded={open}
-                className="flex w-full items-center justify-between gap-4 p-4 text-start"
+                aria-controls={open ? `zx-faq-answer-${i}` : undefined}
+                className="zx-faq-question flex w-full items-center justify-between gap-4 p-4 text-start"
+                id={`zx-faq-question-${i}`}
                 onClick={() => setOpenIndex(open ? null : i)}
                 type="button"
               >
-                <span className="text-sm font-bold text-[#2e4437]">{item.q[locale]}</span>
+                <span className="text-sm font-bold text-zx-text">{item.q[locale]}</span>
                 <ChevronDown
-                  className={`h-4 w-4 shrink-0 text-[#5e8b75] transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+                  className={`h-4 w-4 shrink-0 text-zx-text transition-transform duration-300 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
                 />
               </button>
               <AnimatePresence initial={false}>
@@ -126,9 +129,12 @@ export function FaqSection({ locale, isArabic }: Common) {
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     initial={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    id={`zx-faq-answer-${i}`}
+                    role="region"
+                    aria-labelledby={`zx-faq-question-${i}`}
+                    transition={{ duration: reduceMotion ? 0 : 0.25, ease: 'easeInOut' }}
                   >
-                    <p className="px-4 pb-4 text-xs leading-6 text-[#6c7d73]">{item.a[locale]}</p>
+                    <p className="px-4 pb-4 text-xs leading-6 text-zx-text">{item.a[locale]}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -170,32 +176,32 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
   return (
     <section className="grid gap-5 lg:grid-cols-2">
       {/* Track order */}
-      <div className="relative overflow-hidden rounded-3xl border border-white bg-white/85 p-7 shadow-md backdrop-blur-md sm:p-9">
+      <div className="relative overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/85 p-7 shadow-md backdrop-blur-md sm:p-9">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-[#d8f0e6]/70 blur-3xl"
+          className="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-zx-mint/70 blur-3xl"
         />
-        <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e7f4ed] text-[#35614a]">
+        <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-zx-mint text-zx-mint-contrast">
           <Package className="h-5 w-5" />
         </span>
-        <h3 className="relative mt-4 text-lg font-bold text-[#2d4236]">
+        <h3 className="relative mt-4 text-lg font-bold text-zx-text">
           {isArabic ? 'تتبّع طلبك لحظة بلحظة' : 'Track Your Order Live'}
         </h3>
-        <p className="relative mt-2 text-xs leading-6 text-[#6c7d73]">
+        <p className="relative mt-2 text-xs leading-6 text-zx-text">
           {isArabic
             ? 'أدخل رقم الطلب لمتابعة حالة الشحن والتوصيل مباشرة، أو تواصل مع الفريق عبر واتساب.'
             : 'Enter your order number to follow shipping and delivery, or reach the team directly on WhatsApp.'}
         </p>
         <div className="relative mt-5 flex flex-wrap items-center gap-3">
           <button
-            className="flex min-h-11 items-center gap-2 rounded-full bg-[#314f43] px-6 text-xs font-bold text-white shadow-md transition-all hover:bg-[#436e5d]"
+            className="flex min-h-11 items-center gap-2 rounded-full bg-zx-cinematic px-6 text-xs font-bold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
             onClick={onTrackOrder}
             type="button"
           >
             <Truck className="h-4 w-4" />
             {isArabic ? 'تتبّع الطلب' : 'Track Order'}
           </button>
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#5e8b75]">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-zx-text">
             <ShieldCheck className="h-3.5 w-3.5" />
             {isArabic ? 'بياناتك محفوظة على جهازك فقط' : 'Your data stays on your device'}
           </span>
@@ -203,29 +209,31 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
       </div>
 
       {/* Newsletter */}
-      <div className="relative overflow-hidden rounded-3xl border border-white bg-linear-to-br from-[#22392e] to-[#141f19] p-7 text-white shadow-md sm:p-9">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-[#9fe0bd]">
+      <div className="relative overflow-hidden rounded-3xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-7 text-zx-accent-contrast shadow-md sm:p-9">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-zx-surface-raised/15 text-zx-text-muted">
           <Sparkles className="h-5 w-5" />
         </span>
         <h3 className="mt-4 text-lg font-bold">{isArabic ? 'اشترك في نشرة الإصدارات' : 'Join the Drop List'}</h3>
-        <p className="mt-2 text-xs leading-6 text-white/70">
+        <p className="mt-2 text-xs leading-6 text-zx-accent-contrast/70">
           {isArabic
             ? 'كن أول من يعرف بالإصدارات المحدودة والعروض الحصرية على البطاقات والخدمات.'
             : 'Be the first to hear about limited drops and exclusive offers on cards and services.'}
         </p>
 
         {subscribed ? (
-          <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-[#a6e6c4]">
+          <p className="mt-5 flex items-center gap-2 text-xs font-semibold text-zx-text-muted">
             <CheckCircle2 className="h-4 w-4" />
             {isArabic ? 'تم تسجيلك بنجاح، شكراً لك!' : 'You’re on the list. Thanks!'}
           </p>
         ) : (
           <form className="mt-5 flex flex-col gap-2 sm:flex-row" onSubmit={handleSubscribe} noValidate>
             <div className="relative flex-1">
-              <Mail className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8fa79a]" />
+              <Mail className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zx-text-secondary" />
               <input
                 aria-label={isArabic ? 'البريد الإلكتروني' : 'Email address'}
-                className="h-11 w-full rounded-full border border-white/15 bg-white/10 ps-9 pe-4 text-xs text-white outline-none placeholder:text-white/45 focus:border-white/40"
+                aria-describedby={error ? 'zx-newsletter-error' : undefined}
+                aria-invalid={Boolean(error)}
+                className="h-11 w-full rounded-full border border-zx-border/15 bg-zx-surface-raised/10 ps-9 pe-4 text-base text-zx-accent-contrast outline-none placeholder:text-zx-accent-contrast/65 focus:border-zx-border/40"
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (error) setError('');
@@ -236,7 +244,7 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
               />
             </div>
             <button
-              className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-6 text-xs font-bold text-[#1f382c] shadow-md transition-all hover:bg-[#a6e6c4]"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-zx-surface-raised px-6 text-xs font-bold text-zx-text shadow-md transition-all hover:bg-zx-accent"
               type="submit"
             >
               <Send className="h-3.5 w-3.5" />
@@ -244,7 +252,7 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
             </button>
           </form>
         )}
-        {error && <p className="mt-2 text-[10px] font-semibold text-[#f2b8a8]">{error}</p>}
+        {error && <p className="mt-2 text-xs font-semibold text-zx-text-secondary" id="zx-newsletter-error" role="alert">{error}</p>}
       </div>
     </section>
   );
@@ -288,22 +296,22 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
   ];
 
   return (
-    <footer className="zx-site-footer relative z-10 mt-16 border-t border-white/70 bg-white/70 backdrop-blur-xl">
+    <footer className="zx-site-footer relative z-10 mt-16 border-t border-zx-border/70 bg-zx-surface-raised/70 backdrop-blur-xl">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         {/* Brand */}
         <div>
           <div className="flex items-center gap-2.5">
-            {settings.brand.logoUrl && <img alt="" aria-hidden="true" className="h-9 w-9 rounded-xl border border-[#e2ebe5] bg-white object-contain p-1" src={publicAssetUrl(settings.brand.logoUrl)} />}
-            <span className="text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{settings.brand.name}</span>
+            {settings.brand.logoUrl && <img alt="" aria-hidden="true" className="h-9 w-9 rounded-xl border border-zx-border bg-zx-surface-raised object-contain p-1" data-no-photo-grade="true" src={publicAssetUrl(settings.brand.logoUrl)} />}
+            <span className="text-[15px] font-bold tracking-[0.14em] text-zx-text">{settings.brand.name}</span>
           </div>
-          <p className="mt-3 max-w-xs text-xs leading-6 text-[#6c7d73]">
+          <p className="mt-3 max-w-xs text-xs leading-6 text-zx-text">
             {isArabic
               ? `${settings.brand.name} — كروت ذكية وأزياء وخدمات رقمية، بتجربة واحدة واضحة.`
               : `${settings.brand.name} brings smart identity, considered apparel and digital services together in one place.`}
           </p>
           <div className="mt-4 flex items-center gap-2">
             <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] text-[#4d705d] transition-colors hover:bg-[#eef8f2]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
               href={`https://wa.me/${whatsapp}`}
               rel="noreferrer"
               target="_blank"
@@ -312,14 +320,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
               <MessageCircle className="h-4 w-4" />
             </a>
             <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] text-[#4d705d] transition-colors hover:bg-[#eef8f2]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
               href={`mailto:${settings.supportEmail}`}
               aria-label="Email"
             >
               <Mail className="h-4 w-4" />
             </a>
             <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] text-[#4d705d] transition-colors hover:bg-[#eef8f2]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
               href={TIKTOK_URL}
               rel="noreferrer"
               target="_blank"
@@ -333,14 +341,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
         {/* Shop */}
         <div>
-          <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#5e8b75]">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'المتجر' : 'Shop'}
           </h4>
           <ul className="mt-4 space-y-2.5">
             {shopLinks.map((l) => (
               <li key={l.route}>
                 <button
-                  className="text-xs text-[#6c7d73] transition-colors hover:text-[#2d4838]"
+                  className="text-xs text-zx-text transition-colors hover:text-zx-text"
                   onClick={() => navigate(l.route)}
                   type="button"
                 >
@@ -353,14 +361,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
         {/* Company */}
         <div>
-          <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#5e8b75]">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'الشركة' : 'Company'}
           </h4>
           <ul className="mt-4 space-y-2.5">
             {companyLinks.map((l) => (
               <li key={l.route}>
                 <button
-                  className="text-xs text-[#6c7d73] transition-colors hover:text-[#2d4838]"
+                  className="text-xs text-zx-text transition-colors hover:text-zx-text"
                   onClick={() => navigate(l.route)}
                   type="button"
                 >
@@ -370,7 +378,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
             ))}
             <li>
               <button
-                className="text-xs text-[#6c7d73] transition-colors hover:text-[#2d4838]"
+                className="text-xs text-zx-text transition-colors hover:text-zx-text"
                 onClick={onTrackOrder}
                 type="button"
               >
@@ -382,24 +390,24 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
         {/* Contact */}
         <div>
-          <h4 className="text-[11px] font-bold uppercase tracking-widest text-[#5e8b75]">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'تواصل معنا' : 'Get in Touch'}
           </h4>
-          <ul className="mt-4 space-y-2.5 text-xs text-[#6c7d73]">
+          <ul className="mt-4 space-y-2.5 text-xs text-zx-text">
             <li className="flex items-start gap-2">
-              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5e8b75]" />
+              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
               <span>{isArabic ? 'مصر والسعودية' : 'Egypt & Saudi Arabia'}</span>
             </li>
             <li className="flex items-start gap-2">
-              <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5e8b75]" />
-              <a className="transition-colors hover:text-[#2d4838]" href={`mailto:${settings.supportEmail}`}>
+              <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
+              <a className="transition-colors hover:text-zx-text" href={`mailto:${settings.supportEmail}`}>
                 {settings.supportEmail}
               </a>
             </li>
             <li className="flex items-start gap-2">
-              <TikTokIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#5e8b75]" />
+              <TikTokIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
               <a
-                className="transition-colors hover:text-[#2d4838]"
+                className="transition-colors hover:text-zx-text"
                 href={TIKTOK_URL}
                 rel="noreferrer"
                 target="_blank"
@@ -413,7 +421,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
             </li>
             <li>
               <button
-                className="inline-flex items-center gap-1.5 font-semibold text-[#35614a] transition-colors hover:text-[#234333]"
+                className="inline-flex items-center gap-1.5 font-semibold text-zx-text transition-colors hover:text-zx-text"
                 onClick={() => navigate('contact')}
                 type="button"
               >
@@ -425,18 +433,18 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
         </div>
       </div>
 
-      <div className="border-t border-white/70 px-4 py-5 sm:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-[10px] text-[#829288] sm:flex-row">
+      <div className="border-t border-zx-border/70 px-4 py-5 sm:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-zx-text-secondary sm:flex-row">
           <span>
             © {year} ZEXOR. {isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-[#5e8b75]" />
+            <Sparkles className="h-3 w-3 text-zx-text" />
             {isArabic ? 'صُنع بعناية في القاهرة والرياض.' : 'Crafted with care in Cairo & Riyadh.'}
           </span>
           <button
             aria-label={isArabic ? 'دخول لوحة الإدارة' : 'Open admin dashboard'}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#dce7df] bg-white/80 text-[#71877a] transition hover:border-[#b8cfc0] hover:bg-[#edf5f0] hover:text-[#314f43]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/80 text-zx-text transition hover:border-zx-border hover:bg-zx-mint hover:text-zx-mint-contrast"
             onClick={() => navigate('dashboard')}
             title={isArabic ? 'لوحة الإدارة' : 'Admin dashboard'}
             type="button"

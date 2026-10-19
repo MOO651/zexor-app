@@ -1,107 +1,107 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="ZEXOR digital design studio workspace">
   <defs>
     <linearGradient id="st-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0f1c"/>
-      <stop offset="52%" stop-color="#141e36"/>
-      <stop offset="100%" stop-color="#2a3a60"/>
+      <stop offset="0%" stop-color="#07130E"/>
+      <stop offset="52%" stop-color="#0E2A20"/>
+      <stop offset="100%" stop-color="#1F6B4F"/>
     </linearGradient>
     <radialGradient id="st-key" cx="32%" cy="12%" r="76%">
-      <stop offset="0%" stop-color="#e2f1ff" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#e2f1ff" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#EFE9DA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#EFE9DA" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="st-violet" cx="82%" cy="84%" r="48%">
-      <stop offset="0%" stop-color="#a986e8" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#a986e8" stop-opacity="0"/>
+    <radialGradient id="st-apricot" cx="82%" cy="84%" r="48%">
+      <stop offset="0%" stop-color="#F3935F" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#F3935F" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="st-screen" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0%" stop-color="#fdfdff"/>
-      <stop offset="58%" stop-color="#eef3fb"/>
-      <stop offset="100%" stop-color="#d5e0f0"/>
+      <stop offset="0%" stop-color="#FBF8F1"/>
+      <stop offset="58%" stop-color="#EFE9DA"/>
+      <stop offset="100%" stop-color="#8DB8A0"/>
     </linearGradient>
     <linearGradient id="st-metal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#c9d4e2"/>
-      <stop offset="100%" stop-color="#7c889c"/>
+      <stop offset="0%" stop-color="#A9E5C0"/>
+      <stop offset="100%" stop-color="#3F5A4C"/>
     </linearGradient>
   </defs>
 
   <rect width="1200" height="800" fill="url(#st-bg)"/>
   <rect width="1200" height="800" fill="url(#st-key)"/>
-  <rect width="1200" height="800" fill="url(#st-violet)"/>
+  <rect width="1200" height="800" fill="url(#st-apricot)"/>
 
   <!-- Desk. -->
-  <ellipse cx="600" cy="700" rx="440" ry="42" fill="#03060d" opacity="0.6"/>
-  <rect x="130" y="612" width="940" height="18" rx="9" fill="#22304a"/>
-  <rect x="180" y="630" width="16" height="120" fill="#1a2436"/>
-  <rect x="1004" y="630" width="16" height="120" fill="#1a2436"/>
+  <ellipse cx="600" cy="700" rx="440" ry="42" fill="#07130E" opacity="0.6"/>
+  <rect x="130" y="612" width="940" height="18" rx="9" fill="#164534"/>
+  <rect x="180" y="630" width="16" height="120" fill="#0E2018"/>
+  <rect x="1004" y="630" width="16" height="120" fill="#0E2018"/>
 
   <!-- Main display. -->
-  <rect x="268" y="150" width="664" height="414" rx="20" fill="#0d1524"/>
+  <rect x="268" y="150" width="664" height="414" rx="20" fill="#07130E"/>
   <rect x="282" y="164" width="636" height="386" rx="10" fill="url(#st-screen)"/>
-  <rect x="282" y="164" width="636" height="42" rx="10" fill="#e5ecf6"/>
-  <circle cx="312" cy="185" r="6" fill="#e6a68e"/>
-  <circle cx="334" cy="185" r="6" fill="#e8c98a"/>
-  <circle cx="356" cy="185" r="6" fill="#8fcbb0"/>
-  <rect x="386" y="174" width="300" height="22" rx="11" fill="#ffffff"/>
-  <text x="402" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#8ea0b8">zexor.studio/design</text>
-  <path d="M1050 300 L1082 300 L1092 470 L1040 470 Z" fill="#151f33"/>
+  <rect x="282" y="164" width="636" height="42" rx="10" fill="#EFE9DA"/>
+  <circle cx="312" cy="185" r="6" fill="#F3935F"/>
+  <circle cx="334" cy="185" r="6" fill="#A9E5C0"/>
+  <circle cx="356" cy="185" r="6" fill="#8DB8A0"/>
+  <rect x="386" y="174" width="300" height="22" rx="11" fill="#FBF8F1"/>
+  <text x="402" y="190" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#6B7F73">zexor.studio/design</text>
+  <path d="M1050 300 L1082 300 L1092 470 L1040 470 Z" fill="#143024"/>
 
   <!-- Canvas: a design being composed, with guides + a colour rail. -->
-  <rect x="300" y="226" width="392" height="306" rx="8" fill="#ffffff"/>
-  <rect x="300" y="226" width="392" height="58" fill="#1f3b31"/>
-  <rect x="322" y="246" width="150" height="18" rx="5" fill="#e9f6f0"/>
-  <rect x="322" y="272" width="96" height="8" rx="4" fill="#a6e6c4"/>
-  <g fill="#e8eef8">
+  <rect x="300" y="226" width="392" height="306" rx="8" fill="#FFFFFF"/>
+  <rect x="300" y="226" width="392" height="58" fill="#164534"/>
+  <rect x="322" y="246" width="150" height="18" rx="5" fill="#EFE9DA"/>
+  <rect x="322" y="272" width="96" height="8" rx="4" fill="#A9E5C0"/>
+  <g fill="#EFE9DA">
     <rect x="322" y="308" width="168" height="96" rx="10"/>
     <rect x="504" y="308" width="168" height="96" rx="10"/>
   </g>
-  <g fill="#a9b8d0">
+  <g fill="#BBD0C3">
     <rect x="322" y="420" width="120" height="10" rx="5"/>
     <rect x="322" y="440" width="164" height="10" rx="5"/>
     <rect x="504" y="420" width="96" height="10" rx="5"/>
     <rect x="504" y="440" width="140" height="10" rx="5"/>
   </g>
   <!-- Selection handles. -->
-  <g fill="none" stroke="#4e8e6f" stroke-width="2.5">
+  <g fill="none" stroke="#1F6B4F" stroke-width="2.5">
     <rect x="322" y="308" width="168" height="96" rx="10"/>
   </g>
-  <g fill="#4e8e6f">
+  <g fill="#1F6B4F">
     <circle cx="322" cy="308" r="5"/><circle cx="490" cy="308" r="5"/>
     <circle cx="322" cy="404" r="5"/><circle cx="490" cy="404" r="5"/>
   </g>
 
   <!-- Right tool rail. -->
-  <rect x="712" y="226" width="188" height="306" rx="8" fill="#f2f6fc"/>
-  <rect x="732" y="248" width="72" height="10" rx="5" fill="#5b6b86"/>
-  <g fill="#c6d2e4">
+  <rect x="712" y="226" width="188" height="306" rx="8" fill="#FBF8F1"/>
+  <rect x="732" y="248" width="72" height="10" rx="5" fill="#3F5A4C"/>
+  <g fill="#E2DBC9">
     <rect x="732" y="278" width="148" height="30" rx="8"/>
     <rect x="732" y="318" width="148" height="30" rx="8"/>
     <rect x="732" y="358" width="148" height="30" rx="8"/>
   </g>
   <!-- Colour swatches. -->
   <g>
-    <circle cx="752" cy="412" r="12" fill="#314f43"/>
-    <circle cx="784" cy="412" r="12" fill="#4e8e6f"/>
-    <circle cx="816" cy="412" r="12" fill="#a6e6c4"/>
-    <circle cx="848" cy="412" r="12" fill="#e6a68e"/>
+    <circle cx="752" cy="412" r="12" fill="#164534"/>
+    <circle cx="784" cy="412" r="12" fill="#1F6B4F"/>
+    <circle cx="816" cy="412" r="12" fill="#A9E5C0"/>
+    <circle cx="848" cy="412" r="12" fill="#F3935F"/>
   </g>
-  <rect x="732" y="446" width="148" height="34" rx="17" fill="#4e8e6f"/>
-  <rect x="772" y="457" width="68" height="12" rx="6" fill="#eafff6"/>
+  <rect x="732" y="446" width="148" height="34" rx="17" fill="#1F6B4F"/>
+  <rect x="772" y="457" width="68" height="12" rx="6" fill="#EFE9DA"/>
 
   <!-- Floating phone mockup. -->
   <g transform="rotate(-10 968 560)">
-    <rect x="900" y="486" width="140" height="248" rx="22" fill="#0d1524"/>
-    <rect x="910" y="496" width="120" height="228" rx="16" fill="#ffffff"/>
-    <rect x="910" y="496" width="120" height="70" rx="16" fill="#a6e6c4"/>
-    <rect x="926" y="580" width="88" height="10" rx="5" fill="#33415c"/>
-    <rect x="926" y="600" width="64" height="10" rx="5" fill="#9fb0c8"/>
-    <rect x="926" y="632" width="88" height="26" rx="13" fill="#314f43"/>
+    <rect x="900" y="486" width="140" height="248" rx="22" fill="#07130E"/>
+    <rect x="910" y="496" width="120" height="228" rx="16" fill="#FBF8F1"/>
+    <rect x="910" y="496" width="120" height="70" rx="16" fill="#A9E5C0"/>
+    <rect x="926" y="580" width="88" height="10" rx="5" fill="#3F5A4C"/>
+    <rect x="926" y="600" width="64" height="10" rx="5" fill="#6B7F73"/>
+    <rect x="926" y="632" width="88" height="26" rx="13" fill="#164534"/>
   </g>
 
   <!-- Stylus + colour chips on the desk. -->
   <g transform="rotate(18 300 660)">
-    <rect x="230" y="652" width="150" height="12" rx="6" fill="#c9d4e2"/>
-    <rect x="372" y="650" width="26" height="16" rx="4" fill="#e6a68e"/>
+    <rect x="230" y="652" width="150" height="12" rx="6" fill="#A9E5C0"/>
+    <rect x="372" y="650" width="26" height="16" rx="4" fill="#F3935F"/>
   </g>
-  <circle cx="880" cy="668" r="9" fill="#a986e8"/>
-  <circle cx="908" cy="676" r="6" fill="#8fcbb0"/>
+  <circle cx="880" cy="668" r="9" fill="#A9E5C0"/>
+  <circle cx="908" cy="676" r="6" fill="#8DB8A0"/>
 </svg>

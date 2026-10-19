@@ -152,6 +152,8 @@ serve `dist`.
 - Live order tracking, FAQ, newsletter capture, and an animated luxury hero.
 - Admin studio: products, categories, vehicles, properties, orders, promo codes,
   hero/announcement copy, section visibility, day/night theme, JSON backup.
+- Admin media center: bilingual shared-site copy and media drafts, publishing,
+  asset history, ordered scene sequences, lookbook hotspots and NFC model preview.
 - Store operations: a responsive admin sidebar, order lifecycle and CSV export,
   customer directory, low-stock alerts, per-market sales reports, and stock
   reservation/restocking when orders are placed or cancelled.
@@ -162,6 +164,9 @@ serve `dist`.
 - Admin content studio: bilingual copy for all eight home departments (cards,
   fashion, studio, vehicles, real estate, CTA, footer) plus hero and maintenance text.
 - Admin tools: a Telegram connection test, data export / import, and reset controls.
+- Listing image uploads are converted to WebP, capped at 1600 px and compressed
+  to 1.5 MB before being saved with the catalog. Shared-site media uses
+  Supabase Storage and requires `supabase/migrations/20261020_site_media_content.sql`.
 - Route-level code splitting so the home page ships a small initial bundle.
 - Locally hosted fonts and imagery — no third-party asset requests.
 
@@ -175,3 +180,6 @@ serve `dist`.
   through the configured manual checkout flow.
 - **The admin uses Supabase Auth and database roles.** Order and inquiry records
   are private; public tracking requires both the order ID and matching phone.
+- **Listing photos are currently embedded in catalog JSON**, so keep them
+  optimized and move high-volume inventories to Storage-backed URLs before
+  scaling. Shared media-center uploads use the `site-media` bucket instead.

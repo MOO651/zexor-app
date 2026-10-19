@@ -1,29 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="ZEXOR Elite Matte NFC card">
   <defs>
     <linearGradient id="e-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1511"/>
-      <stop offset="55%" stop-color="#16281f"/>
-      <stop offset="100%" stop-color="#2b4a3a"/>
+      <stop offset="0%" stop-color="#08140F"/>
+      <stop offset="55%" stop-color="#12241B"/>
+      <stop offset="100%" stop-color="#3A4A3F"/>
     </linearGradient>
     <radialGradient id="e-key" cx="34%" cy="14%" r="72%">
-      <stop offset="0%" stop-color="#dcfff2" stop-opacity="0.34"/>
-      <stop offset="100%" stop-color="#dcfff2" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#F4F0E6" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#F4F0E6" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="e-rim" cx="82%" cy="78%" r="46%">
-      <stop offset="0%" stop-color="#f0c9ae" stop-opacity="0.26"/>
-      <stop offset="100%" stop-color="#f0c9ae" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#E6D5B8" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#E6D5B8" stop-opacity="0"/>
     </radialGradient>
     <!-- Soft pearl finish on the card face. -->
     <linearGradient id="e-card" x1="0" y1="0" x2="0.9" y2="1">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="34%" stop-color="#eef5f0"/>
-      <stop offset="70%" stop-color="#cfe0d6"/>
-      <stop offset="100%" stop-color="#9fb7a9"/>
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="34%" stop-color="#F4F0E6"/>
+      <stop offset="70%" stop-color="#E2DBC9"/>
+      <stop offset="100%" stop-color="#8DB8A0"/>
     </linearGradient>
     <linearGradient id="e-chip" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f6dfae"/>
-      <stop offset="50%" stop-color="#d8ac5f"/>
-      <stop offset="100%" stop-color="#a97f3c"/>
+      <stop offset="0%" stop-color="#E6D5B8"/>
+      <stop offset="50%" stop-color="#F3935F"/>
+      <stop offset="100%" stop-color="#C65F36"/>
     </linearGradient>
   </defs>
 
@@ -32,46 +32,46 @@
   <rect width="1200" height="800" fill="url(#e-rim)"/>
 
   <!-- Contact shadow + back card, so the stack reads as real objects. -->
-  <ellipse cx="600" cy="626" rx="312" ry="48" fill="#030906" opacity="0.62"/>
+  <ellipse cx="600" cy="626" rx="312" ry="48" fill="#050E0A" opacity="0.62"/>
   <g transform="rotate(-8 600 400)" opacity="0.55">
-    <rect x="328" y="242" width="544" height="344" rx="34" fill="#1b2f26"/>
-    <rect x="328" y="242" width="544" height="344" rx="34" fill="none" stroke="#3f6653" stroke-width="3"/>
+    <rect x="328" y="242" width="544" height="344" rx="34" fill="#143024"/>
+    <rect x="328" y="242" width="544" height="344" rx="34" fill="none" stroke="#3F5A4C" stroke-width="3"/>
   </g>
 
   <!-- Front card. -->
   <g transform="rotate(-8 600 400)">
-    <rect x="318" y="222" width="562" height="356" rx="36" fill="#0f1e17" opacity="0.5"/>
+    <rect x="318" y="222" width="562" height="356" rx="36" fill="#0E2018" opacity="0.5"/>
     <rect x="314" y="214" width="562" height="356" rx="36" fill="url(#e-card)"/>
-    <rect x="314" y="214" width="562" height="356" rx="36" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>
+    <rect x="314" y="214" width="562" height="356" rx="36" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="2"/>
 
     <!-- Specular sweep across the top-left. -->
-    <path d="M314 214 L614 214 L420 570 L314 570 Z" fill="#ffffff" opacity="0.22"/>
+    <path d="M314 214 L614 214 L420 570 L314 570 Z" fill="#FFFFFF" opacity="0.22"/>
 
     <!-- Brushed-metal contact chip: raised with a dark bezel + bright edge so
          it reads as an embedded chip, not a flat rectangle. -->
-    <rect x="356" y="266" width="86" height="66" rx="14" fill="#0d1a14" opacity="0.85"/>
+    <rect x="356" y="266" width="86" height="66" rx="14" fill="#0E2018" opacity="0.85"/>
     <rect x="360" y="270" width="78" height="58" rx="12" fill="url(#e-chip)"/>
-    <rect x="360" y="270" width="78" height="58" rx="12" fill="none" stroke="#7a5314" stroke-opacity="0.9" stroke-width="2.5"/>
-    <g fill="#7a5314" opacity="0.5">
+    <rect x="360" y="270" width="78" height="58" rx="12" fill="none" stroke="#3A4A3F" stroke-opacity="0.9" stroke-width="2.5"/>
+    <g fill="#3A4A3F" opacity="0.5">
       <rect x="372" y="282" width="24" height="13" rx="3"/>
       <rect x="402" y="282" width="24" height="13" rx="3"/>
       <rect x="372" y="303" width="54" height="13" rx="3"/>
     </g>
 
     <!-- Contactless waves. -->
-    <g fill="none" stroke="#35614a" stroke-linecap="round" stroke-width="8">
+    <g fill="none" stroke="#3F5A4C" stroke-linecap="round" stroke-width="8">
       <path d="M690 282 a88 88 0 0 1 0 122" opacity="0.95"/>
       <path d="M724 258 a138 138 0 0 1 0 170" opacity="0.7"/>
       <path d="M758 234 a188 188 0 0 1 0 218" opacity="0.45"/>
     </g>
 
     <!-- Brand wordmark, kept clear of the card edge. -->
-    <text x="360" y="458" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" letter-spacing="7" fill="#24382d">ZEXOR</text>
-    <text x="362" y="494" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="3" fill="#5c7a69">ELITE MATTE · NFC</text>
-    <rect x="362" y="512" width="168" height="4" rx="2" fill="#4e8e6f" opacity="0.85"/>
+    <text x="360" y="458" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" letter-spacing="7" fill="#143024">ZEXOR</text>
+    <text x="362" y="494" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="3" fill="#6B7F73">ELITE MATTE · NFC</text>
+    <rect x="362" y="512" width="168" height="4" rx="2" fill="#6B7F73" opacity="0.85"/>
   </g>
 
   <!-- Mint accent chip, echoing the brand mark. -->
-  <circle cx="920" cy="196" r="12" fill="#a6e6c4"/>
-  <circle cx="954" cy="196" r="6" fill="#e6a68e"/>
+  <circle cx="920" cy="196" r="12" fill="#A9E5C0"/>
+  <circle cx="954" cy="196" r="6" fill="#F3935F"/>
 </svg>

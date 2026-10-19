@@ -533,8 +533,13 @@ export async function saveSiteSettings(settings: SiteSettings): Promise<boolean>
       ([key, value]) => ({ key, value, updated_at: new Date().toISOString() }),
     );
     const { error } = await supabase.from('site_settings').upsert(rows, { onConflict: 'key' });
-    return !error;
-  } catch {
+    if (error) {
+      console.error('Could not save site settings:', error.message);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Could not save site settings:', error);
     return false;
   }
 }

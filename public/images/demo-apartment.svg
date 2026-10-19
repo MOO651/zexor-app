@@ -3,33 +3,33 @@
     <!-- Golden-hour sky: a warm horizon rather than a flat night silhouette,
          which is what made this read as a diagram instead of a photograph. -->
     <linearGradient id="a-sky" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#5b7f92"/>
-      <stop offset="38%" stop-color="#9db3a6"/>
-      <stop offset="72%" stop-color="#e0c9a8"/>
-      <stop offset="100%" stop-color="#f0d9b8"/>
+      <stop offset="0%" stop-color="#1F6B4F"/>
+      <stop offset="38%" stop-color="#A9E5C0"/>
+      <stop offset="72%" stop-color="#EFE9DA"/>
+      <stop offset="100%" stop-color="#F3935F"/>
     </linearGradient>
     <linearGradient id="a-facade" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#fdfbf6"/>
-      <stop offset="30%" stop-color="#e9dfcd"/>
-      <stop offset="68%" stop-color="#c0b39c"/>
-      <stop offset="100%" stop-color="#8d8471"/>
+      <stop offset="0%" stop-color="#FBF8F1"/>
+      <stop offset="30%" stop-color="#E2DBC9"/>
+      <stop offset="68%" stop-color="#8DB8A0"/>
+      <stop offset="100%" stop-color="#3F5A4C"/>
     </linearGradient>
     <linearGradient id="a-side" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5d8369"/>
-      <stop offset="100%" stop-color="#294a37"/>
+      <stop offset="0%" stop-color="#6B7F73"/>
+      <stop offset="100%" stop-color="#164534"/>
     </linearGradient>
     <radialGradient id="a-sun" cx="76%" cy="20%" r="38%">
-      <stop offset="0%" stop-color="#f7e2d1" stop-opacity="0.46"/>
-      <stop offset="100%" stop-color="#f7e2d1" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#F3935F" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#F3935F" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="a-ground" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#6d8a5c"/>
-      <stop offset="45%" stop-color="#46603c"/>
-      <stop offset="100%" stop-color="#25371f"/>
+      <stop offset="0%" stop-color="#3F5A4C"/>
+      <stop offset="45%" stop-color="#164534"/>
+      <stop offset="100%" stop-color="#07130E"/>
     </linearGradient>
     <linearGradient id="a-warm" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f6e0c8" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#f6e0c8" stop-opacity="0.35"/>
+      <stop offset="0%" stop-color="#F3935F" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#F3935F" stop-opacity="0.08"/>
     </linearGradient>
   </defs>
 
@@ -37,7 +37,7 @@
   <rect width="1200" height="800" fill="url(#a-sun)"/>
 
   <!-- background towers -->
-  <g opacity="0.32" fill="#5f8a73">
+  <g opacity="0.32" fill="#1F6B4F">
     <rect x="30" y="300" width="96" height="320"/>
     <rect x="150" y="360" width="74" height="260"/>
     <rect x="1030" y="280" width="104" height="340"/>
@@ -46,10 +46,10 @@
   <!-- main tower, three-quarter view -->
   <rect x="330" y="130" width="420" height="500" rx="10" fill="url(#a-facade)"/>
   <rect x="750" y="170" width="180" height="460" rx="8" fill="url(#a-side)"/>
-  <rect x="300" y="606" width="660" height="26" rx="8" fill="#7ea08c"/>
+  <rect x="300" y="606" width="660" height="26" rx="8" fill="#8DB8A0"/>
 
   <!-- window grid on facade -->
-  <g fill="#1d3a2c" opacity="0.72">
+  <g fill="#164534" opacity="0.72">
     <rect x="364" y="164" width="62" height="40" rx="4"/><rect x="454" y="164" width="62" height="40" rx="4"/><rect x="544" y="164" width="62" height="40" rx="4"/><rect x="634" y="164" width="62" height="40" rx="4"/>
     <rect x="364" y="232" width="62" height="40" rx="4"/><rect x="454" y="232" width="62" height="40" rx="4"/><rect x="544" y="232" width="62" height="40" rx="4"/><rect x="634" y="232" width="62" height="40" rx="4"/>
     <rect x="364" y="300" width="62" height="40" rx="4"/><rect x="454" y="300" width="62" height="40" rx="4"/><rect x="544" y="300" width="62" height="40" rx="4"/><rect x="634" y="300" width="62" height="40" rx="4"/>
@@ -66,7 +66,7 @@
   </g>
 
   <!-- side wing windows -->
-  <g fill="#102319" opacity="0.62">
+  <g fill="#07130E" opacity="0.62">
     <rect x="778" y="210" width="46" height="32" rx="3"/><rect x="844" y="210" width="46" height="32" rx="3"/>
     <rect x="778" y="272" width="46" height="32" rx="3"/><rect x="844" y="272" width="46" height="32" rx="3"/>
     <rect x="778" y="334" width="46" height="32" rx="3"/><rect x="844" y="334" width="46" height="32" rx="3"/>
@@ -76,12 +76,12 @@
   <rect x="844" y="334" width="46" height="32" rx="3" fill="url(#a-warm)"/>
 
   <!-- roof crown -->
-  <rect x="348" y="112" width="384" height="22" rx="6" fill="#8fb8a2"/>
+  <rect x="348" y="112" width="384" height="22" rx="6" fill="#8DB8A0"/>
 
   <!-- landscaped ground + pool reflection -->
   <path d="M0 632 L1200 632 L1200 800 L0 800 Z" fill="url(#a-ground)"/>
-  <ellipse cx="600" cy="742" rx="440" ry="44" fill="#a6e6c4" opacity="0.1"/>
-  <g opacity="0.5" fill="#3f6653">
+  <ellipse cx="600" cy="742" rx="440" ry="44" fill="#A9E5C0" opacity="0.1"/>
+  <g opacity="0.5" fill="#3F5A4C">
     <rect x="80" y="690" width="120" height="14" rx="7"/>
     <rect x="1000" y="690" width="120" height="14" rx="7"/>
   </g>

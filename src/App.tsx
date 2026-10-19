@@ -46,6 +46,10 @@ import {
 } from './data/initialData';
 import { HomeHero, TiltCard } from './components/HomeHero';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
+import { NfcChapter } from './scenes/NfcChapter';
+import { FashionLookbook } from './scenes/FashionLookbook';
+import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
+import { StudioChapter } from './scenes/StudioChapter';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
@@ -71,6 +75,8 @@ import { DepartmentBanner } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
+import { PORTALS } from './data/portals';
+import { useSiteContent } from './lib/siteMediaContext';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   blankPaymentMethod,
@@ -179,6 +185,17 @@ function readStorage<T>(key: string, fallback: T, isValid?: (value: unknown) => 
     return fallback;
   }
 }
+
+function detectPreferredTheme(): 'light' | 'dark' {
+  const stored = readStorage<unknown>(STORAGE.theme, null);
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function isValidTheme(value: unknown): value is 'light' | 'dark' {
+  return value === 'light' || value === 'dark';
+}
+
 // Lets useStoredState tell the caller when persistence fails (quota exceeded or
 // storage disabled in private mode) so the UI can warn instead of silently losing data.
 type StorageWriteHandler = (failed: boolean) => void;
@@ -302,8 +319,8 @@ function PriceTag({
 function RouteFallback({ label }: { label: string }) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-      <span className="h-10 w-10 animate-spin rounded-full border-2 border-[#cfe3d8] border-t-[#35614a]" />
-      <p className="text-xs font-semibold text-[#6c7d73]">{label}</p>
+      <span className="h-10 w-10 animate-spin rounded-full border-2 border-zx-border border-t-zx-accent" />
+      <p className="text-xs font-semibold text-zx-text">{label}</p>
     </div>
   );
 }
@@ -311,22 +328,102 @@ function RouteFallback({ label }: { label: string }) {
 function LogoMark({ compact = false, logoUrl = '' }: { compact?: boolean; logoUrl?: string }) {
   return (
     <span
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-[1.15rem] border border-white/80 bg-linear-to-br from-[#f5ffff] via-[#e5f8f3] to-[#f1eaff] shadow-md ${
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-[1.15rem] border border-zx-border/80 bg-linear-to-br from-zx-surface-raised via-zx-mint to-zx-mint shadow-md ${
         compact ? 'h-9 w-9 rounded-xl' : 'h-12 w-12'
       }`}
     >
       {logoUrl ? (
-        <img alt="" aria-hidden="true" className="relative z-10 h-full w-full object-contain p-1" src={publicAssetUrl(logoUrl)} />
+        <img alt="" aria-hidden="true" className="relative z-10 h-full w-full object-contain p-1" data-no-photo-grade="true" src={publicAssetUrl(logoUrl)} />
       ) : (
         <svg aria-hidden="true" className="relative z-10 h-[76%] w-[76%]" fill="none" viewBox="0 0 48 48">
-          <path d="M12 14.5h24L12 33.5h24" stroke="#344F47" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5.5" />
-          <path d="M35.5 11.5a17 17 0 0 1 3.7 5.2M12.1 36.5a17 17 0 0 1-3.4-5.1" stroke="#77CDB5" strokeLinecap="round" strokeWidth="2.5" />
-          <circle cx="36" cy="12" r="3" fill="#A986E8" />
-          <circle cx="12" cy="36" r="2.2" fill="#E6A68E" />
+          <path d="M12 14.5h24L12 33.5h24" stroke="var(--zx-text-secondary)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="5.5" />
+          <path d="M35.5 11.5a17 17 0 0 1 3.7 5.2M12.1 36.5a17 17 0 0 1-3.4-5.1" stroke="var(--zx-accent)" strokeLinecap="round" strokeWidth="2.5" />
+          <circle cx="36" cy="12" r="3" fill="var(--zx-mint)" />
+          <circle cx="12" cy="36" r="2.2" fill="var(--zx-mint)" />
         </svg>
       )}
-      <span aria-hidden="true" className="absolute -right-2 -top-3 h-8 w-8 rounded-full bg-white/75 blur-md" />
+      <span aria-hidden="true" className="absolute -right-2 -top-3 h-8 w-8 rounded-full bg-zx-surface-raised/75 blur-md" />
     </span>
+  );
+}
+
+function DesktopPointerEffects({ locale }: { locale: Locale }) {
+  const dotRef = useRef<HTMLSpanElement>(null);
+  const ringRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (!pointerQuery.matches) return undefined;
+
+    const body = document.body;
+    let activeMagnet: HTMLElement | null = null;
+    body.classList.add('zx-custom-cursor-enabled');
+
+    const resetMagnet = () => {
+      activeMagnet?.style.removeProperty('translate');
+      activeMagnet = null;
+    };
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return;
+      const { clientX, clientY } = event;
+      const position = `translate3d(${clientX}px, ${clientY}px, 0) translate(-50%, -50%)`;
+      if (dotRef.current) dotRef.current.style.transform = position;
+      if (ringRef.current) {
+        ringRef.current.style.transform = position;
+        ringRef.current.dataset.view = event.target instanceof Element
+          && Boolean(event.target.closest('[data-cursor="view"]'))
+          ? 'true'
+          : 'false';
+      }
+      body.classList.add('zx-custom-cursor-visible');
+
+      const target = event.target instanceof Element ? event.target : null;
+      const magnet = target?.closest<HTMLElement>(
+        '.zx-magnetic, .zx-app-shell button.bg-zx-cinematic, .zx-app-shell a.bg-zx-cinematic',
+      ) ?? null;
+      if (magnet !== activeMagnet) {
+        resetMagnet();
+        activeMagnet = magnet;
+      }
+      if (magnet) {
+        const rect = magnet.getBoundingClientRect();
+        const offsetX = ((clientX - rect.left) / rect.width - 0.5) * 8;
+        const offsetY = ((clientY - rect.top) / rect.height - 0.5) * 8;
+        magnet.style.setProperty('translate', `${offsetX}px ${offsetY}px`);
+      }
+    };
+    const onPointerDown = () => {
+      if (ringRef.current) ringRef.current.dataset.down = 'true';
+    };
+    const onPointerUp = () => {
+      if (ringRef.current) ringRef.current.dataset.down = 'false';
+    };
+    const onPointerLeave = () => {
+      body.classList.remove('zx-custom-cursor-visible');
+      resetMagnet();
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointerleave', onPointerLeave);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointerleave', onPointerLeave);
+      body.classList.remove('zx-custom-cursor-enabled', 'zx-custom-cursor-visible');
+      resetMagnet();
+    };
+  }, []);
+
+  return (
+    <div aria-hidden="true" className="zx-desktop-cursor">
+      <span className="zx-custom-cursor-dot" ref={dotRef} />
+      <span className="zx-custom-cursor-ring" data-down="false" data-view="false" ref={ringRef}>
+        <span>{locale === 'ar' ? 'عرض' : 'View'}</span>
+      </span>
+    </div>
   );
 }
 
@@ -352,7 +449,7 @@ export default function App() {
   const [categories, setCategories] = useStoredState<DynamicCategory[]>(STORAGE.categories, INITIAL_CATEGORIES, isValidObjectArray);
   const [cart, setCart] = useStoredState<CartLine[]>(STORAGE.cart, [], isValidObjectArray);
   const [orders, setOrders] = useStoredState<CustomerOrder[]>(STORAGE.orders, [], isValidObjectArray);
-  const [theme, setTheme] = useStoredState<'light' | 'dark'>(STORAGE.theme, 'light');
+  const [theme, setTheme] = useStoredState<'light' | 'dark'>(STORAGE.theme, detectPreferredTheme(), isValidTheme);
   const [wishlist, setWishlist] = useStoredState<string[]>(STORAGE.wishlist, []);
   const [inbox, setInbox] = useStoredState<PlatformInquiry[]>(STORAGE.inbox, [], isValidObjectArray);
   const [promoCodes, setPromoCodes] = useStoredState<PromoCode[]>(STORAGE.promoCodes, [
@@ -548,6 +645,12 @@ export default function App() {
     () => normalizeLegacySectionTitles(mergeSettings(DEFAULT_SETTINGS, settings)),
     [settings],
   );
+  const { content: siteContent, getText: getResolvedSiteText } = useSiteContent();
+  const getSiteText = (key: string, language: Locale) => (
+    siteContent[key]?.source === 'published'
+      ? getResolvedSiteText(key, language)
+      : null
+  );
 
   const [route, setRoute] = useState<Route>(pageFromHash);
   useEffect(() => {
@@ -555,10 +658,12 @@ export default function App() {
     if (!('IntersectionObserver' in window)) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        entry.target.classList.toggle('is-visible', entry.isIntersecting);
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -28px 0px' });
-    const selector = '.zx-app-shell > main section, .zx-home-flow > section, .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
+    const selector = '.zx-app-shell > main section:not(.five-windows-scene):not(.nfc-one-touch-scene):not(.zx-lookbook-scene):not(.studio-chapter):not(.cars-chapter):not(.estate-chapter), .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
     let order = 0;
     const observeTargets = (root: ParentNode) => {
       if (root instanceof HTMLElement && root.matches(selector) && !root.classList.contains('zx-reveal')) {
@@ -586,6 +691,41 @@ export default function App() {
       mutations.disconnect();
     };
   }, [route]);
+
+  useEffect(() => {
+    const appRoot = document.querySelector('.zx-app-shell');
+    if (!appRoot) return undefined;
+
+    const markImageReady = (image: HTMLImageElement) => {
+      if (image.complete) image.dataset.loaded = 'true';
+    };
+    const handleImageLoad = (event: Event) => {
+      if (event.target instanceof HTMLImageElement) event.target.dataset.loaded = 'true';
+    };
+    const handleImageError = (event: Event) => {
+      if (event.target instanceof HTMLImageElement) event.target.dataset.loaded = 'true';
+    };
+    const markAddedImages = (node: Node) => {
+      if (!(node instanceof Element)) return;
+      if (node instanceof HTMLImageElement) markImageReady(node);
+      node.querySelectorAll('img').forEach(markImageReady);
+    };
+
+    appRoot.querySelectorAll('img').forEach(markImageReady);
+    appRoot.addEventListener('load', handleImageLoad, true);
+    appRoot.addEventListener('error', handleImageError, true);
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach(markAddedImages));
+    });
+    observer.observe(appRoot, { childList: true, subtree: true });
+
+    return () => {
+      appRoot.removeEventListener('load', handleImageLoad, true);
+      appRoot.removeEventListener('error', handleImageError, true);
+      observer.disconnect();
+    };
+  }, []);
+
   const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
@@ -596,6 +736,23 @@ export default function App() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [navigationHidden, setNavigationHidden] = useState(false);
+  const [navigationCompact, setNavigationCompact] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [routeCurtainVisible, setRouteCurtainVisible] = useState(false);
+  const [cartFlight, setCartFlight] = useState<{
+    id: number;
+    src: string;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  } | null>(null);
+  const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const cartFlightSequence = useRef(0);
+  const previousScrollY = useRef(0);
+  const scrollFrame = useRef<number | null>(null);
+  const routeCurtainTimer = useRef<number | null>(null);
   const [toast, setToast] = useState('');
   const cloudSyncWarnings = useRef(new Set<string>());
   const reportCloudSave = useCallback((key: string, saved: boolean, label: string) => {
@@ -638,6 +795,16 @@ export default function App() {
   const isArabic = locale === 'ar';
   const dir = isArabic ? 'rtl' : 'ltr';
 
+  const handleSaveSiteSettings = useCallback(async () => {
+    const saved = await saveSiteSettings(settings);
+    reportCloudSave('settings', saved, isArabic ? 'إعدادات الموقع' : 'site settings');
+    if (saved) {
+      cloudSyncWarnings.current.delete('settings');
+      setToast(isArabic ? 'اتحفظت إعدادات الموقع على قاعدة البيانات.' : 'Site settings saved to the database.');
+    }
+    return saved;
+  }, [isArabic, reportCloudSave, settings]);
+
   // Warn (once) when the browser refuses to persist state, so the user knows
   // their cart/orders are only kept for this session.
   const storageWarning = isArabic
@@ -659,12 +826,40 @@ export default function App() {
     };
   }, [storageWarning]);
 
+  const startRouteCurtain = useCallback(() => {
+    setRouteCurtainVisible(true);
+    if (routeCurtainTimer.current !== null) window.clearTimeout(routeCurtainTimer.current);
+    routeCurtainTimer.current = window.setTimeout(() => {
+      setRouteCurtainVisible(false);
+      routeCurtainTimer.current = null;
+    }, 360);
+  }, []);
+
   const navigate = useCallback((next: Route) => {
     const target = `#${next}`;
+    if (next !== routeFromHash(window.location.hash)) startRouteCurtain();
     if (window.location.hash !== target) window.history.pushState({ route: next }, '', target);
     setRoute(next);
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [startRouteCurtain]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => () => {
+    if (routeCurtainTimer.current !== null) window.clearTimeout(routeCurtainTimer.current);
   }, []);
 
   /*
@@ -942,6 +1137,7 @@ export default function App() {
   useEffect(() => {
     const sync = () => {
       const hash = pageFromHash();
+      if (hash !== route) startRouteCurtain();
       setRoute(hash);
       setMenuOpen(false);
     };
@@ -951,12 +1147,16 @@ export default function App() {
       window.removeEventListener('popstate', sync);
       window.removeEventListener('hashchange', sync);
     };
-  }, []);
+  }, [route, startRouteCurtain]);
 
   useEffect(() => {
-    document.documentElement.lang = locale;
-    document.documentElement.dir = dir;
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    root.lang = locale;
+    root.dir = dir;
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    const themeColor = getComputedStyle(root).getPropertyValue('--zx-bg').trim();
+    if (themeColor) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
     const routeLabels: Record<string, Record<Locale, string>> = {
       home: { ar: 'المتجر واستوديو زكسور', en: 'Store & ZEXOR Studio' },
       cards: categories.find((category) => category.slug === 'cards')?.name ?? { ar: 'زكسور لينك', en: 'ZEXOR LINK' },
@@ -989,15 +1189,10 @@ export default function App() {
     }
   }, [categories, dir, locale, resolvedSettings.brand.name, route, theme]);
 
-  // Paint the admin-controlled brand tokens onto <html> as CSS variables. The
-  // storefront's primary/accent surfaces read these, so a colour change in the
-  // Design tab restyles the live site with no rebuild.
+  // Keep non-colour brand settings live while the storefront uses the shared palette.
   useEffect(() => {
     const root = document.documentElement;
     const { brand } = resolvedSettings;
-    root.style.setProperty('--zx-jade', brand.primary);
-    root.style.setProperty('--zx-jade-bright', brand.accent);
-    root.style.setProperty('--zx-ink-soft', brand.ink);
     root.style.setProperty('--zx-radius', `${brand.radius}rem`);
     root.style.fontSize = `${brand.fontScale * 100}%`;
   }, [resolvedSettings]);
@@ -1019,10 +1214,30 @@ export default function App() {
   }, [toast]);
 
   useEffect(() => {
-    const onScroll = () => setShowBackToTop(window.scrollY > 600);
+    const onScroll = () => {
+      if (scrollFrame.current !== null) return;
+      scrollFrame.current = window.requestAnimationFrame(() => {
+        scrollFrame.current = null;
+        const currentY = window.scrollY;
+        const previousY = previousScrollY.current;
+        const totalScrollable = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollProgress(totalScrollable > 0 ? Math.min(1, Math.max(0, currentY / totalScrollable)) : 0);
+        setShowBackToTop(currentY > 600);
+        setNavigationCompact(currentY > 48);
+        if (currentY < 80) setNavigationHidden(false);
+        else if (Math.abs(currentY - previousY) > 6) setNavigationHidden(currentY > previousY);
+        previousScrollY.current = currentY;
+      });
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (scrollFrame.current !== null) {
+        window.cancelAnimationFrame(scrollFrame.current);
+        scrollFrame.current = null;
+      }
+    };
   }, []);
 
   const effectiveMarketFilter = resolvedSettings.showOtherMarketProducts?.[market] ? 'all' : market;
@@ -1042,6 +1257,31 @@ export default function App() {
     if (product.stock !== undefined && quantityInCart >= product.stock) {
       setToast(isArabic ? 'وصلت للكمية المتاحة من هذا المنتج.' : 'You have reached the available stock for this product.');
       return;
+    }
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && cartButtonRef.current) {
+      const productCard = [...document.querySelectorAll<HTMLElement>('[data-product-id]')]
+        .find((element) => {
+          if (element.dataset.productId !== product.id) return false;
+          const rect = element.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight
+            && rect.right > 0 && rect.left < window.innerWidth;
+        });
+      const image = productCard?.querySelector<HTMLImageElement>('.zx-product-media img');
+      if (image) {
+        const sourceRect = image.getBoundingClientRect();
+        const cartRect = cartButtonRef.current.getBoundingClientRect();
+        if (sourceRect.width > 0 && sourceRect.height > 0) {
+          cartFlightSequence.current += 1;
+          setCartFlight({
+            id: cartFlightSequence.current,
+            src: image.currentSrc || image.src,
+            startX: sourceRect.left + sourceRect.width / 2 - 34,
+            startY: sourceRect.top + sourceRect.height / 2 - 34,
+            endX: cartRect.left + cartRect.width / 2 - 10,
+            endY: cartRect.top + cartRect.height / 2 - 10,
+          });
+        }
+      }
     }
     setCart((current) => {
       const existing = current.find(
@@ -1165,9 +1405,9 @@ export default function App() {
     ];
     if (isDepartmentActive('cards')) items.push({ route: 'cards', label: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK') });
     if (isDepartmentActive('fashion')) items.push({ route: 'fashion', label: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION') });
+    if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO') });
     if (isDepartmentActive('cars')) items.push({ route: 'cars', label: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS') });
     if (isDepartmentActive('property')) items.push({ route: 'property', label: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES') });
-    if (isDepartmentActive('services')) items.push({ route: 'services', label: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO') });
 
     // Dynamic categories created in Admin!
     categories
@@ -1272,6 +1512,10 @@ export default function App() {
       ? currentDynamicDepartment.bannerSlides.map((slide) => ({ title: slide.title[locale] || currentDynamicDepartment.name[locale], text: slide.text[locale] || currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'), image: slide.image || currentDynamicDepartment.bannerImage || art.studioPortal }))
       : [0, 1, 2].map((index) => ({ title: currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale], text: currentDynamicDepartment.bannerText?.[locale] || (isArabic ? `اكتشف اختيارات ${currentDynamicDepartment.name.ar} المصممة لتناسب احتياجك.` : `Explore ${currentDynamicDepartment.name.en}, curated around what you need.`), image: currentDynamicDepartment.bannerImage || dynamicDepartmentProducts[index]?.imageUrl || art.studioPortal }))
     : [];
+  const routeNotFound = ![
+    'home', 'cards', 'fashion', 'services', 'cars', 'property', 'contact',
+    'dashboard', 'admin', 'pricing', 'calculator', 'reviews', 'tracking',
+  ].includes(route) && !currentDynamicDepartment;
   const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
   const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
     const category = departmentFor(slug);
@@ -1300,34 +1544,37 @@ export default function App() {
     if (!children.length) return null;
     return <nav aria-label={isArabic ? 'الأقسام الفرعية' : 'Subcategories'} className="flex flex-wrap gap-2">{[
       { slug: '', name: isArabic ? 'الكل' : 'All' }, ...children.map((category) => ({ slug: category.slug, name: category.name[locale] })),
-    ].map((item) => <button aria-pressed={selectedSubcategories[slug] === item.slug} className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${selectedSubcategories[slug] === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedSubcategories((current) => ({ ...current, [slug]: item.slug }))} type="button">{item.name}<span className="ms-2 opacity-70">{count(item.slug || undefined)}</span></button>)}</nav>;
+    ].map((item) => <button aria-pressed={selectedSubcategories[slug] === item.slug} className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${selectedSubcategories[slug] === item.slug ? 'border-zx-border bg-zx-cinematic text-zx-accent-contrast' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`} key={item.slug || 'all'} onClick={() => setSelectedSubcategories((current) => ({ ...current, [slug]: item.slug }))} type="button">{item.name}<span className="ms-2 opacity-70">{count(item.slug || undefined)}</span></button>)}</nav>;
   };
 
   return (
     <div
-      className="zx-app-shell relative min-h-screen overflow-hidden bg-[#f5f8f7] text-[#304239] transition-colors duration-300 selection:bg-[#d8eee5] selection:text-[#263e33]"
-      data-theme={theme}
+      className="zx-app-shell relative min-h-screen bg-zx-bg text-zx-text transition-colors duration-300 selection:bg-zx-mint selection:text-zx-mint-contrast"
       dir={dir}
       lang={locale}
     >
+      <DesktopPointerEffects locale={locale} />
+      <div aria-hidden="true" className="zx-scroll-progress">
+        <span style={{ width: `${scrollProgress * 100}%` }} />
+      </div>
       {/* Dynamic Background Glow Elements */}
       <div aria-hidden="true" className="zx-ambient pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           animate={{ x: [0, 36, 0], y: [0, 24, 0] }}
-          className="absolute -top-64 inset-s-[4%] h-168 w-2xl rounded-full bg-[#c4f2e9]/70 blur-[130px]"
+          className="absolute -top-64 inset-s-[4%] h-168 w-2xl rounded-full bg-zx-mint/70 blur-[130px]"
           transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
           animate={{ x: [0, -28, 0], y: [0, 34, 0] }}
-          className="absolute top-200 -inset-e-52 h-160 w-160 rounded-full bg-[#f4dced]/55 blur-[140px]"
+          className="absolute top-200 -inset-e-52 h-160 w-160 rounded-full bg-zx-surface/55 blur-[140px]"
           transition={{ duration: 21, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
       {/* 1. Dynamic Announcement Bar */}
       {resolvedSettings.announcementActive && (
-        <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-[#2d493e] px-8 py-2 text-center text-[10px] font-semibold text-white shadow-xs">
-          <Sparkles className="h-3.5 w-3.5 text-[#a8dfc4]" />
+        <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-zx-cinematic px-8 py-2 text-center text-[10px] font-semibold text-zx-accent-contrast shadow-xs">
+          <Sparkles className="h-3.5 w-3.5 text-zx-text-muted" />
           <span>{resolvedSettings.announcementText[locale]}</span>
         </div>
       )}
@@ -1335,17 +1582,21 @@ export default function App() {
       {/* Maintenance notice — shown only when the admin enables it. Distinct
           amber styling so it never reads as the marketing announcement. */}
       {resolvedSettings.maintenanceActive && (
-        <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-[#7a4b12] px-8 py-2 text-center text-[10px] font-semibold text-[#fff4e2] shadow-xs">
+        <div className="relative z-50 flex min-h-9 items-center justify-center gap-2 bg-zx-cinematic px-8 py-2 text-center text-[10px] font-semibold text-zx-text-muted shadow-xs">
           <Clock className="h-3.5 w-3.5" />
           <span>{resolvedSettings.maintenanceText[locale]}</span>
         </div>
       )}
 
       {/* 2. Global Floating Navigation Bar */}
-      <header className="zx-site-header sticky top-2 z-50 px-3 sm:px-6">
+      <header
+        className="zx-site-header sticky top-2 z-50 px-3 sm:px-6"
+        data-hidden={navigationHidden && !menuOpen}
+        data-scrolled={navigationCompact}
+      >
         <nav
           aria-label="Navigation"
-          className="zx-site-nav zx-glass mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-white/90 px-3 shadow-lg sm:px-5"
+          className="zx-site-nav zx-glass mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-zx-border/90 px-3 shadow-lg sm:px-5"
         >
           {/* Logo */}
           <button
@@ -1354,7 +1605,7 @@ export default function App() {
             type="button"
           >
             <LogoMark compact logoUrl={resolvedSettings.brand.logoUrl} />
-            <span className="max-w-[8rem] truncate text-[15px] font-bold tracking-[0.14em] text-[#34483e]">{resolvedSettings.brand.name}</span>
+            <span className="max-w-[8rem] truncate text-[15px] font-bold tracking-[0.14em] text-zx-text">{resolvedSettings.brand.name}</span>
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}
@@ -1363,8 +1614,8 @@ export default function App() {
               <button
                 className={`relative shrink-0 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition-all xl:px-3 ${
                   route === item.route
-                    ? 'bg-[#e7f4ed] text-[#2c5341] shadow-xs'
-                    : 'text-[#6e8076] hover:bg-white/80 hover:text-[#2c4737]'
+                    ? 'bg-zx-mint text-zx-mint-contrast shadow-xs'
+                    : 'text-zx-text hover:bg-zx-surface-raised/80 hover:text-zx-text'
                 }`}
                 key={item.route}
                 onClick={() => navigate(item.route)}
@@ -1373,7 +1624,7 @@ export default function App() {
                 {item.label}
                 {route === item.route && (
                   <motion.span
-                    className="absolute inset-x-3 -bottom-1 h-0.5 rounded-full bg-[#4e8e6f]"
+                    className="absolute inset-x-3 -bottom-1 h-0.5 rounded-full bg-zx-accent"
                     layoutId="active-nav-pill"
                   />
                 )}
@@ -1392,8 +1643,8 @@ export default function App() {
                   aria-haspopup="true"
                   className={`relative flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition-all xl:px-3 ${
                     moreNavItems.some((m) => m.route === route)
-                      ? 'bg-[#e7f4ed] text-[#2c5341] shadow-xs'
-                      : 'text-[#6e8076] hover:bg-white/80 hover:text-[#2c4737]'
+                      ? 'bg-zx-mint text-zx-mint-contrast shadow-xs'
+                      : 'text-zx-text hover:bg-zx-surface-raised/80 hover:text-zx-text'
                   }`}
                   onClick={() => setMoreOpen((o) => !o)}
                   onMouseEnter={() => setMoreOpen(true)}
@@ -1406,7 +1657,7 @@ export default function App() {
                   {moreOpen && (
                     <motion.div
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute end-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-white/90 bg-white/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                      className="absolute end-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-zx-border/90 bg-zx-surface-raised/95 p-1.5 shadow-2xl backdrop-blur-2xl"
                       exit={{ opacity: 0, y: -6 }}
                       initial={{ opacity: 0, y: -6 }}
                     >
@@ -1414,8 +1665,8 @@ export default function App() {
                         <button
                           className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-start text-xs font-semibold transition-colors ${
                             route === item.route
-                              ? 'bg-[#e7f4ed] text-[#2c5341]'
-                              : 'text-[#62776c] hover:bg-[#f2f7f4]'
+                              ? 'bg-zx-mint text-zx-mint-contrast'
+                              : 'text-zx-text hover:bg-zx-mint'
                           }`}
                           key={item.route}
                           onClick={() => {
@@ -1440,7 +1691,7 @@ export default function App() {
             {/* Search */}
             <button
               aria-label={isArabic ? 'بحث في المتجر' : 'Search the store'}
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] md:flex"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text hover:bg-zx-mint md:flex"
               onClick={() => setSearchOpen(true)}
               type="button"
             >
@@ -1450,7 +1701,7 @@ export default function App() {
             {/* Dark / Light Mode Toggle */}
             <button
               aria-label={isArabic ? (theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح') : (theme === 'light' ? 'Enable dark mode' : 'Enable light mode')}
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] sm:flex"
+              className="hidden h-9 w-9 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text hover:bg-zx-mint sm:flex"
               onClick={() => setTheme((curr) => (curr === 'light' ? 'dark' : 'light'))}
               type="button"
             >
@@ -1460,13 +1711,13 @@ export default function App() {
             {/* Wishlist */}
             <button
               aria-label={isArabic ? 'قائمة المفضلة' : 'Wishlist'}
-              className="relative hidden h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] hover:bg-[#edf5f0] md:flex"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text hover:bg-zx-mint md:flex"
               onClick={() => setWishlistOpen(true)}
               type="button"
             >
               <Heart className="h-4 w-4" />
               {wishlist.length > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#c85a6e] px-1 text-[8px] font-bold text-white">
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-zx-accent px-1 text-[8px] font-bold text-zx-accent-contrast">
                   {wishlist.length}
                 </span>
               )}
@@ -1475,19 +1726,19 @@ export default function App() {
             {/* Quick Track Order Button */}
             <button
               aria-label={isArabic ? 'تتبع الطلب' : 'Track order'}
-              className="hidden h-9 items-center gap-1.5 rounded-full border border-[#dfe7e1] bg-white/70 px-3 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0] lg:flex"
+              className="hidden h-9 items-center gap-1.5 rounded-full border border-zx-border bg-zx-surface-raised/70 px-3 text-[10px] font-semibold text-zx-text hover:bg-zx-mint lg:flex"
               onClick={() => setTrackingOpen(true)}
               title={isArabic ? 'تتبع الشحنة' : 'Track Order'}
               type="button"
             >
-              <Truck className="h-3.5 w-3.5 text-[#4e826a]" />
+              <Truck className="h-3.5 w-3.5 text-zx-text" />
               <span className="hidden xl:inline">{isArabic ? 'تتبع طلبك' : 'Track'}</span>
             </button>
 
             {/* Market & Region Switcher */}
             <button
               aria-label={isArabic ? 'تغيير الدولة' : 'Change country'}
-              className="inline-flex min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0]"
+              className="inline-flex min-h-9 items-center gap-1 rounded-full border border-zx-border bg-zx-surface-raised/70 px-2.5 text-[10px] font-semibold text-zx-text hover:bg-zx-mint"
               onClick={() => {
                 const nextMarket: Market = market === 'eg' ? 'ksa' : 'eg';
                 setMarket(nextMarket);
@@ -1501,34 +1752,36 @@ export default function App() {
             {/* Language Switch */}
             <button
               aria-label={isArabic ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
-              className="hidden min-h-9 items-center gap-1 rounded-full border border-[#dfe7e1] bg-white/70 px-2.5 text-[10px] font-semibold text-[#5a6e63] hover:bg-[#edf5f0] sm:inline-flex"
+              className="hidden min-h-9 items-center gap-1 rounded-full border border-zx-border bg-zx-surface-raised/70 px-2.5 text-[10px] font-semibold text-zx-text hover:bg-zx-mint sm:inline-flex"
               onClick={() => setLocale((curr) => (curr === 'ar' ? 'en' : 'ar'))}
               type="button"
             >
-              <Globe2 className="h-3.5 w-3.5 text-[#5e8b75]" />
+              <Globe2 className="h-3.5 w-3.5 text-zx-text" />
               <span className="hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
             </button>
 
             {/* Cart Drawer Button */}
             <button
               aria-label={isArabic ? 'سلة المشتريات' : 'Shopping cart'}
-              className="relative flex h-9 items-center gap-1.5 rounded-full bg-[#314f43] px-3.5 text-[10px] font-semibold text-white shadow-sm hover:bg-[#436e5d]"
+              className="relative flex h-9 items-center gap-1.5 rounded-full bg-zx-cinematic px-3.5 text-[10px] font-semibold text-zx-accent-contrast shadow-sm hover:bg-zx-cinematic"
               onClick={() => setCartOpen(true)}
+              ref={cartButtonRef}
               type="button"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{isArabic ? 'السلة' : 'Cart'}</span>
               {cartCount > 0 && (
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[8px] font-bold text-[#314f43]">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-zx-surface-raised px-1 text-[8px] font-bold text-zx-text">
                   {cartCount}
                 </span>
               )}
             </button>
 
-            {/* Mobile Menu Hamburger */}
+            {/* Full-screen navigation */}
             <button
-              aria-label="Open menu"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dfe7e1] bg-white/70 text-[#697d72] lg:hidden"
+              aria-expanded={menuOpen}
+              aria-label={isArabic ? (menuOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuOpen ? 'Close menu' : 'Open menu')}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text"
               onClick={() => setMenuOpen(!menuOpen)}
               type="button"
             >
@@ -1536,51 +1789,185 @@ export default function App() {
             </button>
           </div>
         </nav>
+      </header>
 
-        {/* Mobile Navigation Drawer */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              animate={{ opacity: 1, y: 0 }}
-              className="mx-auto mt-2 max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-white/95 p-4 shadow-xl backdrop-blur-2xl lg:hidden"
-              exit={{ opacity: 0, y: -8 }}
-              initial={{ opacity: 0, y: -8 }}
-            >
-              <div className="flex flex-col gap-1.5">
-                {navItems.map((item) => (
-                  <button
-                    className={`rounded-2xl px-4 py-3 text-start text-xs font-semibold ${
-                      route === item.route ? 'bg-[#e7f4ed] text-[#2c5341]' : 'text-[#62776c]'
-                    }`}
-                    key={item.route}
-                    onClick={() => navigate(item.route)}
-                    type="button"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-[#e8eee9] pt-3 sm:grid-cols-3">
-                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setSearchOpen(true); setMenuOpen(false); }} type="button"><Search className="h-4 w-4" />{isArabic ? 'بحث' : 'Search'}</button>
-                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">{theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}{isArabic ? 'المظهر' : 'Theme'}</button>
-                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setWishlistOpen(true); setMenuOpen(false); }} type="button"><Heart className="h-4 w-4" />{isArabic ? 'المفضلة' : 'Wishlist'}</button>
-                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => { setTrackingOpen(true); setMenuOpen(false); }} type="button"><Truck className="h-4 w-4" />{isArabic ? 'تتبع الطلب' : 'Track order'}</button>
-                  <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#dfe7e1] bg-white text-xs font-semibold text-[#52685b]" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button"><Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}</button>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            aria-label={isArabic ? 'قائمة الموقع الرئيسية' : 'Main site menu'}
+            aria-modal="true"
+            className="zx-fullscreen-menu fixed inset-0 z-[120] overflow-y-auto bg-zx-bg px-5 py-5 text-zx-text sm:px-9 sm:py-8"
+            dir={dir}
+            exit={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 12 }}
+            role="dialog"
+          >
+            <div className="mx-auto max-w-7xl">
+              <div className="flex items-center justify-between border-b border-zx-border pb-5">
+                <div className="flex items-center gap-3">
+                  <LogoMark compact logoUrl={resolvedSettings.brand.logoUrl} />
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-zx-text-muted">ZEXOR</p>
+                    <p className="text-xs text-zx-text-secondary">{isArabic ? 'كل فصول الحكاية' : 'Explore every chapter'}</p>
+                  </div>
+                </div>
+                <button
+                  aria-label={isArabic ? 'إغلاق القائمة' : 'Close menu'}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised text-zx-text transition-colors hover:bg-zx-mint"
+                  onClick={() => setMenuOpen(false)}
+                  type="button"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 pt-4 sm:hidden">
+                <button className="zx-menu-control" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">
+                  {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                  {isArabic ? 'المظهر' : 'Theme'}
+                </button>
+                <button className="zx-menu-control" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button">
+                  <Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}
+                </button>
+                <button className="zx-menu-control" onClick={() => setMarket((current) => current === 'eg' ? 'ksa' : 'eg')} type="button">
+                  <span>{market === 'eg' ? '🇪🇬' : '🇸🇦'}</span>{market === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'KSA')}
+                </button>
+              </div>
+
+              <div className="grid gap-8 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-12">
+                <nav aria-label={isArabic ? 'روابط الموقع' : 'Site links'} className="flex flex-col">
+                  {[...navItems, ...moreNavItems].map((item, index) => {
+                    const chapterIndex = PORTALS.findIndex((portal) => portal.route === item.route);
+                    return (
+                      <motion.button
+                        animate={{ opacity: 1, x: 0 }}
+                        className={`zx-fullscreen-menu-link flex min-h-14 items-baseline gap-4 border-b border-zx-border py-2 text-start font-semibold transition-colors ${
+                          route === item.route ? 'text-zx-accent' : 'text-zx-text hover:text-zx-accent'
+                        }`}
+                        initial={{ opacity: 0, x: isArabic ? 18 : -18 }}
+                        key={`${item.route}-${item.label}`}
+                        onClick={() => navigate(item.route)}
+                        transition={{ delay: Math.min(index * 0.035, 0.35), duration: 0.3 }}
+                        type="button"
+                      >
+                        <span aria-hidden="true" className="w-8 text-[10px] tracking-widest text-zx-text-muted">
+                          {chapterIndex < 0 ? '' : String(chapterIndex + 1).padStart(2, '0')}
+                        </span>
+                        <span className="text-2xl sm:text-4xl lg:text-[2.7rem]">{item.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </nav>
+
+                <div className="flex flex-col gap-6">
+                  <div>
+                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-zx-text-muted">{isArabic ? 'فصول زكسور' : 'ZEXOR CHAPTERS'}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {PORTALS.filter((portal) => navItems.some((item) => item.route === portal.route)).map((portal) => (
+                        <button
+                          className="zx-menu-portal group relative flex min-h-32 items-end overflow-hidden rounded-2xl border border-zx-border bg-zx-surface text-start sm:min-h-44"
+                          key={portal.route}
+                          onClick={() => navigate(portal.route)}
+                          type="button"
+                        >
+                          <img alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="lazy" src={publicAssetUrl(portal.image)} />
+                          <span className="absolute inset-0 bg-linear-to-t from-zx-footer-bg/90 via-zx-footer-bg/15 to-transparent transition-opacity group-hover:opacity-80" />
+                          <span className="relative z-10 flex w-full items-end justify-between gap-2 p-3 text-zx-footer-text sm:p-4">
+                            <span className="text-sm font-semibold sm:text-base">{navItems.find((item) => item.route === portal.route)?.label}</span>
+                            <span className="text-[10px] tracking-widest">{portal.index}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-4">
+                    <button className="zx-menu-control" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">
+                      {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                      {isArabic ? (theme === 'light' ? 'الوضع الداكن' : 'الوضع الفاتح') : (theme === 'light' ? 'Dark mode' : 'Light mode')}
+                    </button>
+                    <button className="zx-menu-control" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button">
+                      <Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}
+                    </button>
+                    <button className="zx-menu-control" onClick={() => setMarket((current) => current === 'eg' ? 'ksa' : 'eg')} type="button">
+                      <span>{market === 'eg' ? '🇪🇬' : '🇸🇦'}</span>{market === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'Saudi Arabia')}
+                    </button>
+                    <button className="zx-menu-control" onClick={() => { setSearchOpen(true); setMenuOpen(false); }} type="button">
+                      <Search className="h-4 w-4" />{isArabic ? 'بحث' : 'Search'}
+                    </button>
+                    <button className="zx-menu-control" onClick={() => { setWishlistOpen(true); setMenuOpen(false); }} type="button">
+                      <Heart className="h-4 w-4" />{isArabic ? 'المفضلة' : 'Wishlist'}
+                    </button>
+                    <button className="zx-menu-control" onClick={() => { setTrackingOpen(true); setMenuOpen(false); }} type="button">
+                      <Truck className="h-4 w-4" />{isArabic ? 'تتبع الطلب' : 'Track order'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {routeCurtainVisible && (
+          <motion.div
+            animate={{ scaleY: 1 }}
+            aria-hidden="true"
+            className="zx-route-curtain pointer-events-none fixed inset-0 z-[110] origin-top"
+            exit={{ scaleY: 0 }}
+            initial={{ scaleY: 0 }}
+          >
+            <span className="text-2xl font-semibold tracking-[0.28em]">ZEXOR</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {cartFlight && (
+          <motion.img
+            alt=""
+            aria-hidden="true"
+            animate={{ x: cartFlight.endX, y: cartFlight.endY, scale: 0.18, opacity: 0.25 }}
+            className="zx-cart-flight pointer-events-none fixed left-0 top-0 z-[130] h-[4.25rem] w-[4.25rem] rounded-2xl object-cover"
+            initial={{ x: cartFlight.startX, y: cartFlight.startY, scale: 1, opacity: 1 }}
+            key={cartFlight.id}
+            onAnimationComplete={() => setCartFlight((current) => current?.id === cartFlight.id ? null : current)}
+            src={cartFlight.src}
+            transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Main View Router. Lazy route surfaces render inside Suspense so the
           home page ships without them in the initial bundle. */}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
         <Suspense fallback={<RouteFallback label={isArabic ? 'جارٍ التحميل…' : 'Loading…'} />}>
+        {routeNotFound && (
+          <section className="zx-not-found mx-auto flex min-h-[65vh] max-w-5xl flex-col items-start justify-center overflow-hidden rounded-[2rem] border border-zx-border bg-zx-surface p-7 sm:p-12 lg:p-16">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zx-text-muted">ZEXOR · {isArabic ? 'فصل غير موجود' : 'CHAPTER NOT FOUND'}</p>
+            <p aria-hidden="true" className="zx-not-found-number mt-4 text-8xl font-bold leading-none sm:text-[10rem]">404</p>
+            <h1 className="zx-display mt-3 max-w-2xl text-3xl text-zx-text sm:text-5xl">
+              {isArabic ? 'الطريق ده مش موجود في حكايتنا.' : 'This chapter is not in our story.'}
+            </h1>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-zx-text-secondary">
+              {isArabic ? 'الرابط يمكن اتغير أو اتكتب غلط. ارجع للرئيسية أو افتح القائمة واختار الفصل اللي بتدور عليه.' : 'The link may have changed or been entered incorrectly. Return home or open the menu to find your way.'}
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <button className="min-h-11 rounded-full bg-zx-cinematic px-6 text-sm font-semibold text-zx-accent-contrast" onClick={() => navigate('home')} type="button">
+                {isArabic ? 'ارجع للرئيسية' : 'Back to home'}
+              </button>
+              <button className="min-h-11 rounded-full border border-zx-border bg-zx-surface-raised px-6 text-sm font-semibold text-zx-text hover:bg-zx-mint" onClick={() => setMenuOpen(true)} type="button">
+                {isArabic ? 'افتح الفصول' : 'Explore chapters'}
+              </button>
+            </div>
+          </section>
+        )}
         {route === 'home' && (
-          <div className="zx-home-flow space-y-20">
+          <div className="home-page-flow">
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
-              brandName={resolvedSettings.brand.name}
               departmentCount={activeDepartmentCount}
               departmentNames={{
                 cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
@@ -1589,17 +1976,66 @@ export default function App() {
                 cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
                 property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
               }}
-              heroAccent={resolvedSettings.heroAccent[locale]}
+              heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
               heroImage={resolvedSettings.heroImage}
-              heroText={resolvedSettings.heroText[locale]}
-              heroTitle={resolvedSettings.heroTitle[locale]}
+              heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
+              heroTitle={getSiteText('hero.headline', locale) ?? resolvedSettings.heroTitle[locale]}
+              locale={locale}
+              navigate={navigate}
+            />
+
+            <NfcChapter
               locale={locale}
               market={market}
-              navigate={navigate}
-              onMarketChange={(m) => {
-                setMarket(m);
-              }}
+              onDesign={handleOpenNfcCustomizer}
+              onExplore={() => navigate('cards')}
+              product={storefrontProducts.find((product) => product.category === 'cards')}
+              renderPrice={(price, className) => (
+                <PriceTag className={className} price={price} market={market} locale={locale} />
+              )}
             />
+
+            {isDepartmentActive('fashion') && (
+              <FashionLookbook
+                locale={locale}
+                market={market}
+                navigateToFashion={() => navigate('fashion')}
+                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
+                onShare={handleShareProduct}
+                onToggleWishlist={handleToggleWishlist}
+                products={storefrontProducts}
+                renderPrice={(price, className) => (
+                  <PriceTag className={className} price={price} market={market} locale={locale} />
+                )}
+                wishlist={wishlist}
+              />
+            )}
+
+            {isDepartmentActive('services') && (
+              <StudioChapter
+                locale={locale}
+                navigate={navigate}
+                projects={AGENCY_PROJECTS}
+              />
+            )}
+
+            {isDepartmentActive('cars') && (
+              <CarsChapter
+                locale={locale}
+                market={market}
+                navigate={navigate}
+                vehicles={vehicles}
+              />
+            )}
+
+            {isDepartmentActive('property') && (
+              <RealEstateChapter
+                locale={locale}
+                market={market}
+                navigate={navigate}
+                properties={properties}
+              />
+            )}
 
             {/* 2. Department Board — image-driven entry points into every section.
                 The `departments` id is the scroll target for the hero's
@@ -1624,7 +2060,7 @@ export default function App() {
             <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#c4f2e9]/60 blur-3xl"
+                className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
               />
               <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
                 {STATS.map((s, i) => (
@@ -1650,15 +2086,15 @@ export default function App() {
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
-                    <span className="zx-eyebrow text-[#5e8b75]">
+                    <span className="zx-eyebrow text-zx-text">
                       01 / {isArabic ? 'بطاقات الهوية المتصلة' : 'CONNECTED IDENTITY'}
                     </span>
-                    <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
+                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
                       {resolvedSettings.content.cardsTitle[locale]}
                     </h2>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
                     onClick={() => navigate('cards')}
                     type="button"
                   >
@@ -1700,15 +2136,15 @@ export default function App() {
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
-                    <span className="zx-eyebrow text-[#5e8b75]">
+                    <span className="zx-eyebrow text-zx-text">
                       02 / {isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}
                     </span>
-                    <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
+                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
                       {resolvedSettings.content.fashionTitle[locale]}
                     </h2>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
                     onClick={() => navigate('fashion')}
                     type="button"
                   >
@@ -1750,15 +2186,15 @@ export default function App() {
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
-                    <span className="zx-eyebrow text-[#5e8b75]">
+                    <span className="zx-eyebrow text-zx-text">
                       03 / {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}
                     </span>
-                    <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
+                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
                       {resolvedSettings.content.servicesTitle[locale]}
                     </h2>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
                     onClick={() => navigate('services')}
                     type="button"
                   >
@@ -1770,22 +2206,22 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-3">
                   {AGENCY_PROJECTS.map((proj) => (
                     <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
                       intensity={8}
                       key={proj.id}
                     >
-                      <div className="relative aspect-[1.55/1] overflow-hidden bg-[#e0eee5]">
+                      <div className="relative aspect-[1.55/1] overflow-hidden bg-zx-mint">
                         <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(proj.image)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/35 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-2.5 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-zx-cinematic/35 to-transparent" />
+                        <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
                           {proj.category[locale]}
                         </span>
                       </div>
                       <div className="flex min-h-[190px] flex-col p-4 sm:p-5">
-                        <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                        <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6c7d73]">{proj.description[locale]}</p>
+                        <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
+                        <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
                         <a
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-xs transition hover:bg-zx-cinematic"
                           href={proj.demoUrl}
                           rel="noreferrer"
                           target="_blank"
@@ -1805,15 +2241,15 @@ export default function App() {
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
-                    <span className="zx-eyebrow text-[#5e8b75]">
+                    <span className="zx-eyebrow text-zx-text">
                       04 / {isArabic ? 'معرض ومكتب السيارات الفاخرة' : 'CURATED VEHICLES'}
                     </span>
-                    <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
+                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
                       {resolvedSettings.content.carsTitle[locale]}
                     </h2>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
                     onClick={() => navigate('cars')}
                     type="button"
                   >
@@ -1827,40 +2263,40 @@ export default function App() {
                     <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق السيارات' : 'Ask our vehicle team'} description={isArabic ? 'لا توجد سيارات منشورة في المعرض حالياً. فريقنا يساعدك في العثور على خيار الإيجار المناسب.' : 'There are no published vehicles in the showroom right now. Our team can help you find a rental that fits.'} image={art.vehiclesPortal} locale={locale} onAction={() => navigate('cars')} title={isArabic ? 'اختيارك القادم يبدأ من هنا' : 'Your next drive starts here'} />
                   ) : vehicles.map((car) => (
                     <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
                       intensity={8}
                       key={car.id}
                     >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-[#e5eee7]">
+                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
                         <img alt={car.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(car.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/50 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full border border-white/20 bg-black/55 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">{car.id}</span>
-                        <span className="absolute end-3 top-3 rounded-full border border-white/20 bg-[#173b2d]/85 px-2.5 py-1 text-[9px] font-bold text-white backdrop-blur-md">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
+                        <span className="absolute start-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/55 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">{car.id}</span>
+                        <span className="absolute end-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
                           {car.deal === 'Rent' ? isArabic ? 'للإيجار' : 'For rent' : isArabic ? 'للبيع' : 'For sale'}
                         </span>
                       </div>
                       <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-1 text-sm font-bold text-[#2e4437]">{car.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">{car.make}</span>
+                          <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{car.title[locale]}</h3>
+                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
                         </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-[#718478]">{car.location[locale]}</p>
+                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{car.location[locale]}</p>
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {[String(car.year), car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : (isArabic ? 'مانيوال' : 'Manual'), car.body].map((spec) => (
-                            <span className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]" key={spec}>
+                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>
                               {isArabic ? ({ Sedan: 'سيدان', SUV: 'دفع رباعي', Coupe: 'كوبيه' } as Record<string, string>)[spec] ?? spec : spec}
                             </span>
                           ))}
                         </div>
-                        <div className="mt-4 border-t border-[#edf1ee] pt-3">
-                          <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-[#2d4838]">
+                        <div className="mt-4 border-t border-zx-border pt-3">
+                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
+                          <p className="zx-display mt-1 text-lg text-zx-text">
                             {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                            {car.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-[#718478]">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
+                            {car.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
                           </p>
                         </div>
                         <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] text-xs font-semibold text-white transition hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
                           onClick={() => {
                             const msg = isArabic
                               ? `${car.deal === 'Rent' ? 'طلب استئجار' : 'طلب حجز معاينة للسيارة'} ${car.id}: ${car.title.ar}`
@@ -1884,15 +2320,15 @@ export default function App() {
               <section className="space-y-6">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                   <div>
-                    <span className="zx-eyebrow text-[#5e8b75]">
+                    <span className="zx-eyebrow text-zx-text">
                       05 / {isArabic ? 'قسم العقارات والمساحات' : 'PRIME REAL ESTATE'}
                     </span>
-                    <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">
+                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
                       {resolvedSettings.content.propertyTitle[locale]}
                     </h2>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
                     onClick={() => navigate('property')}
                     type="button"
                   >
@@ -1906,42 +2342,42 @@ export default function App() {
                     <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق العقارات' : 'Ask our property team'} description={isArabic ? 'لا توجد مساحات منشورة حالياً. أخبرنا بما تبحث عنه وسنساعدك في العثور على إيجار مناسب.' : 'There are no published spaces right now. Tell us what you need and we will help find a suitable rental.'} image={art.estatePortal} locale={locale} onAction={() => navigate('property')} title={isArabic ? 'مساحة تناسب خطوتك القادمة' : 'Find room for what comes next'} />
                   ) : properties.map((prop) => (
                     <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
+                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
                       intensity={8}
                       key={prop.id}
                     >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-[#e5eee7]">
+                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
                         <img alt={prop.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(prop.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/50 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
+                        <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                           {prop.id}
                         </span>
-                        <span className="absolute end-3 top-3 rounded-full bg-[#314f43] px-2.5 py-1 text-[8px] font-semibold text-white">
+                        <span className="absolute end-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
                           {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
                         </span>
                       </div>
                       <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-[#2e4437]">{prop.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">
+                          <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-zx-text">{prop.title[locale]}</h3>
+                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">
                             {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
                           </span>
                         </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-[#718478]">{prop.location[locale]}</p>
+                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{prop.location[locale]}</p>
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {[`${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`, prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''].filter(Boolean).map((spec) => (
-                            <span className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2 py-1 text-[9px] font-semibold text-[#4b6d5b]" key={spec}>{spec}</span>
+                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>{spec}</span>
                           ))}
                         </div>
-                        <div className="mt-4 border-t border-[#edf1ee] pt-3">
-                          <span className="block text-[9px] font-semibold text-[#839188]">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-[#2d4838]">
+                        <div className="mt-4 border-t border-zx-border pt-3">
+                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
+                          <p className="zx-display mt-1 text-lg text-zx-text">
                             {money(prop.price, prop.region === 'Riyadh' || prop.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                          {prop.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-[#718478]">{isArabic ? 'إيجار' : 'rent'}</span>}
+                          {prop.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">{isArabic ? 'إيجار' : 'rent'}</span>}
                           </p>
                         </div>
                         <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] text-xs font-semibold text-white transition hover:bg-[#436e5d]"
+                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
                           onClick={() => navigate('property')}
                           type="button"
                         >
@@ -1981,21 +2417,21 @@ export default function App() {
             />
 
             {/* 9. Section 07: High-Impact Call to Action */}
-            <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#20372d] to-[#121c17] p-8 text-white shadow-2xl sm:p-14">
+            <section className="relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 text-zx-accent-contrast shadow-2xl sm:p-14">
               <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
                 <div className="max-w-xl">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#72ce9f]">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
                     {isArabic ? 'ابدأ خطوتك القادمة الآن' : 'YOUR NEXT MOVE STARTS HERE'}
                   </span>
                   <h2 className="mt-2 text-3xl font-extrabold sm:text-5xl">
                     {resolvedSettings.content.ctaTitle[locale]}
                   </h2>
-                  <p className="mt-3 text-xs leading-6 text-white/75 sm:text-sm">
+                  <p className="mt-3 text-xs leading-6 text-zx-accent-contrast/75 sm:text-sm">
                     {resolvedSettings.content.ctaText[locale]}
                   </p>
                 </div>
                 <a
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-xs font-bold text-[#1f382c] shadow-lg transition-all hover:bg-[#a6e6c4]"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-zx-surface-raised px-8 text-xs font-bold text-zx-text shadow-lg transition-all hover:bg-zx-accent"
                   href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
                     isArabic ? 'مرحباً ZEXOR، أود بدء محادثة ومناقشة مشروع جديد.' : 'Hello ZEXOR, I want to start a new project.',
                   )}`}
@@ -2020,7 +2456,7 @@ export default function App() {
 
               {/* Direct Customize CTA */}
               <button
-                className="flex items-center gap-2 rounded-full bg-[#314f43] px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#436e5d]"
+                className="flex items-center gap-2 rounded-full bg-zx-cinematic px-5 py-2.5 text-xs font-bold text-zx-accent-contrast shadow-md hover:bg-zx-cinematic"
                 disabled={!storefrontProducts.some((product) => product.category === 'cards')}
                 onClick={() => {
                   const product = storefrontProducts.find((item) => item.category === 'cards');
@@ -2069,7 +2505,7 @@ export default function App() {
               <nav aria-label={isArabic ? 'أقسام الأزياء الفرعية' : 'Fashion collections'} className="flex flex-wrap gap-2">
                 <button
                   aria-pressed={!activeSelectedFashionSubcategory}
-                  className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${!activeSelectedFashionSubcategory ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
+                  className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${!activeSelectedFashionSubcategory ? 'border-zx-border bg-zx-cinematic text-zx-accent-contrast shadow-sm' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`}
                   onClick={() => setSelectedSubcategories((current) => ({ ...current, fashion: '' }))}
                   type="button"
                 >
@@ -2081,7 +2517,7 @@ export default function App() {
                   return (
                     <button
                       aria-pressed={active}
-                      className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${active ? 'border-[#263f33] bg-[#263f33] text-white shadow-sm' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`}
+                      className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${active ? 'border-zx-border bg-zx-cinematic text-zx-accent-contrast shadow-sm' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`}
                       key={subcategory.id}
                       onClick={() => setSelectedSubcategories((current) => ({ ...current, fashion: subcategory.slug }))}
                       type="button"
@@ -2121,7 +2557,7 @@ export default function App() {
         {/* Route: Services (Agency, Portfolio, Calculator, Reviews, CV) */}
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
           <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
-          <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
+          <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-zx-text">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
           <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
           <AgencyPortfolio
             locale={locale}
@@ -2181,27 +2617,27 @@ export default function App() {
           <section className="space-y-10">
             <DepartmentBanner locale={locale} name={currentDynamicDepartment.name[locale]} title={currentDynamicDepartment.bannerTitle?.[locale]} text={currentDynamicDepartment.bannerText?.[locale]} image={currentDynamicDepartment.bannerImage} accent={currentDynamicDepartment.bannerAccent} slides={dynamicDepartmentSlides} fallbackImage={art.studioPortal} fallbackTitle={isArabic ? `اكتشف ${currentDynamicDepartment.name.ar}` : `Discover ${currentDynamicDepartment.name.en}`} fallbackText={isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'} />
             <div id="department-content" className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
-              <div className="rounded-[2rem] border border-[#e1ebe5] bg-white p-7 shadow-sm sm:p-9">
-                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#5e8b75]">{isArabic ? 'مساحة هذا القسم' : 'THE DEPARTMENT'}</span>
-                <h2 className="zx-display mt-4 text-2xl font-bold text-[#263f33] sm:text-3xl">{currentDynamicDepartment.name[locale]}</h2>
-                <p className="mt-3 text-sm leading-7 text-[#718278]">{currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'أضف وصفاً وصورة من لوحة الإدارة ليظهر هنا، ثم أضف المنتجات واربطها بالمجموعات المناسبة.' : 'Add a description and image in Admin, then assign products to this department and its collections.')}</p>
+              <div className="rounded-[2rem] border border-zx-border bg-zx-surface-raised p-7 shadow-sm sm:p-9">
+                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'مساحة هذا القسم' : 'THE DEPARTMENT'}</span>
+                <h2 className="zx-display mt-4 text-2xl font-bold text-zx-text sm:text-3xl">{currentDynamicDepartment.name[locale]}</h2>
+                <p className="mt-3 text-sm leading-7 text-zx-text">{currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'أضف وصفاً وصورة من لوحة الإدارة ليظهر هنا، ثم أضف المنتجات واربطها بالمجموعات المناسبة.' : 'Add a description and image in Admin, then assign products to this department and its collections.')}</p>
                 <div className="mt-7 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#eff6f1] px-4 py-2 text-[11px] font-semibold text-[#40604d]">{isArabic ? `${dynamicDepartmentProducts.length} منتج` : `${dynamicDepartmentProducts.length} products`}</span>
-                  <span className="rounded-full bg-[#f7f3eb] px-4 py-2 text-[11px] font-semibold text-[#806746]">{isArabic ? `${dynamicDepartmentChildren.length} مجموعة` : `${dynamicDepartmentChildren.length} collections`}</span>
+                  <span className="rounded-full bg-zx-mint px-4 py-2 text-[11px] font-semibold text-zx-mint-contrast">{isArabic ? `${dynamicDepartmentProducts.length} منتج` : `${dynamicDepartmentProducts.length} products`}</span>
+                  <span className="rounded-full bg-zx-mint px-4 py-2 text-[11px] font-semibold text-zx-mint-contrast">{isArabic ? `${dynamicDepartmentChildren.length} مجموعة` : `${dynamicDepartmentChildren.length} collections`}</span>
                 </div>
               </div>
-              <div className="relative min-h-64 overflow-hidden rounded-[2rem] bg-[#e4eee8] p-6 sm:p-9">
+              <div className="relative min-h-64 overflow-hidden rounded-[2rem] bg-zx-mint p-6 sm:p-9">
                 <img alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 mix-blend-multiply" src={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal)} />
-                <div className="absolute inset-0 bg-linear-to-t from-[#18382f]/85 via-[#18382f]/15 to-transparent" />
-                <div className="relative z-10 flex h-full min-h-52 flex-col justify-end text-white">
-                  <span className="text-[10px] font-bold uppercase tracking-[.2em] text-white/75">ZEXOR COLLECTIONS</span>
+                <div className="absolute inset-0 bg-linear-to-t from-zx-cinematic/85 via-zx-cinematic/15 to-transparent" />
+                <div className="relative z-10 flex h-full min-h-52 flex-col justify-end text-zx-accent-contrast">
+                  <span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-accent-contrast/75">ZEXOR COLLECTIONS</span>
                   <p className="mt-2 text-xl font-semibold">{currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale]}</p>
                 </div>
               </div>
             </div>
-            {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-[#e2ebe5] bg-white p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-[#d6eee2]' : index % 3 === 1 ? 'bg-linear-to-l from-[#f4e8db]' : 'bg-linear-to-l from-[#e5e1f2]'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-[#7b9184]">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-[#293f33]">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-[#f0f5f1] px-3 py-1.5 text-[10px] text-[#567362]">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
+            {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-zx-mint' : index % 3 === 1 ? 'bg-linear-to-l from-zx-mint' : 'bg-linear-to-l from-zx-mint'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-zx-text-secondary">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-zx-text">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-zx-mint px-3 py-1.5 text-[10px] text-zx-mint-contrast">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
             <div className="space-y-5">
-              <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-[#698c77]">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-[#293d32]">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
+              <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-zx-text">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
             </div>
           </section>
@@ -2211,19 +2647,19 @@ export default function App() {
         {route === 'tracking' && (
           <div className="space-y-10">
             <div className="text-center">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text">
                 {isArabic ? 'تتبّع الشحنات' : 'Shipment Tracking'}
               </span>
-              <h1 className="mt-1 text-3xl font-extrabold text-[#293d32]">
+              <h1 className="mt-1 text-3xl font-extrabold text-zx-text">
                 {isArabic ? 'تتبّع طلبك خطوة بخطوة' : 'Follow Your Order Step by Step'}
               </h1>
-              <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-[#6e8076]">
+              <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-zx-text">
                 {isArabic
                   ? 'افتح نافذة التتبع وأدخل رقم طلبك لمتابعة حالة الشحن مباشرة.'
                   : 'Open the tracker and enter your order number to follow your shipment live.'}
               </p>
               <button
-                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#314f43] px-6 text-xs font-bold text-white shadow-md transition-all hover:bg-[#436e5d]"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-zx-cinematic px-6 text-xs font-bold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
                 onClick={() => setTrackingOpen(true)}
                 type="button"
               >
@@ -2244,21 +2680,21 @@ export default function App() {
 
         {/* Route: Contact */}
         {route === 'contact' && (
-          <div className="mx-auto max-w-2xl rounded-3xl border border-white bg-white/90 p-8 shadow-xl">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#5e8b75]">
+          <div className="zx-contact-panel mx-auto max-w-2xl rounded-3xl border border-zx-border bg-zx-surface-raised/90 p-8 shadow-xl">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text">
               {isArabic ? 'تواصل مباشر وسريع' : 'Direct Conversation'}
             </span>
-            <h1 className="mt-1 text-2xl font-bold text-[#283d31]">
+            <h1 className="mt-1 text-2xl font-bold text-zx-text">
               {isArabic ? 'ابدأ محادثة مع فريق ZEXOR' : 'Start a Conversation with Us'}
             </h1>
-            <p className="mt-2 text-xs leading-6 text-[#6c7d73]">
+            <p className="mt-2 text-xs leading-6 text-zx-text">
               {isArabic
                 ? 'شاركنا تفاصيل مشروعك أو طلبك وسنقوم بالرد عليك فوراً وإعداد ملخص متكامل.'
                 : 'Send your project brief, budget and requirements for rapid response.'}
             </p>
 
             <form
-              className="mt-6 space-y-4"
+              className="zx-contact-form mt-6 space-y-4"
               onSubmit={(e) => {
                 e.preventDefault();
                 const form = new FormData(e.currentTarget);
@@ -2299,23 +2735,23 @@ Details: ${details}`;
               }}
             >
               <div>
-                <label className="text-xs font-semibold text-[#405449]">{isArabic ? 'الاسم بالكامل' : 'Full Name'}</label>
-                <input className="mt-1 h-10 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" name="name" required />
+                <label className="text-xs font-semibold text-zx-text" htmlFor="contact-name">{isArabic ? 'الاسم بالكامل' : 'Full Name'}</label>
+                <input autoComplete="name" className="zx-contact-field mt-1 w-full rounded-xl border border-zx-border px-3 text-base outline-none" id="contact-name" name="name" required />
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#405449]">{isArabic ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}</label>
-                <input className="mt-1 h-10 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" name="phone" required type="tel" />
+                <label className="text-xs font-semibold text-zx-text" htmlFor="contact-phone">{isArabic ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}</label>
+                <input autoComplete="tel" className="zx-contact-field mt-1 w-full rounded-xl border border-zx-border px-3 text-base outline-none" id="contact-phone" name="phone" required type="tel" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#405449]">{isArabic ? 'الميزانية التقريبية' : 'Estimated Budget'}</label>
-                <input className="mt-1 h-10 w-full rounded-xl border border-[#dfe7e1] px-3 text-xs outline-none" name="budget" placeholder="EGP / SAR" />
+                <label className="text-xs font-semibold text-zx-text" htmlFor="contact-budget">{isArabic ? 'الميزانية التقريبية' : 'Estimated Budget'}</label>
+                <input className="zx-contact-field mt-1 w-full rounded-xl border border-zx-border px-3 text-base outline-none" id="contact-budget" name="budget" placeholder="EGP / SAR" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#405449]">{isArabic ? 'تفاصيل الطلب أو المشروع' : 'Project Brief'}</label>
-                <textarea className="mt-1 h-24 w-full rounded-xl border border-[#dfe7e1] p-3 text-xs outline-none" name="details" required />
+                <label className="text-xs font-semibold text-zx-text" htmlFor="contact-details">{isArabic ? 'تفاصيل الطلب أو المشروع' : 'Project Brief'}</label>
+                <textarea className="zx-contact-field mt-1 w-full rounded-xl border border-zx-border p-3 text-base outline-none" id="contact-details" name="details" required />
               </div>
               <button
-                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white shadow-md hover:bg-[#436e5d]"
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast shadow-md hover:bg-zx-cinematic"
                 type="submit"
               >
                 <MessageCircle className="h-4 w-4" />
@@ -2353,6 +2789,7 @@ Details: ${details}`;
               onUpdateOrderShipping={handleUpdateCloudOrderShipping}
               onUpdateInquiryStatus={handleUpdateCloudInquiryStatus}
               onToast={(msg) => setToast(msg)}
+              onSaveSettings={handleSaveSiteSettings}
               orders={orders}
               products={products}
               promoCodes={promoCodes}
@@ -2379,25 +2816,25 @@ Details: ${details}`;
             />
             </>
           ) : (
-            <div className="mx-auto max-w-md rounded-3xl border border-white bg-white/90 p-8 shadow-xl">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#edf5f0] text-[#4d7d65]">
+            <div className="mx-auto max-w-md rounded-3xl border border-zx-border bg-zx-surface-raised/90 p-8 shadow-xl">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zx-mint text-zx-mint-contrast">
                 <LockKeyhole className="h-6 w-6" />
               </span>
-              <h2 className="mt-4 text-xl font-bold text-[#2e4437]">
+              <h2 className="mt-4 text-xl font-bold text-zx-text">
                 {isArabic ? 'دخول لوحة تحكم ZEXOR' : 'Studio Administration Access'}
               </h2>
-              <p className="mt-1 text-xs text-[#73857b]">
+              <p className="mt-1 text-xs text-zx-text">
                   {isArabic ? 'سجّل الدخول بحساب الإدارة المعتمد.' : 'Sign in with your authorized administrator account.'}
               </p>
 
               <form className="mt-6 space-y-4" onSubmit={handleAdminLogin}>
                 <div>
-                  <label className="text-xs font-semibold text-[#405449]">
+                  <label className="text-xs font-semibold text-zx-text">
                     {isArabic ? 'البريد الإلكتروني' : 'Email'}
                   </label>
                   <input
                     autoComplete="username"
-                    className="mt-1 h-11 w-full rounded-xl border border-[#dfe7e1] px-4 text-sm outline-none"
+                    className="mt-1 h-11 w-full rounded-xl border border-zx-border px-4 text-sm outline-none"
                     onChange={(e) => setAdminEmail(e.target.value)}
                     required
                     type="email"
@@ -2405,11 +2842,11 @@ Details: ${details}`;
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-[#405449]">
+                  <label className="text-xs font-semibold text-zx-text">
                     {isArabic ? 'كلمة المرور' : 'Password'}
                   </label>
                   <input
-                    className="mt-1 h-11 w-full rounded-xl border border-[#dfe7e1] px-4 text-sm tracking-widest outline-none"
+                    className="mt-1 h-11 w-full rounded-xl border border-zx-border px-4 text-sm tracking-widest outline-none"
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
                     autoComplete="current-password"
@@ -2418,10 +2855,10 @@ Details: ${details}`;
                   />
                 </div>
                 {adminLoginError && (
-                  <p className="text-xs font-medium text-[#b45248]">{adminLoginError}</p>
+                  <p className="text-xs font-medium text-zx-text">{adminLoginError}</p>
                 )}
                 <button
-                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white shadow-md hover:bg-[#436e5d]"
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast shadow-md hover:bg-zx-cinematic"
                   disabled={adminAuthLoading}
                   type="submit"
                 >
@@ -2450,7 +2887,7 @@ Details: ${details}`;
       {/* 3. Floating WhatsApp Widget */}
       <a
         aria-label="Floating WhatsApp"
-        className="zx-float-anchor fixed inset-e-5 z-40 flex h-14 items-center gap-2.5 rounded-full border border-white/70 bg-[#25855a] px-4.5 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#1d734c]"
+        className="zx-float-anchor fixed inset-e-5 z-40 flex h-14 items-center gap-2.5 rounded-full border border-zx-border/70 bg-zx-accent px-4.5 text-zx-accent-contrast shadow-xl transition-all duration-300 hover:scale-105 hover:bg-zx-cinematic"
         href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
           isArabic ? 'مرحباً ZEXOR، أود الاستفسار والتواصل السريع.' : 'Hello ZEXOR, I want to inquire.',
         )}`}
@@ -2469,7 +2906,7 @@ Details: ${details}`;
           <motion.button
             animate={{ opacity: 1, scale: 1 }}
             aria-label={isArabic ? 'العودة للأعلى' : 'Back to top'}
-            className="zx-float-anchor fixed inset-s-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[#35614a] shadow-xl backdrop-blur-md transition-colors hover:bg-[#eef8f2]"
+            className="zx-float-anchor fixed inset-s-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/70 bg-zx-surface-raised/90 text-zx-text shadow-xl backdrop-blur-md transition-colors hover:bg-zx-mint"
             exit={{ opacity: 0, scale: 0.9 }}
             initial={{ opacity: 0, scale: 0.9 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -2483,7 +2920,7 @@ Details: ${details}`;
       {/* 4. Global Search Modal */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-110 flex items-start justify-center bg-black/45 p-4 pt-[10vh] backdrop-blur-xs"
+          className="fixed inset-0 z-110 flex items-start justify-center bg-zx-cinematic/45 p-4 pt-[10vh] backdrop-blur-xs"
           onClick={(e) => {
             if (e.target === e.currentTarget) setSearchOpen(false);
           }}
@@ -2492,9 +2929,9 @@ Details: ${details}`;
           }}
           role="presentation"
         >
-          <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-white bg-white p-5 shadow-2xl">
-            <div className="flex items-center gap-2.5 rounded-2xl border border-[#dfe7e1] px-3.5 py-2">
-              <Search className="h-4 w-4 text-[#758a7e]" />
+          <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised p-5 shadow-2xl">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-zx-border px-3.5 py-2">
+              <Search className="h-4 w-4 text-zx-text" />
               <input
                 autoFocus
                 className="h-8 flex-1 text-xs outline-none"
@@ -2503,14 +2940,14 @@ Details: ${details}`;
                 value={searchQuery}
               />
               <button onClick={() => setSearchOpen(false)} type="button">
-                <X className="h-4 w-4 text-[#758a7e]" />
+                <X className="h-4 w-4 text-zx-text" />
               </button>
             </div>
 
-            <div className="mt-3 max-h-72 divide-y divide-[#edf1ee] overflow-y-auto">
+            <div className="mt-3 max-h-72 divide-y divide-zx-border overflow-y-auto">
               {searchResults.map((res, i) => (
                 <button
-                  className="flex w-full items-center justify-between p-3 text-start hover:bg-[#f2f7f4]"
+                  className="flex w-full items-center justify-between p-3 text-start hover:bg-zx-mint"
                   key={res.title + i}
                   onClick={() => {
                     navigate(res.route);
@@ -2519,14 +2956,14 @@ Details: ${details}`;
                   type="button"
                 >
                   <div>
-                    <h4 className="text-xs font-bold text-[#2e4437]">{res.title}</h4>
-                    <p className="text-[10px] text-[#718478]">{res.desc}</p>
+                    <h4 className="text-xs font-bold text-zx-text">{res.title}</h4>
+                    <p className="text-[10px] text-zx-text">{res.desc}</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-[#5e8b75]" />
+                  <ArrowUpRight className="h-4 w-4 text-zx-text" />
                 </button>
               ))}
               {searchQuery && searchResults.length === 0 && (
-                <p className="py-6 text-center text-xs text-[#829288]">
+                <p className="py-6 text-center text-xs text-zx-text-secondary">
                   {isArabic ? 'لا توجد نتائج مطابقة.' : 'No results found.'}
                 </p>
               )}
@@ -2538,7 +2975,7 @@ Details: ${details}`;
       {/* 5. Wishlist Modal */}
       {wishlistOpen && (
         <div
-          className="fixed inset-0 z-110 flex items-center justify-center bg-black/45 p-4 backdrop-blur-xs"
+          className="fixed inset-0 z-110 flex items-center justify-center bg-zx-cinematic/45 p-4 backdrop-blur-xs"
           onClick={(e) => {
             if (e.target === e.currentTarget) setWishlistOpen(false);
           }}
@@ -2547,17 +2984,17 @@ Details: ${details}`;
           }}
           role="presentation"
         >
-          <div className="w-full max-w-md rounded-3xl border border-white bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-zx-border bg-zx-surface-raised p-6 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-[#2d4236]">
+              <h3 className="text-base font-bold text-zx-text">
                 {isArabic ? 'قائمة الرغبات والمفضلة' : 'Your Wishlist'} ({wishlist.length})
               </h3>
               <button onClick={() => setWishlistOpen(false)} type="button">
-                <X className="h-4 w-4 text-[#758a7e]" />
+                <X className="h-4 w-4 text-zx-text" />
               </button>
             </div>
 
-            <div className="mt-4 max-h-80 divide-y divide-[#edf1ee] overflow-y-auto">
+            <div className="mt-4 max-h-80 divide-y divide-zx-border overflow-y-auto">
               {storefrontProducts
                 .filter((p) => wishlist.includes(p.id))
                 .map((p) => (
@@ -2565,14 +3002,14 @@ Details: ${details}`;
                     <div className="flex items-center gap-3">
                       <img alt={p.name[locale]} className="h-12 w-12 rounded-xl object-cover" src={publicAssetUrl(p.imageUrl)} />
                       <div>
-                        <h4 className="text-xs font-bold text-[#2d4236]">{p.name[locale]}</h4>
-                        <p className="text-[10px] text-[#55826c]">
+                        <h4 className="text-xs font-bold text-zx-text">{p.name[locale]}</h4>
+                        <p className="text-[10px] text-zx-text">
                           {money(p.price[market], market, locale)}
                         </p>
                       </div>
                     </div>
                     <button
-                      className="rounded-full bg-[#314f43] px-3 py-1.5 text-[10px] font-semibold text-white"
+                      className="rounded-full bg-zx-cinematic px-3 py-1.5 text-[10px] font-semibold text-zx-accent-contrast"
                       onClick={() => {
                         handleAddToCart(p);
                         setWishlistOpen(false);
@@ -2584,7 +3021,7 @@ Details: ${details}`;
                   </div>
                 ))}
               {wishlist.length === 0 && (
-                <p className="py-8 text-center text-xs text-[#829288]">
+                <p className="py-8 text-center text-xs text-zx-text-secondary">
                   {isArabic ? 'قائمة المفضلة فارغة حالياً.' : 'Your wishlist is empty.'}
                 </p>
               )}
@@ -2597,14 +3034,14 @@ Details: ${details}`;
         {restockProduct && (
           <motion.div
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-120 flex items-center justify-center bg-[#10251c]/65 p-4 backdrop-blur-md"
+            className="fixed inset-0 z-120 flex items-center justify-center bg-zx-cinematic/65 p-4 backdrop-blur-md"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={(event) => { if (event.target === event.currentTarget) setRestockProduct(null); }}
           >
             <motion.form
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              className="w-full max-w-md overflow-hidden rounded-[1.7rem] border border-white/70 bg-[#fffefa] shadow-2xl"
+              className="w-full max-w-md overflow-hidden rounded-[1.7rem] border border-zx-border/70 bg-zx-surface-raised shadow-2xl"
               exit={{ opacity: 0, y: 14, scale: 0.98 }}
               initial={{ opacity: 0, y: 18, scale: 0.97 }}
               onClick={(event) => event.stopPropagation()}
@@ -2634,19 +3071,19 @@ Details: ${details}`;
                 setToast(isArabic ? 'سجلنا طلب التنبيه. هنتواصل معاك لما المنتج يتوفر.' : 'You are on the restock list. We will contact you when it is available.');
               }}
             >
-              <div className="relative h-36 overflow-hidden bg-[#eaf1eb]">
+              <div className="relative h-36 overflow-hidden bg-zx-mint">
                 <img alt="" className="h-full w-full object-cover opacity-90" src={publicAssetUrl(restockProduct.imageUrl || departmentImage(restockProduct.category))} />
-                <div className="absolute inset-0 bg-linear-to-t from-[#10251c]/80 via-[#10251c]/10 to-transparent" />
-                <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-4 text-white">
-                  <div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-white/70">{isArabic ? 'قائمة التنبيه' : 'RESTOCK ALERT'}</p><h3 className="mt-1 font-bold">{restockProduct.name[locale]}</h3></div>
-                  <button aria-label={isArabic ? 'إغلاق' : 'Close'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-black/20 backdrop-blur" onClick={() => setRestockProduct(null)} type="button"><X className="h-4 w-4" /></button>
+                <div className="absolute inset-0 bg-linear-to-t from-zx-cinematic/80 via-zx-cinematic/10 to-transparent" />
+                <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-4 text-zx-accent-contrast">
+                  <div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-zx-accent-contrast/70">{isArabic ? 'قائمة التنبيه' : 'RESTOCK ALERT'}</p><h3 className="mt-1 font-bold">{restockProduct.name[locale]}</h3></div>
+                  <button aria-label={isArabic ? 'إغلاق' : 'Close'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zx-border/40 bg-zx-cinematic/20 backdrop-blur" onClick={() => setRestockProduct(null)} type="button"><X className="h-4 w-4" /></button>
                 </div>
               </div>
               <div className="space-y-4 p-5 sm:p-6">
-                <p className="text-xs leading-6 text-[#65766b]">{isArabic ? 'سيب بياناتك، وفريقنا هيبلغك أول ما المنتج يرجع متاح.' : 'Leave your details and our team will let you know when this item is available again.'}</p>
-                <label className="block text-[10px] font-semibold text-[#52675a]">{isArabic ? 'الاسم' : 'Name'}<input autoComplete="name" className="mt-1.5 h-11 w-full rounded-xl border border-[#dfe8e1] bg-white px-3 text-sm outline-none transition focus:border-[#5a8a6d] focus:ring-4 focus:ring-[#5a8a6d]/10" maxLength={100} onChange={(event) => setRestockName(event.target.value)} required value={restockName} /></label>
-                <label className="block text-[10px] font-semibold text-[#52675a]">{isArabic ? 'رقم الهاتف' : 'Phone'}<input autoComplete="tel" className="mt-1.5 h-11 w-full rounded-xl border border-[#dfe8e1] bg-white px-3 text-sm outline-none transition focus:border-[#5a8a6d] focus:ring-4 focus:ring-[#5a8a6d]/10" dir="ltr" maxLength={30} onChange={(event) => setRestockPhone(event.target.value)} required type="tel" value={restockPhone} /></label>
-                <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#244b38] px-4 text-xs font-bold text-white shadow-lg shadow-[#244b38]/15 transition hover:bg-[#31654a]" type="submit"><BellRing className="h-4 w-4" />{isArabic ? 'سجلني في قائمة التنبيه' : 'Notify me when available'}</button>
+                <p className="text-xs leading-6 text-zx-text">{isArabic ? 'سيب بياناتك، وفريقنا هيبلغك أول ما المنتج يرجع متاح.' : 'Leave your details and our team will let you know when this item is available again.'}</p>
+                <label className="block text-[10px] font-semibold text-zx-text">{isArabic ? 'الاسم' : 'Name'}<input autoComplete="name" className="mt-1.5 h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-sm outline-none transition focus:border-zx-border focus:ring-4 focus:ring-zx-accent/10" maxLength={100} onChange={(event) => setRestockName(event.target.value)} required value={restockName} /></label>
+                <label className="block text-[10px] font-semibold text-zx-text">{isArabic ? 'رقم الهاتف' : 'Phone'}<input autoComplete="tel" className="mt-1.5 h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-sm outline-none transition focus:border-zx-border focus:ring-4 focus:ring-zx-accent/10" dir="ltr" maxLength={30} onChange={(event) => setRestockPhone(event.target.value)} required type="tel" value={restockPhone} /></label>
+                <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-bold text-zx-accent-contrast shadow-lg shadow-zx-card transition hover:bg-zx-cinematic" type="submit"><BellRing className="h-4 w-4" />{isArabic ? 'سجلني في قائمة التنبيه' : 'Notify me when available'}</button>
               </div>
             </motion.form>
           </motion.div>
@@ -2769,11 +3206,11 @@ Details: ${details}`;
         {toast && (
           <motion.div
             animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 inset-x-0 mx-auto z-120 flex w-fit max-w-sm items-center gap-2 rounded-full border border-white bg-[#1f382c] px-5 py-3 text-xs font-semibold text-white shadow-2xl backdrop-blur-md"
+            className="fixed bottom-6 inset-x-0 mx-auto z-120 flex w-fit max-w-sm items-center gap-2 rounded-full border border-zx-border bg-zx-cinematic px-5 py-3 text-xs font-semibold text-zx-accent-contrast shadow-2xl backdrop-blur-md"
             exit={{ opacity: 0, y: 8 }}
             initial={{ opacity: 0, y: 8 }}
           >
-            <Sparkles className="h-4 w-4 text-[#7cdbb0]" />
+            <Sparkles className="h-4 w-4 text-zx-text-muted" />
             <span>{toast}</span>
           </motion.div>
         )}

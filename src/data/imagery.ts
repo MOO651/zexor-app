@@ -7,19 +7,14 @@
  * studio. Real photographs cannot be generated or downloaded by the codebase, so
  * every slot resolves through this registry instead of being hard-coded:
  *
- * 1. `photos.*` — drop a real photograph into `public/images/` using the exact
- *    filename listed in `PHOTO_FILENAMES` and it is picked up automatically, with
- *    no code change anywhere else.
- * 2. Until a photo is present, the slot falls back to the locally-authored
- *    artwork in `art.*`, so the site never shows a broken image.
- *
- * To swap in your own photography: read `PHOTO_FILENAMES`, save files with those
- * names, refresh. Nothing else to edit.
+ * `photos.*` maps to the bundled photographs in public/images, while `art.*`
+ * maps to locally authored illustration fallbacks. The media center can
+ * override configured site-wide slots when its Supabase migration is applied.
  */
 
 /**
- * The exact filenames to use for real photography. Save your own photo at each
- * path under `public/images/` and it replaces the fallback artwork site-wide.
+ * Bundled photography filenames. Several are illustrative stock images and
+ * must not be presented as photos of specific inventory or owner projects.
  */
 export const PHOTO_FILENAMES = {
   // NFC cards — shoot each finish on a plain surface, top-down.
@@ -30,7 +25,7 @@ export const PHOTO_FILENAMES = {
   // Apparel — flat-lay or on-model, plain background.
   hoodie: 'streetwear-hoodie.jpg',
   tee: 'streetwear-collection.jpg',
-  apparelLifestyle: 'streetwear-collection.jpg',
+  apparelLifestyle: 'streetwear-hoodie.jpg',
   // Digital studio — screenshots of real work, or your desk setup.
   studioWebsite: 'digital-studio.jpg',
   studioStore: 'digital-commerce.jpg',
@@ -49,7 +44,7 @@ export const PHOTO_FILENAMES = {
 
 const IMG = `${import.meta.env.BASE_URL}images/`;
 
-/** Real-photo paths. Replace the underlying files; these paths never change. */
+/** Paths to bundled photography. */
 export const photos = {
   cardsElite: IMG + PHOTO_FILENAMES.cardsElite,
   cardsSocial: IMG + PHOTO_FILENAMES.cardsSocial,

@@ -16,3 +16,13 @@ They are not photos of the exact listed cars or properties.
 See the [Unsplash License](https://unsplash.com/license). Replace these
 illustrative photos with owner-approved listing photos before representing a
 specific vehicle or property to customers.
+
+The other existing photographic files in `public/images/` are not attributed
+in the current repository. Their sources, authors, and licenses need owner
+verification before they are used in a public campaign. Newly uploaded
+non-original assets must have source, author, and license recorded here before
+publishing.
+
+The fashion lifestyle fallback now uses `public/images/streetwear-hoodie.jpg`;
+its source, photographer, and license remain unverified. Product cards use
+locally authored artwork until owner-approved product photographs are supplied.

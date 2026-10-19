@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZEXOR — Redirecting…</title>
+    <title>ZEXOR — جارٍ التحويل</title>
     <script>
       // Single-page-app fallback for static hosts (GitHub Pages, S3, Netlify).
-      // The app uses hash routing, so a deep link like /zexor-app/#cars is served
-      // by index.html; this page catches any stray path and forwards to the root
-      // while preserving the hash fragment.
+      // Keep GitHub Pages' project prefix, but discard any extra path segments.
       (function () {
         var path = window.location.pathname;
         var hash = window.location.hash || '';
-        // Preserve a project subpath (e.g. /zexor-app/) so assets still resolve.
-        var base = path.replace(/\/[^/]*$/, '/');
+        var projectBase = '/zexor-app/';
+        var base = path === '/zexor-app' || path.indexOf(projectBase) === 0
+          ? projectBase
+          : '/';
         window.location.replace(base + hash);
       })();
     </script>
@@ -35,6 +35,6 @@
     </style>
   </head>
   <body>
-    <p>ZEXOR · Redirecting…</p>
+    <p aria-live="polite">ZEXOR · جارٍ التحويل...</p>
   </body>
 </html>

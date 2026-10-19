@@ -4,12 +4,18 @@ body,
   min-height: 100%;
 }
 
+.zx-app-shell {
+  overflow-x: clip;
+}
+
 html {
   background: var(--zx-bg);
   color-scheme: light;
   scroll-behavior: smooth;
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  font-size: clamp(15px, 0.12vw + 14.6px, 16px);
+  scroll-padding-top: 5.5rem;
 }
 
 html[data-theme="dark"] {
@@ -18,11 +24,20 @@ html[data-theme="dark"] {
 
 body {
   margin: 0;
+  min-width: 320px;
   background: var(--zx-bg);
   color: var(--zx-text);
   font-family: var(--zx-font-body);
   line-height: 1.6;
   transition: background-color var(--zx-duration-base) ease, color var(--zx-duration-base) ease;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--zx-font-body);
 }
 
 html:lang(ar),
@@ -32,6 +47,48 @@ html:lang(ar) body {
 
 html:lang(ar) body {
   line-height: var(--zx-leading-arabic);
+}
+
+html:lang(ar) :is(button, input, select, textarea) {
+  font-family: var(--zx-font-arabic);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+figure {
+  margin-block-start: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--zx-text);
+  text-wrap: balance;
+}
+
+p,
+li,
+label {
+  text-wrap: pretty;
+}
+
+small,
+.zx-text-muted {
+  color: var(--zx-text-muted);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--zx-accent) 24%, transparent);
+  color: var(--zx-text);
 }
 
 *,
@@ -82,11 +139,62 @@ html:lang(ar) :is(h1, h2, h3, .zx-display) {
   font-weight: 700;
 }
 
+@media (min-width: 1600px) {
+  .zx-site-nav {
+    min-height: 4.5rem;
+    padding-inline: 1.35rem;
+  }
+}
+
 @media (pointer: coarse) {
   button,
   [role="button"],
   a.zx-tap {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  html {
+    scroll-padding-top: 4.5rem;
+  }
+
+  .zx-site-header {
+    inset-block-start: max(0.4rem, env(safe-area-inset-top, 0px));
+    padding-inline: 0.5rem;
+  }
+
+  .zx-site-nav {
+    min-height: 3.5rem;
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .zx-site-nav > * {
+    min-width: 0;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6, p, li, label) {
+    overflow-wrap: anywhere;
+  }
+
+  .zx-modal-backdrop {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .zx-modal-surface {
+    width: 100%;
+    max-height: min(92dvh, 56rem);
+    border-radius: var(--zx-radius-lg) var(--zx-radius-lg) 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .zx-toast {
+    inset-inline: 0.75rem;
+    max-width: calc(100vw - 1.5rem);
+    border-radius: var(--zx-radius-md);
+    text-align: center;
   }
 }
 

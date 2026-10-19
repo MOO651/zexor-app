@@ -15,12 +15,23 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react-dom') || id.includes('/react/')) return 'react-vendor';
-            if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) {
+          const moduleId = id.replaceAll('\\', '/');
+          if (moduleId.includes('node_modules')) {
+            if (
+              moduleId.includes('/@react-three/')
+              || moduleId.includes('/three/')
+              || moduleId.includes('/three-stdlib/')
+              || moduleId.includes('/troika-')
+              || moduleId.includes('/camera-controls/')
+              || moduleId.includes('/maath/')
+              || moduleId.includes('/meshline/')
+              || moduleId.includes('/suspend-react/')
+            ) return 'webgl-vendor';
+            if (moduleId.includes('react-dom') || moduleId.includes('/react/')) return 'react-vendor';
+            if (moduleId.includes('framer-motion') || moduleId.includes('motion-dom') || moduleId.includes('motion-utils')) {
               return 'motion-vendor';
             }
-            if (id.includes('lucide-react')) return 'icons-vendor';
+            if (moduleId.includes('lucide-react')) return 'icons-vendor';
             return 'vendor';
           }
           return undefined;

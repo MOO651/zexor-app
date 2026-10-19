@@ -1,58 +1,43 @@
-# Adding real photography
+# Adding and managing photography
 
-The site works with the artwork that ships in `public/images/`, but every product
-and section has a **slot reserved for a real photograph**. Drop your own files in
-and they replace the artwork automatically — no code changes.
+The site has two image workflows. Use the admin dashboard for listing-specific
+photos and the media center for shared site sections.
 
-## How it works
+## Product, vehicle and property listings
 
-`src/data/imagery.ts` is the single registry:
+1. Open `#dashboard` and sign in as a store administrator.
+2. Open Products, Vehicles or Real Estate, then add or edit a listing.
+3. Choose an image. The dashboard accepts JPG, PNG, WebP and AVIF files up to
+   20 MB, scales them to at most 1600 px, converts them to WebP and limits the
+   prepared image to 1.5 MB.
+4. Save the listing. The optimized image is stored with the catalog record and
+   synchronized through the configured Supabase database.
 
-- `photos.*` — the path a real photo will live at (e.g. `photo-card-elite.jpg`).
-- `art.*` — the fallback artwork used until that photo exists.
+These listing images are currently stored inline in the catalog data, not in
+Supabase Storage. Keep images optimized; large catalogs with many photos should
+move to Storage URLs before production-scale use.
 
-Right now every slot points at `art.*`. To switch a slot to your photo, open
-`src/data/imagery.ts` and change that one line from `art.<key>` to `photos.<key>`.
+## Shared site photography and media
 
-> If you'd rather keep it zero-config, save your photos with the filenames below
-> and I'll flip the registry over to `photos.*` for you in one pass.
+Use **Dashboard → Media** for hero posters, fashion slots, chapter media, NFC
+previews, textures, bilingual copy and lookbook hotspots. Uploads are saved as
+drafts; publish each draft to make it visible to visitors. Shared media is
+uploaded to the `site-media` Supabase Storage bucket.
 
-## File names and what to shoot
+The media center requires
+`supabase/migrations/20261020_site_media_content.sql`, an authorized
+administrator account, and the `site-media` bucket and policies created by
+that migration. See [the owner guide](./دليل-المالك.md) for first-time setup.
 
-Save each file in `public/images/`. Recommended: **JPG, 1600×1000 (landscape), under 300 KB.**
+## Local fallbacks and photography requirements
 
-| File name | What to shoot |
-|---|---|
-| `photo-card-elite.jpg` | The pearl/matte NFC card, top-down on a plain surface |
-| `photo-card-social.jpg` | The mint NFC card, top-down |
-| `photo-card-bespoke.jpg` | The rose/gold NFC card, top-down |
-| `photo-card-lifestyle.jpg` | A hand holding a card toward a phone (tap moment) |
-| `photo-hoodie.jpg` | The heavyweight hoodie — flat-lay or on a model |
-| `photo-tee.jpg` | The oversized tee — flat-lay or on a model |
-| `photo-apparel-lifestyle.jpg` | Streetwear worn on location |
-| `photo-studio-website.jpg` | A screenshot of a site you built, on a laptop |
-| `photo-studio-store.jpg` | An e-commerce store you built |
-| `photo-studio-workspace.jpg` | Your actual desk / studio |
-| `photo-vehicle-sedan.jpg` | Sedan, 3/4 front, clean background |
-| `photo-vehicle-suv.jpg` | SUV, 3/4 front |
-| `photo-vehicle-coupe.jpg` | Coupe, 3/4 front |
-| `photo-property-apartment.jpg` | Apartment interior, wide |
-| `photo-property-villa.jpg` | Villa exterior, wide |
-| `photo-property-land.jpg` | Land plot / aerial |
-| `photo-hero.jpg` | One strong brand image for the hero (optional) |
+Bundled photography and locally authored artwork live in `public/images/`.
+Their file paths are centrally listed in `src/data/imagery.ts`; replacing a
+local fallback requires changing the corresponding file and deploying the
+site. Shared-slot overrides should instead be managed through the media center.
 
-## How to add them
-
-1. Put the files in `public/images/` with the exact names above.
-2. Open `src/data/imagery.ts` and switch the keys you have photos for from
-   `art.x` to `photos.x`.
-3. Run `npm run build`.
-
-Any slot left on `art.*` keeps its artwork, so you can add photos gradually.
-
-## Adding photos without touching code
-
-The admin dashboard already supports uploads: **Studio → Products / Vehicles /
-Real Estate → edit an item → upload from device**. Those are stored in the
-browser (`localStorage`), so they are per-device. The `public/images/` route
-above is what makes a photo permanent and visible to every visitor.
+The Unsplash vehicle and property images are illustrative stock, not photos of
+the exact listings. Do not advertise them as actual fleet or property photos.
+Verify source, author and license for non-original assets in
+[`IMAGE_CREDITS.md`](./IMAGE_CREDITS.md), and replace illustrative imagery with
+owner-approved photos before publishing real inventory.

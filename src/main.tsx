@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { SiteMediaProvider } from './lib/siteMedia.tsx'
 
 // روابط الكروت الرقمية القادمة من Supabase لها الشكل `#card/<card_id>`.
 // نعرض CardView مباشرةً هنا (على مستوى الجذر) بدل الاستيراد داخل `App`، لأن أي
@@ -15,6 +16,8 @@ const Root = isCardLink
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Root />
+    <SiteMediaProvider>
+      <Root />
+    </SiteMediaProvider>
   </StrictMode>,
 )

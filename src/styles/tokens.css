@@ -84,6 +84,7 @@
   --zx-footer-bg: #050E0A;
   --zx-footer-text: #EFE9DA;
   --zx-scrim: rgb(5 14 10 / 60%);
+  --zx-cinematic-gradient: linear-gradient(135deg, var(--zx-footer-bg), var(--zx-cinematic));
   --zx-glass: color-mix(in srgb, var(--zx-surface) 88%, transparent);
   --zx-glass-strong: color-mix(in srgb, var(--zx-surface) 96%, transparent);
   --zx-border-strong: rgb(169 229 192 / 30%);
@@ -103,10 +104,10 @@
   --color-zx-surface-2: var(--zx-surface-raised);
   --color-zx-text: var(--zx-text);
   --color-zx-text-secondary: var(--zx-text-secondary);
-  --color-zx-text-muted: var(--zx-text-secondary);
+  --color-zx-text-muted: var(--zx-text-muted);
   --color-zx-ink: var(--zx-text);
   --color-zx-secondary: var(--zx-text-secondary);
-  --color-zx-muted: var(--zx-text-secondary);
+  --color-zx-muted: var(--zx-text-muted);
   --color-zx-border: var(--zx-border);
   --color-zx-line: var(--zx-border);
   --color-zx-primary: var(--zx-accent);

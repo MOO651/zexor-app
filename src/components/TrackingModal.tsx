@@ -94,35 +94,38 @@ export function TrackingModal({
 
   return (
     <div
-      className="fixed inset-0 z-110 flex items-center justify-center bg-black/45 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-110 flex items-center justify-center bg-zx-cinematic/45 p-4 backdrop-blur-xs"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <motion.div
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-[2.2rem] border border-white bg-white p-6 shadow-2xl"
+        className="zx-tracking-dialog relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-[2.2rem] border border-zx-border bg-zx-surface-raised p-6 shadow-2xl"
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        aria-labelledby="zx-tracking-title"
+        aria-modal="true"
+        role="dialog"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#edf1ee] pb-4">
+        <div className="flex items-center justify-between border-b border-zx-border pb-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e5f4ec] text-[#4f7d67]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-zx-mint text-zx-mint-contrast">
               <Truck className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-[#2b4133]">
+              <h2 className="text-base font-bold text-zx-text" id="zx-tracking-title">
                 {isArabic ? 'تتبع حالة الطلب والشحنة' : 'Order & Shipment Tracking'}
               </h2>
-              <p className="text-[10px] text-[#788a80]">
+              <p className="text-[10px] text-zx-text">
                 {isArabic ? 'تابع حالة الطلب ورقم الشحنة باستخدام رقم الطلب وهاتفك' : 'Track your order with its reference and phone number'}
               </p>
             </div>
           </div>
           <button
-            aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#75887d] hover:bg-[#edf2ef]"
+            aria-label={isArabic ? 'إغلاق تتبع الطلب' : 'Close order tracking'}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-zx-text hover:bg-zx-mint"
             onClick={onClose}
             type="button"
           >
@@ -133,18 +136,21 @@ export function TrackingModal({
         {/* Search Input */}
         <form className="mt-5 grid gap-2 sm:grid-cols-[1fr_1fr_auto]" onSubmit={handleSearch}>
           <div className="relative">
-            <Search className="absolute start-3 top-3 h-4 w-4 text-[#758a7e]" />
+            <Search className="absolute start-3 top-3 h-4 w-4 text-zx-text" />
             <input
-              className="h-10 w-full rounded-xl border border-[#dfe7e1] bg-white ps-9 pe-3 text-xs outline-none focus:border-[#67ab8b]"
+              aria-label={isArabic ? 'رقم الطلب' : 'Order ID'}
+              className="h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised ps-9 pe-3 text-base outline-none focus:border-zx-border"
               onChange={(e) => setQuery(e.target.value)}
               placeholder={isArabic ? 'رقم الطلب' : 'Order ID'}
               required
+              type="text"
               value={query}
             />
           </div>
           <input
+            aria-label={isArabic ? 'رقم الهاتف المستخدم في الطلب' : 'Phone used for the order'}
             autoComplete="tel"
-            className="h-10 w-full rounded-xl border border-[#dfe7e1] bg-white px-3 text-xs outline-none focus:border-[#67ab8b]"
+            className="h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-base outline-none focus:border-zx-border"
             onChange={(e) => setPhone(e.target.value)}
             placeholder={isArabic ? 'رقم الهاتف المستخدم في الطلب' : 'Phone used for the order'}
             required
@@ -152,7 +158,7 @@ export function TrackingModal({
             value={phone}
           />
           <button
-            className="rounded-xl bg-[#314f43] px-5 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d] disabled:opacity-60"
+            className="min-h-11 rounded-xl bg-zx-cinematic px-5 text-xs font-semibold text-zx-accent-contrast shadow-xs hover:bg-zx-cinematic disabled:opacity-60"
             disabled={isSearching}
             type="submit"
           >
@@ -163,13 +169,13 @@ export function TrackingModal({
         {/* Quick Demo Pickers if no search query */}
         {!searched && orders.length > 0 && (
           <div className="mt-3">
-            <p className="text-[9px] text-[#7d8f85]">
+            <p className="text-[9px] text-zx-text-secondary">
               {isArabic ? 'طلباتك المحفوظة مؤخراً:' : 'Recent orders on this device:'}
             </p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {orders.slice(0, 3).map((o) => (
                 <button
-                  className="rounded-lg border border-[#dfe7e1] bg-[#f8faf8] px-2.5 py-1 text-[9px] font-mono font-bold text-[#426453] hover:bg-[#edf5f0]"
+                  className="min-h-11 rounded-lg border border-zx-border bg-zx-surface-raised px-2.5 py-1 text-xs font-mono font-bold text-zx-text hover:bg-zx-mint"
                   key={o.id}
                   onClick={() => {
                     setQuery(o.id);
@@ -189,26 +195,26 @@ export function TrackingModal({
         {/* Results Area */}
         <div className="mt-5 flex-1 overflow-y-auto">
           {foundOrder ? (
-            <div className="space-y-5 rounded-2xl border border-[#e3ebe5] bg-[#f8faf8] p-4">
+            <div className="space-y-5 rounded-2xl border border-zx-border bg-zx-surface-raised p-4">
               {/* Top Order Badge */}
-              <div className="flex items-center justify-between border-b border-[#e9eee9] pb-3">
+              <div className="flex items-center justify-between border-b border-zx-border pb-3">
                 <div>
-                  <span className="font-mono text-sm font-extrabold text-[#2a4435]">{foundOrder.id}</span>
-                  <p className="text-[10px] text-[#718579]">
+                  <span className="font-mono text-sm font-extrabold text-zx-text">{foundOrder.id}</span>
+                  <p className="text-[10px] text-zx-text">
                     {foundOrder.customer} · {foundOrder.city} ({foundOrder.market === 'eg' ? '🇪🇬 مصر' : '🇸🇦 السعودية'})
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     aria-label={isArabic ? 'نسخ رقم الطلب' : 'Copy order ID'}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-[#dfe7e1] text-[#5a7265] hover:bg-[#edf5f0]"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-zx-border text-zx-text hover:bg-zx-mint"
                     onClick={() => handleCopy(foundOrder.id, 'id')}
                     title={isArabic ? 'نسخ رقم الطلب' : 'Copy order ID'}
                     type="button"
                   >
                     {copied === 'id' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                   </button>
-                  <span className={`rounded-full px-3 py-1 text-[9px] font-bold ${foundOrder.status === 'cancelled' ? 'bg-[#f1f2f1] text-[#69766f]' : 'bg-[#e5f5ec] text-[#357e58]'}`}>
+                  <span className={`rounded-full px-3 py-1 text-[9px] font-bold ${foundOrder.status === 'cancelled' ? 'bg-zx-mint text-zx-mint-contrast' : 'bg-zx-mint text-zx-mint-contrast'}`}>
                   {foundOrder.status === 'cancelled'
                     ? isArabic ? 'ملغي' : 'Cancelled'
                     : foundOrder.status === 'new'
@@ -228,15 +234,15 @@ export function TrackingModal({
 
               {/* Progress Steps Visualizer */}
               {(foundOrder.trackingNumber || foundOrder.trackingUrl || foundOrder.shippingCarrier) && (
-                <div className="rounded-xl border border-[#dce9df] bg-white p-3 text-xs">
-                  <p className="font-bold text-[#344d3f]">{isArabic ? 'بيانات شركة الشحن' : 'Shipment details'}</p>
-                  {foundOrder.shippingCarrier && <p className="mt-1 text-[#5e7166]">{isArabic ? 'الشركة:' : 'Carrier:'} {foundOrder.shippingCarrier}</p>}
-                  {foundOrder.trackingNumber && <p className="mt-1 font-mono text-[#5e7166]">{isArabic ? 'رقم التتبع:' : 'Tracking number:'} {foundOrder.trackingNumber}</p>}
-                  {foundOrder.trackingUrl && /^https:\/\//i.test(foundOrder.trackingUrl) && <a className="mt-2 inline-flex text-[#25855a] underline" href={foundOrder.trackingUrl} rel="noopener noreferrer" target="_blank">{isArabic ? 'افتح صفحة تتبع شركة الشحن' : 'Open carrier tracking page'}</a>}
+                <div className="rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs">
+                  <p className="font-bold text-zx-text">{isArabic ? 'بيانات شركة الشحن' : 'Shipment details'}</p>
+                  {foundOrder.shippingCarrier && <p className="mt-1 text-zx-text">{isArabic ? 'الشركة:' : 'Carrier:'} {foundOrder.shippingCarrier}</p>}
+                  {foundOrder.trackingNumber && <p className="mt-1 font-mono text-zx-text">{isArabic ? 'رقم التتبع:' : 'Tracking number:'} {foundOrder.trackingNumber}</p>}
+                  {foundOrder.trackingUrl && /^https:\/\//i.test(foundOrder.trackingUrl) && <a className="mt-2 inline-flex text-zx-text underline" href={foundOrder.trackingUrl} rel="noopener noreferrer" target="_blank">{isArabic ? 'افتح صفحة تتبع شركة الشحن' : 'Open carrier tracking page'}</a>}
                 </div>
               )}
               {foundOrder.paymentStatus && (
-                <p className="rounded-xl border border-[#e1e9e3] bg-white p-3 text-xs text-[#5e7166]">
+                <p className="rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs text-zx-text">
                   <strong>{isArabic ? 'حالة الدفع:' : 'Payment:'}</strong>{' '}
                   {foundOrder.paymentStatus === 'paid' ? (isArabic ? 'تم الدفع' : 'Paid')
                     : foundOrder.paymentStatus === 'pending' ? (isArabic ? 'بانتظار الدفع' : 'Awaiting payment')
@@ -246,7 +252,7 @@ export function TrackingModal({
                 </p>
               )}
               {foundOrder.status === 'cancelled' ? (
-                <p className="rounded-xl border border-[#e5e7e5] bg-white p-3 text-xs text-[#68776e]">{isArabic ? 'تم إلغاء هذا الطلب. تواصل معنا عبر واتساب إذا كنت تحتاج إلى مساعدة.' : 'This order was cancelled. Contact us on WhatsApp if you need help.'}</p>
+                <p className="rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs text-zx-text">{isArabic ? 'تم إلغاء هذا الطلب. تواصل معنا عبر واتساب إذا كنت تحتاج إلى مساعدة.' : 'This order was cancelled. Contact us on WhatsApp if you need help.'}</p>
               ) : <div className="space-y-4">
                 {steps.map((st, i) => {
                   const activeIndex = getActiveStepIndex(foundOrder.status);
@@ -256,17 +262,17 @@ export function TrackingModal({
                       <span
                         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
                           isDone
-                            ? 'bg-[#314f43] text-white shadow-xs'
-                            : 'border border-[#d5ded8] bg-white text-[#9aa8a0]'
+                            ? 'bg-zx-cinematic text-zx-accent-contrast shadow-xs'
+                            : 'border border-zx-border bg-zx-surface-raised text-zx-text-secondary'
                         }`}
                       >
                         {isDone ? '✓' : i + 1}
                       </span>
                       <div className="min-w-0">
-                        <p className={`text-xs font-bold ${isDone ? 'text-[#2e4739]' : 'text-[#8fa096]'}`}>
+                        <p className={`text-xs font-bold ${isDone ? 'text-zx-text' : 'text-zx-text-secondary'}`}>
                           {st.label}
                         </p>
-                        <p className="text-[10px] text-[#76877d]">{st.desc}</p>
+                        <p className="text-[10px] text-zx-text">{st.desc}</p>
                       </div>
                     </div>
                   );
@@ -274,9 +280,9 @@ export function TrackingModal({
               </div>}
 
               {/* Summary Items */}
-              <div className="rounded-xl border border-[#e1e9e3] bg-white p-3 text-xs">
-                <p className="font-bold text-[#344d3f]">{isArabic ? 'محتويات الشحنة:' : 'Package Items:'}</p>
-                <div className="mt-1.5 space-y-1 text-[11px] text-[#5e7166]">
+              <div className="rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs">
+                <p className="font-bold text-zx-text">{isArabic ? 'محتويات الشحنة:' : 'Package Items:'}</p>
+                <div className="mt-1.5 space-y-1 text-[11px] text-zx-text">
                   {foundOrder.items.map((it, idx) => (
                     <div className="flex justify-between" key={idx}>
                       <span>• {it.quantity}x {it.name}</span>
@@ -284,7 +290,7 @@ export function TrackingModal({
                     </div>
                   ))}
                 </div>
-                <div className="mt-2.5 flex justify-between border-t border-[#edf1ee] pt-2 font-bold text-[#2a4435]">
+                <div className="mt-2.5 flex justify-between border-t border-zx-border pt-2 font-bold text-zx-text">
                   <span>{isArabic ? 'الإجمالي الشامل:' : 'Total Amount:'}</span>
                   <span>{foundOrder.total} {foundOrder.market === 'eg' ? 'ج.م' : 'ر.س'}</span>
                 </div>
@@ -292,7 +298,7 @@ export function TrackingModal({
 
               {/* Help & WhatsApp inquiry */}
               <a
-                className="flex items-center justify-center gap-2 rounded-xl bg-[#25855a] py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#1f734d]"
+                className="flex items-center justify-center gap-2 rounded-xl bg-zx-accent py-2.5 text-xs font-bold text-zx-accent-contrast shadow-xs hover:bg-zx-cinematic"
                 href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
                   isArabic
                     ? `استفسار حول حالة الشحنة رقم ${foundOrder.id} للعميل ${foundOrder.customer}.`
@@ -307,11 +313,11 @@ export function TrackingModal({
             </div>
           ) : searched && !isSearching ? (
             <div className="py-10 text-center">
-              <Package className="mx-auto h-12 w-12 text-[#9bb0a4]" />
-              <p className="mt-3 text-sm font-bold text-[#354f41]">
+              <Package className="mx-auto h-12 w-12 text-zx-text-secondary" />
+              <p className="mt-3 text-sm font-bold text-zx-text">
                 {isArabic ? 'لم يظهر طلب مطابق' : 'No matching order found'}
               </p>
-              <p className="mt-1 text-xs text-[#7f9086]">
+              <p className="mt-1 text-xs text-zx-text-secondary">
                 {isArabic ? 'تأكد من رقم الطلب والهاتف، أو تحقق من اتصال المتجر وحاول مرة أخرى.' : 'Check the order ID and phone, then verify the store connection and try again.'}
               </p>
             </div>

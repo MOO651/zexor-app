@@ -1,10 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f5f8f7" />
+    <meta name="theme-color" content="#F4F0E6" />
+    <script>
+      (() => {
+        const root = document.documentElement;
+        let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        try {
+          const storedTheme = JSON.parse(window.localStorage.getItem('zexor-theme') || 'null');
+          const storedLocale = window.localStorage.getItem('zexor-locale');
+          if (storedTheme === 'light' || storedTheme === 'dark') theme = storedTheme;
+          if (storedLocale === 'ar' || storedLocale === 'en') {
+            root.lang = storedLocale;
+            root.dir = storedLocale === 'ar' ? 'rtl' : 'ltr';
+          }
+        } catch {
+          // Keep the system theme and Arabic defaults when browser storage is unavailable.
+        }
+        root.dataset.theme = theme;
+        root.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute(
+          'content',
+          theme === 'dark' ? '#07130E' : '#F4F0E6',
+        );
+      })();
+    </script>
     <meta name="description" content="ZEXOR connects NFC business cards, considered streetwear, and digital experiences across Egypt and Saudi Arabia." />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="ZEXOR — Design · Technology · Culture" />

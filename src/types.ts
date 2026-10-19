@@ -141,7 +141,7 @@ export type NfcCustomization = {
   email: string;
   website: string;
   socialHandle: string;
-  finish: 'pearl' | 'mint' | 'rose' | 'lilac' | 'matte-black';
+  finish: 'pearl' | 'mint' | 'clay' | 'sage' | 'forest' | 'rose' | 'lilac' | 'matte-black';
   profileLinked: boolean;
   profileSlug: string;
 };

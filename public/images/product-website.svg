@@ -1,22 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Bespoke brand website on a laptop">
   <defs>
     <linearGradient id="w-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0b1420"/>
-      <stop offset="55%" stop-color="#14263a"/>
-      <stop offset="100%" stop-color="#244660"/>
+      <stop offset="0%" stop-color="#0E2018"/>
+      <stop offset="55%" stop-color="#143024"/>
+      <stop offset="100%" stop-color="#3F5A4C"/>
     </linearGradient>
     <radialGradient id="w-key" cx="34%" cy="12%" r="74%">
-      <stop offset="0%" stop-color="#e2f1ff" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#e2f1ff" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#FBF8F1" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FBF8F1" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="w-screen" x1="0" y1="0" x2="0.7" y2="1">
-      <stop offset="0%" stop-color="#fdfefe"/>
-      <stop offset="60%" stop-color="#eef6f3"/>
-      <stop offset="100%" stop-color="#d9e9e3"/>
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#FBF8F1"/>
+      <stop offset="100%" stop-color="#EFE9DA"/>
     </linearGradient>
     <linearGradient id="w-metal" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#c8d4dc"/>
-      <stop offset="100%" stop-color="#7d8c98"/>
+      <stop offset="0%" stop-color="#BBD0C3"/>
+      <stop offset="100%" stop-color="#86A092"/>
     </linearGradient>
   </defs>
 
@@ -24,38 +24,38 @@
   <rect width="1200" height="800" fill="url(#w-key)"/>
 
   <!-- Laptop. -->
-  <ellipse cx="600" cy="660" rx="380" ry="34" fill="#03070c" opacity="0.6"/>
-  <rect x="248" y="176" width="704" height="424" rx="22" fill="#10161c"/>
+  <ellipse cx="600" cy="660" rx="380" ry="34" fill="#050E0A" opacity="0.6"/>
+  <rect x="248" y="176" width="704" height="424" rx="22" fill="#0E2018"/>
   <rect x="262" y="190" width="676" height="396" rx="12" fill="url(#w-screen)"/>
 
   <!-- Browser chrome. -->
-  <rect x="262" y="190" width="676" height="46" rx="12" fill="#e6efe9"/>
-  <circle cx="292" cy="213" r="7" fill="#e6a68e"/>
-  <circle cx="316" cy="213" r="7" fill="#e8c98a"/>
-  <circle cx="340" cy="213" r="7" fill="#8fcbb0"/>
-  <rect x="372" y="202" width="330" height="22" rx="11" fill="#ffffff"/>
-  <text x="390" y="218" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#8fa3a0">zexor.studio</text>
+  <rect x="262" y="190" width="676" height="46" rx="12" fill="#F2EEE3"/>
+  <circle cx="292" cy="213" r="7" fill="#F3935F"/>
+  <circle cx="316" cy="213" r="7" fill="#E6D5B8"/>
+  <circle cx="340" cy="213" r="7" fill="#8DB8A0"/>
+  <rect x="372" y="202" width="330" height="22" rx="11" fill="#FFFFFF"/>
+  <text x="390" y="218" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#86A092">zexor.studio</text>
 
   <!-- Rendered page: hero + cards. -->
-  <rect x="262" y="236" width="676" height="122" fill="#1f3b31"/>
-  <rect x="300" y="268" width="300" height="26" rx="6" fill="#e9f6f0"/>
-  <rect x="300" y="306" width="196" height="12" rx="6" fill="#a6e6c4"/>
-  <rect x="300" y="326" width="150" height="12" rx="6" fill="#8fcbb0" opacity="0.8"/>
-  <rect x="700" y="262" width="200" height="70" rx="12" fill="#35614a"/>
-  <rect x="726" y="284" width="148" height="10" rx="5" fill="#bfe6d5"/>
-  <rect x="726" y="304" width="104" height="10" rx="5" fill="#8fcbb0"/>
+  <rect x="262" y="236" width="676" height="122" fill="#164534"/>
+  <rect x="300" y="268" width="300" height="26" rx="6" fill="#F4F0E6"/>
+  <rect x="300" y="306" width="196" height="12" rx="6" fill="#A9E5C0"/>
+  <rect x="300" y="326" width="150" height="12" rx="6" fill="#8DB8A0" opacity="0.8"/>
+  <rect x="700" y="262" width="200" height="70" rx="12" fill="#3F5A4C"/>
+  <rect x="726" y="284" width="148" height="10" rx="5" fill="#BBD0C3"/>
+  <rect x="726" y="304" width="104" height="10" rx="5" fill="#8DB8A0"/>
 
-  <g fill="#dfeae4">
+  <g fill="#EFE9DA">
     <rect x="292" y="386" width="196" height="150" rx="14"/>
     <rect x="504" y="386" width="196" height="150" rx="14"/>
     <rect x="716" y="386" width="196" height="150" rx="14"/>
   </g>
-  <g fill="#8fcbb0">
+  <g fill="#8DB8A0">
     <rect x="292" y="386" width="196" height="86" rx="14"/>
     <rect x="504" y="386" width="196" height="86" rx="14"/>
     <rect x="716" y="386" width="196" height="86" rx="14"/>
   </g>
-  <g fill="#4a6b5c">
+  <g fill="#3F5A4C">
     <rect x="312" y="492" width="120" height="12" rx="6"/>
     <rect x="524" y="492" width="140" height="12" rx="6"/>
     <rect x="736" y="492" width="104" height="12" rx="6"/>
@@ -66,5 +66,5 @@
 
   <!-- Base. -->
   <path d="M214 600 L986 600 L1032 640 C1040 650 1032 660 1018 660 L182 660 C168 660 160 650 168 640 Z" fill="url(#w-metal)"/>
-  <rect x="500" y="620" width="200" height="12" rx="6" fill="#5f6f7b"/>
+  <rect x="500" y="620" width="200" height="12" rx="6" fill="#6B7F73"/>
 </svg>

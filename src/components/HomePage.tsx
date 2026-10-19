@@ -9,6 +9,9 @@ import { HomeHero, TiltCard } from './HomeHero';
 import { FaqSection, TrackingAndNewsletter } from './HomeSections';
 import { ProductCard } from './ProductCard';
 import { TestimonialsSection } from './TestimonialsSection';
+import { NfcChapter } from '../scenes/NfcChapter';
+import { ProductFinderQuiz, SitePreloader } from './SiteExperienceExtras';
+import { useSiteMedia } from '../lib/siteMediaContext';
 
 /**
  * Shared section header: an eyebrow label, the admin-editable title and an
@@ -29,12 +32,16 @@ function SectionHeading({
   return (
     <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
       <div>
-        <span className="zx-eyebrow text-[#5e8b75]">{eyebrow}</span>
-        <h2 className="zx-display mt-2 text-2xl text-[#21362b] sm:text-3xl">{title}</h2>
+        <span className="zx-eyebrow text-zx-text">{eyebrow}</span>
+        <h2 className="zx-display zx-section-heading-title mt-2 text-2xl text-zx-text sm:text-3xl">
+          <span className="zx-heading-mask">
+            <span className="zx-heading-line">{title}</span>
+          </span>
+        </h2>
       </div>
       {actionLabel && onAction && (
         <button
-          className="flex items-center gap-1.5 text-xs font-bold text-[#35614a] hover:text-[#234333]"
+          className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
           onClick={onAction}
           type="button"
         >
@@ -56,7 +63,6 @@ type HomePageProps = {
   settings: SiteSettings;
   wishlist: string[];
   navigate: (route: Route) => void;
-  onMarketChange: (market: Market) => void;
   onToggleWishlist: (product: Product) => void;
   onAddToCart: (product: Product, customization?: never, variant?: string) => void;
   onOpenNfcCustomizer: (product: Product) => void;
@@ -81,7 +87,6 @@ export function HomePage({
   settings,
   wishlist,
   navigate,
-  onMarketChange,
   onToggleWishlist,
   onAddToCart,
   onOpenNfcCustomizer,
@@ -90,6 +95,7 @@ export function HomePage({
   renderPrice,
 }: HomePageProps) {
   const { sectionVisibility, content } = settings;
+  const { content: siteContent } = useSiteMedia();
   const storefrontProducts = products.filter((product) => product.available && (
     settings.showOtherMarketProducts?.[market]
       ? true
@@ -99,18 +105,25 @@ export function HomePage({
   const fashion = storefrontProducts.filter((p) => p.category === 'fashion');
 
   return (
-    <div className="space-y-20">
+    <div className="home-page-flow">
+      <SitePreloader enabled={siteContent['feature.preloader']?.value_json === true} locale={locale} />
       {/* 1. Interactive 3D Parallax Hero */}
       <HomeHero
-        brandName={settings.brand.name}
         heroAccent={settings.heroAccent[locale]}
         heroImage={settings.heroImage}
         heroText={settings.heroText[locale]}
         heroTitle={settings.heroTitle[locale]}
         locale={locale}
-        market={market}
         navigate={navigate}
-        onMarketChange={onMarketChange}
+      />
+
+      <NfcChapter
+        locale={locale}
+        market={market}
+        onDesign={onOpenNfcCustomizer}
+        onExplore={() => navigate('cards')}
+        product={cards[0]}
+        renderPrice={renderPrice}
       />
 
       {/* 2. Department Board — image-driven entry points into every section.
@@ -131,11 +144,15 @@ export function HomePage({
         />
       </div>
 
+      {siteContent['feature.quiz']?.value_json === true && (
+        <ProductFinderQuiz locale={locale} onNavigate={navigate} />
+      )}
+
       {/* 3. Live Animated Stats Counter */}
       <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#c4f2e9]/60 blur-3xl"
+          className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
         />
         <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
           {STATS.map((s, i) => (
@@ -224,21 +241,21 @@ export function HomePage({
           <div className="grid gap-6 md:grid-cols-3">
             {AGENCY_PROJECTS.map((proj) => (
               <TiltCard
-                className="group overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                className="group overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/90 shadow-md"
                 intensity={8}
                 key={proj.id}
               >
-                <div className="relative aspect-video overflow-hidden bg-[#e0eee5]">
+                <div className="relative aspect-video overflow-hidden bg-zx-mint">
                   <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={publicAssetUrl(proj.image)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-2.5 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
+                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
                     {proj.category[locale]}
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                  <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">{proj.description[locale]}</p>
+                  <h3 className="text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
+                  <p className="mt-1 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
                   <a
-                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white shadow-xs hover:bg-[#436e5d]"
+                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-xs hover:bg-zx-cinematic"
                     href={proj.demoUrl}
                     rel="noreferrer"
                     target="_blank"
@@ -265,24 +282,24 @@ export function HomePage({
           <div className="grid gap-6 md:grid-cols-3">
             {vehicles.map((car) => (
               <TiltCard
-                className="overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                className="overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/90 shadow-md"
                 intensity={8}
                 key={car.id}
               >
-                <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
+                <div className="relative aspect-[1.4/1] overflow-hidden bg-zx-mint">
                   <img alt={car.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(car.photo)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
+                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                     {car.id}
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-sm font-bold text-[#2e4437]">{car.title[locale]}</h3>
-                  <p className="mt-1 text-[10px] text-[#718478]">{car.location[locale]}</p>
-                  <p className="mt-3 text-base font-extrabold text-[#2d4838]">
+                  <h3 className="text-sm font-bold text-zx-text">{car.title[locale]}</h3>
+                  <p className="mt-1 text-[10px] text-zx-text">{car.location[locale]}</p>
+                  <p className="mt-3 text-base font-extrabold text-zx-text">
                     {money(car.price, market, locale)}
                   </p>
                   <button
-                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
+                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast hover:bg-zx-cinematic"
                     onClick={() => {
                       const msg = isArabic
                         ? `طلب حجز معاينة للسيارة ${car.id}: ${car.title.ar}`
@@ -317,27 +334,27 @@ export function HomePage({
           <div className="grid gap-6 md:grid-cols-3">
             {properties.map((prop) => (
               <TiltCard
-                className="overflow-hidden rounded-3xl border border-white bg-white/90 shadow-md"
+                className="overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/90 shadow-md"
                 intensity={8}
                 key={prop.id}
               >
-                <div className="relative aspect-[1.4/1] overflow-hidden bg-[#e5eee7]">
+                <div className="relative aspect-[1.4/1] overflow-hidden bg-zx-mint">
                   <img alt={prop.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(prop.photo)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold text-white backdrop-blur-md">
+                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                     {prop.id}
                   </span>
-                  <span className="absolute end-3 top-3 rounded-full bg-[#314f43] px-2.5 py-1 text-[8px] font-semibold text-white">
+                  <span className="absolute end-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
                     {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-sm font-bold text-[#2e4437]">{prop.title[locale]}</h3>
-                  <p className="mt-1 text-[10px] text-[#718478]">{prop.location[locale]}</p>
-                  <p className="mt-3 text-base font-extrabold text-[#2d4838]">
+                  <h3 className="text-sm font-bold text-zx-text">{prop.title[locale]}</h3>
+                  <p className="mt-1 text-[10px] text-zx-text">{prop.location[locale]}</p>
+                  <p className="mt-3 text-base font-extrabold text-zx-text">
                     {money(prop.price, market, locale)}
                   </p>
                   <button
-                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] text-xs font-semibold text-white hover:bg-[#436e5d]"
+                    className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast hover:bg-zx-cinematic"
                     onClick={() => navigate('property')}
                     type="button"
                   >
@@ -375,17 +392,17 @@ export function HomePage({
       />
 
       {/* 12. Section 09: High-Impact Call to Action */}
-      <section className="relative overflow-hidden rounded-4xl border border-white bg-linear-to-br from-[#20372d] to-[#121c17] p-8 text-white shadow-2xl sm:p-14">
+      <section className="relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 text-zx-accent-contrast shadow-2xl sm:p-14">
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-xl">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#72ce9f]">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
               {isArabic ? 'ابدأ خطوتك القادمة الآن' : 'YOUR NEXT MOVE STARTS HERE'}
             </span>
             <h2 className="mt-2 text-3xl font-extrabold sm:text-5xl">{content.ctaTitle[locale]}</h2>
-            <p className="mt-3 text-xs leading-6 text-white/75 sm:text-sm">{content.ctaText[locale]}</p>
+            <p className="mt-3 text-xs leading-6 text-zx-accent-contrast/75 sm:text-sm">{content.ctaText[locale]}</p>
           </div>
           <a
-            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-xs font-bold text-[#1f382c] shadow-lg transition-all hover:bg-[#a6e6c4]"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-zx-surface-raised px-8 text-xs font-bold text-zx-text shadow-lg transition-all hover:bg-zx-accent"
             href={`https://wa.me/${whatsappNumberFor(market, settings)}?text=${encodeURIComponent(
               isArabic ? 'مرحباً ZEXOR، أود بدء محادثة ومناقشة مشروع جديد.' : 'Hello ZEXOR, I want to start a new project.',
             )}`}

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
   Bookmark,
   BookmarkCheck,
+  ChevronDown,
   GitCompareArrows,
   ChevronLeft,
   ChevronRight,
@@ -71,6 +72,7 @@ export function Marketplace({
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('');
   const [makeFilter, setMakeFilter] = useState('');
   const [selectedDepartmentCategory, setSelectedDepartmentCategory] = useState('');
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const savedSearchKey = `zexor-saved-search:${mode}:${market}`;
   const [savedSearch, setSavedSearch] = useState<SavedMarketplaceSearch | null>(() => {
     try {
@@ -129,6 +131,31 @@ export function Marketplace({
   const [activeProperty, setActiveProperty] = useState<Property | null>(null);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const zoomCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const zoomTriggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!zoomImage && !compareOpen && !activeVehicle && !activeProperty) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      if (zoomImage) {
+        setZoomImage(null);
+      } else if (compareOpen) {
+        setCompareOpen(false);
+      } else {
+        setActiveVehicle(null);
+        setActiveProperty(null);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [activeProperty, activeVehicle, compareOpen, zoomImage]);
+
+  useEffect(() => {
+    if (!zoomImage) return;
+    zoomCloseButtonRef.current?.focus();
+    return () => zoomTriggerRef.current?.focus();
+  }, [zoomImage]);
 
   // Booking Form State
   const [bookingName, setBookingName] = useState('');
@@ -207,6 +234,17 @@ export function Marketplace({
   const hasMarketListings = mode === 'cars'
     ? vehicleList.some((car) => inMarket(car.region))
     : propertyList.some((property) => inMarket(property.region));
+  const activeFilterCount = [
+    selectedRegion,
+    minPrice,
+    maxPrice,
+    conditionFilter,
+    dealFilter,
+    vehicleDealFilter,
+    propertyTypeFilter,
+    makeFilter,
+    selectedDepartmentCategory,
+  ].filter(Boolean).length;
 
   const resetMarketplaceFilters = () => {
     setRegionFilter('');
@@ -311,29 +349,51 @@ Listing: ${itemTitle}`;
     <div className="zx-marketplace space-y-8">
       {/* Hero Banner */}
       <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} slides={configuredSlides?.length ? configuredSlides : defaultSlides} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={marketplaceBannerText} />
-      {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="flex flex-wrap gap-2">{[
+      {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="zx-market-subcategories flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
-      ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-10 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-[#263f33] bg-[#263f33] text-white' : 'border-[#dce7df] bg-white text-[#52685b] hover:border-[#9ab8a4]'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
+      ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-11 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-zx-border bg-zx-cinematic text-zx-accent-contrast' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
       {/* Filter Toolbar */}
-      <section id="department-content" className="zx-market-filters rounded-3xl border border-white bg-white/85 p-5 shadow-sm sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-xs font-bold text-[#354f40]">
+      <section id="department-content" className="zx-market-filters rounded-3xl border border-zx-border bg-zx-surface-raised/85 p-5 shadow-sm sm:p-6">
+        <button
+          aria-controls="marketplace-filter-content"
+          aria-expanded={filtersExpanded}
+          className="zx-market-filter-toggle mb-4 flex min-h-11 w-full items-center justify-between gap-3 text-start sm:hidden"
+          onClick={() => setFiltersExpanded((expanded) => !expanded)}
+          type="button"
+        >
+          <span className="flex items-center gap-2 text-xs font-bold text-zx-text">
+            <SlidersHorizontal className="h-4 w-4" />
+            {isArabic ? 'تصفية وبحث متقدم' : 'Advanced Filter & Refine'}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[10px] text-zx-text-secondary">
+              {activeFilterCount > 0 && <span className="zx-market-active-filter-count">{activeFilterCount}</span>}
+              {isArabic
+                ? mode === 'cars' ? `${filteredVehicles.length} سيارات` : `${filteredProperties.length} عقارات`
+                : mode === 'cars' ? `${filteredVehicles.length} vehicles` : `${filteredProperties.length} properties`}
+            </span>
+            <ChevronDown aria-hidden="true" className="zx-market-filter-chevron h-4 w-4 text-zx-text-secondary" />
+          </span>
+        </button>
+        <div className="mb-4 hidden items-center justify-between sm:flex">
+          <h3 className="flex items-center gap-2 text-xs font-bold text-zx-text">
             <SlidersHorizontal className="h-4 w-4" />
             {isArabic ? 'تصفية وبحث متقدم' : 'Advanced Filter & Refine'}
           </h3>
-          <span className="text-[10px] text-[#7d8f85]">
+          <span className="text-[10px] text-zx-text-secondary">
             {isArabic
               ? mode === 'cars' ? `${filteredVehicles.length} سيارات` : `${filteredProperties.length} عقارات`
               : mode === 'cars' ? `${filteredVehicles.length} vehicles` : `${filteredProperties.length} properties`}
           </span>
         </div>
 
+        <div className="zx-market-filter-content" data-expanded={filtersExpanded} id="marketplace-filter-content">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {/* Region */}
           <div className="flex flex-col gap-1.5">
             <label className="zx-field-label">{isArabic ? 'المدينة / المنطقة' : 'Region'}</label>
             <select
-              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+              className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
               onChange={(e) => setRegionFilter(e.target.value)}
               value={selectedRegion}
             >
@@ -352,7 +412,7 @@ Listing: ${itemTitle}`;
           <div className="flex flex-col gap-1.5">
             <label className="zx-field-label">{isArabic ? `أقل سعر (${market === 'eg' ? 'ج.م' : 'ر.س'})` : `Min Price (${market === 'eg' ? 'EGP' : 'SAR'})`}</label>
             <input
-              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+              className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
               onChange={(e) => setMinPrice(e.target.value)}
               placeholder="0"
               type="number"
@@ -363,7 +423,7 @@ Listing: ${itemTitle}`;
           <div className="flex flex-col gap-1.5">
             <label className="zx-field-label">{isArabic ? `أعلى سعر (${market === 'eg' ? 'ج.م' : 'ر.س'})` : `Max Price (${market === 'eg' ? 'EGP' : 'SAR'})`}</label>
             <input
-              className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+              className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
               onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="—"
               type="number"
@@ -376,7 +436,7 @@ Listing: ${itemTitle}`;
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'نوع العرض' : 'Listing type'}</label>
                 <select
-                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
                   onChange={(e) => setVehicleDealFilter(e.target.value)}
                   value={vehicleDealFilter}
                 >
@@ -388,7 +448,7 @@ Listing: ${itemTitle}`;
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'الماركة' : 'Make'}</label>
                 <select
-                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
                   onChange={(e) => setMakeFilter(e.target.value)}
                   value={makeFilter}
                 >
@@ -401,7 +461,7 @@ Listing: ${itemTitle}`;
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'حالة السيارة' : 'Condition'}</label>
                 <select
-                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
                   onChange={(e) => setConditionFilter(e.target.value)}
                   value={conditionFilter}
                 >
@@ -416,7 +476,7 @@ Listing: ${itemTitle}`;
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'نوع العقار' : 'Property Type'}</label>
                 <select
-                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
                   onChange={(e) => setPropertyTypeFilter(e.target.value)}
                   value={propertyTypeFilter}
                 >
@@ -430,7 +490,7 @@ Listing: ${itemTitle}`;
               <div className="flex flex-col gap-1.5">
                 <label className="zx-field-label">{isArabic ? 'نوع الصفقة' : 'Deal Type'}</label>
                 <select
-                  className="zx-select h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#2c3d34]"
+                  className="zx-select h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text"
                   onChange={(e) => setDealFilter(e.target.value)}
                   value={dealFilter}
                 >
@@ -442,14 +502,15 @@ Listing: ${itemTitle}`;
             </>
           )}
         </div>
-        <div className="mt-4 flex flex-col justify-between gap-3 border-t border-[#e5ece6] pt-4 sm:flex-row sm:items-center">
-          <p aria-live="polite" className="text-[10px] text-[#718478]">{savedSearchMessage || (isArabic ? 'تقدر تحفظ معاييرك على هذا الجهاز وترجع لها لاحقًا.' : 'Save these filters on this device and restore them later.')}</p>
+        <div className="mt-4 flex flex-col justify-between gap-3 border-t border-zx-border pt-4 sm:flex-row sm:items-center">
+          <p aria-live="polite" className="text-[10px] text-zx-text">{savedSearchMessage || (isArabic ? 'تقدر تحفظ معاييرك على هذا الجهاز وترجع لها لاحقًا.' : 'Save these filters on this device and restore them later.')}</p>
           <div className="flex flex-wrap gap-2">
-            {savedSearch && <button className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[#d8e5dc] bg-white px-3.5 text-[10px] font-semibold text-[#466653] transition hover:border-[#9cbaa5] hover:bg-[#f5f8f4]" onClick={applySavedSearch} type="button"><BookmarkCheck className="h-3.5 w-3.5" />{isArabic ? 'استرجاع البحث المحفوظ' : 'Restore saved search'}</button>}
-            <button className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full bg-[#244b38] px-3.5 text-[10px] font-semibold text-white shadow-sm transition hover:bg-[#31654a]" onClick={saveCurrentSearch} type="button"><Bookmark className="h-3.5 w-3.5" />{isArabic ? 'حفظ البحث' : 'Save search'}</button>
+            {savedSearch && <button className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-zx-border bg-zx-surface-raised px-3.5 text-xs font-semibold text-zx-text transition hover:border-zx-border hover:bg-zx-mint" onClick={applySavedSearch} type="button"><BookmarkCheck className="h-3.5 w-3.5" />{isArabic ? 'استرجاع البحث المحفوظ' : 'Restore saved search'}</button>}
+            <button className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-zx-cinematic px-3.5 text-xs font-semibold text-zx-accent-contrast shadow-sm transition hover:bg-zx-cinematic" onClick={saveCurrentSearch} type="button"><Bookmark className="h-3.5 w-3.5" />{isArabic ? 'حفظ البحث' : 'Save search'}</button>
           </div>
         </div>
-        {compareMessage && <p aria-live="polite" className="mt-3 text-xs font-semibold text-amber-700">{compareMessage}</p>}
+        {compareMessage && <p aria-live="polite" className="mt-3 text-xs font-semibold text-zx-text-secondary">{compareMessage}</p>}
+        </div>
       </section>
 
       {/* Grid: Cars or Properties */}
@@ -459,13 +520,13 @@ Listing: ${itemTitle}`;
             <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل السيارات' : 'تواصل مع فريق السيارات') : (hasMarketListings ? 'Show all vehicles' : 'Ask our vehicle team')} description={isArabic ? (hasMarketListings ? 'غيّرنا لك العرض ليتوافق مع بحثك. امسح الفلاتر لرؤية جميع السيارات المتاحة في سوقك.' : 'المعرض يستقبل اختيارات جديدة باستمرار. أخبرنا بنوع السيارة ومدة الإيجار التي تناسبك.') : (hasMarketListings ? 'No vehicles match these filters. Clear them to see all available vehicles in your market.' : 'Our showroom is being curated. Tell us what kind of vehicle and rental period you need.')} image={art.vehiclesPortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن سيارة للإيجار. هل يمكنكم مساعدتي بالخيارات المتاحة؟' : 'Hello, I am looking for a rental vehicle. Could you share the available options?')} title={isArabic ? 'نبحث لك عن السيارة المناسبة' : 'Let us find the right drive for you'} />
           ) : filteredVehicles.map((car) => (
             <article
-              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
+              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={car.id}
             >
               {/* Image & Gallery Launcher */}
               <div
                 aria-label={isArabic ? `عرض صور ومواصفات ${car.title.ar}` : `View photos and specifications for ${car.title.en}`}
-                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-[#e8efeb]"
+                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
                 onClick={() => openVehicleGallery(car)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -484,27 +545,27 @@ Listing: ${itemTitle}`;
                 />
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/45 to-transparent"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/45 to-transparent"
                 />
                 <span
                   className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
                     car.condition === 'New'
-                      ? 'bg-[#a6e6c4] text-[#14301f]'
-                      : 'bg-white/90 text-[#305342]'
+                      ? 'bg-zx-accent text-zx-text'
+                      : 'bg-zx-surface-raised/90 text-zx-text'
                   }`}
                 >
                   {car.condition === 'New' ? (isArabic ? 'زيرو' : 'Brand New') : isArabic ? 'مستعمل' : 'Pre-owned'}
                 </span>
                 <div className="absolute end-3 top-3 flex items-center gap-1.5">
-                  <span className="rounded-full border border-white/20 bg-[#143b2d]/85 px-2.5 py-1 text-[9px] font-extrabold text-white backdrop-blur-md">
+                  <span className="rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-extrabold text-zx-accent-contrast backdrop-blur-md">
                     {(car.deal ?? 'Rent') === 'Rent' ? isArabic ? 'للإيجار' : 'For Rent' : isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale'}
                   </span>
-                  <span className="rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
+                  <span className="rounded-full border border-zx-border/40 bg-zx-cinematic/45 px-2.5 py-1 font-mono text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
                     {car.id}
                   </span>
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
+                <div className="absolute inset-0 flex items-center justify-center bg-zx-cinematic/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="flex items-center gap-1.5 rounded-full bg-zx-surface-raised/95 px-3.5 py-2 text-[11px] font-bold text-zx-text shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
                     {isArabic ? 'عرض الألبوم والتفاصيل' : 'View Gallery & Specs'}
                   </span>
@@ -514,11 +575,11 @@ Listing: ${itemTitle}`;
               {/* Card Details */}
               <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-[#24382d]">{car.title[locale]}</h3>
-                  <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">{car.make}</span>
+                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-zx-text">{car.title[locale]}</h3>
+                  <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
                 </div>
-                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
+                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-zx-text">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-zx-text" />
                   {car.location[locale]}
                 </p>
 
@@ -543,7 +604,7 @@ Listing: ${itemTitle}`;
                         : (isArabic ? 'بنزين' : 'Petrol'),
                   ].map((spec) => (
                     <span
-                      className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2.5 py-1.5 text-[9px] font-semibold text-[#4b6d5b]"
+                      className="rounded-lg border border-zx-border bg-zx-mint px-2.5 py-1.5 text-[9px] font-semibold text-zx-mint-contrast"
                       key={spec}
                     >
                       {spec}
@@ -551,10 +612,10 @@ Listing: ${itemTitle}`;
                   ))}
                 </div>
 
-                <button aria-pressed={compareIds.includes(car.id)} className={`mt-3 inline-flex min-h-9 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-[10px] font-semibold transition ${compareIds.includes(car.id) ? 'border-[#315643] bg-[#edf5ef] text-[#315643]' : 'border-[#e3ece7] bg-white text-[#62766a] hover:border-[#9cbaa5]'}`} onClick={() => toggleComparison(car.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(car.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
+                <button aria-pressed={compareIds.includes(car.id)} className={`mt-3 inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-xs font-semibold transition ${compareIds.includes(car.id) ? 'border-zx-border bg-zx-mint text-zx-mint-contrast' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`} onClick={() => toggleComparison(car.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(car.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
 
                   {car.oldPrice && car.deal !== 'Rent' && (
-                  <p className="mt-3 text-[10px] text-[#9aa7a0]">
+                  <p className="mt-3 text-[10px] text-zx-text-secondary">
                     {isArabic ? 'كان:' : 'Was:'}{' '}
                     <span className="zx-strike font-semibold">
                       {formatListingPrice(car.oldPrice, car.region)}
@@ -563,10 +624,10 @@ Listing: ${itemTitle}`;
                 )}
 
                 {/* Action Buttons */}
-                <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
+                <div className="mt-auto space-y-3 border-t border-zx-border pt-4">
                   <div className="min-w-0">
-                    <span className="block text-[9px] font-semibold text-[#839188]">{car.deal === 'Rent' ? (isArabic ? 'قيمة الإيجار للفترة' : 'RENTAL RATE') : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
-                    <span className="zx-display mt-1 flex flex-wrap items-baseline gap-x-1 text-lg leading-none text-[#24382d]">
+                    <span className="block text-[9px] font-semibold text-zx-text-secondary">{car.deal === 'Rent' ? (isArabic ? 'قيمة الإيجار للفترة' : 'RENTAL RATE') : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
+                    <span className="zx-display mt-1 flex flex-wrap items-baseline gap-x-1 text-lg leading-none text-zx-text">
                       {new Intl.NumberFormat('en-US').format(car.price)}
                       <span className="font-sans text-[10px] font-semibold">{listingCurrency(car.region)}{car.deal === 'Rent' ? vehiclePricePeriod(car) : ''}</span>
                     </span>
@@ -574,7 +635,7 @@ Listing: ${itemTitle}`;
                   <div className="flex gap-2">
                   <button
                     aria-label={car.deal === 'Rent' ? (isArabic ? 'اسأل عن الإيجار' : 'Ask about rental') : (isArabic ? 'احجز معاينة' : 'Book viewing')}
-                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#314f43] px-3 text-[10px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-3 text-[10px] font-bold text-zx-accent-contrast shadow-sm transition-all hover:-translate-y-px hover:bg-zx-cinematic"
                     onClick={() => handleCarWhatsApp(car)}
                     type="button"
                   >
@@ -583,7 +644,7 @@ Listing: ${itemTitle}`;
                   </button>
                   <button
                     aria-label={isArabic ? 'التفاصيل' : 'Details'}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zx-border text-zx-text transition-colors hover:border-zx-border hover:bg-zx-mint"
                     title={isArabic ? 'التفاصيل والصور' : 'Photos and details'}
                     onClick={() => {
                       setActiveVehicle(car);
@@ -606,12 +667,12 @@ Listing: ${itemTitle}`;
             <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل المساحات' : 'تواصل مع فريق العقارات') : (hasMarketListings ? 'Show all spaces' : 'Ask our property team')} description={isArabic ? (hasMarketListings ? 'لا توجد نتائج بهذه المواصفات. امسح الفلاتر لاستكشاف كل المساحات المتاحة للإيجار.' : 'أخبرنا بالمدينة ونوع المساحة التي تبحث عنها، وسيساعدك فريقنا في الخيارات المتاحة للإيجار.') : (hasMarketListings ? 'No spaces match these filters. Clear them to explore all available rentals.' : 'Tell us which city and type of space you need, and our team can help with current rental options.')} image={art.estatePortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن عقار للإيجار. أود معرفة الخيارات المتاحة.' : 'Hello, I am looking for a property to rent. Please share the available options.')} title={isArabic ? 'مساحة مناسبة تستحق البحث' : 'The right space is worth finding'} />
           ) : filteredProperties.map((prop) => (
             <article
-              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-[#e5ebe6] bg-white shadow-[0_8px_30px_-20px_rgba(28,47,37,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_50px_-26px_rgba(28,47,37,0.42)]"
+              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={prop.id}
             >
               <div
                 aria-label={isArabic ? `عرض صور وتفاصيل ${prop.title.ar}` : `View photos and details for ${prop.title.en}`}
-                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-[#e6ede8]"
+                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
                 onClick={() => openPropertyGallery(prop)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -630,20 +691,20 @@ Listing: ${itemTitle}`;
                 />
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/45 to-transparent"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/45 to-transparent"
                 />
                 <span
                   className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
-                    prop.deal === 'Sale' ? 'bg-[#a6e6c4] text-[#14301f]' : 'bg-[#e6a68e] text-[#3a1a12]'
+                    prop.deal === 'Sale' ? 'bg-zx-accent text-zx-text' : 'bg-zx-accent text-zx-text'
                   }`}
                 >
                   {prop.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? 'للإيجار' : 'For Rent'}
                 </span>
-                <span className="absolute end-3 top-3 rounded-full border border-white/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] font-bold text-white backdrop-blur-md">
+                <span className="absolute end-3 top-3 rounded-full border border-zx-border/40 bg-zx-cinematic/45 px-2.5 py-1 font-mono text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
                   {prop.id}
                 </span>
-                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[11px] font-bold text-[#253d30] shadow-lg">
+                <div className="absolute inset-0 flex items-center justify-center bg-zx-cinematic/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <span className="flex items-center gap-1.5 rounded-full bg-zx-surface-raised/95 px-3.5 py-2 text-[11px] font-bold text-zx-text shadow-lg">
                     <Eye className="h-3.5 w-3.5" />
                     {isArabic ? 'استعراض العقار والموقع' : 'View Property & Location'}
                   </span>
@@ -652,13 +713,13 @@ Listing: ${itemTitle}`;
 
               <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-[#24382d]">{prop.title[locale]}</h3>
-                  <span className="shrink-0 rounded-full bg-[#f0f5f1] px-2.5 py-1 text-[9px] font-bold text-[#527362]">
+                  <h3 className="line-clamp-1 text-sm font-bold leading-6 text-zx-text">{prop.title[locale]}</h3>
+                  <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">
                     {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
                   </span>
                 </div>
-                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#6f8378]">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-[#5e8c75]" />
+                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-zx-text">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-zx-text" />
                   {prop.location[locale]}
                 </p>
 
@@ -678,7 +739,7 @@ Listing: ${itemTitle}`;
                     .filter(Boolean)
                     .map((spec) => (
                       <span
-                        className="rounded-lg border border-[#e3ece7] bg-[#f5f8f5] px-2.5 py-1.5 text-[9px] font-semibold text-[#4b6d5b]"
+                        className="rounded-lg border border-zx-border bg-zx-mint px-2.5 py-1.5 text-[9px] font-semibold text-zx-mint-contrast"
                         key={spec}
                       >
                         {spec}
@@ -686,10 +747,10 @@ Listing: ${itemTitle}`;
                     ))}
                 </div>
 
-                <button aria-pressed={compareIds.includes(prop.id)} className={`mt-3 inline-flex min-h-9 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-[10px] font-semibold transition ${compareIds.includes(prop.id) ? 'border-[#315643] bg-[#edf5ef] text-[#315643]' : 'border-[#e3ece7] bg-white text-[#62766a] hover:border-[#9cbaa5]'}`} onClick={() => toggleComparison(prop.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(prop.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
+                <button aria-pressed={compareIds.includes(prop.id)} className={`mt-3 inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-full border px-3.5 text-xs font-semibold transition ${compareIds.includes(prop.id) ? 'border-zx-border bg-zx-mint text-zx-mint-contrast' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`} onClick={() => toggleComparison(prop.id)} type="button"><GitCompareArrows className="h-3.5 w-3.5" />{compareIds.includes(prop.id) ? (isArabic ? 'أزيل من المقارنة' : 'Remove from compare') : (isArabic ? 'أضف للمقارنة' : 'Compare')}</button>
 
                 {prop.oldPrice && (
-                  <p className="mt-3 text-[10px] text-[#9aa7a0]">
+                  <p className="mt-3 text-[10px] text-zx-text-secondary">
                     {isArabic ? 'كان:' : 'Was:'}{' '}
                     <span className="zx-strike font-semibold">
                       {formatListingPrice(prop.oldPrice, prop.region)}
@@ -697,16 +758,16 @@ Listing: ${itemTitle}`;
                   </p>
                 )}
 
-                <div className="mt-auto space-y-3 border-t border-[#edf1ee] pt-4">
+                <div className="mt-auto space-y-3 border-t border-zx-border pt-4">
                   <div className="min-w-0">
-                    <span className="block text-[9px] font-semibold text-[#839188]">{prop.deal === 'Rent' ? (isArabic ? `الإيجار ${prop.rentalPeriod === 'Year' ? 'السنوي' : 'الشهري'}` : `RENT · ${prop.rentalPeriod === 'Year' ? 'YEARLY' : 'MONTHLY'}`) : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
-                    <span className="zx-display mt-1 block text-lg leading-none text-[#24382d]">{formatListingPrice(prop.price, prop.region)}</span>
-                    {prop.deal === 'Rent' && <span className="mt-1 block text-[9px] text-[#839188]">{isArabic ? 'اطلب تأكيد التوفر وشروط التعاقد' : 'Confirm availability and rental terms'}</span>}
+                    <span className="block text-[9px] font-semibold text-zx-text-secondary">{prop.deal === 'Rent' ? (isArabic ? `الإيجار ${prop.rentalPeriod === 'Year' ? 'السنوي' : 'الشهري'}` : `RENT · ${prop.rentalPeriod === 'Year' ? 'YEARLY' : 'MONTHLY'}`) : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}</span>
+                    <span className="zx-display mt-1 block text-lg leading-none text-zx-text">{formatListingPrice(prop.price, prop.region)}</span>
+                    {prop.deal === 'Rent' && <span className="mt-1 block text-[9px] text-zx-text-secondary">{isArabic ? 'اطلب تأكيد التوفر وشروط التعاقد' : 'Confirm availability and rental terms'}</span>}
                   </div>
                   <div className="flex gap-2">
                   <button
                     aria-label={isArabic ? 'حجز معاينة' : 'Book viewing'}
-                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#314f43] px-3 text-[10px] font-bold text-white shadow-sm transition-all hover:-translate-y-px hover:bg-[#436e5d]"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-3 text-[10px] font-bold text-zx-accent-contrast shadow-sm transition-all hover:-translate-y-px hover:bg-zx-cinematic"
                     onClick={() => {
                       setActiveProperty(prop);
                       setGalleryIndex(0);
@@ -718,7 +779,7 @@ Listing: ${itemTitle}`;
                   </button>
                   <button
                     aria-label={isArabic ? 'استفسار واتساب' : 'Ask on WhatsApp'}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dce6e0] text-[#527362] transition-colors hover:border-[#4e8e6f] hover:bg-[#eef5f1]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zx-border text-zx-text transition-colors hover:border-zx-border hover:bg-zx-mint"
                     title={isArabic ? 'استفسار واتساب' : 'Ask on WhatsApp'}
                     onClick={() =>
                       onWhatsApp(
@@ -741,17 +802,17 @@ Listing: ${itemTitle}`;
       )}
 
       <AnimatePresence>
-        {compareIds.length > 0 && !compareOpen && <motion.div animate={{ y: 0, opacity: 1 }} className="fixed inset-x-3 bottom-4 z-80 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl border border-white/70 bg-[#203c2e] p-3 text-white shadow-2xl" initial={{ y: 24, opacity: 0 }}><span className="text-xs font-semibold">{isArabic ? `قارن ${compareIds.length} إعلانات (حتى 3)` : `Compare ${compareIds.length} listings (up to 3)`}</span><div className="flex gap-2"><button className="min-h-10 rounded-xl bg-white px-4 text-xs font-bold text-[#203c2e]" onClick={() => setCompareOpen(true)} type="button">{isArabic ? 'ابدأ المقارنة' : 'Compare now'}</button><button aria-label={isArabic ? 'مسح المقارنة' : 'Clear comparison'} className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/25" onClick={() => setCompareIds([])} type="button"><X className="h-4 w-4" /></button></div></motion.div>}
+        {compareIds.length > 0 && !compareOpen && <motion.div animate={{ y: 0, opacity: 1 }} className="fixed inset-x-3 bottom-4 z-80 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-2xl border border-zx-border/70 bg-zx-cinematic p-3 text-zx-accent-contrast shadow-2xl" initial={{ y: 24, opacity: 0 }}><span className="text-xs font-semibold">{isArabic ? `قارن ${compareIds.length} إعلانات (حتى 3)` : `Compare ${compareIds.length} listings (up to 3)`}</span><div className="flex gap-2"><button className="min-h-10 rounded-xl bg-zx-surface-raised px-4 text-xs font-bold text-zx-text" onClick={() => setCompareOpen(true)} type="button">{isArabic ? 'ابدأ المقارنة' : 'Compare now'}</button><button aria-label={isArabic ? 'مسح المقارنة' : 'Clear comparison'} className="flex h-10 w-10 items-center justify-center rounded-xl border border-zx-border/25" onClick={() => setCompareIds([])} type="button"><X className="h-4 w-4" /></button></div></motion.div>}
       </AnimatePresence>
       <AnimatePresence>
-        {compareOpen && <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#17231e]/60 p-3 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) setCompareOpen(false); }}><motion.section aria-labelledby="comparison-title" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl" initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} role="dialog"><header className="flex items-center justify-between border-b border-[#e8eee9] p-5"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#6d8b78]">{isArabic ? 'اختيار أوضح' : 'A clearer choice'}</p><h2 className="mt-1 text-lg font-bold text-[#24382d]" id="comparison-title">{isArabic ? 'مقارنة الإعلانات' : 'Compare listings'}</h2></div><button aria-label={isArabic ? 'إغلاق' : 'Close'} className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e0e9e2]" onClick={() => setCompareOpen(false)} type="button"><X className="h-4 w-4" /></button></header><div className="zx-no-bar grid max-h-[calc(90vh-80px)] gap-3 overflow-auto p-4 sm:grid-cols-2 lg:grid-cols-3">{comparisonListings.map((listing) => <article className="overflow-hidden rounded-2xl border border-[#e5ece6]" key={listing.id}><img alt={listing.title} className="h-40 w-full object-cover" src={publicAssetUrl(listing.photo)} /><div className="space-y-3 p-4"><div><h3 className="font-bold text-[#24382d]">{listing.title}</h3><p className="mt-1 flex items-center gap-1 text-xs text-[#718478]"><MapPin className="h-3.5 w-3.5" />{listing.location}</p></div><p className="text-lg font-bold text-[#315643]">{listing.price}</p><p className="rounded-lg bg-[#f1f6f2] px-3 py-2 text-xs font-semibold text-[#456451]">{listing.deal}</p><ul className="space-y-2 text-xs text-[#617368]">{listing.details.filter(Boolean).map((detail, index) => <li className="border-b border-[#edf1ee] pb-2" key={`${listing.id}-${index}`}>{detail}</li>)}</ul><button className="min-h-10 w-full rounded-xl bg-[#315643] text-xs font-bold text-white" onClick={() => { const car = vehicleList.find((item) => item.id === listing.id); const property = propertyList.find((item) => item.id === listing.id); setCompareOpen(false); if (car) { setActiveVehicle(car); setGalleryIndex(0); } else if (property) { setActiveProperty(property); setGalleryIndex(0); } }} type="button">{isArabic ? 'عرض التفاصيل وطلب معاينة' : 'View details & request viewing'}</button><button className="min-h-9 w-full text-xs font-semibold text-[#8a5e51]" onClick={() => toggleComparison(listing.id)} type="button">{isArabic ? 'إزالة من المقارنة' : 'Remove from comparison'}</button></div></article>)}</div></motion.section></div>}
+        {compareOpen && <div className="fixed inset-0 z-100 flex items-center justify-center bg-zx-cinematic/60 p-3 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) setCompareOpen(false); }}><motion.section aria-labelledby="comparison-title" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-zx-surface-raised shadow-2xl" initial={{ opacity: 0, y: 16, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} role="dialog"><header className="flex items-center justify-between border-b border-zx-border p-5"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-zx-text">{isArabic ? 'اختيار أوضح' : 'A clearer choice'}</p><h2 className="mt-1 text-lg font-bold text-zx-text" id="comparison-title">{isArabic ? 'مقارنة الإعلانات' : 'Compare listings'}</h2></div><button aria-label={isArabic ? 'إغلاق المقارنة' : 'Close comparison'} className="flex h-11 w-11 items-center justify-center rounded-full border border-zx-border" onClick={() => setCompareOpen(false)} type="button"><X className="h-4 w-4" /></button></header><div className="zx-no-bar grid max-h-[calc(90vh-80px)] gap-3 overflow-auto p-4 sm:grid-cols-2 lg:grid-cols-3">{comparisonListings.map((listing) => <article className="overflow-hidden rounded-2xl border border-zx-border" key={listing.id}><img alt={listing.title} className="h-40 w-full object-cover" src={publicAssetUrl(listing.photo)} /><div className="space-y-3 p-4"><div><h3 className="font-bold text-zx-text">{listing.title}</h3><p className="mt-1 flex items-center gap-1 text-xs text-zx-text"><MapPin className="h-3.5 w-3.5" />{listing.location}</p></div><p className="text-lg font-bold text-zx-text">{listing.price}</p><p className="rounded-lg bg-zx-mint px-3 py-2 text-xs font-semibold text-zx-mint-contrast">{listing.deal}</p><ul className="space-y-2 text-xs text-zx-text">{listing.details.filter(Boolean).map((detail, index) => <li className="border-b border-zx-border pb-2" key={`${listing.id}-${index}`}>{detail}</li>)}</ul><button className="min-h-11 w-full rounded-xl bg-zx-cinematic text-xs font-bold text-zx-accent-contrast" onClick={() => { const car = vehicleList.find((item) => item.id === listing.id); const property = propertyList.find((item) => item.id === listing.id); setCompareOpen(false); if (car) { setActiveVehicle(car); setGalleryIndex(0); } else if (property) { setActiveProperty(property); setGalleryIndex(0); } }} type="button">{isArabic ? 'عرض التفاصيل وطلب معاينة' : 'View details & request viewing'}</button><button className="min-h-11 w-full text-xs font-semibold text-zx-text" onClick={() => toggleComparison(listing.id)} type="button">{isArabic ? 'إزالة من المقارنة' : 'Remove from comparison'}</button></div></article>)}</div></motion.section></div>}
       </AnimatePresence>
 
       {/* Modal: Interactive Gallery Slider + Map + Inspection Scheduler */}
       <AnimatePresence>
         {(activeVehicle || activeProperty) && (
           <div
-            className="fixed inset-0 z-100 flex items-center justify-center bg-[#17231e]/50 p-3 backdrop-blur-md sm:p-5"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-zx-cinematic/50 p-3 backdrop-blur-md sm:p-5"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
                 setActiveVehicle(null);
@@ -761,7 +822,7 @@ Listing: ${itemTitle}`;
           >
             <motion.div
               animate={{ opacity: 1, scale: 1 }}
-              className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-white bg-white shadow-2xl"
+              className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-zx-border bg-zx-surface-raised shadow-2xl"
               exit={{ opacity: 0, scale: 0.95 }}
               initial={{ opacity: 0, scale: 0.95 }}
               aria-labelledby="listing-dialog-title"
@@ -769,18 +830,18 @@ Listing: ${itemTitle}`;
               role="dialog"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-[#edf1ee] px-6 py-4">
+              <div className="flex items-center justify-between border-b border-zx-border px-6 py-4">
                 <div>
-                  <h3 className="text-base font-bold text-[#2d4236]" id="listing-dialog-title">
+                  <h3 className="text-base font-bold text-zx-text" id="listing-dialog-title">
                     {activeVehicle ? activeVehicle.title[locale] : activeProperty?.title[locale]}
                   </h3>
-                  <p className="text-[10px] text-[#7d8f85]">
+                  <p className="text-[10px] text-zx-text-secondary">
                     {isArabic ? 'معرض الصور، بيانات الموقع، وحجز المعاينة' : 'Image Gallery, Location Details & Viewing'}
                   </p>
                 </div>
                 <button
-                  aria-label="Close"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e2eae4] text-[#6d7d74] hover:bg-[#f0f4f1]"
+                  aria-label={isArabic ? 'إغلاق تفاصيل الإعلان' : 'Close listing details'}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-zx-border text-zx-text hover:bg-zx-mint"
                   onClick={() => {
                     setActiveVehicle(null);
                     setActiveProperty(null);
@@ -796,7 +857,7 @@ Listing: ${itemTitle}`;
                 {/* Left: Gallery Slider & Map */}
                 <div className="space-y-4">
                   {/* Slider Main Photo */}
-                  <div className="relative aspect-[1.45/1] overflow-hidden rounded-2xl bg-[#e9f2eb]">
+                  <div className="relative aspect-[1.45/1] overflow-hidden rounded-2xl bg-zx-mint">
                     {activeVehicle && (
                       <img
                         alt="Vehicle"
@@ -814,8 +875,8 @@ Listing: ${itemTitle}`;
 
                     {/* Prev/Next arrows */}
                     <button
-                      aria-label="Previous image"
-                      className="absolute start-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#294234] shadow-md backdrop-blur-md hover:bg-white"
+                      aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
+                      className="absolute start-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
                       onClick={() =>
                         setGalleryIndex((prev) =>
                           prev === 0
@@ -828,8 +889,8 @@ Listing: ${itemTitle}`;
                       <ChevronLeft className="h-4 w-4" />
                     </button>
                     <button
-                      aria-label="Next image"
-                      className="absolute end-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#294234] shadow-md backdrop-blur-md hover:bg-white"
+                      aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
+                      className="absolute end-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
                       onClick={() =>
                         setGalleryIndex(
                           (prev) =>
@@ -843,17 +904,18 @@ Listing: ${itemTitle}`;
                     </button>
 
                     <button
-                      aria-label="Enlarge image"
-                      className="absolute bottom-3 end-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md"
-                      onClick={() =>
+                      aria-label={isArabic ? 'تكبير الصورة' : 'Zoom image'}
+                      className="absolute bottom-3 end-3 flex h-11 w-11 items-center justify-center rounded-full bg-zx-cinematic/60 text-zx-accent-contrast backdrop-blur-md"
+                      onClick={(event) => {
+                        zoomTriggerRef.current = event.currentTarget;
                         setZoomImage(
                           activeVehicle
                             ? activeVehicle.gallery[galleryIndex] || activeVehicle.photo
                             : activeProperty
                               ? activeProperty.gallery[galleryIndex] || activeProperty.photo
                               : null,
-                        )
-                      }
+                        );
+                      }}
                       type="button"
                     >
                       <Maximize2 className="h-4 w-4" />
@@ -865,7 +927,7 @@ Listing: ${itemTitle}`;
                     {(activeVehicle ? activeVehicle.gallery : activeProperty?.gallery ?? []).map((img, idx) => (
                       <button
                         className={`aspect-video w-20 overflow-hidden rounded-xl border-2 transition-all ${
-                          galleryIndex === idx ? 'border-[#314f43] shadow-md' : 'border-transparent opacity-60'
+                          galleryIndex === idx ? 'border-zx-border shadow-md' : 'border-transparent opacity-60'
                         }`}
                         key={img + idx}
                         onClick={() => setGalleryIndex(idx)}
@@ -878,18 +940,18 @@ Listing: ${itemTitle}`;
 
                   {/* Property Map Visual Locator */}
                   {activeProperty && (
-                    <div className="rounded-2xl border border-[#dbe6df] bg-[#f4f8f5] p-4">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#355243]">
-                        <MapPin className="h-4 w-4 text-[#4f8369]" />
+                    <div className="rounded-2xl border border-zx-border bg-zx-mint p-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-zx-text">
+                        <MapPin className="h-4 w-4 text-zx-text" />
                         <span>{isArabic ? 'موقع العقار حسب بيانات الإعلان:' : 'Location as listed:'}</span>
                       </div>
-                      <div className="relative mt-2.5 flex aspect-[2.4/1] items-center justify-center overflow-hidden rounded-xl border border-white bg-linear-to-br from-[#d4ece2] via-[#e5f4ed] to-[#f4e7f8]">
+                      <div className="relative mt-2.5 flex aspect-[2.4/1] items-center justify-center overflow-hidden rounded-xl border border-zx-border bg-linear-to-br from-zx-mint via-zx-mint to-zx-mint">
                         <div className="text-center">
-                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#314f43] text-white shadow-lg">
+                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-zx-cinematic text-zx-accent-contrast shadow-lg">
                             <MapPin className="h-5 w-5" />
                           </span>
-                          <p className="mt-1.5 text-xs font-bold text-[#2a4637]">{activeProperty.location[locale]}</p>
-                          <p className="text-[9px] text-[#6d8075]">
+                          <p className="mt-1.5 text-xs font-bold text-zx-text">{activeProperty.location[locale]}</p>
+                          <p className="text-[9px] text-zx-text">
                             {isArabic ? 'المنطقة المذكورة في بيانات العقار' : 'Area shown in the listing details'}
                           </p>
                         </div>
@@ -901,39 +963,39 @@ Listing: ${itemTitle}`;
                 {/* Right: Inspection Booking Form */}
                 <div className="flex flex-col justify-between">
                   <div>
-                    <div className="mb-4 rounded-2xl border border-[#e4ece6] bg-[#f7faf7] p-4">
+                    <div className="mb-4 rounded-2xl border border-zx-border bg-zx-surface-raised p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-[9px] font-bold tracking-wide text-[#7d8f85]">{activeVehicle ? (isArabic ? 'السيارة' : 'VEHICLE') : (isArabic ? 'العقار' : 'PROPERTY')}</p>
-                          <p className="mt-1 text-xs font-bold text-[#2d4236]">{activeVehicle?.title[locale] ?? activeProperty?.title[locale]}</p>
-                          <p className="mt-1 text-[10px] text-[#718478]">{activeVehicle?.location[locale] ?? activeProperty?.location[locale]}</p>
+                          <p className="text-[9px] font-bold tracking-wide text-zx-text-secondary">{activeVehicle ? (isArabic ? 'السيارة' : 'VEHICLE') : (isArabic ? 'العقار' : 'PROPERTY')}</p>
+                          <p className="mt-1 text-xs font-bold text-zx-text">{activeVehicle?.title[locale] ?? activeProperty?.title[locale]}</p>
+                          <p className="mt-1 text-[10px] text-zx-text">{activeVehicle?.location[locale] ?? activeProperty?.location[locale]}</p>
                         </div>
-                        <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[9px] font-bold text-[#527362]">
+                        <span className="shrink-0 rounded-full bg-zx-surface-raised px-3 py-1.5 text-[9px] font-bold text-zx-text">
                           {activeVehicle?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : activeProperty?.deal === 'Rent' ? (isArabic ? 'للإيجار' : 'FOR RENT') : (isArabic ? 'بيع بتفويض المالك' : 'OWNER-AUTHORIZED SALE')}
                         </span>
                       </div>
-                      <p className="zx-display mt-3 text-xl text-[#2d4838]">
+                      <p className="zx-display mt-3 text-xl text-zx-text">
                         {activeVehicle
                           ? formatListingPrice(activeVehicle.price, activeVehicle.region)
                           : activeProperty ? formatListingPrice(activeProperty.price, activeProperty.region) : ''}
                         {activeVehicle?.deal === 'Rent' && <span className="ms-1 font-sans text-xs font-semibold">{vehiclePricePeriod(activeVehicle)}</span>}
                       </p>
-                      {activeProperty?.deal === 'Rent' && <p className="mt-1 text-[10px] text-[#718478]">{isArabic ? `إيجار ${activeProperty.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `${activeProperty.rentalPeriod === 'Year' ? 'Yearly' : 'Monthly'} rental`}</p>}
-                      <p className="mt-2 text-[10px] leading-5 text-[#718478]">
+                      {activeProperty?.deal === 'Rent' && <p className="mt-1 text-[10px] text-zx-text">{isArabic ? `إيجار ${activeProperty.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `${activeProperty.rentalPeriod === 'Year' ? 'Yearly' : 'Monthly'} rental`}</p>}
+                      <p className="mt-2 text-[10px] leading-5 text-zx-text">
                         {activeVehicle
                           ? `${activeVehicle.make} · ${activeVehicle.year} · ${activeVehicle.mileage === 0 ? (isArabic ? 'زيرو' : 'New') : `${new Intl.NumberFormat('en-US').format(activeVehicle.mileage)} ${isArabic ? 'كم' : 'km'}`}`
                           : activeProperty ? `${activeProperty.type} · ${new Intl.NumberFormat('en-US').format(activeProperty.area)} ${isArabic ? 'م²' : 'm²'} · ${activeProperty.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''}
                       </p>
                     </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-[#688a77]">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-zx-text">
                       {isArabic ? 'حجز موعد معاينة ميدانية' : 'Book In-Person Viewing'}
                     </span>
-                    <h4 className="mt-1 text-sm font-bold text-[#293d32]">
+                    <h4 className="mt-1 text-sm font-bold text-zx-text">
                       {activeVehicle?.deal === 'Rent'
                         ? isArabic ? 'حدد موعد بدء الإيجار واستلام السيارة' : 'Choose rental start and pickup time'
                         : isArabic ? 'حدد التاريخ والساعة لتأكيد الموعد' : 'Select Date & Hour For Direct Inspection'}
                     </h4>
-                    <p className="mt-1 text-[11px] leading-5 text-[#6c7d73]">
+                    <p className="mt-1 text-[11px] leading-5 text-zx-text">
                       {activeVehicle?.deal === 'Rent'
                         ? isArabic ? 'سيتواصل معك فريقنا لتأكيد التوفر ومدة الإيجار والتفاصيل قبل اعتماد الحجز.' : 'Our team will confirm availability, rental duration and terms before confirming your request.'
                         : isArabic ? 'سيتواصل معك فريقنا لتأكيد موعد المعاينة.' : 'Our team will contact you to confirm the viewing appointment.'}
@@ -941,11 +1003,11 @@ Listing: ${itemTitle}`;
 
                     <form className="mt-4 space-y-3" onSubmit={handleBookingSubmit}>
                       <div>
-                        <label className="text-[10px] font-medium text-[#5c6e64]">
+                        <label className="text-[10px] font-medium text-zx-text">
                           {isArabic ? 'الاسم بالكامل' : 'Full Name'}
                         </label>
                         <input
-                          className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs text-[#2c3d34] outline-none"
+                          className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs text-zx-text outline-none"
                           onChange={(e) => setBookingName(e.target.value)}
                           required
                           value={bookingName}
@@ -953,11 +1015,11 @@ Listing: ${itemTitle}`;
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-medium text-[#5c6e64]">
+                        <label className="text-[10px] font-medium text-zx-text">
                           {isArabic ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}
                         </label>
                         <input
-                          className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-3 text-xs text-[#2c3d34] outline-none"
+                          className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs text-zx-text outline-none"
                           onChange={(e) => setBookingPhone(e.target.value)}
                           required
                           type="tel"
@@ -967,11 +1029,11 @@ Listing: ${itemTitle}`;
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-[10px] font-medium text-[#5c6e64]">
+                          <label className="text-[10px] font-medium text-zx-text">
                           {activeVehicle?.deal === 'Rent' ? isArabic ? 'تاريخ بدء الإيجار' : 'Rental start date' : isArabic ? 'اليوم' : 'Date'}
                           </label>
                           <input
-                            className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-2 text-xs text-[#2c3d34] outline-none"
+                            className="mt-1 h-9 w-full rounded-xl border border-zx-border px-2 text-xs text-zx-text outline-none"
                             min={new Date().toISOString().slice(0, 10)}
                             onChange={(e) => setBookingDate(e.target.value)}
                             required
@@ -980,11 +1042,11 @@ Listing: ${itemTitle}`;
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-medium text-[#5c6e64]">
+                          <label className="text-[10px] font-medium text-zx-text">
                           {activeVehicle?.deal === 'Rent' ? isArabic ? 'موعد الاستلام' : 'Pickup time' : isArabic ? 'الساعة' : 'Time'}
                           </label>
                           <input
-                            className="mt-1 h-9 w-full rounded-xl border border-[#dfe8e2] px-2 text-xs text-[#2c3d34] outline-none"
+                            className="mt-1 h-9 w-full rounded-xl border border-zx-border px-2 text-xs text-zx-text outline-none"
                             onChange={(e) => setBookingTime(e.target.value)}
                             required
                             type="time"
@@ -994,7 +1056,7 @@ Listing: ${itemTitle}`;
                       </div>
 
                       <button
-                        className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#436e5d]"
+                        className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
                         type="submit"
                       >
                         <CalendarDays className="h-4 w-4" />
@@ -1004,7 +1066,7 @@ Listing: ${itemTitle}`;
                       </button>
 
                       {bookingSuccess && (
-                        <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#3a7554]">
+                        <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-zx-text">
                           <Check className="h-4 w-4" />
                           {activeVehicle?.deal === 'Rent'
                             ? isArabic ? 'تم حفظ طلب الإيجار وفتح واتساب!' : 'Rental request saved and WhatsApp opened.'
@@ -1023,18 +1085,24 @@ Listing: ${itemTitle}`;
       {/* Image Zoom Modal */}
       {zoomImage && (
         <div
-          className="fixed inset-0 z-110 flex items-center justify-center bg-black/85 p-4"
-          onClick={() => setZoomImage(null)}
+          aria-label={isArabic ? 'عرض الصورة المكبرة' : 'Enlarged image'}
+          aria-modal="true"
+          className="fixed inset-0 z-110 flex items-center justify-center bg-zx-cinematic/85 p-4"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setZoomImage(null);
+          }}
+          role="dialog"
         >
           <button
-            aria-label="Close"
-            className="absolute end-6 top-6 rounded-full bg-white p-2.5 text-black"
+            aria-label={isArabic ? 'إغلاق الصورة المكبرة' : 'Close enlarged image'}
+            className="absolute end-6 top-6 flex h-11 w-11 items-center justify-center rounded-full bg-zx-surface-raised text-zx-text"
+            ref={zoomCloseButtonRef}
             onClick={() => setZoomImage(null)}
             type="button"
           >
             <X className="h-5 w-5" />
           </button>
-          <img alt="Enlarged" className="max-h-[88vh] max-w-[92vw] rounded-2xl object-contain shadow-2xl" src={zoomImage} />
+          <img alt={isArabic ? 'صورة الإعلان مكبرة' : 'Enlarged listing image'} className="max-h-[88vh] max-w-[92vw] rounded-2xl object-contain shadow-2xl" src={zoomImage} />
         </div>
       )}
     </div>

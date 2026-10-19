@@ -113,14 +113,14 @@ I would like to discuss next steps.`;
       {/* 1. Header & Live Stats Counter */}
       <section className="zx-agency-hero relative overflow-hidden rounded-4xl border p-6 sm:p-10 lg:p-12">
         <div className="zx-agency-intro relative z-10 max-w-3xl">
-          <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-[#5c8a74]">
+          <p className="inline-flex items-center gap-2 text-[9px] font-semibold tracking-widest text-zx-text">
             <Code2 className="h-4 w-4" />
             {isArabic ? 'استوديو زكسور / أعمال مختارة' : 'ZEXOR STUDIO / SELECTED WORK'}
           </p>
-          <h1 className={`mt-3 text-3xl font-semibold text-[#293d32] sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
+          <h1 className={`mt-3 text-3xl font-semibold text-zx-text sm:text-5xl ${isArabic ? 'leading-tight' : ''}`}>
             {sectionName ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#697a70]">
+          <p className="mt-3 text-sm leading-6 text-zx-text">
             {isArabic
             ? 'نصمّم ونطوّر مواقع ومتاجر وتطبيقات تساعد مشروعك على الظهور والعمل بكفاءة. من الفكرة إلى الإطلاق، بخطوات واضحة تناسب احتياجك.'
               : 'We design and build websites, online stores and apps around your business needs, guiding each project from its first brief to launch.'}
@@ -128,7 +128,7 @@ I would like to discuss next steps.`;
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#2f4d3f] px-5 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#416957]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-zx-cinematic px-5 text-xs font-semibold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
               onClick={handleDownloadProfile}
               type="button"
             >
@@ -136,7 +136,7 @@ I would like to discuss next steps.`;
               {isArabic ? 'تحميل نبذة عن الاستوديو' : 'Download studio profile'}
             </button>
             {downloadSuccess && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#3b7355]">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zx-text" role="status">
                 <Check className="h-4 w-4" />
                 {isArabic ? 'تم تحميل الملف بنجاح!' : 'Profile downloaded successfully!'}
               </span>
@@ -148,11 +148,11 @@ I would like to discuss next steps.`;
         <div className="zx-agency-stats mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {STATS.map((s) => (
             <div
-              className="rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur-md"
+              className="rounded-2xl border border-zx-border/80 bg-zx-surface-raised/70 p-4 shadow-sm backdrop-blur-md"
               key={s.id}
             >
-              <p className="text-2xl font-bold tracking-tight text-[#2d4d3c] sm:text-3xl">{s.value}</p>
-              <p className="mt-1 text-[10px] text-[#6e8076]">{s.label[locale]}</p>
+              <p className="text-2xl font-bold tracking-tight text-zx-text sm:text-3xl">{s.value}</p>
+              <p className="mt-1 text-[10px] text-zx-text">{s.label[locale]}</p>
             </div>
           ))}
         </div>
@@ -162,14 +162,14 @@ I would like to discuss next steps.`;
       <section className="zx-agency-projects">
         <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
               {isArabic ? 'معاينة حية للمشاريع' : 'Live Interactive Demos'}
             </span>
-            <h2 className="mt-1 text-2xl font-bold text-[#2d4236]">
+            <h2 className="mt-1 text-2xl font-bold text-zx-text">
               {isArabic ? 'نماذج تفاعلية مختارة' : 'Selected Interactive Demos'}
             </h2>
           </div>
-          <p className="text-xs text-[#7e8d84]">
+          <p className="text-xs text-zx-text-secondary">
             {isArabic ? 'اضغط "معاينة حية" لتجربة المنصة في نافذة جديدة' : 'Click "Live Demo" to experience the platform'}
           </p>
         </div>
@@ -177,30 +177,30 @@ I would like to discuss next steps.`;
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {AGENCY_PROJECTS.map((proj) => (
             <motion.article
-              className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-[#e5ebe6] bg-white/85 shadow-[0_10px_32px_-22px_rgba(28,47,37,0.34)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bed2c4] hover:shadow-[0_24px_52px_-28px_rgba(28,47,37,0.42)]"
+              className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised/85 shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={proj.id}
               whileHover={{ y: -4 }}
             >
-              <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-[#e0eee5]">
+              <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-zx-mint">
                 <img
                   alt={proj.title[locale]}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                   src={publicAssetUrl(proj.image)}
                 />
-                <span className="absolute start-3 top-3 rounded-full bg-[#1b2b23]/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-white backdrop-blur-md">
+                <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-accent-contrast backdrop-blur-md">
                   {proj.category[locale]}
                 </span>
               </div>
               <div className="zx-agency-project-copy flex min-h-[250px] flex-col p-4 sm:p-5">
-                <h3 className="line-clamp-1 text-sm font-bold text-[#2f4438]">{proj.title[locale]}</h3>
-                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-[#6d7e74]">{proj.description[locale]}</p>
+                <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
+                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
 
                 {/* Tech tags */}
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {proj.tags.map((t) => (
                     <span
-                      className="rounded-full border border-[#e4ece6] bg-[#f5f8f5] px-2.5 py-1 text-[8px] font-medium text-[#4b6a5a]"
+                      className="rounded-full border border-zx-border bg-zx-mint px-2.5 py-1 text-[8px] font-medium text-zx-mint-contrast"
                       key={t}
                     >
                       {t}
@@ -208,9 +208,9 @@ I would like to discuss next steps.`;
                   ))}
                 </div>
 
-                <div className="mt-auto border-t border-[#edf1ee] pt-3.5">
+                <div className="mt-auto border-t border-zx-border pt-3.5">
                   <a
-                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#314f43] px-4 text-xs font-semibold text-white transition-all hover:bg-[#45705e]"
+                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast transition-all hover:bg-zx-cinematic"
                     href={proj.demoUrl}
                     rel="noreferrer"
                     target="_blank"
@@ -228,14 +228,14 @@ I would like to discuss next steps.`;
       {/* 3. Interactive Cost Calculator */}
       <section className="zx-agency-calculator rounded-3xl border p-5 sm:p-8">
         <div className="max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#5e8f77]">
+          <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-zx-text">
             <Sparkles className="h-3.5 w-3.5" />
             {isArabic ? 'حاسبة التكلفة التفاعلية' : 'Interactive Project Cost Calculator'}
           </span>
-          <h2 className="mt-1 text-2xl font-bold text-[#2e4337]">
+          <h2 className="mt-1 text-2xl font-bold text-zx-text">
             {isArabic ? 'احسب تكلفة موقعك أو متجرك فوراً' : 'Estimate Your Project Scope in Real Time'}
           </h2>
-          <p className="mt-1.5 text-xs text-[#708177]">
+          <p className="mt-1.5 text-xs text-zx-text">
             {isArabic
               ? 'اختر متطلبات مشروعك وميزانيتك لتظهر لك التكلفة التقديرية الفورية مع إمكانية إرسالها لمناقشة البدء فوراً.'
               : 'Configure your deliverables to receive a transparent starting scope and estimate.'}
@@ -246,10 +246,10 @@ I would like to discuss next steps.`;
           {/* Options Form */}
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-[#405649]">
+              <label className="text-xs font-semibold text-zx-text" id="zx-agency-project-type-label">
                 {isArabic ? 'نوع المنصة المطلوبة:' : 'Project Type:'}
               </label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
+              <div aria-labelledby="zx-agency-project-type-label" className="zx-agency-project-types mt-2 grid grid-cols-3 gap-2" role="group">
                 {[
                   { id: 'landing', label: isArabic ? 'موقع تعريفي' : 'Brand Website', icon: Laptop },
                   { id: 'store', label: isArabic ? 'متجر إلكتروني' : 'Online Store', icon: ShoppingBag },
@@ -258,17 +258,18 @@ I would like to discuss next steps.`;
                   const Icon = item.icon;
                   return (
                     <button
-                      className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-all ${
+                      aria-pressed={kind === item.id}
+                      className={`zx-agency-project-type flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-all ${
                         kind === item.id
-                          ? 'border-[#3f6753] bg-[#eef7f1] text-[#2f4c3c] shadow-xs'
-                          : 'border-[#e0e8e2] bg-white text-[#6b7b71] hover:border-[#b4cdbd]'
+                          ? 'border-zx-border bg-zx-mint text-zx-mint-contrast shadow-xs'
+                          : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'
                       }`}
                       key={item.id}
                       onClick={() => setKind(item.id as typeof kind)}
                       type="button"
                     >
                       <Icon className="h-5 w-5" />
-                      <span className="text-[10px] font-semibold">{item.label}</span>
+                      <span className="text-xs font-semibold">{item.label}</span>
                     </button>
                   );
                 })}
@@ -277,13 +278,14 @@ I would like to discuss next steps.`;
 
             <div>
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#405649]">
+                <label className="text-xs font-semibold text-zx-text" htmlFor="zx-agency-pages">
                   {isArabic ? 'عدد الصفحات والشاشات:' : 'Estimated Number of Pages:'}
                 </label>
-                <span className="text-xs font-bold text-[#355343]">{pages} {isArabic ? 'صفحات' : 'pages'}</span>
+                <span className="text-xs font-bold text-zx-text">{pages} {isArabic ? 'صفحات' : 'pages'}</span>
               </div>
               <input
-                className="mt-2 w-full accent-[#314f43]"
+                className="mt-2 w-full accent-zx-accent"
+                id="zx-agency-pages"
                 max="30"
                 min="1"
                 onChange={(e) => setPages(Number(e.target.value))}
@@ -294,30 +296,30 @@ I would like to discuss next steps.`;
 
             {/* Feature Toggles */}
             <div className="grid gap-2 sm:grid-cols-3">
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs text-zx-text">
                 <input
                   checked={bilingual}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-accent"
                   onChange={(e) => setBilingual(e.target.checked)}
                   type="checkbox"
                 />
                 <span>{isArabic ? 'ثنائي اللغة (عربي / إنجليزي)' : 'Bilingual Support (AR/EN)'}</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs text-zx-text">
                 <input
                   checked={seo}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-accent"
                   onChange={(e) => setSeo(e.target.checked)}
                   type="checkbox"
                 />
                 <span>{isArabic ? 'تهيئة محركات البحث (SEO)' : 'SEO Engine Optimization'}</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#dfe8e2] bg-white p-3 text-xs text-[#405449]">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-zx-border bg-zx-surface-raised p-3 text-xs text-zx-text">
                 <input
                   checked={speedOptimization}
-                  className="h-4 w-4 accent-[#314f43]"
+                  className="h-4 w-4 accent-zx-accent"
                   onChange={(e) => setSpeedOptimization(e.target.checked)}
                   type="checkbox"
                 />
@@ -326,11 +328,12 @@ I would like to discuss next steps.`;
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-[#405649]">
+              <label className="text-xs font-semibold text-zx-text" htmlFor="zx-agency-integrations">
                 {isArabic ? 'عدد الربط مع خدمات خارجية أو بوابات دفع:' : 'External API & Payment Integrations:'}
               </label>
               <select
-                className="mt-1.5 h-10 w-full rounded-xl border border-[#dfe8e2] bg-white px-3 text-xs text-[#34483e] outline-none"
+                className="mt-1.5 h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none"
+                id="zx-agency-integrations"
                 onChange={(e) => setCrmIntegrations(Number(e.target.value))}
                 value={crmIntegrations}
               >
@@ -345,19 +348,19 @@ I would like to discuss next steps.`;
           {/* Calculator Output Card */}
           <div className="zx-agency-estimate flex flex-col justify-between rounded-2xl border p-6">
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-[#7e9989]">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-zx-text-secondary">
                 {isArabic ? 'ملخص التقدير الفوري' : 'Instant Cost Breakdown'}
               </span>
-              <p className="mt-3 text-3xl font-extrabold text-[#2a4537]">
+              <p aria-atomic="true" aria-live="polite" className="mt-3 text-3xl font-extrabold text-zx-text">
                 {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(totalEstimate)} {currency}
               </p>
-              <p className="mt-1 text-[10px] text-[#86968d]">
+              <p className="mt-1 text-[10px] text-zx-text-secondary">
                 {isArabic
                   ? 'تقدير أولي شفاف، يشمل التصميم والبرمجة والتجاوب الكامل.'
                   : 'Transparent starting estimate including design, development & testing.'}
               </p>
 
-              <div className="mt-5 space-y-2 border-t border-[#edf1ee] pt-4 text-xs text-[#526659]">
+              <div className="mt-5 space-y-2 border-t border-zx-border pt-4 text-xs text-zx-text">
                 <div className="flex justify-between">
                   <span>{isArabic ? 'الباقة الأساسية:' : 'Base Package:'}</span>
                   <span className="font-semibold">{basePrice} {currency}</span>
@@ -384,7 +387,7 @@ I would like to discuss next steps.`;
             </div>
 
             <button
-              className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#314f43] px-4 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#436e5d]"
+              className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
               type="submit"
             >
               <MessageCircle className="h-4 w-4" />
@@ -398,10 +401,10 @@ I would like to discuss next steps.`;
       {/* 4. Pricing Tables */}
       <section className="zx-agency-pricing">
         <div className="mb-6 text-center">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-[#7fa390]">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
             {isArabic ? 'باقات البرمجة والتطوير' : 'Transparent Pricing Packages'}
           </span>
-          <h2 className="mt-1 text-2xl font-bold text-[#2d4236]">
+          <h2 className="mt-1 text-2xl font-bold text-zx-text">
             {isArabic ? 'خطط مرنة تناسب مرحلة نموك' : 'Clear Starting Tiers for Every Stage'}
           </h2>
         </div>
@@ -447,28 +450,28 @@ I would like to discuss next steps.`;
               <div
                 className={`zx-agency-tier relative flex flex-col justify-between rounded-3xl border p-6 transition-all ${
                   tier.popular
-                    ? 'border-[#3f6753] bg-linear-to-b from-white via-[#f3f9f5] to-white shadow-xl ring-2 ring-[#4d7d65]/20'
-                    : 'border-white bg-white/80'
+                    ? 'border-zx-border bg-linear-to-b from-zx-surface-raised via-zx-mint to-zx-surface-raised shadow-xl ring-2 ring-zx-accent/20'
+                    : 'border-zx-border bg-zx-surface-raised/80'
                 }`}
                 key={tier.id}
               >
                 {tier.popular && (
-                  <span className="absolute -top-3 inset-x-0 mx-auto w-fit rounded-full bg-[#314f43] px-3 py-1 text-[9px] font-bold text-white shadow-sm">
+                  <span className="absolute -top-3 inset-x-0 mx-auto w-fit rounded-full bg-zx-cinematic px-3 py-1 text-[9px] font-bold text-zx-accent-contrast shadow-sm">
                     {isArabic ? 'الأكثر طلباً' : 'Most Popular'}
                   </span>
                 )}
                 <div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#e7f4ed] text-[#47775f]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-zx-mint text-zx-mint-contrast">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <h3 className="mt-4 text-base font-bold text-[#2d4236]">{tier.title}</h3>
-                  <p className="mt-1 text-[11px] text-[#718278]">{tier.desc}</p>
-                  <p className="mt-4 text-2xl font-extrabold text-[#314f43]">{tier.price}</p>
+                  <h3 className="mt-4 text-base font-bold text-zx-text">{tier.title}</h3>
+                  <p className="mt-1 text-[11px] text-zx-text">{tier.desc}</p>
+                  <p className="mt-4 text-2xl font-extrabold text-zx-text">{tier.price}</p>
 
-                  <ul className="mt-6 space-y-2.5 border-t border-[#edf1ee] pt-4 text-xs text-[#526659]">
+                  <ul className="mt-6 space-y-2.5 border-t border-zx-border pt-4 text-xs text-zx-text">
                     {tier.features.map((feat) => (
                       <li className="flex items-center gap-2" key={feat}>
-                        <Check className="h-4 w-4 shrink-0 text-[#477f62]" />
+                        <Check className="h-4 w-4 shrink-0 text-zx-text" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -478,8 +481,8 @@ I would like to discuss next steps.`;
                 <button
                   className={`mt-8 min-h-11 w-full rounded-full text-xs font-semibold shadow-xs transition-all ${
                     tier.popular
-                      ? 'bg-[#314f43] text-white hover:bg-[#436e5d]'
-                      : 'border border-[#d2e3d8] bg-white text-[#385b49] hover:bg-[#eef6f1]'
+                      ? 'bg-zx-cinematic text-zx-accent-contrast hover:bg-zx-cinematic'
+                      : 'border border-zx-border bg-zx-surface-raised text-zx-text hover:bg-zx-mint'
                   }`}
                   onClick={() =>
                     onWhatsApp(
@@ -501,22 +504,22 @@ I would like to discuss next steps.`;
 
       {/* 6. Tech Stack Badges */}
       <section className="zx-agency-toolkit rounded-3xl border p-6 text-center">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-[#729381]">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
           {isArabic ? 'التقنيات والأدوات المستخدمة' : 'Our Engineering Toolkit'}
         </span>
-        <h3 className="mt-1 text-lg font-bold text-[#30473a]">
+        <h3 className="mt-1 text-lg font-bold text-zx-text">
           {isArabic ? 'أحدث التقنيات البرمجية فائقة الأداء' : 'Built With Modern High-Performance Technologies'}
         </h3>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {techStack.map((tech) => (
             <div
-              className="flex items-center gap-2 rounded-2xl border border-[#dfe8e2] bg-[#fbfdfa] px-4 py-2.5 shadow-xs"
+              className="flex items-center gap-2 rounded-2xl border border-zx-border bg-zx-surface-raised px-4 py-2.5 shadow-xs"
               key={tech.name}
             >
               <span className="text-base">{tech.icon}</span>
               <div className="text-start">
-                <p className="text-xs font-bold text-[#2f4639]">{tech.name}</p>
-                <p className="text-[8px] text-[#7c8d83]">{tech.role}</p>
+                <p className="text-xs font-bold text-zx-text">{tech.name}</p>
+                <p className="text-[8px] text-zx-text">{tech.role}</p>
               </div>
             </div>
           ))}

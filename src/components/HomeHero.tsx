@@ -1,32 +1,55 @@
 import {
-  AnimatePresence,
   motion,
   useMotionValue,
   useReducedMotion,
+  useScroll,
   useSpring,
   useTransform,
 } from 'framer-motion';
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  Sparkles,
-} from 'lucide-react';
-import { useEffect, useState, type PointerEvent, type ReactNode } from 'react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
+import { art } from '../data/imagery';
 import { PORTALS } from '../data/portals';
-import type { Locale, Market, Route } from '../types';
+import type { Locale, Route } from '../types';
 import { publicAssetUrl } from '../utils';
+import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 
-export function TiltCard({
+const HERO_POSTERS: Record<string, string> = {
+  cards: 'hero.letter.z.poster',
+  fashion: 'hero.letter.e.poster',
+  services: 'hero.letter.x.poster',
+  cars: 'hero.letter.o.poster',
+  property: 'hero.letter.r.poster',
+};
+
+const HERO_VIDEOS: Record<string, string> = {
+  cards: 'hero.letter.z.video',
+  fashion: 'hero.letter.e.video',
+  services: 'hero.letter.x.video',
+  cars: 'hero.letter.o.video',
+  property: 'hero.letter.r.video',
+};
+
+const HERO_FALLBACKS: Record<string, string> = {
+  cards: art.cardsElite,
+  fashion: art.hoodie,
+  services: art.studioPortal,
+  cars: art.vehiclesPortal,
+  property: art.estatePortal,
+};
+
+const HERO_GLYPHS = ['Z', 'E', 'X', 'O', 'R'] as const;
+
+function TiltCard({
   children,
   className = '',
-  intensity = 12,
+  intensity = 6,
 }: {
   children: ReactNode;
   className?: string;
   intensity?: number;
 }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [intensity, -intensity]), {
@@ -61,7 +84,6 @@ export function TiltCard({
         transformStyle: 'preserve-3d',
       }}
       transition={{ type: 'spring', stiffness: 140, damping: 18 }}
-      whileHover={reduceMotion ? undefined : { scale: 1.02 }}
     >
       {children}
     </motion.div>
@@ -70,14 +92,10 @@ export function TiltCard({
 
 type Props = {
   locale: Locale;
-  brandName: string;
-  market: Market;
-  onMarketChange: (m: Market) => void;
   navigate: (r: Route) => void;
   heroTitle: string;
   heroAccent: string;
   heroText: string;
-  /** Optional admin-set hero background image (data-url or /images path). */
   heroImage?: string;
   departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string>>;
   departmentCount?: number;
@@ -85,9 +103,6 @@ type Props = {
 
 export function HomeHero({
   locale,
-  brandName,
-  market,
-  onMarketChange,
   navigate,
   heroTitle,
   heroAccent,
@@ -96,185 +111,216 @@ export function HomeHero({
   departmentNames,
 }: Props) {
   const isArabic = locale === 'ar';
-  const reduceMotion = useReducedMotion();
+  const sceneRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sceneRef,
+    offset: ['start start', 'end end'],
+  });
+  const { assets } = useSiteAssets();
+  const { content, getText } = useSiteContent();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  const [isMobileViewport, setIsMobileViewport] = useState(
+    () => window.matchMedia('(max-width: 640px)').matches,
+  );
+  const taglineOpacity = useTransform(scrollYProgress, [0, 0.1, 0.12], [1, 1, 0]);
+  const taglineY = useTransform(scrollYProgress, [0.1, 0.12], ['0px', '-24px']);
+  const windowsOpacity = useTransform(scrollYProgress, [0, 0.12, 0.32, 0.45], [1, 1, 0, 0]);
+  const atmosphereOpacity = useTransform(scrollYProgress, [0.12, 0.32], [1, 0]);
+  const windowsScale = useTransform(scrollYProgress, [0, 0.12, 0.45], [1, 1.06, 0.92]);
+  const windowsPointerEvents = useTransform(
+    scrollYProgress,
+    [0, 0.12, 0.13, 1],
+    ['auto', 'auto', 'none', 'none'],
+  );
+  const outlineOpacity = useTransform(scrollYProgress, [0.12, 0.2, 0.9, 1], [0, 1, 1, 0]);
+  const outlineScale = useTransform(scrollYProgress, [0.12, 0.45, 0.7, 1], [1, 1.35, 1.35, 1.35]);
   const departments = PORTALS.map((portal) => ({
     ...portal,
     name: departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale],
   }));
   const active = departments[activeIndex] ?? departments[0];
-  const PreviousIcon = isArabic ? ArrowRight : ArrowLeft;
-  const NextIcon = isArabic ? ArrowLeft : ArrowRight;
-  const slideCopy = [
-    { title: heroTitle, accent: heroAccent, text: heroText },
-    {
-      title: isArabic ? 'تفاصيل يومية،' : 'Made for the everyday.',
-      accent: isArabic ? 'بطابع مختلف.' : 'Never ordinary.',
-      text: activeIndex === 1 ? active.tagline[locale] : '',
-    },
-    {
-      title: isArabic ? 'حضورك الرقمي،' : 'Your next idea,',
-      accent: isArabic ? 'يبدأ من هنا.' : 'made real.',
-      text: activeIndex === 2 ? active.tagline[locale] : '',
-    },
-    {
-      title: isArabic ? 'مشوارك القادم،' : 'A better way',
-      accent: isArabic ? 'على اختيارك.' : 'to get there.',
-      text: activeIndex === 3 ? active.tagline[locale] : '',
-    },
-    {
-      title: isArabic ? 'مساحة تناسب' : 'Space for',
-      accent: isArabic ? 'خطوتك القادمة.' : 'what comes next.',
-      text: activeIndex === 4 ? active.tagline[locale] : '',
-    },
-  ];
-  const copy = slideCopy[activeIndex] ?? slideCopy[0];
+  const accentWords = heroAccent.trim().split(/\s+/);
+  const accentWord = accentWords.pop() ?? '';
+  const accentPrefix = accentWords.join(' ');
 
-  useEffect(() => {
-    if (reduceMotion) return;
-    const timer = window.setInterval(() => setActiveIndex((index) => (index + 1) % departments.length), 6500);
-    return () => window.clearInterval(timer);
-  }, [departments.length, reduceMotion]);
-
-  const step = (direction: number) => {
-    setActiveIndex((index) => (index + direction + departments.length) % departments.length);
+  const openDepartment = (route: Route) => {
+    const chapter = document.getElementById(`chapter-${route}`);
+    if (chapter) {
+      chapter.scrollIntoView({
+        behavior: reduceMotion ? 'instant' : 'smooth',
+        block: 'start',
+      });
+      return;
+    }
+    navigate(route);
   };
 
+  useEffect(() => {
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateViewport = () => {
+      setIsMobileViewport(window.matchMedia('(max-width: 640px)').matches);
+    };
+    const updateMotionPreference = () => setReduceMotion(motionPreference.matches);
+    updateViewport();
+    updateMotionPreference();
+    window.addEventListener('resize', updateViewport, { passive: true });
+    motionPreference.addEventListener('change', updateMotionPreference);
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+      motionPreference.removeEventListener('change', updateMotionPreference);
+    };
+  }, []);
+
   return (
-    <section className="zx-home-hero zx-home-hero--showroom relative overflow-hidden rounded-[2rem] border text-[#222923]">
-      <div className="zx-hero-inner relative flex flex-col">
-        <div className="zx-hero-head relative z-20 flex items-center justify-between gap-4">
-          <div>
-            <p className="zx-hero-topline text-[9px] font-bold tracking-[.18em] sm:text-[10px]">
-              {brandName} <span aria-hidden="true" className="mx-1.5 opacity-40">/</span>
-              {isArabic ? 'اختيارات للحياة اليومية' : 'A HOUSE OF CONSIDERED CHOICES'}
-            </p>
-            <p className="mt-1 text-[9px] text-[#829087]">
-              {isArabic ? 'مصر والسعودية' : 'EGYPT & SAUDI ARABIA'}
-            </p>
-          </div>
-          <div className="zx-hero-market flex items-center gap-1 rounded-full border p-1">
-            {(['eg', 'ksa'] as const).map((option) => (
-              <button
-                aria-pressed={market === option}
-                className={`rounded-full px-3 py-1.5 text-[9px] font-bold transition ${market === option ? 'bg-[#244b38] text-white' : 'text-[#617267] hover:bg-white/70'}`}
-                key={option}
-                onClick={() => onMarketChange(option)}
-                type="button"
-              >
-                {option === 'eg' ? '🇪🇬' : '🇸🇦'} {option === 'eg' ? (isArabic ? 'مصر' : 'Egypt') : (isArabic ? 'السعودية' : 'KSA')}
-              </button>
-            ))}
-          </div>
-        </div>
+    <section
+      ref={sceneRef}
+      className="five-windows-scene"
+      aria-label={isArabic ? 'افتتاحية زكسور' : 'ZEXOR opening'}
+    >
+      <div className="five-windows-stage">
+        <motion.div
+          aria-hidden="true"
+          className="five-windows-atmosphere"
+          style={{ opacity: atmosphereOpacity }}
+        >
+          <div className="five-windows-glow five-windows-glow--mint" />
+          <div className="five-windows-glow five-windows-glow--apricot" />
+          <div className="five-windows-mist five-windows-mist--far" />
+          <div className="five-windows-mist five-windows-mist--near" />
+        </motion.div>
 
-        <div className="zx-hero-stage relative z-10 grid flex-1 items-stretch">
-          <div className="zx-hero-copy relative z-10 flex flex-col justify-center">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                initial={{ opacity: 0, y: 14 }}
-                key={active.route}
-                transition={{ duration: reduceMotion ? 0.01 : 0.42, ease: 'easeOut' }}
-              >
-                <span className="zx-hero-badge inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[9px] font-bold tracking-widest">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {active.meta[locale]}
-                </span>
-                <h1 className="zx-display zx-hero-title mt-5">
-                {copy.title}{' '}
-                  <span className="zx-hero-accent">{copy.accent}</span>
-                </h1>
-                <p className="zx-hero-description mt-5 max-w-lg text-sm sm:text-base">
-                  {activeIndex === 0 ? copy.text : active.tagline[locale]}
-                </p>
-              </motion.div>
-            </AnimatePresence>
+        <motion.div
+          aria-hidden="true"
+          className="five-windows-outline"
+          style={{
+            opacity: outlineOpacity,
+            scale: reduceMotion ? 1 : outlineScale,
+          }}
+        >
+          ZEXOR
+        </motion.div>
+        <div className="five-windows-content">
+          <motion.p
+            className="five-windows-eyebrow"
+            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+          >
+            <Sparkles aria-hidden="true" />
+            {isArabic ? 'تصميم · تقنية · ثقافة' : 'DESIGN · TECHNOLOGY · CULTURE'}
+          </motion.p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <button
-                className="zx-hero-primary group inline-flex min-h-12 items-center gap-2.5 px-6 text-xs font-bold transition"
-                onClick={() => navigate(active.route)}
-                type="button"
-              >
-                {isArabic ? `اكتشف ${active.name}` : `Explore ${active.name}`}
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </button>
-              <span className="zx-hero-slide-count text-[10px] font-semibold tabular-nums">
-                {String(activeIndex + 1).padStart(2, '0')} <span className="opacity-40">/</span> {String(departments.length).padStart(2, '0')}
+          <motion.nav
+            aria-label={isArabic ? 'اختار فصل من زكسور' : 'Choose a ZEXOR chapter'}
+            className="five-windows-wordmark"
+            dir="ltr"
+            style={{
+              opacity: windowsOpacity,
+              scale: reduceMotion ? 1 : windowsScale,
+              pointerEvents: windowsPointerEvents,
+            }}
+          >
+            {departments.map((department, index) => {
+              const poster = assets[HERO_POSTERS[department.route] ?? ''];
+              const video = assets[HERO_VIDEOS[department.route] ?? ''];
+              const fallback = index === 0 && heroImage
+                ? heroImage
+                : HERO_FALLBACKS[department.route] ?? department.image ?? art.cardsPortal;
+              const posterUrl = poster?.source === 'published' ? poster.url : fallback;
+              const windowImage = isMobileViewport ? poster?.mobileUrl ?? posterUrl : posterUrl;
+              const resolvedImage = publicAssetUrl(windowImage) ?? publicAssetUrl(fallback) ?? fallback;
+              const videoUrl = !reduceMotion
+                && !isMobileViewport
+                && content['feature.heavy_media']?.value_json !== false
+                && video?.source === 'published'
+                && video.type === 'video'
+                ? publicAssetUrl(video.url)
+                : null;
+              const Glyph = HERO_GLYPHS[index] ?? 'X';
+              const Icon = department.icon;
+
+              return (
+                <motion.button
+                  aria-current={activeIndex === index ? 'page' : undefined}
+                  aria-label={`${String(index + 1).padStart(2, '0')} / 05 — ${department.name}`}
+                  className={`five-windows-window ${activeIndex === index ? 'is-active' : ''}`}
+                  key={department.route}
+                  onClick={() => {
+                    setActiveIndex(index);
+                    openDepartment(department.route);
+                  }}
+                  onFocus={() => setActiveIndex(index)}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  style={{
+                    backgroundImage: `url("${resolvedImage}")`,
+                    opacity: windowsOpacity,
+                  }}
+                  type="button"
+                  initial={reduceMotion ? false : { y: '12%' }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 1.4, delay: index * 0.11, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {videoUrl && (
+                    <video
+                      aria-hidden="true"
+                      className="five-windows-video"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      poster={resolvedImage}
+                      preload="none"
+                      src={videoUrl}
+                    />
+                  )}
+                  <span aria-hidden="true" className="five-windows-glyph">{Glyph}</span>
+                  <span className="five-windows-label" dir="auto">
+                    <span className="five-windows-number" dir="ltr">0{index + 1} / 05</span>
+                    <Icon aria-hidden="true" />
+                    <span className="five-windows-name">{department.name}</span>
+                  </span>
+                </motion.button>
+              );
+            })}
+          </motion.nav>
+
+          <motion.div
+            className="five-windows-copy"
+            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+          >
+            <h1 aria-label={`${heroTitle} ${heroAccent}`}>
+              <span className="five-windows-title-line">{heroTitle}</span>
+              <span className="five-windows-title-line">
+                {accentPrefix && <>{accentPrefix} </>}
+                <span className="five-windows-accent">{accentWord}</span>
               </span>
-            </div>
+            </h1>
+            <p>{heroText}</p>
+            <button
+              className="five-windows-cta"
+              onClick={() => openDepartment(active.route)}
+              type="button"
+            >
+              {getText('hero.cta.primary', locale) ?? (isArabic ? `اكتشف ${active.name}` : `Explore ${active.name}`)}
+              <ArrowUpRight aria-hidden="true" />
+            </button>
+          </motion.div>
 
-            <div className="zx-hero-controls mt-8 flex items-center gap-2">
-              <button aria-label={isArabic ? 'القسم السابق' : 'Previous department'} className="zx-hero-arrow" onClick={() => step(-1)} type="button"><PreviousIcon className="h-4 w-4" /></button>
-              <div className="flex items-center gap-1.5" role="tablist" aria-label={isArabic ? 'اختيار القسم' : 'Choose a department'}>
-                {departments.map((department, index) => (
-                  <button
-                    aria-label={department.name}
-                    aria-selected={activeIndex === index}
-                    className={`zx-hero-dot ${activeIndex === index ? 'is-active' : ''}`}
-                    key={department.route}
-                    onClick={() => setActiveIndex(index)}
-                    role="tab"
-                    type="button"
-                  />
-                ))}
-              </div>
-              <button aria-label={isArabic ? 'القسم التالي' : 'Next department'} className="zx-hero-arrow" onClick={() => step(1)} type="button"><NextIcon className="h-4 w-4" /></button>
-            </div>
-          </div>
-
-          <div className="zx-hero-visual relative isolate overflow-hidden">
-            <AnimatePresence mode="sync" initial={false}>
-              <motion.img
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-cover"
-                key={`${active.route}-${activeIndex === 0 ? heroImage : ''}`}
-                src={publicAssetUrl(activeIndex === 0 && heroImage ? heroImage : active.image)}
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.025 }}
-                transition={{ duration: reduceMotion ? 0.01 : 0.75, ease: 'easeOut' }}
-              />
-            </AnimatePresence>
-            <span aria-hidden="true" className="zx-hero-image-shade absolute inset-0" />
-            <span className="zx-hero-image-index absolute start-5 top-5 font-mono text-[10px] font-semibold tracking-[.18em] text-white/75">
-              Z / {String(activeIndex + 1).padStart(2, '0')}
-            </span>
-            <div className="zx-hero-image-caption absolute inset-x-4 bottom-4 flex items-end justify-between gap-4 rounded-2xl border border-white/20 p-4 text-white backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:p-5">
-              <div>
-                <span className="block text-[8px] font-bold tracking-[.2em] text-white/65">{brandName.toUpperCase()}</span>
-                <span className="zx-display mt-1 block text-xl sm:text-2xl">{active.name}</span>
-              </div>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10">
-                <active.icon className="h-4 w-4" />
-              </span>
-            </div>
-          </div>
+          <motion.footer
+            className="five-windows-footer"
+            style={{ opacity: reduceMotion ? 1 : taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+          >
+            <span>{isArabic ? 'اسحب للأسفل' : 'SCROLL TO EXPLORE'}</span>
+            <span aria-hidden="true" className="five-windows-scroll-line" />
+            <a href="#departments">
+              {isArabic ? 'خمسة فصول · تجربة واحدة' : 'FIVE CHAPTERS · ONE EXPERIENCE'}
+            </a>
+          </motion.footer>
         </div>
-
-        <nav aria-label={isArabic ? 'أقسام ZEXOR' : 'ZEXOR departments'} className="zx-hero-departments relative z-20 grid grid-cols-2 border-t pt-4 sm:grid-cols-3 lg:grid-cols-5">
-          {departments.map((department, index) => {
-            const Icon = department.icon;
-            return (
-              <button
-                aria-current={activeIndex === index ? 'true' : undefined}
-                className={`zx-hero-department ${activeIndex === index ? 'is-active' : ''}`}
-                key={department.route}
-                onClick={() => setActiveIndex(index)}
-                type="button"
-              >
-                <span className="zx-hero-department-number">0{index + 1}</span>
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="min-w-0 truncate">{department.name}</span>
-                <ArrowUpRight className="zx-hero-department-arrow ms-auto h-3.5 w-3.5 shrink-0" />
-              </button>
-            );
-          })}
-        </nav>
       </div>
     </section>
   );
 }
+
+export { TiltCard };
