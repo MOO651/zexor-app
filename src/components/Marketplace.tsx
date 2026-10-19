@@ -539,7 +539,7 @@ Listing: ${itemTitle}`;
               >
                 <img
                   alt={car.title[locale]}
-                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
+                  className="h-full w-full object-cover transition-transform                   duration-900 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
                   loading="lazy"
                   src={publicAssetUrl(car.photo)}
                 />
@@ -548,7 +548,7 @@ Listing: ${itemTitle}`;
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/45 to-transparent"
                 />
                 <span
-                  className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
+                                    className={`absolute inset-s-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
                     car.condition === 'New'
                       ? 'bg-zx-accent text-zx-text'
                       : 'bg-zx-surface-raised/90 text-zx-text'
@@ -556,7 +556,7 @@ Listing: ${itemTitle}`;
                 >
                   {car.condition === 'New' ? (isArabic ? 'زيرو' : 'Brand New') : isArabic ? 'مستعمل' : 'Pre-owned'}
                 </span>
-                <div className="absolute end-3 top-3 flex items-center gap-1.5">
+                <div className="absolute inset-e-3 top-3 flex items-center gap-1.5">
                   <span className="rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-extrabold text-zx-accent-contrast backdrop-blur-md">
                     {(car.deal ?? 'Rent') === 'Rent' ? isArabic ? 'للإيجار' : 'For Rent' : isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale'}
                   </span>
@@ -685,7 +685,7 @@ Listing: ${itemTitle}`;
               >
                 <img
                   alt={prop.title[locale]}
-                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
+                  className="h-full w-full object-cover transition-transform                   duration-900 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
                   loading="lazy"
                   src={publicAssetUrl(prop.photo)}
                 />
@@ -694,13 +694,13 @@ Listing: ${itemTitle}`;
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/45 to-transparent"
                 />
                 <span
-                  className={`absolute start-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
+                                    className={`absolute inset-s-3 top-3 rounded-full px-2.5 py-1 text-[9px] font-extrabold tracking-wide shadow-sm backdrop-blur-md ${
                     prop.deal === 'Sale' ? 'bg-zx-accent text-zx-text' : 'bg-zx-accent text-zx-text'
                   }`}
                 >
                   {prop.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? 'للإيجار' : 'For Rent'}
                 </span>
-                <span className="absolute end-3 top-3 rounded-full border border-zx-border/40 bg-zx-cinematic/45 px-2.5 py-1 font-mono text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
+                <span className="absolute inset-e-3 top-3 rounded-full border border-zx-border/40 bg-zx-cinematic/45 px-2.5 py-1 font-mono text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
                   {prop.id}
                 </span>
                 <div className="absolute inset-0 flex items-center justify-center bg-zx-cinematic/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -822,7 +822,7 @@ Listing: ${itemTitle}`;
           >
             <motion.div
               animate={{ opacity: 1, scale: 1 }}
-              className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2rem] border border-zx-border bg-zx-surface-raised shadow-2xl"
+              className="relative flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-4xl border border-zx-border bg-zx-surface-raised shadow-2xl"
               exit={{ opacity: 0, scale: 0.95 }}
               initial={{ opacity: 0, scale: 0.95 }}
               aria-labelledby="listing-dialog-title"
@@ -876,7 +876,7 @@ Listing: ${itemTitle}`;
                     {/* Prev/Next arrows */}
                     <button
                       aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
-                      className="absolute start-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
+                      className="absolute inset-s-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
                       onClick={() =>
                         setGalleryIndex((prev) =>
                           prev === 0
@@ -890,7 +890,7 @@ Listing: ${itemTitle}`;
                     </button>
                     <button
                       aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
-                      className="absolute end-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
+                      className="absolute inset-e-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
                       onClick={() =>
                         setGalleryIndex(
                           (prev) =>
@@ -905,7 +905,7 @@ Listing: ${itemTitle}`;
 
                     <button
                       aria-label={isArabic ? 'تكبير الصورة' : 'Zoom image'}
-                      className="absolute bottom-3 end-3 flex h-11 w-11 items-center justify-center rounded-full bg-zx-cinematic/60 text-zx-accent-contrast backdrop-blur-md"
+                      className="absolute bottom-3 inset-e-3 flex h-11 w-11 items-center justify-center rounded-full bg-zx-cinematic/60 text-zx-accent-contrast backdrop-blur-md"
                       onClick={(event) => {
                         zoomTriggerRef.current = event.currentTarget;
                         setZoomImage(
@@ -1095,7 +1095,7 @@ Listing: ${itemTitle}`;
         >
           <button
             aria-label={isArabic ? 'إغلاق الصورة المكبرة' : 'Close enlarged image'}
-            className="absolute end-6 top-6 flex h-11 w-11 items-center justify-center rounded-full bg-zx-surface-raised text-zx-text"
+            className="absolute inset-e-6 top-6 flex h-11 w-11 items-center justify-center rounded-full bg-zx-surface-raised text-zx-text"
             ref={zoomCloseButtonRef}
             onClick={() => setZoomImage(null)}
             type="button"

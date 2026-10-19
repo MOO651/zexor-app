@@ -80,7 +80,7 @@ export function ProductCard({
 
   return (
     <motion.article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-3xl border border-zx-line bg-zx-surface" data-cursor="view" data-product-category={product.category} data-product-id={product.id} initial={reduceMotion ? undefined : { opacity: 0, y: 18 }} style={{ transformPerspective: 1100 }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} viewport={{ once: true, amount: 0.08 }} whileHover={reduceMotion ? undefined : { y: -5 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} whileTap={reduceMotion ? undefined : { scale: 0.985, rotateX: -1.5 }}>
-      <div className="zx-product-media relative aspect-[4/3] overflow-hidden bg-zx-surface-2">
+      <div className="zx-product-media relative aspect-4/3 overflow-hidden bg-zx-surface-2">
         {!imageLoaded && <span aria-hidden="true" className="zx-image-skeleton absolute inset-0" />}
         {product.imageUrl && failedImageUrl !== product.imageUrl ? (
           <img
@@ -106,7 +106,7 @@ export function ProductCard({
           className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-zx-cinematic/35 via-zx-cinematic/5 to-transparent"
         />
 
-        <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
+        <div className="absolute inset-s-3 top-3 flex flex-wrap gap-1.5">
           {soldOut && (
             <span className="rounded-full border border-zx-border/15 bg-zx-cinematic/90 px-3 py-1.5 text-[10px] font-bold tracking-wide text-zx-accent-contrast shadow-lg backdrop-blur-md">
               {labels.soldOut}
@@ -122,16 +122,16 @@ export function ProductCard({
         <button
           aria-label={labels.wishlist}
           aria-pressed={wishlisted}
-          className="absolute end-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/50 bg-zx-mint/90 text-zx-mint-contrast shadow-md backdrop-blur-xl transition-all hover:scale-105 hover:bg-zx-surface-raised hover:text-zx-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent"
+          className="absolute inset-e-3 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/50 bg-zx-mint/90 text-zx-mint-contrast shadow-md backdrop-blur-xl transition-all hover:scale-105 hover:bg-zx-surface-raised hover:text-zx-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent"
           onClick={() => onToggleWishlist(product)}
           type="button"
         >
-          <Heart aria-hidden="true" className="h-[18px] w-[18px]" fill={wishlisted ? 'currentColor' : 'none'} />
+          <Heart aria-hidden="true" className="size-4.5" fill={wishlisted ? 'currentColor' : 'none'} />
         </button>
-        {onShare && <button aria-label={labels.share} className="absolute end-16 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/50 bg-zx-mint/90 text-zx-mint-contrast shadow-md backdrop-blur-xl transition hover:scale-105 hover:bg-zx-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent" onClick={() => onShare(product)} title={labels.share} type="button"><Share2 aria-hidden="true" className="h-[17px] w-[17px]" /></button>}
+        {onShare && <button aria-label={labels.share} className="absolute inset-e-16 top-3 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/50 bg-zx-mint/90 text-zx-mint-contrast shadow-md backdrop-blur-xl transition hover:scale-105 hover:bg-zx-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent" onClick={() => onShare(product)} title={labels.share} type="button"><Share2 aria-hidden="true" className="size-4.25" /></button>}
 
         {badge && (
-          <span className="absolute bottom-3 start-3 inline-flex items-center gap-1.5 rounded-full border border-zx-border/15 bg-zx-cinematic/90 px-3 py-1.5 text-[10px] font-bold text-zx-accent-contrast shadow-lg backdrop-blur-md">
+          <span className="absolute bottom-3 inset-s-3 inline-flex items-center gap-1.5 rounded-full border border-zx-border/15 bg-zx-cinematic/90 px-3 py-1.5 text-[10px] font-bold text-zx-accent-contrast shadow-lg backdrop-blur-md">
             <Sparkles className="h-3 w-3 shrink-0 text-zx-text-secondary" />
             <bdi>{badge}</bdi>
           </span>
@@ -140,7 +140,7 @@ export function ProductCard({
 
       <div className="zx-product-body flex flex-1 flex-col p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="zx-product-category line-clamp-1 text-[9px] font-bold tracking-[0.1em] text-zx-primary">{categoryLabel}</p>
+          <p className="zx-product-category line-clamp-1 text-[9px] font-bold tracking-widest text-zx-primary">{categoryLabel}</p>
           {!soldOut && <span className="zx-product-availability flex shrink-0 items-center gap-1.5 text-[9px] font-semibold text-zx-text"><span className="h-1.5 w-1.5 rounded-full bg-zx-accent" />{isArabic ? 'متاح الآن' : 'Available now'}</span>}
         </div>
         <h3 className="zx-product-name mt-2 line-clamp-1 text-base font-bold leading-6 text-zx-ink">{product.name[locale]}</h3>

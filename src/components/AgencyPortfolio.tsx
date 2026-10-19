@@ -188,13 +188,13 @@ I would like to discuss next steps.`;
                   loading="lazy"
                   src={publicAssetUrl(proj.image)}
                 />
-                <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-accent-contrast backdrop-blur-md">
+                <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-accent-contrast backdrop-blur-md">
                   {proj.category[locale]}
                 </span>
               </div>
-              <div className="zx-agency-project-copy flex min-h-[250px] flex-col p-4 sm:p-5">
+              <div className="zx-agency-project-copy flex min-h-62.5 flex-col p-4 sm:p-5">
                 <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
-                <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
+                <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
 
                 {/* Tech tags */}
                 <div className="mt-3 flex flex-wrap gap-1.5">

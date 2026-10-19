@@ -179,7 +179,7 @@ export function TrackingAndNewsletter({ isArabic, onTrackOrder, onSubscribe }: C
       <div className="relative overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/85 p-7 shadow-md backdrop-blur-md sm:p-9">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-zx-mint/70 blur-3xl"
+          className="pointer-events-none absolute -inset-e-10 -top-10 h-40 w-40 rounded-full bg-zx-mint/70 blur-3xl"
         />
         <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-zx-mint text-zx-mint-contrast">
           <Package className="h-5 w-5" />

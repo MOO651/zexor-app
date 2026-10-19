@@ -30,7 +30,7 @@ function ProceduralCard({ finishColor, children }: { finishColor: string; childr
         />
       </RoundedBox>
       <Html center distanceFactor={4.5} pointerEvents="none" position={[0, 0, 0.04]} transform>
-        <div className="w-[400px]">{children}</div>
+              <div className="w-100">{children}</div>
       </Html>
     </>
   );
@@ -94,7 +94,7 @@ function PublishedCardModel({ url, finishColor, children }: {
     <>
       <primitive object={model} />
       <Html center distanceFactor={4.5} pointerEvents="none" position={[0, 0, 0.08]} transform>
-        <div className="w-[400px]">{children}</div>
+              <div className="w-100">{children}</div>
       </Html>
     </>
   );

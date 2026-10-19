@@ -1596,7 +1596,7 @@ export default function App() {
       >
         <nav
           aria-label="Navigation"
-          className="zx-site-nav zx-glass mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-zx-border/90 px-3 shadow-lg sm:px-5"
+          className="zx-site-nav zx-glass mx-auto flex h-18 max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-zx-border/90 px-3 shadow-lg sm:px-5"
         >
           {/* Logo */}
           <button
@@ -1657,7 +1657,7 @@ export default function App() {
                   {moreOpen && (
                     <motion.div
                       animate={{ opacity: 1, y: 0 }}
-                      className="absolute end-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-zx-border/90 bg-zx-surface-raised/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                      className="absolute inset-e-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-zx-border/90 bg-zx-surface-raised/95 p-1.5 shadow-2xl backdrop-blur-2xl"
                       exit={{ opacity: 0, y: -6 }}
                       initial={{ opacity: 0, y: -6 }}
                     >
@@ -1945,7 +1945,7 @@ export default function App() {
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12">
         <Suspense fallback={<RouteFallback label={isArabic ? 'جارٍ التحميل…' : 'Loading…'} />}>
         {routeNotFound && (
-          <section className="zx-not-found mx-auto flex min-h-[65vh] max-w-5xl flex-col items-start justify-center overflow-hidden rounded-[2rem] border border-zx-border bg-zx-surface p-7 sm:p-12 lg:p-16">
+          <section className="zx-not-found mx-auto flex min-h-[65vh] max-w-5xl flex-col items-start justify-center overflow-hidden rounded-4xl border border-zx-border bg-zx-surface p-7 sm:p-12 lg:p-16">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zx-text-muted">ZEXOR · {isArabic ? 'فصل غير موجود' : 'CHAPTER NOT FOUND'}</p>
             <p aria-hidden="true" className="zx-not-found-number mt-4 text-8xl font-bold leading-none sm:text-[10rem]">404</p>
             <h1 className="zx-display mt-3 max-w-2xl text-3xl text-zx-text sm:text-5xl">
@@ -2060,7 +2060,7 @@ export default function App() {
             <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
+                className="pointer-events-none absolute -inset-e-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
               />
               <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
                 {STATS.map((s, i) => (
@@ -2213,13 +2213,13 @@ export default function App() {
                       <div className="relative aspect-[1.55/1] overflow-hidden bg-zx-mint">
                         <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(proj.image)} />
                         <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-zx-cinematic/35 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
+                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
                           {proj.category[locale]}
                         </span>
                       </div>
-                      <div className="flex min-h-[190px] flex-col p-4 sm:p-5">
+                      <div className="flex min-h-47.5 flex-col p-4 sm:p-5">
                         <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
-                        <p className="mt-2 line-clamp-3 min-h-[3.75rem] text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
+                        <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
                         <a
                           className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-xs transition hover:bg-zx-cinematic"
                           href={proj.demoUrl}
@@ -2270,12 +2270,12 @@ export default function App() {
                       <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
                         <img alt={car.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(car.photo)} />
                         <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/55 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">{car.id}</span>
-                        <span className="absolute end-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
+                        <span className="absolute inset-s-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/55 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">{car.id}</span>
+                        <span className="absolute inset-e-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
                           {car.deal === 'Rent' ? isArabic ? 'للإيجار' : 'For rent' : isArabic ? 'للبيع' : 'For sale'}
                         </span>
                       </div>
-                      <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
+                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{car.title[locale]}</h3>
                           <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
@@ -2349,14 +2349,14 @@ export default function App() {
                       <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
                         <img alt={prop.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(prop.photo)} />
                         <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
+                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                           {prop.id}
                         </span>
-                        <span className="absolute end-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
+                        <span className="absolute inset-e-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
                           {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
                         </span>
                       </div>
-                      <div className="flex min-h-[225px] flex-col p-4 sm:p-5">
+                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-zx-text">{prop.title[locale]}</h3>
                           <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">
@@ -2617,7 +2617,7 @@ export default function App() {
           <section className="space-y-10">
             <DepartmentBanner locale={locale} name={currentDynamicDepartment.name[locale]} title={currentDynamicDepartment.bannerTitle?.[locale]} text={currentDynamicDepartment.bannerText?.[locale]} image={currentDynamicDepartment.bannerImage} accent={currentDynamicDepartment.bannerAccent} slides={dynamicDepartmentSlides} fallbackImage={art.studioPortal} fallbackTitle={isArabic ? `اكتشف ${currentDynamicDepartment.name.ar}` : `Discover ${currentDynamicDepartment.name.en}`} fallbackText={isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'} />
             <div id="department-content" className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
-              <div className="rounded-[2rem] border border-zx-border bg-zx-surface-raised p-7 shadow-sm sm:p-9">
+              <div className="rounded-4xl border border-zx-border bg-zx-surface-raised p-7 shadow-sm sm:p-9">
                 <span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'مساحة هذا القسم' : 'THE DEPARTMENT'}</span>
                 <h2 className="zx-display mt-4 text-2xl font-bold text-zx-text sm:text-3xl">{currentDynamicDepartment.name[locale]}</h2>
                 <p className="mt-3 text-sm leading-7 text-zx-text">{currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'أضف وصفاً وصورة من لوحة الإدارة ليظهر هنا، ثم أضف المنتجات واربطها بالمجموعات المناسبة.' : 'Add a description and image in Admin, then assign products to this department and its collections.')}</p>
@@ -2626,7 +2626,7 @@ export default function App() {
                   <span className="rounded-full bg-zx-mint px-4 py-2 text-[11px] font-semibold text-zx-mint-contrast">{isArabic ? `${dynamicDepartmentChildren.length} مجموعة` : `${dynamicDepartmentChildren.length} collections`}</span>
                 </div>
               </div>
-              <div className="relative min-h-64 overflow-hidden rounded-[2rem] bg-zx-mint p-6 sm:p-9">
+              <div className="relative min-h-64 overflow-hidden rounded-4xl bg-zx-mint p-6 sm:p-9">
                 <img alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 mix-blend-multiply" src={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal)} />
                 <div className="absolute inset-0 bg-linear-to-t from-zx-cinematic/85 via-zx-cinematic/15 to-transparent" />
                 <div className="relative z-10 flex h-full min-h-52 flex-col justify-end text-zx-accent-contrast">
@@ -2635,7 +2635,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 end-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-zx-mint' : index % 3 === 1 ? 'bg-linear-to-l from-zx-mint' : 'bg-linear-to-l from-zx-mint'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-zx-text-secondary">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-zx-text">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-zx-mint px-3 py-1.5 text-[10px] text-zx-mint-contrast">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
+            {dynamicDepartmentChildren.length > 0 && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentChildren.map((child, index) => <button aria-pressed={selectedSubcategories[currentDynamicDepartment.slug] === child.slug} className="group relative min-h-36 overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised p-5 text-start shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={child.id} onClick={() => setSelectedSubcategories((current) => ({ ...current, [currentDynamicDepartment.slug]: child.slug }))} type="button"><div className={`absolute inset-y-0 inset-e-0 w-1/2 opacity-50 transition group-hover:opacity-80 ${index % 3 === 0 ? 'bg-linear-to-l from-zx-mint' : index % 3 === 1 ? 'bg-linear-to-l from-zx-mint' : 'bg-linear-to-l from-zx-mint'}`} /><span className="relative text-[10px] font-semibold uppercase tracking-widest text-zx-text-secondary">{isArabic ? 'مجموعة' : 'COLLECTION'} 0{index + 1}</span><h3 className="relative mt-3 text-lg font-bold text-zx-text">{child.name[locale]}</h3><span className="relative mt-4 inline-flex rounded-full bg-zx-mint px-3 py-1.5 text-[10px] text-zx-mint-contrast">{isArabic ? 'عرض المجموعة ←' : 'Explore collection →'}</span></button>)}</div>}
             <div className="space-y-5">
               <div className="flex items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'مختارة لك' : 'CURATED FOR YOU'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-zx-text">{isArabic ? 'منتجات القسم' : 'Department products'}</h2></div>{renderSubcategoryChips(currentDynamicDepartment.slug, (childSlug) => storefrontProducts.filter((product) => product.category === currentDynamicDepartment.slug && (!childSlug || product.subcategoryId === childSlug)).length)}</div>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{dynamicDepartmentProducts.length === 0 ? <DepartmentEmptyState actionLabel={isArabic ? 'اسألنا عن القسم' : 'Ask about this collection'} description={isArabic ? 'تواصل معنا لمعرفة التفاصيل والاختيارات المتاحة في هذا القسم.' : 'Contact our team for details and current options in this department.'} image={publicAssetUrl(currentDynamicDepartment.bannerImage || art.studioPortal) ?? art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? `مرحباً، أود الاستفسار عن ${currentDynamicDepartment.name.ar}.` : `Hello, I would like to ask about ${currentDynamicDepartment.name.en}.`)} title={isArabic ? 'اختيارات القسم تتشكل لك' : 'A collection shaped around you'} /> : dynamicDepartmentProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? currentDynamicDepartment.name[locale]} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />)}</div>
@@ -3083,7 +3083,7 @@ Details: ${details}`;
                 <p className="text-xs leading-6 text-zx-text">{isArabic ? 'سيب بياناتك، وفريقنا هيبلغك أول ما المنتج يرجع متاح.' : 'Leave your details and our team will let you know when this item is available again.'}</p>
                 <label className="block text-[10px] font-semibold text-zx-text">{isArabic ? 'الاسم' : 'Name'}<input autoComplete="name" className="mt-1.5 h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-sm outline-none transition focus:border-zx-border focus:ring-4 focus:ring-zx-accent/10" maxLength={100} onChange={(event) => setRestockName(event.target.value)} required value={restockName} /></label>
                 <label className="block text-[10px] font-semibold text-zx-text">{isArabic ? 'رقم الهاتف' : 'Phone'}<input autoComplete="tel" className="mt-1.5 h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-sm outline-none transition focus:border-zx-border focus:ring-4 focus:ring-zx-accent/10" dir="ltr" maxLength={30} onChange={(event) => setRestockPhone(event.target.value)} required type="tel" value={restockPhone} /></label>
-                <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-bold text-zx-accent-contrast shadow-lg shadow-zx-card transition hover:bg-zx-cinematic" type="submit"><BellRing className="h-4 w-4" />{isArabic ? 'سجلني في قائمة التنبيه' : 'Notify me when available'}</button>
+                <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-bold text-zx-accent-contrast shadow-zx-card transition hover:bg-zx-cinematic" type="submit"><BellRing className="h-4 w-4" />{isArabic ? 'سجلني في قائمة التنبيه' : 'Notify me when available'}</button>
               </div>
             </motion.form>
           </motion.div>

@@ -152,7 +152,7 @@ export function HomePage({
       <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
+          className="pointer-events-none absolute -inset-e-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
         />
         <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
           {STATS.map((s, i) => (
@@ -247,7 +247,7 @@ export function HomePage({
               >
                 <div className="relative aspect-video overflow-hidden bg-zx-mint">
                   <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src={publicAssetUrl(proj.image)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
+                  <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
                     {proj.category[locale]}
                   </span>
                 </div>
@@ -288,7 +288,7 @@ export function HomePage({
               >
                 <div className="relative aspect-[1.4/1] overflow-hidden bg-zx-mint">
                   <img alt={car.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(car.photo)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
+                                    <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                     {car.id}
                   </span>
                 </div>
@@ -340,10 +340,10 @@ export function HomePage({
               >
                 <div className="relative aspect-[1.4/1] overflow-hidden bg-zx-mint">
                   <img alt={prop.title[locale]} className="h-full w-full object-cover" src={publicAssetUrl(prop.photo)} />
-                  <span className="absolute start-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
+                                    <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
                     {prop.id}
                   </span>
-                  <span className="absolute end-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
+                  <span className="absolute inset-e-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
                     {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
                   </span>
                 </div>

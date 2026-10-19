@@ -39,7 +39,7 @@ function DepartmentTile({
   return (
     <motion.button
       aria-label={`${title} — ${portal.tagline[locale]}`}
-      className="zx-department-tile group relative flex min-h-[18rem] w-full overflow-hidden text-start sm:min-h-[21rem] xl:min-h-[25rem]"
+      className="zx-department-tile group relative flex min-h-72 w-full overflow-hidden text-start sm:min-h-84 xl:min-h-100"
       initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
       onClick={() => navigate(portal.route)}
       style={{ transformPerspective: 1000, transformStyle: 'preserve-3d' }}

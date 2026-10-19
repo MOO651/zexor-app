@@ -136,7 +136,7 @@ export function TrackingModal({
         {/* Search Input */}
         <form className="mt-5 grid gap-2 sm:grid-cols-[1fr_1fr_auto]" onSubmit={handleSearch}>
           <div className="relative">
-            <Search className="absolute start-3 top-3 h-4 w-4 text-zx-text" />
+            <Search className="absolute inset-s-3 top-3 h-4 w-4 text-zx-text" />
             <input
               aria-label={isArabic ? 'رقم الطلب' : 'Order ID'}
               className="h-11 w-full rounded-xl border border-zx-border bg-zx-surface-raised ps-9 pe-3 text-base outline-none focus:border-zx-border"

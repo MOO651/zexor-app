@@ -1223,7 +1223,7 @@ export function AdminDashboard({
             <input className="h-10 min-w-48 flex-1 rounded-full border border-zx-border px-4 text-xs outline-none" onChange={(event) => setInventorySearch(event.target.value)} placeholder={isArabic ? 'ابحث عن منتج أو SKU…' : 'Search product or SKU…'} value={inventorySearch} />
           </div>
           <div className="overflow-x-auto rounded-2xl border border-zx-border">
-            <table className="w-full min-w-[620px] text-start text-xs text-zx-text">
+            <table className="w-full min-w-155 text-start text-xs text-zx-text">
               <thead className="bg-zx-surface-raised"><tr className="text-[10px] text-zx-text-secondary"><th className="p-3 text-start">{isArabic ? 'المنتج' : 'Product'}</th><th className="p-3 text-start">SKU</th><th className="p-3 text-start">{isArabic ? 'الكمية المتاحة' : 'On hand'}</th><th className="p-3 text-start">{isArabic ? 'الحالة' : 'Status'}</th><th className="p-3 text-start">{isArabic ? 'تعديل' : 'Edit'}</th></tr></thead>
               <tbody className="divide-y divide-zx-border">{products.filter((product) => product.stock !== undefined).filter((product) => !inventoryLowOnly || (product.stock ?? 0) <= 5).filter((product) => `${product.name.ar} ${product.name.en} ${product.sku ?? ''}`.toLowerCase().includes(inventorySearch.trim().toLowerCase())).map((product) => (
                 <tr key={product.id}>
@@ -1251,7 +1251,7 @@ export function AdminDashboard({
             <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'عملاء متكررون (٣ طلبات+)' : 'Repeat customers (3+ orders)'}</span><p className="mt-1 text-xl font-bold">{customerRecords.filter((customer) => customer.orders.filter((order) => order.status !== 'cancelled').length >= 3).length}</p></div>
             <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'متوسط عدد الطلبات' : 'Average orders per customer'}</span><p className="mt-1 text-xl font-bold">{customerBuyerCount ? (orders.filter((order) => order.status !== 'cancelled').length / customerBuyerCount).toFixed(1) : '0.0'}</p></div>
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-zx-border"><table className="w-full min-w-[800px] text-start text-xs text-zx-text"><thead className="bg-zx-surface-raised"><tr className="text-[10px] text-zx-text-secondary"><th className="p-3 text-start">{isArabic ? 'العميل' : 'Customer'}</th><th className="p-3 text-start">{isArabic ? 'الهاتف' : 'Phone'}</th><th className="p-3 text-start">{isArabic ? 'الطلبات' : 'Orders'}</th><th className="p-3 text-start">{isArabic ? 'الاستفسارات' : 'Inquiries'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق مصر' : 'Egypt spend'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق السعودية' : 'Saudi spend'}</th><th className="p-3 text-start">{isArabic ? 'آخر تواصل' : 'Last activity'}</th><th className="p-3 text-start">{isArabic ? 'التواصل' : 'Contact'}</th></tr></thead><tbody className="divide-y divide-zx-border">{customerRecords.filter((customer) => `${customer.name} ${customer.phone}`.toLowerCase().includes(customerSearch.trim().toLowerCase())).map((customer) => {
+          <div className="overflow-x-auto rounded-2xl border border-zx-border"><table className="w-full min-w-200 text-start text-xs text-zx-text"><thead className="bg-zx-surface-raised"><tr className="text-[10px] text-zx-text-secondary"><th className="p-3 text-start">{isArabic ? 'العميل' : 'Customer'}</th><th className="p-3 text-start">{isArabic ? 'الهاتف' : 'Phone'}</th><th className="p-3 text-start">{isArabic ? 'الطلبات' : 'Orders'}</th><th className="p-3 text-start">{isArabic ? 'الاستفسارات' : 'Inquiries'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق مصر' : 'Egypt spend'}</th><th className="p-3 text-start">{isArabic ? 'إنفاق السعودية' : 'Saudi spend'}</th><th className="p-3 text-start">{isArabic ? 'آخر تواصل' : 'Last activity'}</th><th className="p-3 text-start">{isArabic ? 'التواصل' : 'Contact'}</th></tr></thead><tbody className="divide-y divide-zx-border">{customerRecords.filter((customer) => `${customer.name} ${customer.phone}`.toLowerCase().includes(customerSearch.trim().toLowerCase())).map((customer) => {
             const latestOrder = [...customer.orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
             const latestInquiry = [...customer.inquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
             const lastActivity = [latestOrder?.createdAt, latestInquiry?.createdAt].filter(Boolean).sort().at(-1);
@@ -1482,7 +1482,7 @@ export function AdminDashboard({
                         <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image} />
                       </div>)}
                     </div>
-                    <div className="mt-4 overflow-hidden rounded-[2rem] border border-zx-border p-2">
+                    <div className="mt-4 overflow-hidden rounded-4xl border border-zx-border p-2">
                       <p className="mb-2 px-2 text-[10px] font-bold text-zx-text">{isArabic ? 'معاينة مباشرة' : 'Live preview'}</p>
                       <DepartmentBanner locale={locale} name={newCatNameAr || newCatNameEn || (isArabic ? 'القسم الجديد' : 'New department')} accent={newCatBannerAccent} slides={[
                         { title: (locale === 'ar' ? newCatBannerTitleAr : newCatBannerTitleEn) || (newCatNameAr || newCatNameEn || (isArabic ? 'القسم الجديد' : 'New department')), text: (locale === 'ar' ? newCatBannerTextAr : newCatBannerTextEn) || (isArabic ? 'أضف وصفاً مميزاً لقسمك.' : 'Add a distinctive description for your department.'), image: newCatBannerImage || art.studioPortal },
@@ -2327,7 +2327,7 @@ export function AdminDashboard({
           </div>
 
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-start text-xs text-zx-text">
+            <table className="w-full min-w-190 text-start text-xs text-zx-text">
               <thead>
                 <tr className="border-b border-zx-border text-[9px] uppercase tracking-wider text-zx-text-secondary">
                   <th className="py-2 text-start">{isArabic ? 'رقم الطلب' : 'Order ID'}</th>
