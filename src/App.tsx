@@ -1605,7 +1605,7 @@ export default function App() {
             type="button"
           >
             <LogoMark compact logoUrl={resolvedSettings.brand.logoUrl} />
-            <span className="max-w-[8rem] truncate text-[15px] font-bold tracking-[0.14em] text-zx-text">{resolvedSettings.brand.name}</span>
+            <span className="max-w-32 truncate text-[15px] font-bold tracking-[0.14em] text-zx-text">{resolvedSettings.brand.name}</span>
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}
@@ -1797,7 +1797,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             aria-label={isArabic ? 'قائمة الموقع الرئيسية' : 'Main site menu'}
             aria-modal="true"
-            className="zx-fullscreen-menu fixed inset-0 z-[120] overflow-y-auto bg-zx-bg px-5 py-5 text-zx-text sm:px-9 sm:py-8"
+            className="zx-fullscreen-menu fixed inset-0 z-120 overflow-y-auto bg-zx-bg px-5 py-5 text-zx-text sm:px-9 sm:py-8"
             dir={dir}
             exit={{ opacity: 0, y: 12 }}
             initial={{ opacity: 0, y: 12 }}
@@ -1915,7 +1915,7 @@ export default function App() {
           <motion.div
             animate={{ scaleY: 1 }}
             aria-hidden="true"
-            className="zx-route-curtain pointer-events-none fixed inset-0 z-[110] origin-top"
+            className="zx-route-curtain pointer-events-none fixed inset-0 z-110 origin-top"
             exit={{ scaleY: 0 }}
             initial={{ scaleY: 0 }}
           >
@@ -1930,7 +1930,7 @@ export default function App() {
             alt=""
             aria-hidden="true"
             animate={{ x: cartFlight.endX, y: cartFlight.endY, scale: 0.18, opacity: 0.25 }}
-            className="zx-cart-flight pointer-events-none fixed left-0 top-0 z-[130] h-[4.25rem] w-[4.25rem] rounded-2xl object-cover"
+            className="zx-cart-flight pointer-events-none fixed left-0 top-0 z-130 size-17 rounded-2xl object-cover"
             initial={{ x: cartFlight.startX, y: cartFlight.startY, scale: 1, opacity: 1 }}
             key={cartFlight.id}
             onAnimationComplete={() => setCartFlight((current) => current?.id === cartFlight.id ? null : current)}

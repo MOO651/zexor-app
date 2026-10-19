@@ -54,7 +54,7 @@ export function SitePreloader({ locale, enabled }: PreloaderProps) {
         <motion.div
           animate={{ opacity: 1 }}
           aria-label={isArabic ? 'جارٍ تجهيز تجربة زكسور' : 'Preparing the ZEXOR experience'}
-          className="pointer-events-none fixed inset-0 z-[10000] grid place-items-center bg-zx-cinematic text-zx-accent-contrast"
+          className="pointer-events-none fixed inset-0 z-10000 grid place-items-center bg-zx-cinematic text-zx-accent-contrast"
           exit={{ clipPath: 'inset(0 0 100% 0)', transition: { duration: 0.45, ease: [0.76, 0, 0.24, 1] } }}
           initial={{ opacity: 0 }}
           role="status"

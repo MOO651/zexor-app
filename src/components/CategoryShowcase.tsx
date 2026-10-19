@@ -71,7 +71,7 @@ function DepartmentTile({
         <span className="mt-12 block">
           <span className="block text-xs font-bold uppercase tracking-[.12em]" style={{ color: portal.accent }}>{portal.meta[locale]}</span>
           <span className="zx-display mt-2 block text-xl leading-tight sm:text-2xl">{title}</span>
-          <span className="mt-2 block max-w-[18rem] text-xs leading-6 text-zx-accent-contrast/80">{portal.tagline[locale]}</span>
+          <span className="mt-2 block max-w-72 text-xs leading-6 text-zx-accent-contrast/80">{portal.tagline[locale]}</span>
           <span className="mt-4 inline-flex items-center gap-2 text-xs font-bold">
             {isArabic ? 'استكشف القسم' : 'Explore department'}
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-zx-border/30 bg-zx-surface-raised/10 transition group-hover:bg-zx-surface-raised group-hover:text-zx-text">

@@ -1127,24 +1127,24 @@ export function AdminDashboard({
 
       <div className="grid items-start gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
       {/* Store admin navigation */}
-      <div className="zx-admin-tabs zx-no-bar sticky top-[4.5rem] z-30 -mx-2 flex flex-nowrap gap-2 overflow-x-auto border-b border-zx-border bg-[var(--zx-bg)]/95 px-2 pb-3 pt-2 backdrop-blur-xl lg:static lg:mx-0 lg:max-h-[calc(100vh-2rem)] lg:flex-col lg:items-stretch lg:overflow-y-auto lg:overflow-x-hidden lg:border-b-0 lg:border-e lg:bg-transparent lg:px-0 lg:pt-0 lg:pe-3 lg:backdrop-blur-none">
+      <div className="zx-admin-tabs zx-no-bar sticky top-18 z-30 -mx-2 flex flex-nowrap gap-2 overflow-x-auto border-b border-zx-border bg-zx-bg/95 px-2 pb-3 pt-2 backdrop-blur-xl lg:static lg:mx-0 lg:max-h-[calc(100vh-2rem)] lg:flex-col lg:items-stretch lg:overflow-y-auto lg:overflow-x-hidden lg:border-b-0 lg:border-e lg:bg-transparent lg:px-0 lg:pt-0 lg:pe-3 lg:backdrop-blur-none">
         {[
           { id: 'overview', label: isArabic ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
-          { id: 'categories', label: isArabic ? 'الأقسام الديناميكية' : 'Categories', icon: Layers },
+          { id: 'orders', label: isArabic ? `الطلبات الواردة (${pendingOrdersCount})` : `Orders (${pendingOrdersCount})`, icon: Clock },
+          { id: 'inbox', label: isArabic ? `الاستفسارات (${openInquiriesCount})` : `Inquiries (${openInquiriesCount})`, icon: Inbox },
           { id: 'products', label: isArabic ? 'المنتجات والأسعار' : 'Products & Pricing', icon: ShoppingBag },
+          { id: 'categories', label: isArabic ? 'الأقسام' : 'Categories', icon: Layers },
           { id: 'inventory', label: isArabic ? `المخزون (${lowStockProducts.length})` : `Inventory (${lowStockProducts.length})`, icon: Boxes },
           { id: 'customers', label: isArabic ? `العملاء (${customerRecords.length})` : `Customers (${customerRecords.length})`, icon: UsersRound },
           { id: 'cars', label: isArabic ? `معرض السيارات (${vehicles.length})` : `Vehicles (${vehicles.length})`, icon: CarFront },
-          { id: 'properties', label: isArabic ? `إدارة العقارات (${properties.length})` : `Real Estate (${properties.length})`, icon: Home },
-          { id: 'orders', label: isArabic ? `الطلبات الواردة (${pendingOrdersCount})` : `Orders (${pendingOrdersCount})`, icon: Clock },
-          { id: 'inbox', label: isArabic ? `الاستفسارات (${openInquiriesCount})` : `Inquiries (${openInquiriesCount})`, icon: Inbox },
+          { id: 'properties', label: isArabic ? `العقارات (${properties.length})` : `Real Estate (${properties.length})`, icon: Home },
           { id: 'promos', label: isArabic ? 'أكواد الخصم' : 'Promo Codes', icon: Tag },
+          { id: 'sales', label: isArabic ? 'العروض والتخفيضات' : 'Sales & Offers', icon: Percent },
           { id: 'channels', label: isArabic ? 'التواصل والدفع' : 'Social & Payments', icon: Share2 },
-          { id: 'sales', label: isArabic ? 'العروض والكوبونات' : 'Sale & Coupons', icon: Percent },
           { id: 'design', label: isArabic ? 'التصميم والهوية' : 'Design & Brand', icon: Palette },
           { id: 'content', label: isArabic ? 'نصوص الموقع' : 'Site Content', icon: Type },
           { id: 'media', label: isArabic ? 'مركز الوسائط' : 'Media Center', icon: Images },
-          { id: 'settings', label: isArabic ? 'إعدادات الواجهة وتليجرام' : 'Hero & Telegram Settings', icon: Settings },
+          { id: 'settings', label: isArabic ? 'الإعدادات وتليجرام' : 'Settings & Telegram', icon: Settings },
         ].map((tab) => {
           const Icon = tab.icon;
           return (
@@ -1308,7 +1308,7 @@ export function AdminDashboard({
                 <input aria-label="Payment label" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'اسم طريقة الدفع' : 'Payment method name'} value={item.label} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, label: event.target.value } : entry) })} />
                 <input aria-label="Account name" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'اسم الحساب' : 'Account name'} value={item.accountName} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, accountName: event.target.value } : entry) })} />
                 <input aria-label="Account number" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'رقم الحساب أو المحفظة' : 'Account or wallet number'} value={item.accountNumber} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, accountNumber: event.target.value } : entry) })} />
-                <input aria-label="Payment instructions Arabic" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="تعليمات الدفع بالعربية" value={item.instructions.ar} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, ar: event.target.value } } : entry) })} />
+                <input aria-label="Payment instructions Arabic" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder={isArabic ? 'تعليمات الدفع بالعربية' : 'Payment instructions (Arabic)'} value={item.instructions.ar} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, ar: event.target.value } } : entry) })} />
                 <input aria-label="Payment instructions English" className="h-9 w-full rounded-xl border px-3 text-xs" placeholder="Payment instructions in English" value={item.instructions.en} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, instructions: { ...entry.instructions, en: event.target.value } } : entry) })} />
                 <label className="flex items-center gap-2 text-xs"><input checked={item.active} onChange={(event) => setPaymentDraftState({ source: paymentMethods, value: paymentDraft.map((entry) => entry.id === item.id ? { ...entry, active: event.target.checked } : entry) })} type="checkbox" />{isArabic ? 'إظهار طريقة الدفع للعملاء' : 'Show this method to customers'}</label>
                 <div className="flex gap-2"><button className="rounded-full bg-zx-cinematic px-4 py-2 text-xs text-zx-accent-contrast" type="submit">{isArabic ? 'حفظ' : 'Save'}</button>{item.method.startsWith('custom_') && <button aria-label={isArabic ? 'حذف طريقة الدفع' : 'Delete payment method'} className="rounded-full border border-zx-border px-3 py-2 text-xs text-zx-text-secondary" onClick={() => void handleRemovePaymentMethod(item)} type="button"><Trash2 className="h-3.5 w-3.5" /></button>}</div>
@@ -1417,7 +1417,7 @@ export function AdminDashboard({
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
                       onChange={(e) => setNewCatNameAr(e.target.value)}
-                      placeholder="مثال: إلكترونيات ذكية"
+                      placeholder={isArabic ? 'مثال: إلكترونيات ذكية' : 'e.g. Smart electronics'}
                       required
                       value={newCatNameAr}
                     />
@@ -1526,7 +1526,7 @@ export function AdminDashboard({
                 setProdNameEn('');
                 setProdDescAr('');
                 setProdDescEn('');
-                setProdCat('cards');
+                setProdCat(categories.find((category) => !category.parentSlug && category.active)?.slug ?? 'cards');
                 setProdSubcategoryId('');
                 setProdPriceEg('');
                 setProdPriceKsa('');
@@ -1714,6 +1714,14 @@ export function AdminDashboard({
                       value={prodDescAr}
                     />
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] text-zx-text">{isArabic ? 'الوصف (إنجليزي)' : 'Description (English)'}</label>
+                    <textarea
+                      className="mt-1 h-16 w-full rounded-xl border border-zx-border p-2 text-xs outline-none"
+                      onChange={(e) => setProdDescEn(e.target.value)}
+                      value={prodDescEn}
+                    />
+                  </div>
 
                   <div>
                     <label className="text-[10px] text-zx-text">{isArabic ? 'القسم' : 'Category'}</label>
@@ -1761,6 +1769,19 @@ export function AdminDashboard({
                         {isArabic ? 'اختر صورة من جهازك' : 'Upload from Device'}
                       </button>
                     </div>
+                    <input
+                      className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                      dir="ltr"
+                      onChange={(e) => setProdImageUrl(e.target.value)}
+                      placeholder={isArabic ? 'أو الصق رابط الصورة https://…' : 'Or paste an image URL https://…'}
+                      value={prodImageUrl.startsWith('data:') ? '' : prodImageUrl}
+                    />
+                    {prodImageUrl && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <img alt="" className="h-16 w-16 rounded-xl border border-zx-border object-cover" src={prodImageUrl} />
+                        <button className="text-[10px] font-semibold text-zx-text-secondary underline" onClick={() => setProdImageUrl('')} type="button">{isArabic ? 'إزالة الصورة' : 'Remove image'}</button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Price & Old Price Fields (Discounts) */}
@@ -1768,6 +1789,7 @@ export function AdminDashboard({
                     <label className="text-[10px] text-zx-text">{isArabic ? 'السعر الحالي (ج.م)' : 'Current Price (EGP)'}</label>
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                      min="0"
                       onChange={(e) => setProdPriceEg(e.target.value)}
                       required
                       type="number"
@@ -1779,7 +1801,7 @@ export function AdminDashboard({
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
                       onChange={(e) => setProdOldPriceEg(e.target.value)}
-                      placeholder="اتركه فارغاً إن لم يكن هناك خصم"
+                      placeholder={isArabic ? 'اتركه فارغاً إن لم يكن هناك خصم' : 'Leave blank if no discount'}
                       type="number"
                       value={prodOldPriceEg}
                     />
@@ -1789,7 +1811,9 @@ export function AdminDashboard({
                     <label className="text-[10px] text-zx-text">{isArabic ? 'السعر الحالي (ر.س)' : 'Current Price (SAR)'}</label>
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                      min="0"
                       onChange={(e) => setProdPriceKsa(e.target.value)}
+                      required
                       type="number"
                       value={prodPriceKsa}
                     />
@@ -1799,7 +1823,7 @@ export function AdminDashboard({
                     <input
                       className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
                       onChange={(e) => setProdOldPriceKsa(e.target.value)}
-                      placeholder="اختياري"
+                      placeholder={isArabic ? 'اختياري' : 'Optional'}
                       type="number"
                       value={prodOldPriceKsa}
                     />
@@ -2563,7 +2587,7 @@ export function AdminDashboard({
             }}
           >
             <input className="h-10 rounded-xl border border-zx-border px-3 text-xs uppercase" name="code" placeholder="ZEXOR20" required />
-            <input className="h-10 rounded-xl border border-zx-border px-3 text-xs" max="90" min="1" name="discount" placeholder="نسبة الخصم %" required type="number" />
+            <input className="h-10 rounded-xl border border-zx-border px-3 text-xs" max="90" min="1" name="discount" placeholder={isArabic ? 'نسبة الخصم %' : 'Discount %'} required type="number" />
             <input className="h-10 rounded-xl border border-zx-border px-3 text-xs" min={new Date().toISOString().slice(0, 10)} name="expiry" required type="date" />
             <button className="h-10 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast hover:bg-zx-cinematic" type="submit">
               {isArabic ? 'توليد الكوبون' : 'Generate Code'}

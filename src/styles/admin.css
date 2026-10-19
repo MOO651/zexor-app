@@ -23,6 +23,20 @@
   background: color-mix(in srgb, var(--zx-surface-raised) 76%, transparent);
 }
 
+/* Lift the smallest utility text so admin labels stay readable. */
+.zx-admin :is([class*="text-[9px]"], [class*="text-[10px]"]) {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+.zx-admin :is(input, select, textarea) {
+  font-size: 0.875rem;
+}
+
+.zx-admin form label {
+  font-weight: 600;
+}
+
 [data-theme="dark"] .zx-admin {
   --zx-admin-border: var(--zx-border);
   --zx-admin-shadow: var(--zx-shadow-card);

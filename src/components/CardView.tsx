@@ -81,7 +81,7 @@ export default function CardView() {
 
         <section aria-busy={loading} aria-live="polite" className="overflow-hidden rounded-[2rem] border border-zx-border/10 bg-zx-cinematic/90 shadow-zx-card backdrop-blur-xl">
           <div className="relative border-b border-zx-border/[0.08] px-7 pb-8 pt-7 sm:px-9">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zx-accent/70 to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-zx-accent/70 to-transparent" />
             <div className="flex items-center justify-between">
               <a aria-label="ZEXOR" className="inline-flex min-h-11 items-center rounded-lg text-lg font-black tracking-[0.23em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent focus-visible:ring-offset-2 focus-visible:ring-offset-zx-cinematic" href="./">ZEXOR<span className="text-zx-text-secondary">.</span></a>
               <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-zx-border/20 bg-zx-accent/[0.08] px-3 text-xs font-semibold tracking-wide text-zx-text-muted">
