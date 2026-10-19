@@ -482,8 +482,15 @@ html[lang="ar"], html[lang="ar"] body { font-family: var(--zx-font-arabic); }
 .zx-admin :is(h1, h2, h3) { line-height: 1.2; }
 html[lang="ar"] :is(.zx-home-flow, .zx-marketplace, .zx-agency-page, .zx-admin) :is(h1, h2, h3) { line-height: 1.55; letter-spacing: 0; }
 
-/* Floating glass navigation and its full-screen mobile department menu. */
-.zx-site-header { top: .75rem !important; }
+/* Floating glass navigation and full-screen department menu. */
+.zx-site-header {
+  top: .75rem !important;
+  transition: transform 360ms var(--zx-ease-cinematic);
+}
+.zx-site-header[data-hidden="true"] {
+  pointer-events: none;
+  transform: translate3d(0, calc(-100% - 1rem), 0);
+}
 .zx-mobile-menu-layer {
   position: fixed;
   z-index: 100;
@@ -497,9 +504,6 @@ html[lang="ar"] :is(.zx-home-flow, .zx-marketplace, .zx-agency-page, .zx-admin) 
     radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--zx-emerald) 30%, transparent), transparent 58%),
     var(--zx-footer-bg);
   backdrop-filter: blur(28px);
-}
-@media (min-width: 1024px) {
-  .zx-mobile-menu-layer { display: none; }
 }
 .zx-mobile-menu-panel { display: flex; width: min(100%, 88rem); flex-direction: column; gap: clamp(1rem, 2.4vh, 1.75rem); margin: auto; }
 .zx-mobile-menu-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }

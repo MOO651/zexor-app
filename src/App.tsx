@@ -660,6 +660,8 @@ export default function App() {
   const [market, setMarket] = useStoredState<Market>(STORAGE.market, detectVisitorMarket(), (value) => value === 'eg' || value === 'ksa');
   const [selectedSubcategories, setSelectedSubcategories] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const siteHeaderRef = useRef<HTMLElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const menuCloseRef = useRef<HTMLButtonElement>(null);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -1151,11 +1153,35 @@ export default function App() {
   }, [toast]);
 
   useEffect(() => {
-    const onScroll = () => setShowBackToTop(window.scrollY > 600);
+    let previousY = window.scrollY;
+    let accumulatedScroll = 0;
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - previousY;
+      previousY = currentY;
+      setShowBackToTop(currentY > 600);
+
+      if (currentY <= 96) {
+        accumulatedScroll = 0;
+        setHeaderHidden(false);
+        return;
+      }
+      if (menuOpen) {
+        setHeaderHidden(false);
+        return;
+      }
+
+      accumulatedScroll += delta;
+      if (Math.abs(accumulatedScroll) < 10) return;
+      const scrollingDown = accumulatedScroll > 0;
+      accumulatedScroll = 0;
+      const focusInsideHeader = siteHeaderRef.current?.contains(document.activeElement) ?? false;
+      setHeaderHidden(scrollingDown && !focusInsideHeader);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [menuOpen]);
 
   const effectiveMarketFilter = resolvedSettings.showOtherMarketProducts?.[market] ? 'all' : market;
   const storefrontProducts = useMemo(() => products.filter((product) =>
@@ -1474,9 +1500,13 @@ export default function App() {
       )}
 
       {/* 2. Global Floating Navigation Bar */}
-      <header className="zx-site-header sticky top-2 z-50 px-3 sm:px-6">
+      <header
+        className="zx-site-header sticky top-2 z-50 px-3 sm:px-6"
+        data-hidden={headerHidden ? 'true' : undefined}
+        ref={siteHeaderRef}
+      >
         <nav
-          aria-label="Navigation"
+          aria-label={isArabic ? 'التنقل' : 'Navigation'}
           className="zx-site-nav zx-glass mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border px-3 shadow-lg sm:px-5"
         >
           {/* Logo */}
@@ -1662,8 +1692,11 @@ export default function App() {
               aria-controls="mobile-navigation-dialog"
               aria-expanded={menuOpen}
               aria-label={menuOpen ? (isArabic ? 'إغلاق القائمة' : 'Close menu') : (isArabic ? 'فتح القائمة' : 'Open menu')}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-line bg-zx-elevated text-zx-secondary lg:hidden"
-              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-zx-line bg-zx-elevated text-zx-secondary"
+              onClick={() => {
+                setHeaderHidden(false);
+                setMenuOpen((open) => !open);
+              }}
               ref={menuTriggerRef}
               type="button"
             >
@@ -1671,8 +1704,9 @@ export default function App() {
             </button>
           </div>
         </nav>
+      </header>
 
-        {/* Mobile Navigation Drawer */}
+      {/* Full-screen department navigation */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -1784,7 +1818,6 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-      </header>
 
       {/* Main View Router. Lazy route surfaces render inside Suspense so the
           home page ships without them in the initial bundle. */}
