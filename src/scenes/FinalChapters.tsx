@@ -133,7 +133,6 @@ export function CarsChapter({
     : [];
   const scrubVideoEnabled = !reduceMotion
     && !isMobileViewport
-    && !isMobileViewport
     && sequenceFrames.length === 0
     && content['feature.heavy_media']?.value_json !== false
     && scrubVideo?.source === 'published'
@@ -298,6 +297,7 @@ export function RealEstateChapter({
     ? frameValue.filter((frame): frame is string => typeof frame === 'string')
     : [];
   const scrubVideoEnabled = !reduceMotion
+    && !isMobileViewport
     && sequenceFrames.length === 0
     && content['feature.heavy_media']?.value_json !== false
     && scrubVideo?.source === 'published'
