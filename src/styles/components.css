@@ -458,14 +458,6 @@
   transform: none;
 }
 
-.zx-lookbook-scene.zx-reveal,
-.studio-chapter.zx-reveal,
-.cars-chapter.zx-reveal,
-.estate-chapter.zx-reveal {
-  opacity: 1;
-  transform: none;
-}
-
 @media (max-width: 640px) {
   .zx-float-anchor[data-side="start"] {
     inset-inline-start: 0.75rem;

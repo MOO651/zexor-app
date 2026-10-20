@@ -35,15 +35,14 @@ Status values: `DONE`, `IN PROGRESS`, `PENDING`, `UNUSED — VERIFY`, `REMOVED`.
 | `src/components/AdminMediaCenter.tsx` | New media/content administration | IN PROGRESS — drafts, publishing, history, sequences and hotspots; live Supabase validation pending |
 | `src/components/AgencyPortfolio.tsx` | Studio portfolio, pricing and calculator | IN PROGRESS — Phase 4 accessibility pass; full review pending |
 | `src/components/CardView.tsx` | Public NFC profile | IN PROGRESS — Phase 4 accessibility pass; valid-card review pending |
-| `src/components/CategoryShowcase.tsx` | Department/category selector | DONE — Phase 1 |
 | `src/components/CheckoutDrawer.tsx` | Cart and checkout overlay | IN PROGRESS — accessibility pass; full review pending |
 | `src/components/DepartmentBanner.tsx` | Shared department-page banner | IN PROGRESS — responsive styling pass; full review pending |
 | `src/components/DepartmentEmptyState.tsx` | Empty and search states | IN PROGRESS — Phase 4 accessibility pass; visual review pending |
-| `src/components/HomeHero.tsx` | Home opening scene | IN PROGRESS — H1 Five Windows; chapter targets are mounted, final transitions/media pending |
-| `src/components/HomePage.tsx` | Home sections and product showcases | IN PROGRESS — Phase 2 scenes mounted; optional finder added |
+| `src/components/FutureGatewayHome.tsx` | 2040 gateway, five connected story chapters and finale | IN PROGRESS — locally bundled responsive WebP images; final visual sign-off pending |
 | `src/components/HomeSections.tsx` | FAQ, newsletter, footer and shared prompts | DONE — Phase 1 |
 | `src/components/Marketplace.tsx` | Product, car and property listings/details | IN PROGRESS — interaction, touch-target and image-dialog accessibility pass; full review pending |
 | `src/components/NfcCustomizerModal.tsx` | NFC customization experience | IN PROGRESS — published GLB preview and finish/name overlays wired; logo upload and real-device review pending |
+| `src/styles/future-home.css` | 2040 home gateway and story chapters | IN PROGRESS — responsive chapter flow and reduced-motion support |
 | `src/components/SiteExperienceExtras.tsx` | New session preloader and optional product finder | IN PROGRESS — flags wired; browser QA pending |
 | `src/components/ProductCard.tsx` | Shared product cards | IN PROGRESS — touch-target pass; full review pending |
 | `src/components/TestimonialsSection.tsx` | Reviews and empty state | DONE — truthful empty state and contact action; no fabricated reviews |
@@ -54,9 +53,10 @@ Status values: `DONE`, `IN PROGRESS`, `PENDING`, `UNUSED — VERIFY`, `REMOVED`.
 - [ ] Phase 1 — IN PROGRESS: theme, shared surfaces, navigation and the
   fallback-first media/content layer are present. Requirement-by-requirement
   contrast, image-ratio, blur-up and visual QA remain.
-- [ ] Phase 2 — IN PROGRESS: H1 and C1–C5 are mounted in the active home route.
-  A once-per-session preloader is implemented; final scene transitions and
-  authentic video/poster art still need review and source assets.
+- [ ] Phase 2 — IN PROGRESS: the previous H1/C1–C5 scroll scenes were removed
+  from the active home route. `FutureGatewayHome` now presents the connected
+  NFC, fashion, studio, motors and estates story with a closing gateway;
+  final visual sign-off remains.
 - [ ] Phase 3 — IN PROGRESS: cars and estate scenes scrub uploaded image
   sequences or optional published MP4/WebM videos with a poster/static fallback;
   reduced-motion keeps the static image. The NFC customizer loads a published
@@ -115,6 +115,10 @@ code-split from the main route and is not loaded until a WebGL feature is
 requested.
 
 ## Phase 2 scene checklist
+
+> Historical record: the pinned H1/C1–C5 implementation below was removed
+> when the active home page was redesigned as the 2040 gateway and five-scene
+> story. The scene files and their dedicated styles are no longer shipped.
 
 ### H1 — The Five Windows
 
