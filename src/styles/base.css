@@ -14,7 +14,7 @@ html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  font-size: clamp(15px, 0.12vw + 14.6px, 16px);
+  font-size: clamp(15px, 0.12vw + 14.6px, 15px);
   scroll-padding-top: 5.5rem;
 }
 

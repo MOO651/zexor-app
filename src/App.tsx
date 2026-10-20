@@ -2026,7 +2026,7 @@ export default function App() {
             />
 
             {/* 9. Section 07: High-Impact Call to Action */}
-            <section className="relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 text-zx-accent-contrast shadow-2xl sm:p-14">
+            <section className="zx-home-cta relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 shadow-2xl sm:p-14">
               <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
                 <div className="max-w-xl">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">

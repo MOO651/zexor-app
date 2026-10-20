@@ -393,21 +393,22 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
           <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'تواصل معنا' : 'Get in Touch'}
           </h4>
-          <ul className="mt-4 space-y-2.5 text-sm text-zx-text">
-            <li className="flex items-start gap-2">
+          <ul className="zx-footer-contact-list mt-4 space-y-3 text-sm text-zx-text">
+            <li className="flex items-center gap-2">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
               <span>{isArabic ? 'مصر والسعودية' : 'Egypt & Saudi Arabia'}</span>
             </li>
-            <li className="flex items-start gap-2">
+            <li className="flex items-center gap-2">
               <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
-              <a className="transition-colors hover:text-zx-text" href={`mailto:${settings.supportEmail}`}>
+              <a className="transition-colors hover:text-zx-text" dir="ltr" href={`mailto:${settings.supportEmail}`}>
                 {settings.supportEmail}
               </a>
             </li>
-            <li className="flex items-start gap-2">
+            <li className="flex items-center gap-2">
               <TikTokIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
               <a
                 className="transition-colors hover:text-zx-text"
+                dir="ltr"
                 href={TIKTOK_URL}
                 rel="noreferrer"
                 target="_blank"
