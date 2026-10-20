@@ -5,8 +5,9 @@ import {
   useTransform,
 } from 'framer-motion';
 import { ArrowUpLeft, ArrowUpRight, Fingerprint, Radio, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { useRef, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
+import { useMobileReducedMotion } from '../hooks/useMobileReducedMotion';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -86,9 +87,7 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
     rotation: number;
     velocity: number;
   } | null>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  const staticMotion = useMobileReducedMotion();
   const pointerTiltX = useSpring(0, { stiffness: 170, damping: 24 });
   const pointerTiltY = useSpring(0, { stiffness: 170, damping: 24 });
   const touchRotation = useSpring(0, { stiffness: 150, damping: 22 });
@@ -131,15 +130,6 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
     : null;
   const Arrow = isArabic ? ArrowUpLeft : ArrowUpRight;
 
-  useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updatePreference = () => setPrefersReducedMotion(preference.matches);
-    updatePreference();
-    preference.addEventListener('change', updatePreference);
-    return () => preference.removeEventListener('change', updatePreference);
-  }, []);
-
-  const staticMotion = prefersReducedMotion;
   const handleCardPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch' || staticMotion) return;
     event.currentTarget.setPointerCapture(event.pointerId);
