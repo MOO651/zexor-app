@@ -2,12 +2,13 @@ import {
   animate,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useTransform,
 } from 'framer-motion';
 import { ArrowUpRight, Gauge, MapPin, MoveUpRight, Waves } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useMobileReducedMotion } from '../hooks/useMobileReducedMotion';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { Locale, Market, Property, Route, Vehicle } from '../types';
 import { money, publicAssetUrl } from '../utils';
@@ -53,9 +54,11 @@ type ChapterProps = {
 function SpeedLine({
   index,
   progress,
+  reduceMotion,
 }: {
   index: number;
   progress: ReturnType<typeof useScroll>['scrollYProgress'];
+  reduceMotion: boolean;
 }) {
   const opacity = useTransform(progress, [0, 0.2, 0.55, 0.9, 1], [0, 0.35, 0.5, 0.18, 0]);
   const angle = -70 + (index / 39) * 140;
@@ -65,7 +68,7 @@ function SpeedLine({
     <motion.span
       aria-hidden="true"
       className="cars-speed-line"
-      style={{ opacity, rotate: angle, scaleX: length / 20 }}
+      style={{ opacity: reduceMotion ? 0 : opacity, rotate: angle, scaleX: length / 20 }}
     />
   );
 }
@@ -75,13 +78,11 @@ function CarSpec({
   index,
   locale,
   progress,
-  reduceMotion,
 }: {
   vehicle: Vehicle;
   index: number;
   locale: Locale;
   progress: ReturnType<typeof useScroll>['scrollYProgress'];
-  reduceMotion: boolean;
 }) {
   const isArabic = locale === 'ar';
   const start = 0.55 + index * 0.08;
@@ -95,7 +96,7 @@ function CarSpec({
   const spec = specs[index];
 
   return (
-    <motion.article className="cars-spec-card" style={{ opacity: reduceMotion ? 1 : opacity, x: reduceMotion ? 0 : x }}>
+    <motion.article className="cars-spec-card" style={{ opacity, x }}>
       <span>{spec.label}</span>
       <strong>{spec.value}</strong>
     </motion.article>
@@ -111,7 +112,8 @@ export function CarsChapter({
   copySummary,
 }: ChapterProps & { vehicles: Vehicle[] }) {
   const isArabic = locale === 'ar';
-  const reduceMotion = useMobileReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
+  const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
   const { assets } = useSiteAssets();
@@ -130,6 +132,8 @@ export function CarsChapter({
     ? frameValue.filter((frame): frame is string => typeof frame === 'string')
     : [];
   const scrubVideoEnabled = !reduceMotion
+    && !isMobileViewport
+    && !isMobileViewport
     && sequenceFrames.length === 0
     && content['feature.heavy_media']?.value_json !== false
     && scrubVideo?.source === 'published'
@@ -137,7 +141,7 @@ export function CarsChapter({
   useScrollScrubVideo(scrubVideoRef, scrollYProgress, scrubVideoEnabled);
   const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
   const heroImage = (sequenceFrames.length
-    ? sequenceFrames[reduceMotion ? 0 : sequenceFrameIndex]
+    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
     : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl))
     ?? (heroAsset?.type === 'image' ? heroAsset.url : heroAsset?.posterUrl)
     ?? featured?.photo;
@@ -149,9 +153,8 @@ export function CarsChapter({
   const [vehicleCount, setVehicleCount] = useState(0);
 
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    if (reduceMotion) return;
     if (progress >= 0.9) setVehicleCount(cars.length);
-    if (sequenceFrames.length > 1 && !reduceMotion) {
+    if (sequenceFrames.length > 1 && !reduceMotion && !isMobileViewport) {
       const nextFrame = Math.min(sequenceFrames.length - 1, Math.floor(progress * sequenceFrames.length));
       setSequenceFrameIndex((current) => current === nextFrame ? current : nextFrame);
     }
@@ -173,8 +176,8 @@ export function CarsChapter({
       <div className="cars-stage" dir={isArabic ? 'rtl' : 'ltr'}>
         <div aria-hidden="true" className="cars-road-grid" />
         <div aria-hidden="true" className="cars-speed-lines">
-          {!reduceMotion && Array.from({ length: 40 }, (_, index) => (
-            <SpeedLine index={index} key={index} progress={scrollYProgress} />
+          {Array.from({ length: 40 }, (_, index) => (
+            <SpeedLine index={index} key={index} progress={scrollYProgress} reduceMotion={reduceMotion} />
           ))}
         </div>
 
@@ -218,7 +221,7 @@ export function CarsChapter({
         {featured && (
           <div aria-label={isArabic ? 'مواصفات السيارة المختارة' : 'Featured vehicle details'} className="cars-specs">
             {[0, 1, 2].map((index) => (
-              <CarSpec index={index} key={`${featured.id}-${index}`} locale={locale} progress={scrollYProgress} reduceMotion={reduceMotion} vehicle={featured} />
+              <CarSpec index={index} key={`${featured.id}-${index}`} locale={locale} progress={scrollYProgress} vehicle={featured} />
             ))}
           </div>
         )}
@@ -248,7 +251,7 @@ export function CarsChapter({
 }
 
 function EstateCount({ value, locale }: { value: number; locale: Locale }) {
-  const reduceMotion = useMobileReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
   const [count, setCount] = useState(reduceMotion ? value : 0);
   const countLabel = locale === 'ar' ? 'مساحة للاكتشاف' : 'spaces to explore';
 
@@ -276,7 +279,8 @@ export function RealEstateChapter({
   copySummary,
 }: ChapterProps & { properties: Property[] }) {
   const isArabic = locale === 'ar';
-  const reduceMotion = useMobileReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
+  const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
   const { assets } = useSiteAssets();
@@ -301,14 +305,13 @@ export function RealEstateChapter({
   useScrollScrubVideo(scrubVideoRef, scrollYProgress, scrubVideoEnabled);
   const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    if (reduceMotion) return;
-    if (sequenceFrames.length > 1 && !reduceMotion) {
+    if (sequenceFrames.length > 1 && !reduceMotion && !isMobileViewport) {
       const nextFrame = Math.min(sequenceFrames.length - 1, Math.floor(progress * sequenceFrames.length));
       setSequenceFrameIndex((current) => current === nextFrame ? current : nextFrame);
     }
   });
   const heroImage = (sequenceFrames.length
-    ? sequenceFrames[reduceMotion ? 0 : sequenceFrameIndex]
+    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
     : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl))
     ?? (heroAsset?.type === 'image' ? heroAsset.url : heroAsset?.posterUrl)
     ?? listing?.photo;

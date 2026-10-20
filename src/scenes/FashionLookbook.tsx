@@ -1,6 +1,7 @@
 import {
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -8,7 +9,6 @@ import {
 import { ArrowLeft, ArrowRight, ArrowUpRight, Heart, Plus, Share2, ShoppingBag, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
-import { useMobileReducedMotion } from '../hooks/useMobileReducedMotion';
 import { useSiteAssets, useSiteContent, useSiteHotspots } from '../lib/siteMediaContext';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -81,7 +81,7 @@ export function FashionLookbook({
   renderPrice,
 }: Props) {
   const isArabic = locale === 'ar';
-  const reduceMotion = useMobileReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
   const sceneRef = useRef<HTMLElement>(null);
   const swipeStart = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -177,7 +177,6 @@ export function FashionLookbook({
   };
 
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    if (reduceMotion) return;
     if (!lookCount) return;
     const nextIndex = Math.min(lookCount - 1, Math.floor(progress * lookCount));
     setActiveIndex(nextIndex);

@@ -123,9 +123,8 @@ export function HomeHero({
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
   const [isMobileViewport, setIsMobileViewport] = useState(
-    () => window.matchMedia('(max-width: 640px), (pointer: coarse)').matches,
+    () => window.matchMedia('(max-width: 640px)').matches,
   );
-  const staticMotion = reduceMotion || isMobileViewport;
   const taglineOpacity = useTransform(scrollYProgress, [0, 0.1, 0.12], [1, 1, 0]);
   const taglineY = useTransform(scrollYProgress, [0.1, 0.12], ['0px', '-24px']);
   const windowsOpacity = useTransform(scrollYProgress, [0, 0.12, 0.32, 0.45], [1, 1, 0, 0]);
@@ -162,7 +161,7 @@ export function HomeHero({
   useEffect(() => {
     const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updateViewport = () => {
-      setIsMobileViewport(window.matchMedia('(max-width: 640px), (pointer: coarse)').matches);
+      setIsMobileViewport(window.matchMedia('(max-width: 640px)').matches);
     };
     const updateMotionPreference = () => setReduceMotion(motionPreference.matches);
     updateViewport();
@@ -185,7 +184,7 @@ export function HomeHero({
         <motion.div
           aria-hidden="true"
           className="five-windows-atmosphere"
-          style={{ opacity: staticMotion ? 1 : atmosphereOpacity }}
+          style={{ opacity: atmosphereOpacity }}
         >
           <div className="five-windows-glow five-windows-glow--mint" />
           <div className="five-windows-glow five-windows-glow--apricot" />
@@ -197,8 +196,8 @@ export function HomeHero({
           aria-hidden="true"
           className="five-windows-outline"
           style={{
-            opacity: staticMotion ? 0 : outlineOpacity,
-            scale: staticMotion ? 1 : outlineScale,
+            opacity: outlineOpacity,
+            scale: reduceMotion ? 1 : outlineScale,
           }}
         >
           ZEXOR
@@ -206,7 +205,7 @@ export function HomeHero({
         <div className="five-windows-content">
           <motion.p
             className="five-windows-eyebrow"
-            style={{ opacity: staticMotion ? 1 : taglineOpacity, y: staticMotion ? 0 : taglineY }}
+            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
           >
             <Sparkles aria-hidden="true" />
             {isArabic ? 'تصميم · تقنية · ثقافة' : 'DESIGN · TECHNOLOGY · CULTURE'}
@@ -217,9 +216,9 @@ export function HomeHero({
             className="five-windows-wordmark"
             dir="ltr"
             style={{
-              opacity: staticMotion ? 1 : windowsOpacity,
-              scale: staticMotion ? 1 : windowsScale,
-              pointerEvents: staticMotion ? 'auto' : windowsPointerEvents,
+              opacity: windowsOpacity,
+              scale: reduceMotion ? 1 : windowsScale,
+              pointerEvents: windowsPointerEvents,
             }}
           >
             {departments.map((department, index) => {
@@ -258,8 +257,8 @@ export function HomeHero({
                     opacity: windowsOpacity,
                   }}
                   type="button"
-                  initial={staticMotion ? false : { y: '12%' }}
-                  animate={staticMotion ? undefined : { y: 0 }}
+                  initial={reduceMotion ? false : { y: '12%' }}
+                  animate={{ y: 0 }}
                   transition={{ duration: 1.4, delay: index * 0.11, ease: [0.22, 1, 0.36, 1] }}
                 >
                   {videoUrl && (
@@ -288,7 +287,7 @@ export function HomeHero({
 
           <motion.div
             className="five-windows-copy"
-            style={{ opacity: staticMotion ? 1 : taglineOpacity, y: staticMotion ? 0 : taglineY }}
+            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
           >
             <h1 aria-label={`${heroTitle} ${heroAccent}`}>
               <span className="five-windows-title-line">{heroTitle}</span>
@@ -310,7 +309,7 @@ export function HomeHero({
 
           <motion.footer
             className="five-windows-footer"
-            style={{ opacity: staticMotion ? 1 : taglineOpacity, y: staticMotion ? 0 : taglineY }}
+            style={{ opacity: reduceMotion ? 1 : taglineOpacity, y: reduceMotion ? 0 : taglineY }}
           >
             <span>{isArabic ? 'اسحب للأسفل' : 'SCROLL TO EXPLORE'}</span>
             <span aria-hidden="true" className="five-windows-scroll-line" />

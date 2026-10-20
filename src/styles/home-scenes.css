@@ -2199,23 +2199,6 @@ html:lang(ar) .five-windows-copy h1 {
   }
 }
 
-@media (max-width: 640px), (pointer: coarse) {
-  .five-windows-mist,
-  .five-windows-glow,
-  .nfc-one-touch-glow,
-  .studio-stage-glow,
-  .estate-cloud {
-    filter: none;
-  }
-
-  .five-windows-mist,
-  .cars-speed-lines,
-  .cars-road-grid,
-  .estate-grain {
-    display: none;
-  }
-}
-
 @media (max-width: 640px) and (max-height: 680px) {
   .five-windows-content {
     gap: 0.625rem;

@@ -2,6 +2,7 @@ import {
   animate,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
@@ -9,7 +10,6 @@ import {
 import { ArrowUpRight, Code2, LayoutDashboard, Monitor, Smartphone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { STATS } from '../data/initialData';
-import { useMobileReducedMotion } from '../hooks/useMobileReducedMotion';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { AgencyProject, Locale, Route } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -137,7 +137,7 @@ function StudioStat({
 
 export function StudioChapter({ locale, projects, navigate }: Props) {
   const isArabic = locale === 'ar';
-  const reduceMotion = useMobileReducedMotion();
+  const reduceMotion = useReducedMotion() ?? false;
   const sceneRef = useRef<HTMLElement>(null);
   const { assets } = useSiteAssets();
   const { getText } = useSiteContent();
@@ -147,7 +147,6 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
   });
   const [statsActive, setStatsActive] = useState(false);
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (reduceMotion) return;
     if (latest >= 0.8) setStatsActive(true);
   });
   const titleOpacity = useTransform(scrollYProgress, [0, 0.08, 0.78, 0.92], [1, 1, 1, 0.08]);
