@@ -56,7 +56,7 @@ function useNearViewport(ref: { current: HTMLElement | null }) {
         setIsNearViewport(true);
         observer.disconnect();
       }
-    }, { rootMargin: `${Math.round(window.innerHeight * 0.75)}px 0px` });
+    }, { rootMargin: `${Math.round(window.innerHeight * 1.25)}px 0px` });
     observer.observe(target);
     return () => observer.disconnect();
   }, [ref]);
@@ -153,6 +153,10 @@ export function CarsChapter({
   const sequenceFrames = Array.isArray(frameValue)
     ? frameValue.filter((frame): frame is string => typeof frame === 'string')
     : [];
+  const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
+  const sequenceImage = sequenceFrames.length
+    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
+    : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl);
   const scrubVideoEnabled = !reduceMotion
     && !isMobileViewport
     && sequenceFrames.length === 0
@@ -160,10 +164,9 @@ export function CarsChapter({
     && scrubVideo?.source === 'published'
     && scrubVideo.type === 'video';
   useScrollScrubVideo(scrubVideoRef, scrollYProgress, scrubVideoEnabled);
-  const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
-  const heroImage = (sequenceFrames.length
-    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
-    : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl))
+  const heroImage = (isMobileViewport ? sequenceAsset?.mobileUrl : null)
+    ?? sequenceImage
+    ?? (isMobileViewport ? heroAsset?.mobileUrl : null)
     ?? (heroAsset?.type === 'image' ? heroAsset.url : heroAsset?.posterUrl)
     ?? featured?.photo;
   const imageScale = useTransform(scrollYProgress, [0, 0.55, 0.9, 1], [1.25, 1.06, 1, 1.02]);
@@ -319,6 +322,10 @@ export function RealEstateChapter({
   const sequenceFrames = Array.isArray(frameValue)
     ? frameValue.filter((frame): frame is string => typeof frame === 'string')
     : [];
+  const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
+  const sequenceImage = sequenceFrames.length
+    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
+    : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl);
   const scrubVideoEnabled = !reduceMotion
     && !isMobileViewport
     && sequenceFrames.length === 0
@@ -326,16 +333,15 @@ export function RealEstateChapter({
     && scrubVideo?.source === 'published'
     && scrubVideo.type === 'video';
   useScrollScrubVideo(scrubVideoRef, scrollYProgress, scrubVideoEnabled);
-  const [sequenceFrameIndex, setSequenceFrameIndex] = useState(0);
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
     if (sequenceFrames.length > 1 && !reduceMotion && !isMobileViewport) {
       const nextFrame = Math.min(sequenceFrames.length - 1, Math.floor(progress * sequenceFrames.length));
       setSequenceFrameIndex((current) => current === nextFrame ? current : nextFrame);
     }
   });
-  const heroImage = (sequenceFrames.length
-    ? sequenceFrames[reduceMotion || isMobileViewport ? 0 : sequenceFrameIndex]
-    : (sequenceAsset?.type === 'image' ? sequenceAsset.url : sequenceAsset?.posterUrl))
+  const heroImage = (isMobileViewport ? sequenceAsset?.mobileUrl : null)
+    ?? sequenceImage
+    ?? (isMobileViewport ? heroAsset?.mobileUrl : null)
     ?? (heroAsset?.type === 'image' ? heroAsset.url : heroAsset?.posterUrl)
     ?? listing?.photo;
   const buildingScale = useTransform(scrollYProgress, [0, 0.5, 0.8, 1], [1.35, 1.08, 1, 1]);

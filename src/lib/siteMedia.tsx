@@ -76,20 +76,6 @@ function writeCache(cache: CachedSiteMedia): void {
   }
 }
 
-function cacheBustedUrl(url: string | null, updatedAt: string | null): string | null {
-  if (!url || !updatedAt) return url;
-  try {
-    const parsed = new URL(url, window.location.origin);
-    parsed.searchParams.set('v', updatedAt);
-    return parsed.origin === window.location.origin
-      ? `${parsed.pathname}${parsed.search}${parsed.hash}`
-      : parsed.toString();
-  } catch {
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}v=${encodeURIComponent(updatedAt)}`;
-  }
-}
-
 function resolveAssets(rows: AssetRow[]): Record<string, ResolvedSiteAsset> {
   const publishedRows = new Map(rows.filter((row) => row.status === 'published').map((row) => [row.key, row]));
   return Object.fromEntries(
@@ -111,10 +97,10 @@ function resolveAssets(rows: AssetRow[]): Record<string, ResolvedSiteAsset> {
         ...fallback,
         key,
         type: row.type,
-        url: cacheBustedUrl(row.url, row.updated_at) ?? fallback.url,
-        posterUrl: cacheBustedUrl(row.poster_url, row.updated_at) ?? fallback.posterUrl ?? null,
+        url: row.url ?? fallback.url,
+        posterUrl: row.poster_url ?? fallback.posterUrl ?? null,
         mobileUrl: typeof row.meta?.mobile_url === 'string'
-          ? cacheBustedUrl(row.meta.mobile_url, row.updated_at)
+          ? row.meta.mobile_url
           : null,
         alt: { ar: row.alt_ar ?? '', en: row.alt_en ?? '' },
         meta: row.meta ?? {},

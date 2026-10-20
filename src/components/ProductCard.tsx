@@ -86,6 +86,8 @@ export function ProductCard({
           <img
             alt={product.name[locale]}
             className={`relative h-full w-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.045] ${imageLoaded ? 'opacity-100' : 'opacity-0'} ${soldOut ? 'grayscale' : ''}`}
+            width={1200}
+            height={900}
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
             onError={() => setFailedImageUrl(product.imageUrl ?? '')}
@@ -95,6 +97,8 @@ export function ProductCard({
           <img
             alt={product.name[locale]}
             className={`relative h-full w-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            width={1200}
+            height={900}
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
             src={publicAssetUrl(fallbackImage)}

@@ -45,7 +45,7 @@ function DepartmentTile({
       style={{ transformPerspective: 1000, transformStyle: 'preserve-3d' }}
       transition={{ duration: 0.45, delay: index * 0.06 }}
       type="button"
-      viewport={{ once: false, margin: '-50px' }}
+      viewport={{ once: true, margin: '1000px 0px' }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
       whileHover={reduceMotion ? undefined : { y: -7, rotateX: 2, rotateY: isArabic ? -1.5 : 1.5, scale: 1.012 }}
       whileTap={reduceMotion ? undefined : { scale: 0.985, rotateX: -1.5 }}
@@ -54,6 +54,8 @@ function DepartmentTile({
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.045]"
+        width={1200}
+        height={800}
         loading="lazy"
         src={portal.image}
       />

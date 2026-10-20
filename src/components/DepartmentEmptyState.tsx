@@ -25,7 +25,7 @@ export function DepartmentEmptyState({ locale, title, description, image, action
       className="zx-empty-showcase col-span-full relative isolate grid min-h-56 overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-mint sm:min-h-64 sm:grid-cols-[1.1fr_.9fr]"
       initial={reduceMotion ? undefined : { opacity: 0, y: 22, rotateX: -2 }}
       transition={{ duration: 0.65, ease: [0.2, 0.72, 0.2, 1] }}
-      viewport={{ once: false, amount: 0.12 }}
+      viewport={{ once: true, amount: 0.12 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0, rotateX: 0 }}
     >
       <div className="relative z-10 flex flex-col items-start justify-center p-6 sm:p-9">
@@ -44,7 +44,7 @@ export function DepartmentEmptyState({ locale, title, description, image, action
         )}
       </div>
       <motion.div aria-hidden="true" className="zx-empty-art relative min-h-36 overflow-hidden sm:min-h-full" animate={reduceMotion ? undefined : { y: [0, -5, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}>
-        <img alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" src={publicAssetUrl(image)} />
+        <img alt="" className="absolute inset-0 h-full w-full object-cover" height={800} loading="lazy" src={publicAssetUrl(image)} width={1200} />
         <div className="absolute inset-0 bg-linear-to-t from-zx-cinematic/45 via-transparent to-zx-surface-raised/10 sm:bg-linear-to-l sm:from-zx-mint/5 sm:via-transparent sm:to-zx-mint" />
         <div className="absolute bottom-4 inset-e-4 flex min-h-11 items-center gap-2 rounded-full border border-zx-border/35 bg-zx-cinematic/65 px-3 text-xs font-semibold text-zx-accent-contrast shadow-xl backdrop-blur-md">
           <span className="h-1.5 w-1.5 rounded-full bg-zx-accent" />

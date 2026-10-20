@@ -402,6 +402,13 @@
   animation: zx-skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
+@media (max-width: 640px) {
+  .zx-image-skeleton {
+    background: var(--zx-surface-2);
+    animation: none;
+  }
+}
+
 @keyframes zx-skeleton-shimmer {
   to { background-position-x: -220%; }
 }

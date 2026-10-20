@@ -9,6 +9,7 @@ import {
 import { ArrowLeft, ArrowRight, ArrowUpRight, Heart, Plus, Share2, ShoppingBag, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { useSiteAssets, useSiteContent, useSiteHotspots } from '../lib/siteMediaContext';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -82,6 +83,7 @@ export function FashionLookbook({
 }: Props) {
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
+  const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
   const swipeStart = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -177,7 +179,7 @@ export function FashionLookbook({
   };
 
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    if (!lookCount) return;
+    if (!lookCount || isMobileViewport) return;
     const nextIndex = Math.min(lookCount - 1, Math.floor(progress * lookCount));
     setActiveIndex(nextIndex);
   });
@@ -193,8 +195,13 @@ export function FashionLookbook({
   }, [dropDateText, dropTimestamp]);
 
   const goToLook = (index: number) => {
-    if (!sceneRef.current || !lookCount) return;
+    if (!lookCount) return;
     const targetIndex = Math.max(0, Math.min(lookCount - 1, index));
+    if (isMobileViewport) {
+      setActiveIndex(targetIndex);
+      return;
+    }
+    if (!sceneRef.current) return;
     const rect = sceneRef.current.getBoundingClientRect();
     const sceneTop = rect.top + window.scrollY;
     const scrollDistance = sceneRef.current.offsetHeight - window.innerHeight;
@@ -314,10 +321,10 @@ export function FashionLookbook({
               alt={assets[currentLook.assetKey ?? '']?.alt[locale] || currentLook.product?.name[locale] || `${headline} ${currentIndex + 1}`}
               className="zx-lookbook-photo"
               key={currentLook.id}
-              loading="lazy"
+              loading={isMobileViewport ? 'eager' : 'lazy'}
               onError={() => brokenImages(currentLook.url)}
               src={publicAssetUrl(currentLook.url)}
-              style={reduceMotion ? undefined : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}
+              style={reduceMotion || isMobileViewport ? undefined : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}
             />
             <img
               alt=""

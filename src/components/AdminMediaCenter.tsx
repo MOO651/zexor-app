@@ -241,7 +241,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
         }
       }
       const objectPath = createStoragePath(key, prepared.name);
-      const { error: uploadError } = await supabase.storage.from('site-media').upload(objectPath, prepared, { contentType: prepared.type, upsert: false });
+      const { error: uploadError } = await supabase.storage.from('site-media').upload(objectPath, prepared, { cacheControl: '31536000, immutable', contentType: prepared.type, upsert: false });
       if (uploadError) throw new Error(uploadError.message);
       const { data: publicData } = supabase.storage.from('site-media').getPublicUrl(objectPath);
       const previous = assetDraftRows[key] ?? rows[key];
@@ -290,7 +290,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
         throw new Error(isArabic ? 'صورة الغلاف غير مدعومة أو أكبر من 20 ميجابايت.' : 'Poster must be a supported image under 20 MB.');
       }
       objectPath = `${key.replaceAll('.', '/')}/poster-${Date.now()}-${prepared.name.replace(/[^\w.-]/g, '-')}`;
-      const { error: uploadError } = await supabase.storage.from('site-media').upload(objectPath, prepared, { contentType: prepared.type, upsert: false });
+      const { error: uploadError } = await supabase.storage.from('site-media').upload(objectPath, prepared, { cacheControl: '31536000, immutable', contentType: prepared.type, upsert: false });
       if (uploadError) throw new Error(uploadError.message);
       const posterUrl = supabase.storage.from('site-media').getPublicUrl(objectPath).data.publicUrl;
       const { error: saveError } = await supabase.from('site_assets').upsert({
@@ -342,7 +342,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
       const urls: string[] = [];
       for (const [index, file] of preparedFiles.entries()) {
         const path = createStoragePath(key, file.name, index);
-        const { error: uploadError } = await supabase.storage.from('site-media').upload(path, file, { contentType: file.type, upsert: false });
+        const { error: uploadError } = await supabase.storage.from('site-media').upload(path, file, { cacheControl: '31536000, immutable', contentType: file.type, upsert: false });
         if (uploadError) throw new Error(uploadError.message);
         objectPaths.push(path);
         urls.push(supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl);
