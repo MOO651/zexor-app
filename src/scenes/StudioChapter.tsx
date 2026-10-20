@@ -10,6 +10,7 @@ import {
 import { ArrowUpRight, Code2, LayoutDashboard, Monitor, Smartphone } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { STATS } from '../data/initialData';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { AgencyProject, Locale, Route } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -138,6 +139,8 @@ function StudioStat({
 export function StudioChapter({ locale, projects, navigate }: Props) {
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
+  const isMobileViewport = useMobileViewport();
+  const staticMotion = reduceMotion || isMobileViewport;
   const sceneRef = useRef<HTMLElement>(null);
   const { assets } = useSiteAssets();
   const { getText } = useSiteContent();
@@ -147,7 +150,7 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
   });
   const [statsActive, setStatsActive] = useState(false);
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest >= 0.8) setStatsActive(true);
+    if (staticMotion || latest >= 0.8) setStatsActive(true);
   });
   const titleOpacity = useTransform(scrollYProgress, [0, 0.08, 0.78, 0.92], [1, 1, 1, 0.08]);
   const finalOpacity = useTransform(scrollYProgress, [0.78, 0.9, 1], [0, 1, 1]);
@@ -180,11 +183,11 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
 
   return (
     <section className="studio-chapter" id="chapter-services" ref={sceneRef}>
-      <div className={`studio-stage${reduceMotion ? ' studio-stage--static' : ''}`} dir={isArabic ? 'rtl' : 'ltr'}>
+      <div className={`studio-stage${staticMotion ? ' studio-stage--static' : ''}`} dir={isArabic ? 'rtl' : 'ltr'}>
         <div aria-hidden="true" className="studio-stage-glow studio-stage-glow--mint" />
         <div aria-hidden="true" className="studio-stage-glow studio-stage-glow--clay" />
 
-        <motion.header className="studio-heading" style={{ opacity: reduceMotion ? 1 : titleOpacity }}>
+        <motion.header className="studio-heading" style={{ opacity: staticMotion ? 1 : titleOpacity }}>
           <span className="studio-eyebrow">
             <Code2 aria-hidden="true" />
             {isArabic ? 'زكسور ستوديو · تجارب رقمية' : 'ZEXOR STUDIO · DIGITAL EXPERIENCES'}
@@ -204,7 +207,7 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
               kind={kind}
               progress={scrollYProgress}
               project={project}
-              reduceMotion={reduceMotion}
+              reduceMotion={staticMotion}
               locale={locale}
             />
           ))}
@@ -212,20 +215,20 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
 
         <motion.span
           className="studio-float-chip studio-float-chip--traffic"
-          initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
+          initial={staticMotion ? undefined : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           viewport={{ once: true }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          whileInView={staticMotion ? undefined : { opacity: 1, y: 0 }}
         >
           <span aria-hidden="true" />
           {trafficChip}
         </motion.span>
         <motion.span
           className="studio-float-chip studio-float-chip--checkout"
-          initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
+          initial={staticMotion ? undefined : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 0.35 }}
           viewport={{ once: true }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          whileInView={staticMotion ? undefined : { opacity: 1, y: 0 }}
         >
           <span aria-hidden="true" />
           {checkoutChip}
@@ -235,10 +238,10 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
           aria-label={ctaTitle}
           className="studio-final-card"
           style={{
-            opacity: reduceMotion ? 1 : finalOpacity,
-            scale: reduceMotion ? 1 : finalScale,
-            x: '-50%',
-            y: reduceMotion ? 0 : '-50%',
+            opacity: staticMotion ? 1 : finalOpacity,
+            scale: staticMotion ? 1 : finalScale,
+            x: staticMotion ? 0 : '-50%',
+            y: staticMotion ? 0 : '-50%',
           }}
         >
           <span className="studio-final-card-label">{isArabic ? 'من الفكرة إلى الإطلاق' : 'FROM IDEA TO LAUNCH'}</span>
@@ -246,10 +249,10 @@ export function StudioChapter({ locale, projects, navigate }: Props) {
           <div className="studio-final-stats">
             {stats.map((stat, index) => (
               <StudioStat
-                active={reduceMotion || statsActive}
+                active={staticMotion || statsActive}
                 key={`${stat.label}-${index}`}
                 label={stat.label}
-                reduceMotion={reduceMotion}
+                reduceMotion={staticMotion}
                 value={stat.value}
               />
             ))}

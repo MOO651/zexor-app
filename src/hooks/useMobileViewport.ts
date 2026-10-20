@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const MOBILE_VIEWPORT_QUERY = '(max-width: 640px), (pointer: coarse)';
+const MOBILE_VIEWPORT_QUERY = '(max-width: 767px), (pointer: coarse)';
 
 export function useMobileViewport() {
   const [isMobileViewport, setIsMobileViewport] = useState(

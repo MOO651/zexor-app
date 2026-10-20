@@ -7,6 +7,7 @@ import {
 import { ArrowUpLeft, ArrowUpRight, Fingerprint, Radio, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -78,6 +79,7 @@ function FeatureCard({
 
 export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, onDesign, onExplore, renderPrice }: Props) {
   const isArabic = locale === 'ar';
+  const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
   const touchDragRef = useRef<{
     startX: number;
@@ -139,7 +141,7 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
     return () => preference.removeEventListener('change', updatePreference);
   }, []);
 
-  const staticMotion = prefersReducedMotion;
+  const staticMotion = prefersReducedMotion || isMobileViewport;
   const handleCardPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch' || staticMotion) return;
     event.currentTarget.setPointerCapture(event.pointerId);

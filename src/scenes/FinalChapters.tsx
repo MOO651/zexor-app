@@ -99,11 +99,13 @@ function CarSpec({
   index,
   locale,
   progress,
+  staticMotion,
 }: {
   vehicle: Vehicle;
   index: number;
   locale: Locale;
   progress: ReturnType<typeof useScroll>['scrollYProgress'];
+  staticMotion: boolean;
 }) {
   const isArabic = locale === 'ar';
   const start = 0.55 + index * 0.08;
@@ -117,7 +119,7 @@ function CarSpec({
   const spec = specs[index];
 
   return (
-    <motion.article className="cars-spec-card" style={{ opacity, x }}>
+    <motion.article className="cars-spec-card" style={{ opacity: staticMotion ? 1 : opacity, x: staticMotion ? 0 : x }}>
       <span>{spec.label}</span>
       <strong>{spec.value}</strong>
     </motion.article>
@@ -135,6 +137,7 @@ export function CarsChapter({
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
   const isMobileViewport = useMobileViewport();
+  const staticMotion = reduceMotion || isMobileViewport;
   const sceneRef = useRef<HTMLElement>(null);
   const isNearViewport = useNearViewport(sceneRef);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
@@ -201,7 +204,7 @@ export function CarsChapter({
         <div aria-hidden="true" className="cars-road-grid" />
         <div aria-hidden="true" className="cars-speed-lines">
           {Array.from({ length: 40 }, (_, index) => (
-            <SpeedLine index={index} key={index} progress={scrollYProgress} reduceMotion={reduceMotion} />
+            <SpeedLine index={index} key={index} progress={scrollYProgress} reduceMotion={staticMotion} />
           ))}
         </div>
 
@@ -211,8 +214,8 @@ export function CarsChapter({
             className="cars-hero-image"
             style={{
               backgroundImage: isNearViewport ? `url("${publicAssetUrl(heroImage)}")` : undefined,
-              scale: reduceMotion ? 1 : imageScale,
-              x: reduceMotion ? 0 : imageX,
+              scale: staticMotion ? 1 : imageScale,
+              x: staticMotion ? 0 : imageX,
             }}
           />
         )}
@@ -228,15 +231,15 @@ export function CarsChapter({
             ref={scrubVideoRef}
             src={publicAssetUrl(scrubVideo.url) ?? undefined}
             style={{
-              scale: reduceMotion ? 1 : imageScale,
-              x: reduceMotion ? 0 : imageX,
+              scale: staticMotion ? 1 : imageScale,
+              x: staticMotion ? 0 : imageX,
             }}
           />
         )}
-        <motion.div aria-hidden="true" className="cars-headlight-glow" style={{ opacity: reduceMotion ? 0.55 : glowOpacity }} />
+        <motion.div aria-hidden="true" className="cars-headlight-glow" style={{ opacity: staticMotion ? 0.55 : glowOpacity }} />
         <div aria-hidden="true" className="cars-stage-scrim" />
 
-        <motion.header className="cars-heading" style={{ opacity: reduceMotion ? 1 : titleOpacity }}>
+        <motion.header className="cars-heading" style={{ opacity: staticMotion ? 1 : titleOpacity }}>
           <span className="cars-eyebrow"><Gauge aria-hidden="true" />04 · {isArabic ? 'اختيارات على الطريق' : 'CURATED FOR THE ROAD'}</span>
           <h2><span>{title}</span><em>{accent}</em></h2>
           <p>{summary}</p>
@@ -245,12 +248,12 @@ export function CarsChapter({
         {featured && (
           <div aria-label={isArabic ? 'مواصفات السيارة المختارة' : 'Featured vehicle details'} className="cars-specs">
             {[0, 1, 2].map((index) => (
-              <CarSpec index={index} key={`${featured.id}-${index}`} locale={locale} progress={scrollYProgress} vehicle={featured} />
+              <CarSpec index={index} key={`${featured.id}-${index}`} locale={locale} progress={scrollYProgress} staticMotion={staticMotion} vehicle={featured} />
             ))}
           </div>
         )}
 
-        <motion.div className="cars-ending" style={{ opacity: reduceMotion ? 1 : railOpacity }}>
+        <motion.div className="cars-ending" style={{ opacity: staticMotion ? 1 : railOpacity }}>
           <div className="cars-ending-copy">
             <span>{isArabic ? 'اختيارك القادم يبدأ هنا' : 'YOUR NEXT DRIVE STARTS HERE'}</span>
             {cars.length > 0 && (
@@ -305,6 +308,7 @@ export function RealEstateChapter({
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
   const isMobileViewport = useMobileViewport();
+  const staticMotion = reduceMotion || isMobileViewport;
   const sceneRef = useRef<HTMLElement>(null);
   const isNearViewport = useNearViewport(sceneRef);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
@@ -373,7 +377,7 @@ export function RealEstateChapter({
             className="estate-building"
             style={{
               backgroundImage: isNearViewport ? `url("${publicAssetUrl(heroImage)}")` : undefined,
-              scale: reduceMotion ? 1 : buildingScale,
+              scale: staticMotion ? 1 : buildingScale,
             }}
           />
         )}
@@ -389,25 +393,25 @@ export function RealEstateChapter({
             ref={scrubVideoRef}
             src={publicAssetUrl(scrubVideo.url) ?? undefined}
             style={{
-              scale: reduceMotion ? 1 : buildingScale,
+              scale: staticMotion ? 1 : buildingScale,
             }}
           />
         )}
         <div aria-hidden="true" className="estate-sky" />
-        <motion.div aria-hidden="true" className="estate-cloud estate-cloud--left" style={{ x: reduceMotion ? '-42%' : cloudLeftX, y: reduceMotion ? 32 : cloudsY }} />
-        <motion.div aria-hidden="true" className="estate-cloud estate-cloud--right" style={{ x: reduceMotion ? '42%' : cloudRightX, y: reduceMotion ? 32 : cloudsY }} />
-        <motion.div aria-hidden="true" className="estate-golden-hour" style={{ opacity: reduceMotion ? 0.18 : goldenHour }} />
+        <motion.div aria-hidden="true" className="estate-cloud estate-cloud--left" style={{ x: staticMotion ? '-42%' : cloudLeftX, y: staticMotion ? 32 : cloudsY }} />
+        <motion.div aria-hidden="true" className="estate-cloud estate-cloud--right" style={{ x: staticMotion ? '42%' : cloudRightX, y: staticMotion ? 32 : cloudsY }} />
+        <motion.div aria-hidden="true" className="estate-golden-hour" style={{ opacity: staticMotion ? 0.18 : goldenHour }} />
         <div aria-hidden="true" className="estate-grain" />
 
-        <motion.h2 className="estate-outline-title" style={{ opacity: reduceMotion ? 0.45 : titleOpacity }}>
+        <motion.h2 className="estate-outline-title" style={{ opacity: staticMotion ? 0.45 : titleOpacity }}>
           ESTATES
         </motion.h2>
 
-        <motion.div aria-hidden="true" className="estate-foreground" style={{ y: reduceMotion ? 0 : plantsY }}>
+        <motion.div aria-hidden="true" className="estate-foreground" style={{ y: staticMotion ? 0 : plantsY }}>
           <span /><span /><span /><span /><span />
         </motion.div>
 
-        <motion.header className="estate-copy" style={{ opacity: reduceMotion ? 1 : copyOpacity, y: reduceMotion ? 0 : copyY }}>
+        <motion.header className="estate-copy" style={{ opacity: staticMotion ? 1 : copyOpacity, y: staticMotion ? 0 : copyY }}>
           <span className="estate-eyebrow"><MapPin aria-hidden="true" />05 · {isArabic ? 'مساحتك القادمة' : 'A PLACE TO CALL YOURS'}</span>
           <h2>{title}<em>{accent}</em></h2>
           <p>{summary}</p>
