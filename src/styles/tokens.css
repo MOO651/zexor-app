@@ -5,14 +5,15 @@
   --zx-surface-raised: #FFFFFF;
   --zx-text: #12241B;
   --zx-text-secondary: #3F5A4C;
-  --zx-text-muted: #6B7F73;
+  --zx-text-muted: #566A5C;
   --zx-border: #E2DBC9;
   --zx-accent: #164534;
   --zx-accent-hover: #1F6B4F;
   --zx-accent-contrast: #F4F0E6;
   --zx-mint: #A9E5C0;
-  --zx-highlight: #C65F36;
-  --zx-highlight-contrast: #12241B;
+  --zx-highlight: #A94F2D;
+  --zx-highlight-contrast: #FFFFFF;
+  --zx-mint-contrast: #12241B;
   --zx-sand: #E6D5B8;
   --zx-sage: #8DB8A0;
   --zx-metal-light: #EFE9DA;
@@ -78,6 +79,7 @@
   --zx-accent: #7FE0A8;
   --zx-accent-hover: #A9E5C0;
   --zx-accent-contrast: #07130E;
+  --zx-mint-contrast: #12241B;
   --zx-highlight: #F3935F;
   --zx-highlight-contrast: #07130E;
   --zx-sand: #3A4A3F;
@@ -116,6 +118,7 @@
   --color-zx-on-primary: var(--zx-accent-contrast);
   --color-zx-accent: var(--zx-accent);
   --color-zx-mint: var(--zx-mint);
+  --color-zx-mint-contrast: var(--zx-mint-contrast);
   --color-zx-sage: var(--zx-sage);
   --color-zx-sand: var(--zx-sand);
   --color-zx-highlight: var(--zx-highlight);

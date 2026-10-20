@@ -39,7 +39,7 @@ function DepartmentTile({
   return (
     <motion.button
       aria-label={`${title} — ${portal.tagline[locale]}`}
-      className="zx-department-tile group relative flex min-h-72 w-full overflow-hidden text-start sm:min-h-84 xl:min-h-100"
+      className="zx-department-tile group relative flex min-h-44 w-full overflow-hidden text-start sm:min-h-72 xl:min-h-100"
       initial={reduceMotion ? undefined : { opacity: 0, y: 16 }}
       onClick={() => navigate(portal.route)}
       style={{ transformPerspective: 1000, transformStyle: 'preserve-3d' }}
@@ -68,11 +68,11 @@ function DepartmentTile({
           <span className="font-mono text-xs tracking-[.12em] text-zx-accent-contrast/75">{portal.index} / {String(PORTALS.length).padStart(2, '0')}</span>
         </span>
 
-        <span className="mt-12 block">
+        <span className="mt-5 block sm:mt-12">
           <span className="block text-xs font-bold uppercase tracking-[.12em]" style={{ color: portal.accent }}>{portal.meta[locale]}</span>
           <span className="zx-display mt-2 block text-xl leading-tight sm:text-2xl">{title}</span>
-          <span className="mt-2 block max-w-72 text-xs leading-6 text-zx-accent-contrast/80">{portal.tagline[locale]}</span>
-          <span className="mt-4 inline-flex items-center gap-2 text-xs font-bold">
+          <span className="mt-2 hidden max-w-72 text-xs leading-6 text-zx-accent-contrast/80 sm:block">{portal.tagline[locale]}</span>
+          <span className="mt-2 inline-flex items-center gap-2 text-xs font-bold sm:mt-4">
             {isArabic ? 'استكشف القسم' : 'Explore department'}
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-zx-border/30 bg-zx-surface-raised/10 transition group-hover:bg-zx-surface-raised group-hover:text-zx-text">
               <ArrowUpRight className="h-3.5 w-3.5" />
@@ -99,7 +99,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             {isArabic ? 'عالم ZEXOR' : 'THE ZEXOR COLLECTION'}
           </span>
           <h2 className="zx-display mt-2 text-3xl text-zx-text sm:text-4xl">
-            {isArabic ? 'كل عالم له حكايته' : 'A world for every side of you'}
+            {isArabic ? 'اختار القسم اللي بتدور عليه' : 'Choose the department you need'}
           </h2>
           <p className="mt-2 max-w-xl text-xs leading-6 text-zx-text">
             {isArabic ? 'اختر القسم الذي تبحث عنه، وانتقل مباشرة إلى تفاصيله.' : 'Choose a department to explore its products, services and details.'}
@@ -112,7 +112,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
         </span>
       </div>
 
-      <div className="zx-department-grid grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="zx-department-grid grid grid-cols-2 gap-3 xl:grid-cols-5">
         {portals.map((portal, index) => (
           <DepartmentTile
             index={index}

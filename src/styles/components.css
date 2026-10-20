@@ -227,6 +227,16 @@
   text-decoration: none;
 }
 
+.zx-fullscreen-menu-link.zx-fullscreen-menu-link--department {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .zx-fullscreen-menu-link.zx-fullscreen-menu-link--department {
+    display: flex;
+  }
+}
+
 .zx-menu-portal {
   position: relative;
   min-height: 10rem;

@@ -284,21 +284,22 @@ export function AdminDashboard({
     let bitmap: ImageBitmap | null = null;
     try {
       bitmap = await createImageBitmap(file);
-      let scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      let scale = Math.min(1, 1400 / Math.max(bitmap.width, bitmap.height));
       let blob: Blob | null = null;
-      for (let attempt = 0; attempt < 4; attempt += 1) {
+      for (let attempt = 0; attempt < 7; attempt += 1) {
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(bitmap.width * scale));
         canvas.height = Math.max(1, Math.round(bitmap.height * scale));
         const context = canvas.getContext('2d');
         if (!context) throw new Error('Canvas image processing is unavailable.');
         context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.78 - attempt * 0.1));
-        if (blob && blob.size <= 1.5 * 1024 * 1024) break;
+        const quality = Math.max(0.32, 0.76 - attempt * 0.08);
+        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+        if (blob && blob.size <= 450 * 1024) break;
         scale *= 0.8;
       }
-      if (!blob || blob.size > 1.5 * 1024 * 1024) {
-        throw new Error('The image could not be compressed below 1.5 MB.');
+      if (!blob || blob.size > 450 * 1024) {
+        throw new Error('The image could not be compressed below 450 KB.');
       }
 
       const reader = new FileReader();
@@ -309,8 +310,8 @@ export function AdminDashboard({
       });
       onLoaded(dataUrl);
       onToast(isArabic
-        ? 'تم تجهيز الصورة المضغوطة. احفظ العنصر لنشر التغيير.'
-        : 'Optimized image is ready. Save the item to publish the change.');
+        ? `تم ضغط الصورة إلى ${Math.ceil(blob.size / 1024)} كيلوبايت. احفظ العنصر لنشر التغيير.`
+        : `Image compressed to ${Math.ceil(blob.size / 1024)} KB. Save the item to publish the change.`);
     } catch (imageFailure) {
       console.error('Could not prepare the listing image:', imageFailure);
       const detail = imageFailure instanceof Error ? imageFailure.message : String(imageFailure);
@@ -1752,6 +1753,9 @@ export function AdminDashboard({
                   {/* Image Upload Integration */}
                   <div>
                     <label className="text-[10px] text-zx-text">{isArabic ? 'رفع صورة المنتج' : 'Upload Image'}</label>
+                    <p className="mt-1 text-xs leading-5 text-zx-text-secondary">
+                      {isArabic ? 'نحوّل الصورة تلقائيًا إلى WebP ونضغطها إلى 450 كيلوبايت كحد أقصى.' : 'Images are automatically converted to WebP and compressed to 450 KB max.'}
+                    </p>
                     <div className="mt-1 flex gap-2">
                       <input
                         accept="image/jpeg,image/png,image/webp,image/avif"

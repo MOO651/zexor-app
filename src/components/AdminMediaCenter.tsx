@@ -43,16 +43,25 @@ const MAX_VIDEO_SECONDS = 10;
 async function prepareImage(file: File, locale: Locale): Promise<File> {
   if (!file.type.startsWith('image/') || file.type === 'image/vnd.radiance') return file;
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, 2400 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  const context = canvas.getContext('2d');
-  if (!context) throw new Error(locale === 'ar' ? 'تعذر تجهيز الصورة في هذا المتصفح.' : 'This browser could not prepare the image.');
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.84));
+  let scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+  let blob: Blob | null = null;
+  try {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error(locale === 'ar' ? 'تعذر تجهيز الصورة في هذا المتصفح.' : 'This browser could not prepare the image.');
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', Math.max(0.4, 0.78 - attempt * 0.07)));
+      if (blob && blob.size <= 1024 * 1024) break;
+      scale *= 0.82;
+    }
+  } finally {
+    bitmap.close();
+  }
   if (!blob) throw new Error(locale === 'ar' ? 'تعذر تحويل الصورة إلى WebP.' : 'Could not convert the image to WebP.');
+  if (blob.size > 1024 * 1024) throw new Error(locale === 'ar' ? 'تعذر ضغط الصورة إلى أقل من 1 ميجابايت.' : 'Could not compress the image below 1 MB.');
   return new File([blob], `${file.name.replace(/\.[^.]+$/, '')}.webp`, { type: 'image/webp' });
 }
 
@@ -520,7 +529,9 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
         <div>
           <h2 className="text-lg font-bold text-zx-text">{isArabic ? 'الوسائط والمحتوى' : 'Media and Content'}</h2>
           <p className="mt-1 text-xs leading-5 text-zx-text-secondary">
-            {isArabic ? 'ارفع الملفات كمسودات، راجعها ثم انشرها. النسخة الافتراضية تفضل متاحة دائمًا.' : 'Upload drafts, review them, then publish. Local defaults remain available.'}
+            {isArabic
+              ? 'ارفع الملفات كمسودات، راجعها ثم انشرها. تُحوّل الصور إلى WebP وتُضغط إلى 1 ميجابايت كحد أقصى. النسخة الافتراضية تظل متاحة دائمًا.'
+              : 'Upload drafts, review them, then publish. Images are converted to WebP and compressed to 1 MB max. Local defaults remain available.'}
           </p>
         </div>
         <button className="min-h-11 rounded-full border border-zx-border px-4 text-xs font-semibold text-zx-text" onClick={() => void refresh()} type="button">

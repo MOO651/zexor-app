@@ -41,15 +41,13 @@ import {
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
-  AGENCY_PROJECTS,
   STATS,
 } from './data/initialData';
-import { HomeHero, TiltCard } from './components/HomeHero';
+import { HomeHero } from './components/HomeHero';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
 import { NfcChapter } from './scenes/NfcChapter';
 import { FashionLookbook } from './scenes/FashionLookbook';
 import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
-import { StudioChapter } from './scenes/StudioChapter';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
@@ -347,86 +345,6 @@ function LogoMark({ compact = false, logoUrl = '' }: { compact?: boolean; logoUr
   );
 }
 
-function DesktopPointerEffects({ locale }: { locale: Locale }) {
-  const dotRef = useRef<HTMLSpanElement>(null);
-  const ringRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-    if (!pointerQuery.matches) return undefined;
-
-    const body = document.body;
-    let activeMagnet: HTMLElement | null = null;
-    body.classList.add('zx-custom-cursor-enabled');
-
-    const resetMagnet = () => {
-      activeMagnet?.style.removeProperty('translate');
-      activeMagnet = null;
-    };
-    const onMove = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') return;
-      const { clientX, clientY } = event;
-      const position = `translate3d(${clientX}px, ${clientY}px, 0) translate(-50%, -50%)`;
-      if (dotRef.current) dotRef.current.style.transform = position;
-      if (ringRef.current) {
-        ringRef.current.style.transform = position;
-        ringRef.current.dataset.view = event.target instanceof Element
-          && Boolean(event.target.closest('[data-cursor="view"]'))
-          ? 'true'
-          : 'false';
-      }
-      body.classList.add('zx-custom-cursor-visible');
-
-      const target = event.target instanceof Element ? event.target : null;
-      const magnet = target?.closest<HTMLElement>(
-        '.zx-magnetic, .zx-app-shell button.bg-zx-cinematic, .zx-app-shell a.bg-zx-cinematic',
-      ) ?? null;
-      if (magnet !== activeMagnet) {
-        resetMagnet();
-        activeMagnet = magnet;
-      }
-      if (magnet) {
-        const rect = magnet.getBoundingClientRect();
-        const offsetX = ((clientX - rect.left) / rect.width - 0.5) * 8;
-        const offsetY = ((clientY - rect.top) / rect.height - 0.5) * 8;
-        magnet.style.setProperty('translate', `${offsetX}px ${offsetY}px`);
-      }
-    };
-    const onPointerDown = () => {
-      if (ringRef.current) ringRef.current.dataset.down = 'true';
-    };
-    const onPointerUp = () => {
-      if (ringRef.current) ringRef.current.dataset.down = 'false';
-    };
-    const onPointerLeave = () => {
-      body.classList.remove('zx-custom-cursor-visible');
-      resetMagnet();
-    };
-
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    window.addEventListener('pointerleave', onPointerLeave);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('pointerleave', onPointerLeave);
-      body.classList.remove('zx-custom-cursor-enabled', 'zx-custom-cursor-visible');
-      resetMagnet();
-    };
-  }, []);
-
-  return (
-    <div aria-hidden="true" className="zx-desktop-cursor">
-      <span className="zx-custom-cursor-dot" ref={dotRef} />
-      <span className="zx-custom-cursor-ring" data-down="false" data-view="false" ref={ringRef}>
-        <span>{locale === 'ar' ? 'عرض' : 'View'}</span>
-      </span>
-    </div>
-  );
-}
-
 const sameCartLine = (left: CartLine, right: CartLine) =>
   left.productId === right.productId && left.variant === right.variant && left.nfcCustomization === right.nfcCustomization;
 
@@ -663,8 +581,22 @@ export default function App() {
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -28px 0px' });
+    const appRoot = document.querySelector('.zx-app-shell') ?? document.body;
     const selector = '.zx-app-shell > main section:not(.five-windows-scene):not(.nfc-one-touch-scene):not(.zx-lookbook-scene):not(.studio-chapter):not(.cars-chapter):not(.estate-chapter), .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
     let order = 0;
+    let revealFrame = 0;
+    const revealVisibleTargets = () => {
+      if (revealFrame) return;
+      revealFrame = requestAnimationFrame(() => {
+        revealFrame = 0;
+        appRoot.querySelectorAll<HTMLElement>('.zx-reveal:not(.is-visible)').forEach((target) => {
+          const rect = target.getBoundingClientRect();
+          if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+          target.classList.add('is-visible');
+          observer.unobserve(target);
+        });
+      });
+    };
     const observeTargets = (root: ParentNode) => {
       if (root instanceof HTMLElement && root.matches(selector) && !root.classList.contains('zx-reveal')) {
         root.classList.add('zx-reveal');
@@ -678,17 +610,25 @@ export default function App() {
         observer.observe(target);
       });
     };
-    const appRoot = document.querySelector('.zx-app-shell') ?? document.body;
     observeTargets(appRoot);
+    revealVisibleTargets();
     const mutations = new MutationObserver((records) => {
       records.forEach((record) => record.addedNodes.forEach((node) => {
-        if (node instanceof Element) observeTargets(node);
+        if (node instanceof Element) {
+          observeTargets(node);
+          revealVisibleTargets();
+        }
       }));
     });
     mutations.observe(appRoot, { childList: true, subtree: true });
+    window.addEventListener('scroll', revealVisibleTargets, { passive: true });
+    window.addEventListener('resize', revealVisibleTargets, { passive: true });
     return () => {
+      if (revealFrame) cancelAnimationFrame(revealFrame);
       observer.disconnect();
       mutations.disconnect();
+      window.removeEventListener('scroll', revealVisibleTargets);
+      window.removeEventListener('resize', revealVisibleTargets);
     };
   }, [route]);
 
@@ -1553,7 +1493,6 @@ export default function App() {
       dir={dir}
       lang={locale}
     >
-      <DesktopPointerEffects locale={locale} />
       <div aria-hidden="true" className="zx-scroll-progress">
         <span style={{ width: `${scrollProgress * 100}%` }} />
       </div>
@@ -1609,7 +1548,7 @@ export default function App() {
           </button>
 
           {/* Desktop Nav Items — nowrap so labels never break onto two lines */}
-          <div className="zx-no-bar zx-snap-x hidden items-center gap-0.5 overflow-x-auto lg:flex">
+          <div className="zx-no-bar zx-snap-x hidden items-center gap-0.5 overflow-x-auto 2xl:flex">
             {navItems.map((item) => (
               <button
                 className={`relative shrink-0 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition-all xl:px-3 ${
@@ -1836,13 +1775,17 @@ export default function App() {
               </div>
 
               <div className="grid gap-8 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-12">
-                <nav aria-label={isArabic ? 'روابط الموقع' : 'Site links'} className="flex flex-col">
+                <nav aria-label={isArabic ? 'روابط الموقع' : 'Site links'} className="grid grid-cols-2 gap-2 sm:flex sm:flex-col">
                   {[...navItems, ...moreNavItems].map((item, index) => {
                     const chapterIndex = PORTALS.findIndex((portal) => portal.route === item.route);
+                    const hasDepartmentCard = chapterIndex >= 0;
+                    const isHomeLink = item.route === 'home';
                     return (
                       <motion.button
                         animate={{ opacity: 1, x: 0 }}
-                        className={`zx-fullscreen-menu-link flex min-h-14 items-baseline gap-4 border-b border-zx-border py-2 text-start font-semibold transition-colors ${
+                        className={`zx-fullscreen-menu-link flex min-h-12 items-center gap-2 rounded-xl border border-zx-border px-3 py-2 text-start text-sm font-semibold transition-colors sm:min-h-14 sm:items-baseline sm:gap-4 sm:rounded-none sm:border-x-0 sm:border-t-0 sm:px-0 sm:text-4xl lg:text-[2.7rem] ${
+                          (hasDepartmentCard || isHomeLink) ? 'zx-fullscreen-menu-link--department' : ''
+                        } ${
                           route === item.route ? 'text-zx-accent' : 'text-zx-text hover:text-zx-accent'
                         }`}
                         initial={{ opacity: 0, x: isArabic ? 18 : -18 }}
@@ -1854,7 +1797,7 @@ export default function App() {
                         <span aria-hidden="true" className="w-8 text-[10px] tracking-widest text-zx-text-muted">
                           {chapterIndex < 0 ? '' : String(chapterIndex + 1).padStart(2, '0')}
                         </span>
-                        <span className="text-2xl sm:text-4xl lg:text-[2.7rem]">{item.label}</span>
+                        <span className="text-base leading-snug sm:text-4xl lg:text-[2.7rem]">{item.label}</span>
                       </motion.button>
                     );
                   })}
@@ -2011,14 +1954,6 @@ export default function App() {
               />
             )}
 
-            {isDepartmentActive('services') && (
-              <StudioChapter
-                locale={locale}
-                navigate={navigate}
-                projects={AGENCY_PROJECTS}
-              />
-            )}
-
             {isDepartmentActive('cars') && (
               <CarsChapter
                 locale={locale}
@@ -2080,315 +2015,6 @@ export default function App() {
                 ))}
               </div>
             </section>
-
-            {/* 3. Section 01: 3D Smart NFC Identity Cards Showcase */}
-            {isDepartmentActive('cards') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      01 / {isArabic ? 'بطاقات الهوية المتصلة' : 'CONNECTED IDENTITY'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.cardsTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('cards')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كافة البطاقات' : 'View All Cards'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {storefrontProducts.filter((p) => p.category === 'cards').slice(0, 3).length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف البطاقات' : 'Explore NFC cards'} description={isArabic ? 'نجهّز لك تجربة بطاقات تربط حضورك الرقمي بلمسة واحدة. تواصل معنا لمساعدتك في اختيار التصميم المناسب.' : 'We are preparing a considered NFC collection. Talk to our team and we will help you choose the right design.'} image={art.cardsPortal} locale={locale} onAction={() => navigate('cards')} title={isArabic ? 'هويتك الرقمية تبدأ من هنا' : 'Your connected identity starts here'} />
-                  ) : storefrontProducts
-                    .filter((p) => p.category === 'cards')
-                    .slice(0, 3)
-                    .map((p) => (
-                      <ProductCard
-                        key={p.id}
-                        product={p}
-                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
-                        market={market}
-                        locale={locale}
-                        wishlisted={wishlist.includes(p.id)}
-                        renderPrice={(price, className) => (
-                          <PriceTag className={className} price={price} market={market} locale={locale} />
-                        )}
-                        onToggleWishlist={handleToggleWishlist}
-                        onShare={handleShareProduct}
-                        onNotifyAvailability={(item) => setRestockProduct(item)}
-                        onAddToCart={(prod) => handleAddToCart(prod)}
-                        onCustomize={handleOpenNfcCustomizer}
-                      />
-                    ))}
-                </div>
-              </section>
-            )}
-
-            {/* 4. Section 02: Streetwear Collection Showcase */}
-            {isDepartmentActive('fashion') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      02 / {isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.fashionTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('fashion')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض التشكيلة' : 'View Drop'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {storefrontProducts.filter((p) => p.category === 'fashion').slice(0, 2).length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف الأزياء' : 'Explore fashion'} description={isArabic ? 'المجموعة الجديدة قيد التجهيز. استكشف قسم الأزياء أو تواصل معنا لمعرفة المتاح.' : 'The next fashion collection is being prepared. Explore the department or ask our team what is available.'} image={art.hoodie} locale={locale} onAction={() => navigate('fashion')} title={isArabic ? 'تفاصيل مختارة ليومك' : 'Thoughtful pieces for every day'} />
-                  ) : storefrontProducts
-                    .filter((p) => p.category === 'fashion')
-                    .slice(0, 2)
-                    .map((p) => (
-                      <ProductCard
-                        key={p.id}
-                        product={p}
-                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
-                        market={market}
-                        locale={locale}
-                        wishlisted={wishlist.includes(p.id)}
-                        renderPrice={(price, className) => (
-                          <PriceTag className={className} price={price} market="eg" locale={locale} />
-                        )}
-                        onToggleWishlist={handleToggleWishlist}
-                        onShare={handleShareProduct}
-                        onNotifyAvailability={(item) => setRestockProduct(item)}
-                        onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
-                        badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
-                      />
-                    ))}
-                </div>
-              </section>
-            )}
-
-            {/* 5. Section 03: Digital Studio, Live Demos & Software Agency */}
-            {isDepartmentActive('services') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      03 / {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.servicesTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('services')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'فتح الاستوديو وحاسبة التكلفة' : 'Open Full Studio & Calculator'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-3">
-                  {AGENCY_PROJECTS.map((proj) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={proj.id}
-                    >
-                      <div className="relative aspect-[1.55/1] overflow-hidden bg-zx-mint">
-                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(proj.image)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-zx-cinematic/35 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
-                          {proj.category[locale]}
-                        </span>
-                      </div>
-                      <div className="flex min-h-47.5 flex-col p-4 sm:p-5">
-                        <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
-                        <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
-                        <a
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-xs transition hover:bg-zx-cinematic"
-                          href={proj.demoUrl}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          <ArrowUpRight className="h-3.5 w-3.5" />
-                          {isArabic ? 'معاينة حية للمشروع (Live Demo)' : 'Live Demo'}
-                        </a>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 6. Section 04: Luxury Car Showroom */}
-            {isDepartmentActive('cars') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      04 / {isArabic ? 'معرض ومكتب السيارات الفاخرة' : 'CURATED VEHICLES'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.carsTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('cars')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كل السيارات' : 'View All Cars'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {vehicles.length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق السيارات' : 'Ask our vehicle team'} description={isArabic ? 'لا توجد سيارات منشورة في المعرض حالياً. فريقنا يساعدك في العثور على خيار الإيجار المناسب.' : 'There are no published vehicles in the showroom right now. Our team can help you find a rental that fits.'} image={art.vehiclesPortal} locale={locale} onAction={() => navigate('cars')} title={isArabic ? 'اختيارك القادم يبدأ من هنا' : 'Your next drive starts here'} />
-                  ) : vehicles.map((car) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={car.id}
-                    >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
-                        <img alt={car.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(car.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/55 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">{car.id}</span>
-                        <span className="absolute inset-e-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
-                          {car.deal === 'Rent' ? isArabic ? 'للإيجار' : 'For rent' : isArabic ? 'للبيع' : 'For sale'}
-                        </span>
-                      </div>
-                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{car.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
-                        </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{car.location[locale]}</p>
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {[String(car.year), car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : (isArabic ? 'مانيوال' : 'Manual'), car.body].map((spec) => (
-                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>
-                              {isArabic ? ({ Sedan: 'سيدان', SUV: 'دفع رباعي', Coupe: 'كوبيه' } as Record<string, string>)[spec] ?? spec : spec}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="mt-4 border-t border-zx-border pt-3">
-                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-zx-text">
-                            {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                            {car.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
-                          </p>
-                        </div>
-                        <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
-                          onClick={() => {
-                            const msg = isArabic
-                              ? `${car.deal === 'Rent' ? 'طلب استئجار' : 'طلب حجز معاينة للسيارة'} ${car.id}: ${car.title.ar}`
-                              : `${car.deal === 'Rent' ? 'Rental inquiry' : 'Booking inspection'} for ${car.id}: ${car.title.en}`;
-                            openWhatsApp(whatsappNumberFor(market, resolvedSettings), msg);
-                          }}
-                          type="button"
-                        >
-                          <MessageCircle className="h-3.5 w-3.5" />
-                            {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة على واتساب' : 'Book Inspection'}
-                        </button>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 7. Section 05: Prime Real Estate Showcase */}
-            {isDepartmentActive('property') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      05 / {isArabic ? 'قسم العقارات والمساحات' : 'PRIME REAL ESTATE'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.propertyTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('property')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كل العقارات' : 'View All Properties'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {properties.length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق العقارات' : 'Ask our property team'} description={isArabic ? 'لا توجد مساحات منشورة حالياً. أخبرنا بما تبحث عنه وسنساعدك في العثور على إيجار مناسب.' : 'There are no published spaces right now. Tell us what you need and we will help find a suitable rental.'} image={art.estatePortal} locale={locale} onAction={() => navigate('property')} title={isArabic ? 'مساحة تناسب خطوتك القادمة' : 'Find room for what comes next'} />
-                  ) : properties.map((prop) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={prop.id}
-                    >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
-                        <img alt={prop.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(prop.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
-                          {prop.id}
-                        </span>
-                        <span className="absolute inset-e-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
-                          {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
-                        </span>
-                      </div>
-                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-zx-text">{prop.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">
-                            {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{prop.location[locale]}</p>
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {[`${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`, prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''].filter(Boolean).map((spec) => (
-                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>{spec}</span>
-                          ))}
-                        </div>
-                        <div className="mt-4 border-t border-zx-border pt-3">
-                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-zx-text">
-                            {money(prop.price, prop.region === 'Riyadh' || prop.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                          {prop.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">{isArabic ? 'إيجار' : 'rent'}</span>}
-                          </p>
-                        </div>
-                        <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
-                          onClick={() => navigate('property')}
-                          type="button"
-                        >
-                          {isArabic ? 'طلب معاينة ميدانية' : 'Request Viewing'}
-                        </button>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
 
             {/* 8. Section 06: Client Testimonials & Reviews */}
             <TestimonialsSection

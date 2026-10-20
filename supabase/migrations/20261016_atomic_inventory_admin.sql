@@ -7,7 +7,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  current_catalog jsonb;
+  stored_catalog jsonb;
   next_catalog jsonb := '[]'::jsonb;
   incoming_product jsonb;
   current_product jsonb;
@@ -18,7 +18,7 @@ begin
     return false;
   end if;
 
-  select value into current_catalog
+  select value into stored_catalog
   from public.store_content where key = 'products' for update;
 
   for incoming_product in select value from jsonb_array_elements(product_payload) loop
@@ -29,9 +29,9 @@ begin
       where saved_row.value->>'id' = product_id
     ) then return false; end if;
     current_product := null;
-    if jsonb_typeof(current_catalog) = 'array' then
+    if jsonb_typeof(stored_catalog) = 'array' then
       select value into current_product
-      from jsonb_array_elements(current_catalog) as current_row(value)
+      from jsonb_array_elements(stored_catalog) as current_row(value)
       where current_row.value->>'id' = product_id
       limit 1;
     end if;

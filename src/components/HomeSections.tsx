@@ -297,14 +297,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
   return (
     <footer className="zx-site-footer relative z-10 mt-16 border-t border-zx-border/70 bg-zx-surface-raised/70 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-5 gap-y-8 px-4 py-10 sm:gap-x-8 sm:px-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:gap-10">
         {/* Brand */}
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2.5">
             {settings.brand.logoUrl && <img alt="" aria-hidden="true" className="h-9 w-9 rounded-xl border border-zx-border bg-zx-surface-raised object-contain p-1" data-no-photo-grade="true" src={publicAssetUrl(settings.brand.logoUrl)} />}
             <span className="text-[15px] font-bold tracking-[0.14em] text-zx-text">{settings.brand.name}</span>
           </div>
-          <p className="mt-3 max-w-xs text-xs leading-6 text-zx-text">
+          <p className="mt-3 max-w-xs text-sm leading-6 text-zx-text">
             {isArabic
               ? `${settings.brand.name} — كروت ذكية وأزياء وخدمات رقمية، بتجربة واحدة واضحة.`
               : `${settings.brand.name} brings smart identity, considered apparel and digital services together in one place.`}
@@ -341,14 +341,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
         {/* Shop */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'المتجر' : 'Shop'}
           </h4>
           <ul className="mt-4 space-y-2.5">
             {shopLinks.map((l) => (
               <li key={l.route}>
                 <button
-                  className="text-xs text-zx-text transition-colors hover:text-zx-text"
+                  className="text-sm text-zx-text transition-colors hover:text-zx-text"
                   onClick={() => navigate(l.route)}
                   type="button"
                 >
@@ -361,14 +361,14 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
         {/* Company */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'الشركة' : 'Company'}
           </h4>
           <ul className="mt-4 space-y-2.5">
             {companyLinks.map((l) => (
               <li key={l.route}>
                 <button
-                  className="text-xs text-zx-text transition-colors hover:text-zx-text"
+                  className="text-sm text-zx-text transition-colors hover:text-zx-text"
                   onClick={() => navigate(l.route)}
                   type="button"
                 >
@@ -378,7 +378,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
             ))}
             <li>
               <button
-                className="text-xs text-zx-text transition-colors hover:text-zx-text"
+                className="text-sm text-zx-text transition-colors hover:text-zx-text"
                 onClick={onTrackOrder}
                 type="button"
               >
@@ -389,11 +389,11 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
         </div>
 
         {/* Contact */}
-        <div>
-          <h4 className="text-xs font-bold uppercase tracking-widest text-zx-text">
+        <div className="col-span-2 lg:col-span-1">
+          <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'تواصل معنا' : 'Get in Touch'}
           </h4>
-          <ul className="mt-4 space-y-2.5 text-xs text-zx-text">
+          <ul className="mt-4 space-y-2.5 text-sm text-zx-text">
             <li className="flex items-start gap-2">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zx-text" />
               <span>{isArabic ? 'مصر والسعودية' : 'Egypt & Saudi Arabia'}</span>

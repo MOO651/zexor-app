@@ -8,8 +8,8 @@ photos and the media center for shared site sections.
 1. Open `#dashboard` and sign in as a store administrator.
 2. Open Products, Vehicles or Real Estate, then add or edit a listing.
 3. Choose an image. The dashboard accepts JPG, PNG, WebP and AVIF files up to
-   20 MB, scales them to at most 1600 px, converts them to WebP and limits the
-   prepared image to 1.5 MB.
+   20 MB, scales them to at most 1400 px, converts them to WebP and compresses
+   the prepared image to 450 KB or less.
 4. Save the listing. The optimized image is stored with the catalog record and
    synchronized through the configured Supabase database.
 
@@ -23,6 +23,10 @@ Use **Dashboard → Media** for hero posters, fashion slots, chapter media, NFC
 previews, textures, bilingual copy and lookbook hotspots. Uploads are saved as
 drafts; publish each draft to make it visible to visitors. Shared media is
 uploaded to the `site-media` Supabase Storage bucket.
+Shared-site images are converted to WebP, scaled to at most 1800 px and
+compressed to 1 MB or less. This only applies to new uploads; existing
+published objects and archived history are kept to avoid breaking live content
+or rollback.
 
 The media center requires
 `supabase/migrations/20261020_site_media_content.sql`, an authorized

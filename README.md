@@ -164,9 +164,10 @@ serve `dist`.
 - Admin content studio: bilingual copy for all eight home departments (cards,
   fashion, studio, vehicles, real estate, CTA, footer) plus hero and maintenance text.
 - Admin tools: a Telegram connection test, data export / import, and reset controls.
-- Listing image uploads are converted to WebP, capped at 1600 px and compressed
-  to 1.5 MB before being saved with the catalog. Shared-site media uses
-  Supabase Storage and requires `supabase/migrations/20261020_site_media_content.sql`.
+- Listing image uploads are converted to WebP, capped at 1400 px and compressed
+  to 450 KB before being saved with the catalog. Shared-site images are capped
+  at 1800 px and 1 MB before upload to Supabase Storage; existing stored files
+  are not rewritten or deleted automatically.
 - Route-level code splitting so the home page ships a small initial bundle.
 - Locally hosted fonts and imagery — no third-party asset requests.
 

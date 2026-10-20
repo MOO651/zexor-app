@@ -14,12 +14,26 @@
   color: var(--zx-text-muted);
 }
 
+[data-theme="dark"] :is([class~="bg-zx-cinematic"], [class*="bg-zx-cinematic/"]).text-zx-accent-contrast,
+[data-theme="dark"] :is([class~="bg-zx-cinematic"], [class*="bg-zx-cinematic/"]) .text-zx-accent-contrast {
+  color: var(--zx-footer-text);
+}
+
+[data-theme="dark"] .zx-department-tile [class*="text-zx-accent-contrast"],
+[data-theme="dark"] [class*="from-zx-cinematic"].text-zx-accent-contrast {
+  color: var(--zx-footer-text);
+}
+
+[data-theme="dark"] .bg-zx-accent.text-zx-accent-contrast {
+  color: var(--zx-accent-contrast);
+}
+
 .zx-showcase-card h3 {
   color: var(--zx-text);
 }
 
 .zx-showcase-card p {
-  color: var(--zx-footer-text);
+  color: var(--zx-text-secondary);
 }
 
 [data-theme="dark"] .zx-product,

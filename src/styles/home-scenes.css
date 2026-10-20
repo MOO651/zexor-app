@@ -1972,6 +1972,10 @@ html:lang(ar) .five-windows-copy h1 {
 }
 
 @media (max-width: 640px) {
+  .five-windows-scene {
+    height: 155svh;
+  }
+
   .five-windows-stage {
     min-height: 0;
   }
@@ -2074,6 +2078,10 @@ html:lang(ar) .five-windows-copy h1 {
 
   .nfc-one-touch-stage {
     min-height: 0;
+  }
+
+  .nfc-one-touch-scene {
+    height: 155svh;
   }
 
   .nfc-one-touch-backdrop {
@@ -2849,6 +2857,12 @@ html:lang(ar) .five-windows-copy h1 {
 }
 
 @media (max-width: 640px) {
+  .studio-chapter,
+  .cars-chapter,
+  .estate-chapter {
+    height: 155svh;
+  }
+
   .cars-stage,
   .estate-stage {
     min-height: 38rem;
@@ -3059,7 +3073,7 @@ html:lang(ar) .five-windows-copy h1 {
   }
 
   .zx-lookbook-scene {
-    height: 250svh;
+    height: 155svh;
   }
 
   .zx-lookbook-stage {
