@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
@@ -65,7 +65,7 @@ export function CheckoutDrawer({
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const resetCheckout = () => {
+  const resetCheckout = useCallback(() => {
     setStep('cart');
     setCustomerName('');
     setCustomerPhone('');
@@ -75,12 +75,21 @@ export function CheckoutDrawer({
     setPromoCodeInput('');
     setAppliedPromo(null);
     setIsSubmitting(false);
-  };
-  const handleClose = () => {
+  }, [market]);
+  const handleClose = useCallback(() => {
     if (isSubmitting) return;
     resetCheckout();
     onClose();
-  };
+  }, [isSubmitting, onClose, resetCheckout]);
+
+  useEffect(() => {
+    if (!open || isSubmitting) return undefined;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [handleClose, isSubmitting, open]);
 
   if (!open) return null;
 

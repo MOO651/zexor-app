@@ -312,7 +312,12 @@
   display: block;
   height: 100%;
   background: var(--zx-accent);
-  transition: width 100ms linear;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.zx-app-shell[dir="rtl"] .zx-scroll-progress > span {
+  transform-origin: right center;
 }
 
 .zx-heading-mask {

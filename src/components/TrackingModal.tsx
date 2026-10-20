@@ -53,6 +53,15 @@ export function TrackingModal({
     };
   }, [foundOrderId, open, phone]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [onClose, open]);
+
   const handleCopy = async (value: string, field: 'id' | 'phone') => {
     const ok = await copyToClipboard(value);
     if (!ok) return;

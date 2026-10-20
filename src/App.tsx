@@ -572,7 +572,11 @@ export default function App() {
 
   const [route, setRoute] = useState<Route>(pageFromHash);
   useEffect(() => {
-    if (route === 'admin' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (
+      route === 'admin'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || window.matchMedia('(max-width: 640px), (pointer: coarse)').matches
+    ) return;
     if (!('IntersectionObserver' in window)) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -584,51 +588,27 @@ export default function App() {
     const appRoot = document.querySelector('.zx-app-shell') ?? document.body;
     const selector = '.zx-app-shell > main section:not(.five-windows-scene):not(.nfc-one-touch-scene):not(.zx-lookbook-scene):not(.studio-chapter):not(.cars-chapter):not(.estate-chapter), .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
     let order = 0;
-    let revealFrame = 0;
-    const revealVisibleTargets = () => {
-      if (revealFrame) return;
-      revealFrame = requestAnimationFrame(() => {
-        revealFrame = 0;
-        appRoot.querySelectorAll<HTMLElement>('.zx-reveal:not(.is-visible)').forEach((target) => {
-          const rect = target.getBoundingClientRect();
-          if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-          target.classList.add('is-visible');
-          observer.unobserve(target);
-        });
-      });
-    };
-    const observeTargets = (root: ParentNode) => {
-      if (root instanceof HTMLElement && root.matches(selector) && !root.classList.contains('zx-reveal')) {
-        root.classList.add('zx-reveal');
-        root.style.setProperty('--zx-reveal-order', String(order++ % 5));
-        observer.observe(root);
-      }
-      root.querySelectorAll<HTMLElement>(selector).forEach((target) => {
-        if (target.classList.contains('zx-reveal')) return;
+    const observeTarget = (target: HTMLElement) => {
+      if (!target.classList.contains('zx-reveal')) {
         target.classList.add('zx-reveal');
         target.style.setProperty('--zx-reveal-order', String(order++ % 5));
-        observer.observe(target);
-      });
+      }
+      observer.observe(target);
+    };
+    const observeTargets = (root: ParentNode) => {
+      if (root instanceof HTMLElement && root.matches(selector)) observeTarget(root);
+      root.querySelectorAll<HTMLElement>(selector).forEach(observeTarget);
     };
     observeTargets(appRoot);
-    revealVisibleTargets();
     const mutations = new MutationObserver((records) => {
       records.forEach((record) => record.addedNodes.forEach((node) => {
-        if (node instanceof Element) {
-          observeTargets(node);
-          revealVisibleTargets();
-        }
+        if (node instanceof Element) observeTargets(node);
       }));
     });
     mutations.observe(appRoot, { childList: true, subtree: true });
-    window.addEventListener('scroll', revealVisibleTargets, { passive: true });
-    window.addEventListener('resize', revealVisibleTargets, { passive: true });
     return () => {
-      if (revealFrame) cancelAnimationFrame(revealFrame);
       observer.disconnect();
       mutations.disconnect();
-      window.removeEventListener('scroll', revealVisibleTargets);
-      window.removeEventListener('resize', revealVisibleTargets);
     };
   }, [route]);
 
@@ -678,7 +658,6 @@ export default function App() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [navigationHidden, setNavigationHidden] = useState(false);
   const [navigationCompact, setNavigationCompact] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [routeCurtainVisible, setRouteCurtainVisible] = useState(false);
   const [cartFlight, setCartFlight] = useState<{
     id: number;
@@ -689,6 +668,7 @@ export default function App() {
     endY: number;
   } | null>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const scrollProgressRef = useRef<HTMLSpanElement>(null);
   const cartFlightSequence = useRef(0);
   const previousScrollY = useRef(0);
   const scrollFrame = useRef<number | null>(null);
@@ -1161,7 +1141,10 @@ export default function App() {
         const currentY = window.scrollY;
         const previousY = previousScrollY.current;
         const totalScrollable = document.documentElement.scrollHeight - window.innerHeight;
-        setScrollProgress(totalScrollable > 0 ? Math.min(1, Math.max(0, currentY / totalScrollable)) : 0);
+        const progress = totalScrollable > 0 ? Math.min(1, Math.max(0, currentY / totalScrollable)) : 0;
+        if (scrollProgressRef.current) {
+          scrollProgressRef.current.style.transform = `scaleX(${progress})`;
+        }
         setShowBackToTop(currentY > 600);
         setNavigationCompact(currentY > 48);
         if (currentY < 80) setNavigationHidden(false);
@@ -1494,7 +1477,7 @@ export default function App() {
       lang={locale}
     >
       <div aria-hidden="true" className="zx-scroll-progress">
-        <span style={{ width: `${scrollProgress * 100}%` }} />
+        <span ref={scrollProgressRef} />
       </div>
       {/* Dynamic Background Glow Elements */}
       <div aria-hidden="true" className="zx-ambient pointer-events-none absolute inset-0 overflow-hidden">
@@ -2446,21 +2429,22 @@ Details: ${details}`;
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zx-mint text-zx-mint-contrast">
                 <LockKeyhole className="h-6 w-6" />
               </span>
-              <h2 className="mt-4 text-xl font-bold text-zx-text">
+              <h1 className="mt-4 text-xl font-bold text-zx-text">
                 {isArabic ? 'دخول لوحة تحكم ZEXOR' : 'Studio Administration Access'}
-              </h2>
+              </h1>
               <p className="mt-1 text-xs text-zx-text">
                   {isArabic ? 'سجّل الدخول بحساب الإدارة المعتمد.' : 'Sign in with your authorized administrator account.'}
               </p>
 
               <form className="mt-6 space-y-4" onSubmit={handleAdminLogin}>
                 <div>
-                  <label className="text-xs font-semibold text-zx-text">
+                  <label className="text-xs font-semibold text-zx-text" htmlFor="admin-email">
                     {isArabic ? 'البريد الإلكتروني' : 'Email'}
                   </label>
                   <input
                     autoComplete="username"
                     className="mt-1 h-11 w-full rounded-xl border border-zx-border px-4 text-sm outline-none"
+                    id="admin-email"
                     onChange={(e) => setAdminEmail(e.target.value)}
                     required
                     type="email"
@@ -2468,11 +2452,12 @@ Details: ${details}`;
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-zx-text">
+                  <label className="text-xs font-semibold text-zx-text" htmlFor="admin-password">
                     {isArabic ? 'كلمة المرور' : 'Password'}
                   </label>
                   <input
                     className="mt-1 h-11 w-full rounded-xl border border-zx-border px-4 text-sm tracking-widest outline-none"
+                    id="admin-password"
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
                     autoComplete="current-password"
@@ -2481,7 +2466,7 @@ Details: ${details}`;
                   />
                 </div>
                 {adminLoginError && (
-                  <p className="text-xs font-medium text-zx-text">{adminLoginError}</p>
+                  <p aria-live="assertive" className="text-xs font-medium text-zx-text" role="alert">{adminLoginError}</p>
                 )}
                 <button
                   className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast shadow-md hover:bg-zx-cinematic"
