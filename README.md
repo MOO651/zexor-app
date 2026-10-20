@@ -138,8 +138,23 @@ subpath, and `public/404.html` supplies the SPA fallback for deep links.
 
 ### Vercel
 
-Import the repository, pick the **Vite** preset, build with `npm run build` and
-serve `dist`.
+The checked-in [`vercel.json`](./vercel.json) configures the Vite build,
+publishes `dist`, and serves the SPA entry point for direct route requests.
+
+1. Import `MOO651/zexor-app` in Vercel and select the `redesign-v2` branch as
+   the Production Branch if that is the branch you want to publish.
+2. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the Vercel project
+   Environment Variables for Production, Preview, and Development as needed.
+   These are browser-visible Supabase project settings; never add a service-role
+   key, payment secret, Telegram bot token, or other private credential here.
+3. Deploy. Pushes to the configured production branch create production
+   deployments; other branches create preview deployments.
+4. Set the resulting public HTTPS site URL as the Supabase Edge Function
+   `SITE_URL` secret when hosted payments are enabled. Keep Paymob and Telegram
+   secrets in Supabase Edge Function secrets, not in Vercel build variables.
+
+For this repository's hash-based app routes, the SPA rewrite also ensures
+unknown direct paths return the app rather than a host-generated 404.
 
 ## Features
 
@@ -161,8 +176,8 @@ serve `dist`.
   and free-shipping thresholds in Egypt and Saudi Arabia.
 - Admin design studio: live brand colours (primary / accent / ink), corner radius,
   and global font scale, applied instantly as CSS variables.
-- Admin content studio: bilingual copy for all eight home departments (cards,
-  fashion, studio, vehicles, real estate, CTA, footer) plus hero and maintenance text.
+- Admin content studio: bilingual copy for home sections, FAQ, statistics,
+  studio projects, footer, hero, and maintenance text, with section visibility controls.
 - Admin tools: a Telegram connection test, data export / import, and reset controls.
 - Listing image uploads are converted to WebP, capped at 1400 px and compressed
   to 450 KB before being saved with the catalog. Shared-site images are capped
