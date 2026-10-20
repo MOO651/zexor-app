@@ -60,6 +60,49 @@ const csvCell = (value: unknown) => {
   return `"${safeText.replaceAll('"', '""')}"`;
 };
 
+async function prepareLogoImage(file: File, locale: Locale): Promise<{ file: File; compressed: boolean }> {
+  const isArabic = locale === 'ar';
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'].includes(file.type)) {
+    throw new Error(isArabic ? 'اختار شعارًا بصيغة PNG أو JPG أو WebP أو AVIF أو SVG.' : 'Choose a PNG, JPG, WebP, AVIF or SVG logo.');
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error(isArabic ? 'حجم الصورة الأصلية يجب ألا يتجاوز 20 ميجابايت.' : 'The original image must be 20 MB or smaller.');
+  }
+  if (file.type === 'image/svg+xml') {
+    if (file.size > 1024 * 1024) {
+      throw new Error(isArabic ? 'حجم شعار SVG يجب ألا يتجاوز 1 ميجابايت.' : 'SVG logos must be 1 MB or smaller.');
+    }
+    return { file, compressed: false };
+  }
+
+  let bitmap: ImageBitmap | null = null;
+  try {
+    bitmap = await createImageBitmap(file);
+    let scale = Math.min(1, 768 / Math.max(bitmap.width, bitmap.height));
+    let blob: Blob | null = null;
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error(isArabic ? 'تعذر تجهيز الشعار في هذا المتصفح.' : 'This browser could not prepare the logo.');
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', Math.max(0.4, 0.82 - attempt * 0.06)));
+      if (blob && blob.size <= 180 * 1024) break;
+      scale *= 0.82;
+    }
+    if (!blob || blob.size > 180 * 1024) {
+      throw new Error(isArabic ? 'تعذر ضغط الشعار إلى أقل من 180 كيلوبايت.' : 'Could not compress the logo below 180 KB.');
+    }
+    return {
+      file: new File([blob], `${file.name.replace(/\.[^.]+$/, '')}.webp`, { type: 'image/webp' }),
+      compressed: true,
+    };
+  } finally {
+    bitmap?.close();
+  }
+}
+
 type Props = {
   locale: Locale;
   market: Market;
@@ -2690,23 +2733,30 @@ export function AdminDashboard({
               <input
                 accept="image/png,image/jpeg,image/webp,image/svg+xml"
                 className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
+                onChange={async (event) => {
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  input.value = '';
                   if (!file) return;
-                  if (file.size > 1024 * 1024) {
-                    onToast(isArabic ? 'حجم الشعار يجب ألا يتجاوز ١ ميجابايت.' : 'Logo image must be 1 MB or smaller.');
-                    event.target.value = '';
-                    return;
+                  try {
+                    const prepared = await prepareLogoImage(file, locale);
+                    const reader = new FileReader();
+                    const dataUrl = await new Promise<string>((resolve, reject) => {
+                      reader.onload = () => typeof reader.result === 'string'
+                        ? resolve(reader.result)
+                        : reject(new Error('Could not read the prepared logo.'));
+                      reader.onerror = () => reject(reader.error ?? new Error('Could not read the prepared logo.'));
+                      reader.readAsDataURL(prepared.file);
+                    });
+                    setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: dataUrl } }));
+                    onToast(prepared.compressed
+                      ? (isArabic ? `تم ضغط الشعار إلى ${Math.ceil(prepared.file.size / 1024)} كيلوبايت.` : `Logo compressed to ${Math.ceil(prepared.file.size / 1024)} KB.`)
+                      : (isArabic ? 'تم تحديث الشعار.' : 'Logo updated.'));
+                  } catch (imageFailure) {
+                    console.error('Could not prepare the brand logo:', imageFailure);
+                    const message = imageFailure instanceof Error ? imageFailure.message : String(imageFailure);
+                    onToast(isArabic ? `تعذر تجهيز الشعار: ${message}` : `Could not prepare logo: ${message}`);
                   }
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    if (typeof reader.result === 'string') {
-                      setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: reader.result as string } }));
-                      onToast(isArabic ? 'تم تحديث الشعار.' : 'Logo updated.');
-                    }
-                  };
-                  reader.readAsDataURL(file);
-                  event.target.value = '';
                 }}
                 ref={brandLogoInputRef}
                 type="file"

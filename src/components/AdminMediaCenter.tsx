@@ -42,6 +42,9 @@ const MAX_VIDEO_SECONDS = 10;
 
 async function prepareImage(file: File, locale: Locale): Promise<File> {
   if (!file.type.startsWith('image/') || file.type === 'image/vnd.radiance') return file;
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error(locale === 'ar' ? 'حجم الصورة الأصلية يجب ألا يتجاوز 20 ميجابايت.' : 'The original image must be 20 MB or smaller.');
+  }
   const bitmap = await createImageBitmap(file);
   let scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
   let blob: Blob | null = null;
