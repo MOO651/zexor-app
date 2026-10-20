@@ -17,6 +17,8 @@ type Props = {
   locale: Locale;
   market: Market;
   products: Product[];
+  copyTitle?: string;
+  copySubtitle?: string;
   wishlist: string[];
   onAddToCart: (product: Product, variant?: string) => void;
   onToggleWishlist: (product: Product) => void;
@@ -69,6 +71,8 @@ export function FashionLookbook({
   locale,
   market,
   products,
+  copyTitle,
+  copySubtitle,
   wishlist,
   onAddToCart,
   onToggleWishlist,
@@ -143,12 +147,18 @@ export function FashionLookbook({
   );
   const photoScale = useTransform(lookProgress, [0, 0.2, 0.85, 1], [1.15, 1, 1.05, 1.08]);
   const photoOpacity = useTransform(lookProgress, [0, 0.2, 0.85, 1], [0.35, 1, 1, 0.7]);
-  const headline = getText('fashion.lookbook.title', locale)
-    ?? (isArabic ? 'اختار لوكك' : 'FIND YOUR');
+  const publishedHeadline = content['fashion.lookbook.title']?.source === 'published'
+    ? getText('fashion.lookbook.title', locale)
+    : null;
+  const publishedSubtitle = content['fashion.lookbook.subtitle']?.source === 'published'
+    ? getText('fashion.lookbook.subtitle', locale)
+    : null;
+  const headline = publishedHeadline || copyTitle?.trim() || getText('fashion.lookbook.title', locale)
+    || (isArabic ? 'اختار لوكك' : 'FIND YOUR');
   const headlineAccent = getText('fashion.lookbook.accent', locale)
     ?? (isArabic ? 'حكايتك' : 'LOOKBOOK');
-  const subtitle = getText('fashion.lookbook.subtitle', locale)
-    ?? (isArabic ? 'تفاصيل محدودة. اختيارات شبهك.' : 'Limited pieces. Made to feel like you.');
+  const subtitle = publishedSubtitle || copySubtitle?.trim() || getText('fashion.lookbook.subtitle', locale)
+    || (isArabic ? 'تفاصيل محدودة. اختيارات شبهك.' : 'Limited pieces. Made to feel like you.');
   const subtitleWords = subtitle.trim().split(/\s+/);
   const subtitleAccent = subtitleWords.pop() ?? '';
   const dropDateValue = content['settings.drop_countdown_at']?.value_json;

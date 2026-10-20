@@ -3,7 +3,9 @@ import type {
   DynamicCategory,
   Product,
   Property,
+  SiteFaqItem,
   SiteSettings,
+  SiteStat,
   Vehicle,
 } from '../types';
 
@@ -353,7 +355,50 @@ export const AGENCY_PROJECTS: AgencyProject[] = [
   },
 ];
 
-export const STATS = [
+export const FAQ_ITEMS: SiteFaqItem[] = [
+  {
+    id: 'nfc-work',
+    question: { en: 'How does an NFC card work?', ar: 'كيف تعمل بطاقة NFC؟' },
+    answer: {
+      en: 'You tap the card on any modern phone and your profile page opens instantly — no app, no scanning. We link it to your personal page, portfolio, or social accounts.',
+      ar: 'تلمس البطاقة على أي هاتف حديث فتفتح صفحتك الشخصية فوراً — بدون تطبيق أو مسح. نربط البطاقة بصفحتك الشخصية أو أعمالك أو حساباتك الاجتماعية.',
+    },
+  },
+  {
+    id: 'card-design',
+    question: { en: 'Can I customize the card with my own design?', ar: 'هل يمكنني تخصيص البطاقة بتصميمي؟' },
+    answer: {
+      en: 'Yes. Use the 3D customizer to pick the finish, enter your details, and preview your card live before ordering. Custom artwork is also available on request.',
+      ar: 'نعم. استخدم مُخصِّص الكارت ثلاثي الأبعاد لاختيار اللمسة النهائية وإدخال بياناتك ومعاينة الكارت قبل الطلب. كما يمكن تنفيذ تصميم خاص عند الطلب.',
+    },
+  },
+  {
+    id: 'delivery-time',
+    question: { en: 'How long does delivery take?', ar: 'كم تستغرق مدة التوصيل؟' },
+    answer: {
+      en: 'Orders inside Egypt usually arrive within 3–5 working days, and within 5–7 working days for Saudi Arabia. You receive a live tracking link the moment your order ships.',
+      ar: 'طلبات مصر تصل عادة خلال ٣–٥ أيام عمل، والسعودية خلال ٥–٧ أيام عمل. ويصلك رابط تتبع مباشر لحظة شحن الطلب.',
+    },
+  },
+  {
+    id: 'payment-methods',
+    question: { en: 'What payment methods do you accept?', ar: 'ما طرق الدفع المتاحة؟' },
+    answer: {
+      en: 'Available payment methods depend on your country and appear at checkout. Contact us if you need help choosing one.',
+      ar: 'تختلف وسائل الدفع المتاحة حسب بلدك، وستظهر لك عند إتمام الطلب. تواصل معنا لو محتاج مساعدة في اختيار وسيلة الدفع.',
+    },
+  },
+  {
+    id: 'studio-services',
+    question: { en: 'Do you build websites and stores for businesses?', ar: 'هل تبنون مواقع ومتاجر للشركات؟' },
+    answer: {
+      en: 'Absolutely. ZEXOR Studio builds stores, platforms, and apps. Use the cost calculator for an initial estimate, then contact us to discuss your project.',
+      ar: 'بالتأكيد. استوديو زكسور يصمّم ويطوّر المتاجر والمنصات والتطبيقات. استخدم حاسبة التكلفة للحصول على تقدير أولي ثم تواصل معنا للبدء.',
+    },
+  },
+];
+
+export const STATS: SiteStat[] = [
   { id: 'markets', value: 'EG · KSA', label: { en: 'Markets served', ar: 'مصر والسعودية' } },
   { id: 'languages', value: 'AR · EN', label: { en: 'Bilingual experience', ar: 'تجربة بالعربية والإنجليزية' } },
   { id: 'identity', value: 'NFC', label: { en: 'Tap-to-share identity', ar: 'هوية رقمية بلمسة' } },
@@ -433,6 +478,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     calculator: true,
     reviews: true,
     tracking: true,
+    homeStats: true,
+    testimonials: true,
+    faq: true,
+    trackingNewsletter: true,
+    homeCta: true,
   },
   brand: {
     name: 'ZEXOR',
@@ -474,6 +524,14 @@ export const DEFAULT_SETTINGS: SiteSettings = {
       en: 'Connect directly with our team over WhatsApp for NFC orders, software development, or bookings.',
       ar: 'تواصل مباشرة مع استوديو ZEXOR عبر واتساب لمناقشة كروت NFC، تطوير متجرك، أو حجز معاينة.',
     },
+    faqTitle: { en: 'Everything You Need to Know', ar: 'كل ما تحتاج معرفته قبل الطلب' },
+    faqSubtitle: {
+      en: 'Quick answers on cards, delivery, payments, and our studio services.',
+      ar: 'إجابات سريعة عن البطاقات والتوصيل والدفع وخدمات الاستوديو.',
+    },
+    faqItems: FAQ_ITEMS,
+    stats: STATS,
+    agencyProjects: AGENCY_PROJECTS,
     footerNote: {
       en: 'Smart identity, apparel, software and property — one house, two markets.',
       ar: 'هوية ذكية، أزياء، برمجيات وعقارات — بيت واحد وسوقان.',

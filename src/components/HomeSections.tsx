@@ -14,7 +14,8 @@ import {
   Sparkles,
   Truck,
 } from 'lucide-react';
-import type { DynamicCategory, Locale, Market, Route } from '../types';
+import type { DynamicCategory, Locale, Market, Route, SiteFaqItem } from '../types';
+import { FAQ_ITEMS } from '../data/initialData';
 import { publicAssetUrl } from '../utils';
 
 type Common = { locale: Locale; isArabic: boolean };
@@ -42,47 +43,17 @@ function TikTokIcon({ className }: { className?: string }) {
 /* FAQ                                                                 */
 /* ------------------------------------------------------------------ */
 
-type FaqItem = { q: Record<Locale, string>; a: Record<Locale, string> };
-
-const FAQ_ITEMS: FaqItem[] = [
-  {
-    q: { en: 'How does an NFC card work?', ar: 'كيف تعمل بطاقة NFC؟' },
-    a: {
-      en: 'You tap the card on any modern phone and your profile page opens instantly — no app, no scanning. We link it to your personal page, portfolio, or social accounts.',
-      ar: 'تلمس البطاقة على أي هاتف حديث فتفتح صفحتك الشخصية فوراً — بدون تطبيق أو مسح. نربط البطاقة بصفحتك الشخصية أو أعمالك أو حساباتك الاجتماعية.',
-    },
-  },
-  {
-    q: { en: 'Can I customize the card with my own design?', ar: 'هل يمكنني تخصيص البطاقة بتصميمي؟' },
-    a: {
-      en: 'Yes. Use the 3D customizer to pick the finish, enter your details, and preview your card live before ordering. Custom artwork is also available on request.',
-      ar: 'نعم. استخدم مُخصِّص الكارت ثلاثي الأبعاد لاختيار اللمسة النهائية وإدخال بياناتك ومعاينة الكارت قبل الطلب. كما يمكن تنفيذ تصميم خاص عند الطلب.',
-    },
-  },
-  {
-    q: { en: 'How long does delivery take?', ar: 'كم تستغرق مدة التوصيل؟' },
-    a: {
-      en: 'Orders inside Egypt usually arrive within 3–5 working days, and within 5–7 working days for Saudi Arabia. You receive a live tracking link the moment your order ships.',
-      ar: 'طلبات مصر تصل عادة خلال ٣–٥ أيام عمل، والسعودية خلال ٥–٧ أيام عمل. ويصلك رابط تتبع مباشر لحظة شحن الطلب.',
-    },
-  },
-  {
-    q: { en: 'What payment methods do you accept?', ar: 'ما طرق الدفع المتاحة؟' },
-    a: {
-      en: 'Available payment methods depend on your country and appear at checkout. Contact us if you need help choosing one.',
-      ar: 'تختلف وسائل الدفع المتاحة حسب بلدك، وستظهر لك عند إتمام الطلب. تواصل معنا لو محتاج مساعدة في اختيار وسيلة الدفع.',
-    },
-  },
-  {
-    q: { en: 'Do you build websites and stores for businesses?', ar: 'هل تبنون مواقع ومتاجر للشركات؟' },
-    a: {
-      en: 'Absolutely. ZEXOR Studio builds stores, platforms, and apps. Use the cost calculator for an initial estimate, then contact us to discuss your project.',
-      ar: 'بالتأكيد. استوديو زكسور يصمّم ويطوّر المتاجر والمنصات والتطبيقات. استخدم حاسبة التكلفة للحصول على تقدير أولي ثم تواصل معنا للبدء.',
-    },
-  },
-];
-
-export function FaqSection({ locale, isArabic }: Common) {
+export function FaqSection({
+  locale,
+  isArabic,
+  items = FAQ_ITEMS,
+  title,
+  subtitle,
+}: Common & {
+  items?: SiteFaqItem[];
+  title?: string;
+  subtitle?: string;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const reduceMotion = useReducedMotion();
 
@@ -93,22 +64,22 @@ export function FaqSection({ locale, isArabic }: Common) {
           {isArabic ? '06 / الأسئلة الشائعة' : '06 / FAQ'}
         </span>
         <h2 className="mt-1 text-2xl font-bold text-zx-text sm:text-3xl">
-          {isArabic ? 'كل ما تحتاج معرفته قبل الطلب' : 'Everything You Need to Know'}
+          {title || (isArabic ? 'كل ما تحتاج معرفته قبل الطلب' : 'Everything You Need to Know')}
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-zx-text">
-          {isArabic
+          {subtitle || (isArabic
             ? 'إجابات سريعة عن البطاقات والتوصيل والدفع وخدمات الاستوديو.'
-            : 'Quick answers on cards, delivery, payments, and our studio services.'}
+            : 'Quick answers on cards, delivery, payments, and our studio services.')}
         </p>
       </div>
 
       <div className="mx-auto max-w-3xl space-y-3">
-        {FAQ_ITEMS.map((item, i) => {
+        {items.filter((item) => item.question[locale].trim() && item.answer[locale].trim()).map((item, i) => {
           const open = openIndex === i;
           return (
             <div
               className="overflow-hidden rounded-2xl border border-zx-border bg-zx-surface-raised/85 shadow-sm backdrop-blur-md"
-              key={item.q[locale]}
+              key={item.id}
             >
               <button
                 aria-expanded={open}
@@ -118,7 +89,7 @@ export function FaqSection({ locale, isArabic }: Common) {
                 onClick={() => setOpenIndex(open ? null : i)}
                 type="button"
               >
-                <span className="text-sm font-bold text-zx-text">{item.q[locale]}</span>
+                <span className="text-sm font-bold text-zx-text">{item.question[locale]}</span>
                 <ChevronDown
                   className={`h-4 w-4 shrink-0 text-zx-text transition-transform duration-300 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
                 />
@@ -134,7 +105,7 @@ export function FaqSection({ locale, isArabic }: Common) {
                     aria-labelledby={`zx-faq-question-${i}`}
                     transition={{ duration: reduceMotion ? 0 : 0.25, ease: 'easeInOut' }}
                   >
-                    <p className="px-4 pb-4 text-xs leading-6 text-zx-text">{item.a[locale]}</p>
+                    <p className="px-4 pb-4 text-xs leading-6 text-zx-text">{item.answer[locale]}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -268,8 +239,20 @@ type FooterProps = Common & {
     whatsappEg: string;
     whatsappKsa: string;
     brand: { name: string; logoUrl: string };
+    content: { footerNote: Record<Locale, string> };
   };
-  sectionVisibility: { cards: boolean; fashion: boolean; cars: boolean; property: boolean; services: boolean };
+  sectionVisibility: {
+    cards: boolean;
+    fashion: boolean;
+    cars: boolean;
+    property: boolean;
+    services: boolean;
+    pricing: boolean;
+    calculator: boolean;
+    reviews: boolean;
+    tracking: boolean;
+    contact: boolean;
+  };
   market: Market;
   navigate: (route: Route) => void;
   onTrackOrder: () => void;
@@ -290,9 +273,9 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
 
   const companyLinks: { label: string; route: Route }[] = [
     ...(isCategoryActive('services') && sectionVisibility.services ? [{ label: categories.find((category) => category.slug === 'services')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'), route: 'services' as Route }] : []),
-    { label: isArabic ? 'باقات البرمجة' : 'Pricing', route: 'pricing' },
-    { label: isArabic ? 'حاسبة التكلفة' : 'Calculator', route: 'calculator' },
-    { label: isArabic ? 'آراء العملاء' : 'Reviews', route: 'reviews' },
+    ...(sectionVisibility.pricing ? [{ label: isArabic ? 'باقات البرمجة' : 'Pricing', route: 'pricing' as Route }] : []),
+    ...(sectionVisibility.calculator ? [{ label: isArabic ? 'حاسبة التكلفة' : 'Calculator', route: 'calculator' as Route }] : []),
+    ...(sectionVisibility.reviews ? [{ label: isArabic ? 'آراء العملاء' : 'Reviews', route: 'reviews' as Route }] : []),
   ];
 
   return (
@@ -304,11 +287,11 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
             {settings.brand.logoUrl && <img alt="" aria-hidden="true" className="h-9 w-9 rounded-xl border border-zx-border bg-zx-surface-raised object-contain p-1" data-no-photo-grade="true" src={publicAssetUrl(settings.brand.logoUrl)} />}
             <span className="text-[15px] font-bold tracking-[0.14em] text-zx-text">{settings.brand.name}</span>
           </div>
-          <p className="mt-3 max-w-xs text-sm leading-6 text-zx-text">
-            {isArabic
-              ? `${settings.brand.name} — كروت ذكية وأزياء وخدمات رقمية، بتجربة واحدة واضحة.`
-              : `${settings.brand.name} brings smart identity, considered apparel and digital services together in one place.`}
-          </p>
+          {settings.content.footerNote[isArabic ? 'ar' : 'en'].trim() && (
+            <p className="mt-3 max-w-xs text-sm leading-6 text-zx-text">
+              {settings.content.footerNote[isArabic ? 'ar' : 'en']}
+            </p>
+          )}
           <div className="mt-4 flex items-center gap-2">
             <a
               className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
@@ -360,6 +343,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
         </div>
 
         {/* Company */}
+        {companyLinks.length > 0 && (
         <div>
           <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'الشركة' : 'Company'}
@@ -376,7 +360,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
                 </button>
               </li>
             ))}
-            <li>
+            {sectionVisibility.tracking && <li>
               <button
                 className="text-sm text-zx-text transition-colors hover:text-zx-text"
                 onClick={onTrackOrder}
@@ -384,12 +368,13 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
               >
                 {isArabic ? 'تتبّع الطلب' : 'Track Order'}
               </button>
-            </li>
+            </li>}
           </ul>
         </div>
+        )}
 
         {/* Contact */}
-        <div className="col-span-2 lg:col-span-1">
+        {sectionVisibility.contact && <div className="col-span-2 lg:col-span-1">
           <h4 className="text-sm font-bold uppercase tracking-widest text-zx-text">
             {isArabic ? 'تواصل معنا' : 'Get in Touch'}
           </h4>
@@ -420,7 +405,7 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
                 </span>
               </a>
             </li>
-            <li>
+            {sectionVisibility.contact && <li>
               <button
                 className="inline-flex items-center gap-1.5 font-semibold text-zx-text transition-colors hover:text-zx-text"
                 onClick={() => navigate('contact')}
@@ -429,9 +414,9 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
                 {isArabic ? 'نموذج تواصل مباشر' : 'Contact form'}
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </button>
-            </li>
+            </li>}
           </ul>
-        </div>
+        </div>}
       </div>
 
       <div className="border-t border-zx-border/70 px-4 py-5 sm:px-8">

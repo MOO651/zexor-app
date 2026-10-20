@@ -46,6 +46,8 @@ type ChapterProps = {
   locale: Locale;
   market: Market;
   navigate: (route: Route) => void;
+  copyTitle?: string;
+  copySummary?: string;
 };
 
 function SpeedLine({
@@ -105,6 +107,8 @@ export function CarsChapter({
   market,
   vehicles,
   navigate,
+  copyTitle,
+  copySummary,
 }: ChapterProps & { vehicles: Vehicle[] }) {
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
@@ -152,12 +156,14 @@ export function CarsChapter({
     }
   });
 
-  const title = getText('cars.chapter.title', locale)
-    ?? (isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS');
+  const title = (content['cars.chapter.title']?.source === 'published' ? getText('cars.chapter.title', locale) : null)
+    || copyTitle?.trim() || getText('cars.chapter.title', locale)
+    || (isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS');
   const accent = getText('cars.chapter.accent', locale)
     ?? (isArabic ? 'حرّك خطوتك' : 'Move with intent');
-  const summary = getText('cars.chapter.summary', locale)
-    ?? (isArabic ? 'سيارات مختارة بعناية، وتجربة استفسار مباشرة وواضحة.' : 'A considered selection, with a direct and easy way to enquire.');
+  const summary = (content['cars.chapter.summary']?.source === 'published' ? getText('cars.chapter.summary', locale) : null)
+    || copySummary?.trim() || getText('cars.chapter.summary', locale)
+    || (isArabic ? 'سيارات مختارة بعناية، وتجربة استفسار مباشرة وواضحة.' : 'A considered selection, with a direct and easy way to enquire.');
   const action = getText('cars.chapter.action', locale)
     ?? (isArabic ? 'اكتشف السيارات' : 'Explore vehicles');
 
@@ -265,6 +271,8 @@ export function RealEstateChapter({
   market,
   properties,
   navigate,
+  copyTitle,
+  copySummary,
 }: ChapterProps & { properties: Property[] }) {
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion() ?? false;
@@ -311,12 +319,14 @@ export function RealEstateChapter({
   const copyY = useTransform(scrollYProgress, [0.48, 0.66], [44, 0]);
   const plantsY = useTransform(scrollYProgress, [0.35, 0.82, 1], ['8vh', '0vh', '0vh']);
   const goldenHour = useTransform(scrollYProgress, [0.4, 0.82, 1], [0, 0.18, 0.18]);
-  const title = getText('property.chapter.title', locale)
-    ?? (isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES');
+  const title = (content['property.chapter.title']?.source === 'published' ? getText('property.chapter.title', locale) : null)
+    || copyTitle?.trim() || getText('property.chapter.title', locale)
+    || (isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES');
   const accent = getText('property.chapter.accent', locale)
     ?? (isArabic ? 'المكان يغيّر كل شيء' : 'Find your next place');
-  const summary = getText('property.chapter.summary', locale)
-    ?? (isArabic ? 'مساحات منتقاة تساعدك تلاقي المكان المناسب لخطوتك الجاية.' : 'Thoughtfully selected spaces to help you find the right place for what comes next.');
+  const summary = (content['property.chapter.summary']?.source === 'published' ? getText('property.chapter.summary', locale) : null)
+    || copySummary?.trim() || getText('property.chapter.summary', locale)
+    || (isArabic ? 'مساحات منتقاة تساعدك تلاقي المكان المناسب لخطوتك الجاية.' : 'Thoughtfully selected spaces to help you find the right place for what comes next.');
   const action = getText('property.chapter.action', locale)
     ?? (isArabic ? 'اكتشف المساحات' : 'Explore spaces');
 

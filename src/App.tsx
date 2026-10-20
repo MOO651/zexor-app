@@ -41,7 +41,6 @@ import {
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
-  STATS,
 } from './data/initialData';
 import { HomeHero } from './components/HomeHero';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
@@ -1913,6 +1912,8 @@ export default function App() {
             <NfcChapter
               locale={locale}
               market={market}
+              copyTitle={resolvedSettings.content.cardsTitle[locale]}
+              copySubtitle={resolvedSettings.content.cardsSubtitle[locale]}
               onDesign={handleOpenNfcCustomizer}
               onExplore={() => navigate('cards')}
               product={storefrontProducts.find((product) => product.category === 'cards')}
@@ -1925,6 +1926,8 @@ export default function App() {
               <FashionLookbook
                 locale={locale}
                 market={market}
+                copyTitle={resolvedSettings.content.fashionTitle[locale]}
+                copySubtitle={resolvedSettings.content.fashionSubtitle[locale]}
                 navigateToFashion={() => navigate('fashion')}
                 onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
                 onShare={handleShareProduct}
@@ -1942,6 +1945,8 @@ export default function App() {
                 locale={locale}
                 market={market}
                 navigate={navigate}
+                copyTitle={resolvedSettings.content.carsTitle[locale]}
+                copySummary={resolvedSettings.content.carsSubtitle[locale]}
                 vehicles={vehicles}
               />
             )}
@@ -1951,6 +1956,8 @@ export default function App() {
                 locale={locale}
                 market={market}
                 navigate={navigate}
+                copyTitle={resolvedSettings.content.propertyTitle[locale]}
+                copySummary={resolvedSettings.content.propertySubtitle[locale]}
                 properties={properties}
               />
             )}
@@ -1975,13 +1982,16 @@ export default function App() {
             </div>
 
             {/* 3. Live Animated Stats Counter */}
+            {resolvedSettings.sectionVisibility.homeStats && (
             <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute -inset-e-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
               />
               <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
-                {STATS.map((s, i) => (
+                {resolvedSettings.content.stats
+                  .filter((stat) => stat.value.trim() && stat.label[locale].trim())
+                  .map((s, i) => (
                   <motion.div
                     className="text-center"
                     initial={{ opacity: 0, y: 14 }}
@@ -1998,21 +2008,30 @@ export default function App() {
                 ))}
               </div>
             </section>
+            )}
 
             {/* 8. Section 06: Client Testimonials & Reviews */}
-            <TestimonialsSection
+            {resolvedSettings.sectionVisibility.testimonials && <TestimonialsSection
               locale={locale}
               onContact={() => openWhatsApp(
                 whatsappNumberFor(market, resolvedSettings),
                 isArabic ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.',
               )}
-            />
+            />}
 
             {/* 9. Section 07: Interactive FAQ */}
-            <FaqSection isArabic={isArabic} locale={locale} />
+            {resolvedSettings.sectionVisibility.faq && (
+              <FaqSection
+                isArabic={isArabic}
+                locale={locale}
+                items={resolvedSettings.content.faqItems}
+                title={resolvedSettings.content.faqTitle[locale]}
+                subtitle={resolvedSettings.content.faqSubtitle[locale]}
+              />
+            )}
 
             {/* 10. Section 08: Order Tracking + Newsletter */}
-            <TrackingAndNewsletter
+            {resolvedSettings.sectionVisibility.trackingNewsletter && <TrackingAndNewsletter
               isArabic={isArabic}
               locale={locale}
               onSubscribe={(email) =>
@@ -2023,9 +2042,10 @@ export default function App() {
                 )
               }
               onTrackOrder={() => setTrackingOpen(true)}
-            />
+            />}
 
             {/* 9. Section 07: High-Impact Call to Action */}
+            {resolvedSettings.sectionVisibility.homeCta && (
             <section className="zx-home-cta relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 shadow-2xl sm:p-14">
               <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
                 <div className="max-w-xl">
@@ -2053,6 +2073,7 @@ export default function App() {
                 </a>
               </div>
             </section>
+            )}
           </div>
         )}
 
@@ -2171,7 +2192,10 @@ export default function App() {
           <AgencyPortfolio
             locale={locale}
             market={market}
-            sectionName={categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO')}
+            sectionName={resolvedSettings.content.servicesTitle[locale]}
+            sectionDescription={resolvedSettings.content.servicesSubtitle[locale]}
+            stats={resolvedSettings.content.stats}
+            projects={resolvedSettings.content.agencyProjects}
             onInquiry={handleAddInquiry}
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
           /></div>

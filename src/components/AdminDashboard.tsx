@@ -2866,8 +2866,8 @@ export function AdminDashboard({
                 </h2>
                 <p className="text-[10px] text-zx-text">
                   {isArabic
-                    ? 'عدّل عناوين وأوصاف كل قسم بعنوان عربي وإنجليزي — يظهر فوراً على الصفحة الرئيسية.'
-                    : 'Edit each homepage section title and subtitle in both languages — reflected instantly.'}
+                    ? 'عدّل المحتوى بالعربية والإنجليزية، ثم اضغط «حفظ النصوص» لنشر التغييرات على الموقع.'
+                    : 'Edit the Arabic and English copy, then select “Save Copy” to publish your changes.'}
                 </p>
               </div>
               <div className="flex rounded-full border border-zx-border bg-zx-surface-raised p-1">
@@ -2916,6 +2916,317 @@ export function AdminDashboard({
                   />
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-zx-border bg-zx-surface-raised p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-zx-text">{isArabic ? 'الأسئلة الشائعة' : 'Frequently asked questions'}</h3>
+                  <p className="mt-1 text-[10px] text-zx-text-secondary">{isArabic ? 'تُعرض الإجابات التي تحتوي على نص في لغة الزائر.' : 'Answers with text are shown in the visitor’s selected language.'}</p>
+                </div>
+                <button
+                  className="flex min-h-9 items-center gap-1.5 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast"
+                  onClick={() => setSettings((previous) => ({
+                    ...previous,
+                    content: {
+                      ...previous.content,
+                      faqItems: [...previous.content.faqItems, {
+                        id: `faq-${crypto.randomUUID()}`,
+                        question: { ar: '', en: '' },
+                        answer: { ar: '', en: '' },
+                      }],
+                    },
+                  }))}
+                  type="button"
+                >
+                  <Plus className="h-4 w-4" />
+                  {isArabic ? 'إضافة سؤال' : 'Add question'}
+                </button>
+              </div>
+              <div className="mt-4 space-y-3">
+                {settings.content.faqItems.map((item, index) => (
+                  <div className="grid gap-3 rounded-xl border border-zx-border p-3 sm:grid-cols-[1fr_1.5fr_auto]" key={item.id}>
+                    <label className="text-[10px] font-semibold text-zx-text">
+                      {isArabic ? `السؤال ${index + 1}` : `Question ${index + 1}`}
+                      <textarea
+                        className="mt-1 min-h-20 w-full rounded-xl border border-zx-border bg-zx-surface-raised p-2 text-xs outline-none"
+                        maxLength={240}
+                        onChange={(event) => setSettings((previous) => ({
+                          ...previous,
+                          content: {
+                            ...previous.content,
+                            faqItems: previous.content.faqItems.map((entry) => entry.id === item.id
+                              ? { ...entry, question: { ...entry.question, [heroLang]: event.target.value } }
+                              : entry),
+                          },
+                        }))}
+                        value={item.question[heroLang]}
+                      />
+                    </label>
+                    <label className="text-[10px] font-semibold text-zx-text">
+                      {isArabic ? 'الإجابة' : 'Answer'}
+                      <textarea
+                        className="mt-1 min-h-20 w-full rounded-xl border border-zx-border bg-zx-surface-raised p-2 text-xs outline-none"
+                        maxLength={1200}
+                        onChange={(event) => setSettings((previous) => ({
+                          ...previous,
+                          content: {
+                            ...previous.content,
+                            faqItems: previous.content.faqItems.map((entry) => entry.id === item.id
+                              ? { ...entry, answer: { ...entry.answer, [heroLang]: event.target.value } }
+                              : entry),
+                          },
+                        }))}
+                        value={item.answer[heroLang]}
+                      />
+                    </label>
+                    <button
+                      aria-label={isArabic ? 'حذف السؤال' : 'Delete question'}
+                      className="mt-5 flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text-secondary hover:bg-red-50 hover:text-red-600"
+                      onClick={() => setSettings((previous) => ({
+                        ...previous,
+                        content: {
+                          ...previous.content,
+                          faqItems: previous.content.faqItems.filter((entry) => entry.id !== item.id),
+                        },
+                      }))}
+                      type="button"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {([
+                  { key: 'faqTitle' as const, ar: 'عنوان الأسئلة', en: 'FAQ title' },
+                  { key: 'faqSubtitle' as const, ar: 'وصف الأسئلة', en: 'FAQ subtitle' },
+                ]).map(({ key, ar, en }) => (
+                  <label className="text-[10px] font-semibold text-zx-text" key={key}>
+                    {isArabic ? ar : en}
+                    <input
+                      className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                      maxLength={240}
+                      onChange={(event) => setSettings((previous) => ({
+                        ...previous,
+                        content: { ...previous.content, [key]: { ...previous.content[key], [heroLang]: event.target.value } },
+                      }))}
+                      value={settings.content[key][heroLang]}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-zx-border bg-zx-surface-raised p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-zx-text">{isArabic ? 'إحصاءات الواجهة' : 'Homepage statistics'}</h3>
+                  <p className="mt-1 text-[10px] text-zx-text-secondary">{isArabic ? 'استخدم أرقامًا وادعاءات دقيقة فقط.' : 'Only publish accurate figures and claims.'}</p>
+                </div>
+                <button
+                  className="flex min-h-9 items-center gap-1.5 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast"
+                  onClick={() => setSettings((previous) => ({
+                    ...previous,
+                    content: {
+                      ...previous.content,
+                      stats: [...previous.content.stats, {
+                        id: `stat-${crypto.randomUUID()}`,
+                        value: '',
+                        label: { ar: '', en: '' },
+                      }],
+                    },
+                  }))}
+                  type="button"
+                >
+                  <Plus className="h-4 w-4" />
+                  {isArabic ? 'إضافة إحصائية' : 'Add statistic'}
+                </button>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {settings.content.stats.map((stat, index) => (
+                  <div className="flex items-end gap-2 rounded-xl border border-zx-border p-3" key={stat.id}>
+                    <label className="flex-1 text-[10px] font-semibold text-zx-text">
+                      {isArabic ? `القيمة ${index + 1}` : `Value ${index + 1}`}
+                      <input
+                        className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                        maxLength={32}
+                        onChange={(event) => setSettings((previous) => ({
+                          ...previous,
+                          content: {
+                            ...previous.content,
+                            stats: previous.content.stats.map((entry) => entry.id === stat.id
+                              ? { ...entry, value: event.target.value }
+                              : entry),
+                          },
+                        }))}
+                        value={stat.value}
+                      />
+                    </label>
+                    <label className="flex-1 text-[10px] font-semibold text-zx-text">
+                      {isArabic ? 'الوصف' : 'Label'}
+                      <input
+                        className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                        maxLength={120}
+                        onChange={(event) => setSettings((previous) => ({
+                          ...previous,
+                          content: {
+                            ...previous.content,
+                            stats: previous.content.stats.map((entry) => entry.id === stat.id
+                              ? { ...entry, label: { ...entry.label, [heroLang]: event.target.value } }
+                              : entry),
+                          },
+                        }))}
+                        value={stat.label[heroLang]}
+                      />
+                    </label>
+                    <button
+                      aria-label={isArabic ? 'حذف الإحصائية' : 'Delete statistic'}
+                      className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zx-border text-zx-text-secondary hover:bg-red-50 hover:text-red-600"
+                      onClick={() => setSettings((previous) => ({
+                        ...previous,
+                        content: {
+                          ...previous.content,
+                          stats: previous.content.stats.filter((entry) => entry.id !== stat.id),
+                        },
+                      }))}
+                      type="button"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-zx-border bg-zx-surface-raised p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-zx-text">{isArabic ? 'مشاريع الاستوديو' : 'Studio portfolio projects'}</h3>
+                  <p className="mt-1 text-[10px] text-zx-text-secondary">{isArabic ? 'أضف المشاريع المنشورة وروابط المعاينة والصور ووصفًا بالعربية والإنجليزية.' : 'Manage published projects, demo links, images, and localized descriptions.'}</p>
+                </div>
+                <button
+                  className="flex min-h-9 items-center gap-1.5 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast"
+                  onClick={() => setSettings((previous) => ({
+                    ...previous,
+                    content: {
+                      ...previous.content,
+                      agencyProjects: [...previous.content.agencyProjects, {
+                        id: `project-${crypto.randomUUID()}`,
+                        title: { ar: '', en: '' },
+                        category: { ar: '', en: '' },
+                        description: { ar: '', en: '' },
+                        image: '',
+                        demoUrl: '',
+                        tags: [],
+                      }],
+                    },
+                  }))}
+                  type="button"
+                >
+                  <Plus className="h-4 w-4" />
+                  {isArabic ? 'إضافة مشروع' : 'Add project'}
+                </button>
+              </div>
+              <div className="mt-4 space-y-3">
+                {settings.content.agencyProjects.map((project, index) => (
+                  <div className="rounded-xl border border-zx-border p-3" key={project.id}>
+                    <div className="flex items-center justify-between gap-3">
+                      <h4 className="text-xs font-bold text-zx-text">{isArabic ? `مشروع ${index + 1}` : `Project ${index + 1}`}</h4>
+                      <button
+                        aria-label={isArabic ? 'حذف المشروع' : 'Delete project'}
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text-secondary hover:bg-red-50 hover:text-red-600"
+                        onClick={() => setSettings((previous) => ({
+                          ...previous,
+                          content: {
+                            ...previous.content,
+                            agencyProjects: previous.content.agencyProjects.filter((entry) => entry.id !== project.id),
+                          },
+                        }))}
+                        type="button"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {([
+                        { key: 'title', ar: 'اسم المشروع', en: 'Project name', limit: 120 },
+                        { key: 'category', ar: 'التصنيف', en: 'Category', limit: 120 },
+                        { key: 'description', ar: 'الوصف', en: 'Description', limit: 600 },
+                      ] as const).map(({ key, ar, en, limit }) => (
+                        <label className={`text-[10px] font-semibold text-zx-text ${key === 'description' ? 'sm:col-span-2' : ''}`} key={key}>
+                          {isArabic ? ar : en}
+                          <textarea
+                            className="mt-1 min-h-16 w-full rounded-xl border border-zx-border bg-zx-surface-raised p-2 text-xs outline-none"
+                            maxLength={limit}
+                            onChange={(event) => setSettings((previous) => ({
+                              ...previous,
+                              content: {
+                                ...previous.content,
+                                agencyProjects: previous.content.agencyProjects.map((entry) => entry.id === project.id
+                                  ? { ...entry, [key]: { ...entry[key], [heroLang]: event.target.value } }
+                                  : entry),
+                              },
+                            }))}
+                            value={project[key][heroLang]}
+                          />
+                        </label>
+                      ))}
+                      <label className="text-[10px] font-semibold text-zx-text">
+                        {isArabic ? 'رابط الصورة' : 'Image URL'}
+                        <input
+                          className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs outline-none"
+                          maxLength={1000}
+                          onChange={(event) => setSettings((previous) => ({
+                            ...previous,
+                            content: {
+                              ...previous.content,
+                              agencyProjects: previous.content.agencyProjects.map((entry) => entry.id === project.id
+                                ? { ...entry, image: event.target.value }
+                                : entry),
+                            },
+                          }))}
+                          value={project.image}
+                        />
+                      </label>
+                      <label className="text-[10px] font-semibold text-zx-text">
+                        {isArabic ? 'رابط المعاينة' : 'Demo URL'}
+                        <input
+                          className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs outline-none"
+                          maxLength={1000}
+                          onChange={(event) => setSettings((previous) => ({
+                            ...previous,
+                            content: {
+                              ...previous.content,
+                              agencyProjects: previous.content.agencyProjects.map((entry) => entry.id === project.id
+                                ? { ...entry, demoUrl: event.target.value }
+                                : entry),
+                            },
+                          }))}
+                          value={project.demoUrl}
+                        />
+                      </label>
+                      <label className="text-[10px] font-semibold text-zx-text sm:col-span-2">
+                        {isArabic ? 'وسوم المشروع، افصل بينها بفاصلة' : 'Project tags, comma-separated'}
+                        <input
+                          className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs outline-none"
+                          maxLength={300}
+                          onChange={(event) => setSettings((previous) => ({
+                            ...previous,
+                            content: {
+                              ...previous.content,
+                              agencyProjects: previous.content.agencyProjects.map((entry) => entry.id === project.id
+                                ? { ...entry, tags: event.target.value.split(',').map((tag) => tag.trim()).filter(Boolean).slice(0, 12) }
+                                : entry),
+                            },
+                          }))}
+                          value={project.tags.join(', ')}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Hero background image + maintenance notice live here too, since
@@ -3092,12 +3403,28 @@ export function AdminDashboard({
               {isArabic ? 'إظهار وإخفاء أقسام الموقع (Section Visibility Toggles)' : 'Section Visibility Controls'}
             </h3>
             <p className="text-[10px] text-zx-text">
-              {isArabic ? 'مفاتيح للتحكم الفوري في إظهار أو إخفاء أي قسم في الموقع والنافبار دون مسحه.' : 'Toggle sections on/off instantly without deleting content.'}
+              {isArabic ? 'أخفِ أو أظهر الأقسام من الواجهة دون حذف بياناتها. احفظ الإعدادات لتطبيق التغيير.' : 'Hide or show site sections without deleting their content. Save settings to apply changes.'}
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {(['cards', 'fashion', 'services', 'cars', 'property', 'pricing', 'calculator', 'tracking', 'reviews', 'contact'] as const).map((sec) => (
+              {([
+                { key: 'cards', ar: 'بطاقات NFC', en: 'NFC cards' },
+                { key: 'fashion', ar: 'الأزياء', en: 'Fashion' },
+                { key: 'services', ar: 'الاستوديو', en: 'Studio' },
+                { key: 'cars', ar: 'السيارات', en: 'Vehicles' },
+                { key: 'property', ar: 'العقارات', en: 'Real estate' },
+                { key: 'pricing', ar: 'باقات الأسعار', en: 'Pricing' },
+                { key: 'calculator', ar: 'حاسبة التكلفة', en: 'Cost calculator' },
+                { key: 'tracking', ar: 'تتبّع الطلب', en: 'Order tracking' },
+                { key: 'reviews', ar: 'آراء العملاء', en: 'Reviews' },
+                { key: 'contact', ar: 'التواصل', en: 'Contact' },
+                { key: 'homeStats', ar: 'إحصاءات الرئيسية', en: 'Homepage statistics' },
+                { key: 'testimonials', ar: 'آراء العملاء بالرئيسية', en: 'Homepage testimonials' },
+                { key: 'faq', ar: 'الأسئلة الشائعة', en: 'FAQ' },
+                { key: 'trackingNewsletter', ar: 'التتبع والنشرة البريدية', en: 'Tracking and newsletter' },
+                { key: 'homeCta', ar: 'دعوة التواصل', en: 'Contact call to action' },
+              ] as const).map(({ key: sec, ar, en }) => (
                 <label className="flex items-center justify-between rounded-2xl border border-zx-border bg-zx-surface-raised p-3 text-xs font-semibold text-zx-text" key={sec}>
-                  <span>{sec.toUpperCase()}</span>
+                  <span>{isArabic ? ar : en}</span>
                   <input
                     checked={settings.sectionVisibility[sec] ?? true}
                     className="h-4 w-4 accent-zx-accent"

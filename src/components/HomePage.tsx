@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, MessageCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { AGENCY_PROJECTS, STATS } from '../data/initialData';
 import type { Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
 import { money, publicAssetUrl, whatsappNumberFor } from '../utils';
 import { CategoryShowcase } from './CategoryShowcase';
@@ -21,11 +20,13 @@ import { useSiteMedia } from '../lib/siteMediaContext';
 function SectionHeading({
   eyebrow,
   title,
+  subtitle,
   actionLabel,
   onAction,
 }: {
   eyebrow: string;
   title: string;
+  subtitle?: string;
   actionLabel?: string;
   onAction?: () => void;
 }) {
@@ -38,6 +39,7 @@ function SectionHeading({
             <span className="zx-heading-line">{title}</span>
           </span>
         </h2>
+        {subtitle && <p className="mt-2 max-w-xl text-xs leading-6 text-zx-text-secondary">{subtitle}</p>}
       </div>
       {actionLabel && onAction && (
         <button
@@ -149,13 +151,13 @@ export function HomePage({
       )}
 
       {/* 3. Live Animated Stats Counter */}
-      <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
+      {sectionVisibility.homeStats && <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute -inset-e-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
         />
         <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
-          {STATS.map((s, i) => (
+          {content.stats.filter((stat) => stat.value.trim() && stat.label[locale].trim()).map((s, i) => (
             <motion.div
               className="text-center"
               initial={{ opacity: 0, y: 14 }}
@@ -172,6 +174,7 @@ export function HomePage({
           ))}
         </div>
       </section>
+      }
 
       {/* 4. Section 01: 3D Smart NFC Identity Cards Showcase */}
       {sectionVisibility.cards && (
@@ -179,6 +182,7 @@ export function HomePage({
           <SectionHeading
             eyebrow={`01 / ${isArabic ? 'بطاقات الهوية المتصلة' : 'CONNECTED IDENTITY'}`}
             title={content.cardsTitle[locale]}
+            subtitle={content.cardsSubtitle[locale]}
             actionLabel={isArabic ? 'استعراض كافة البطاقات' : 'View All Cards'}
             onAction={() => navigate('cards')}
           />
@@ -206,6 +210,7 @@ export function HomePage({
           <SectionHeading
             eyebrow={`02 / ${isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}`}
             title={content.fashionTitle[locale]}
+            subtitle={content.fashionSubtitle[locale]}
             actionLabel={isArabic ? 'استعراض التشكيلة' : 'View Drop'}
             onAction={() => navigate('fashion')}
           />
@@ -235,11 +240,12 @@ export function HomePage({
           <SectionHeading
             eyebrow={`03 / ${isArabic ? 'الاستوديو وتطوير البرمجيات' : 'SOFTWARE & DIGITAL AGENCY'}`}
             title={content.servicesTitle[locale]}
+            subtitle={content.servicesSubtitle[locale]}
             actionLabel={isArabic ? 'فتح الاستوديو وحاسبة التكلفة' : 'Open Full Studio & Calculator'}
             onAction={() => navigate('services')}
           />
           <div className="grid gap-6 md:grid-cols-3">
-            {AGENCY_PROJECTS.map((proj) => (
+            {content.agencyProjects.filter((project) => project.title[locale].trim() && project.image.trim()).map((proj) => (
               <TiltCard
                 className="group overflow-hidden rounded-3xl border border-zx-border bg-zx-surface-raised/90 shadow-md"
                 intensity={8}
@@ -276,6 +282,7 @@ export function HomePage({
           <SectionHeading
             eyebrow={`04 / ${isArabic ? 'معرض ومكتب السيارات الفاخرة' : 'CURATED VEHICLES'}`}
             title={content.carsTitle[locale]}
+            subtitle={content.carsSubtitle[locale]}
             actionLabel={isArabic ? 'استعراض كل السيارات' : 'View All Cars'}
             onAction={() => navigate('cars')}
           />
@@ -328,6 +335,7 @@ export function HomePage({
           <SectionHeading
             eyebrow={`05 / ${isArabic ? 'قسم العقارات والمساحات' : 'PRIME REAL ESTATE'}`}
             title={content.propertyTitle[locale]}
+            subtitle={content.propertySubtitle[locale]}
             actionLabel={isArabic ? 'استعراض كل العقارات' : 'View All Properties'}
             onAction={() => navigate('property')}
           />
@@ -368,19 +376,25 @@ export function HomePage({
       )}
 
       {/* 9. Section 06: Client Testimonials & Reviews */}
-      <TestimonialsSection
+      {sectionVisibility.testimonials && <TestimonialsSection
         locale={locale}
         onContact={() => {
           const text = locale === 'ar' ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.';
           window.open(`https://wa.me/${whatsappNumberFor(market, settings)}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
         }}
-      />
+      />}
 
       {/* 10. Section 07: Interactive FAQ */}
-      <FaqSection isArabic={isArabic} locale={locale} />
+      {sectionVisibility.faq && <FaqSection
+        isArabic={isArabic}
+        locale={locale}
+        items={content.faqItems}
+        title={content.faqTitle[locale]}
+        subtitle={content.faqSubtitle[locale]}
+      />}
 
       {/* 11. Section 08: Order Tracking + Newsletter */}
-      <TrackingAndNewsletter
+      {sectionVisibility.trackingNewsletter && <TrackingAndNewsletter
         isArabic={isArabic}
         locale={locale}
         onSubscribe={(email) =>
@@ -389,10 +403,10 @@ export function HomePage({
           )
         }
         onTrackOrder={onTrackOrder}
-      />
+      />}
 
       {/* 12. Section 09: High-Impact Call to Action */}
-      <section className="zx-home-cta relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 shadow-2xl sm:p-14">
+      {sectionVisibility.homeCta && <section className="zx-home-cta relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 shadow-2xl sm:p-14">
         <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-xl">
             <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
@@ -415,6 +429,7 @@ export function HomePage({
           </a>
         </div>
       </section>
+      }
     </div>
   );
 }

@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { AGENCY_PROJECTS, STATS } from '../data/initialData';
-import type { Locale, Market, PlatformInquiry } from '../types';
+import type { AgencyProject, Locale, Market, PlatformInquiry, SiteStat } from '../types';
 import { publicAssetUrl } from '../utils';
 
 type Props = {
@@ -23,9 +23,21 @@ type Props = {
   onInquiry: (inquiry: PlatformInquiry) => void;
   onWhatsApp: (market: Market, message: string) => void;
   sectionName?: string;
+  sectionDescription?: string;
+  stats?: SiteStat[];
+  projects?: AgencyProject[];
 };
 
-export function AgencyPortfolio({ locale, market, onInquiry, onWhatsApp, sectionName }: Props) {
+export function AgencyPortfolio({
+  locale,
+  market,
+  onInquiry,
+  onWhatsApp,
+  sectionName,
+  sectionDescription,
+  stats = STATS,
+  projects = AGENCY_PROJECTS,
+}: Props) {
   const isArabic = locale === 'ar';
   const currency = market === 'eg' ? (isArabic ? 'ج.م' : 'EGP') : isArabic ? 'ر.س' : 'SAR';
 
@@ -122,8 +134,8 @@ I would like to discuss next steps.`;
           </h1>
           <p className="mt-3 text-sm leading-6 text-zx-text">
             {isArabic
-            ? 'نصمّم ونطوّر مواقع ومتاجر وتطبيقات تساعد مشروعك على الظهور والعمل بكفاءة. من الفكرة إلى الإطلاق، بخطوات واضحة تناسب احتياجك.'
-              : 'We design and build websites, online stores and apps around your business needs, guiding each project from its first brief to launch.'}
+            ? sectionDescription ?? 'نصمّم ونطوّر مواقع ومتاجر وتطبيقات تساعد مشروعك على الظهور والعمل بكفاءة. من الفكرة إلى الإطلاق، بخطوات واضحة تناسب احتياجك.'
+              : sectionDescription ?? 'We design and build websites, online stores and apps around your business needs, guiding each project from its first brief to launch.'}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -146,7 +158,7 @@ I would like to discuss next steps.`;
 
         {/* Live Animated Stats Counter */}
         <div className="zx-agency-stats mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {STATS.map((s) => (
+          {stats.filter((stat) => stat.value.trim() && stat.label[locale].trim()).map((s) => (
             <div
               className="rounded-2xl border border-zx-border/80 bg-zx-surface-raised/70 p-4 shadow-sm backdrop-blur-md"
               key={s.id}
@@ -175,7 +187,7 @@ I would like to discuss next steps.`;
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {AGENCY_PROJECTS.map((proj) => (
+          {projects.filter((project) => project.title[locale].trim() && project.image.trim()).map((proj) => (
             <motion.article
               className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised/85 shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={proj.id}
@@ -188,13 +200,15 @@ I would like to discuss next steps.`;
                   loading="lazy"
                   src={publicAssetUrl(proj.image)}
                 />
-                <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-accent-contrast backdrop-blur-md">
-                  {proj.category[locale]}
-                </span>
+                {proj.category[locale].trim() && (
+                  <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-3 py-1 text-[8px] font-semibold tracking-wider text-zx-accent-contrast backdrop-blur-md">
+                    {proj.category[locale]}
+                  </span>
+                )}
               </div>
               <div className="zx-agency-project-copy flex min-h-62.5 flex-col p-4 sm:p-5">
                 <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
-                <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
+                {proj.description[locale].trim() && <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>}
 
                 {/* Tech tags */}
                 <div className="mt-3 flex flex-wrap gap-1.5">
@@ -208,7 +222,7 @@ I would like to discuss next steps.`;
                   ))}
                 </div>
 
-                <div className="mt-auto border-t border-zx-border pt-3.5">
+                {proj.demoUrl.trim() && <div className="mt-auto border-t border-zx-border pt-3.5">
                   <a
                     className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast transition-all hover:bg-zx-cinematic"
                     href={proj.demoUrl}
@@ -218,7 +232,7 @@ I would like to discuss next steps.`;
                     <ExternalLink className="h-3.5 w-3.5" />
                     {isArabic ? 'معاينة حية للمشروع (Live Demo)' : 'Explore Live Demo'}
                   </a>
-                </div>
+                </div>}
               </div>
             </motion.article>
           ))}

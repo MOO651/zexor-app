@@ -1,6 +1,16 @@
 export type Locale = 'en' | 'ar';
 export type Market = 'eg' | 'ksa';
 export type MarketFilter = 'all' | Market;
+export type SiteFaqItem = {
+  id: string;
+  question: Record<Locale, string>;
+  answer: Record<Locale, string>;
+};
+export type SiteStat = {
+  id: string;
+  value: string;
+  label: Record<Locale, string>;
+};
 export type Route =
   | 'home'
   | 'cards'
@@ -260,6 +270,11 @@ export type SiteSettings = {
     calculator: boolean;
     reviews: boolean;
     tracking: boolean;
+    homeStats: boolean;
+    testimonials: boolean;
+    faq: boolean;
+    trackingNewsletter: boolean;
+    homeCta: boolean;
   };
   /**
    * Brand design tokens applied live to the storefront as CSS variables.
@@ -293,6 +308,11 @@ export type SiteSettings = {
     ctaTitle: Record<Locale, string>;
     ctaText: Record<Locale, string>;
     footerNote: Record<Locale, string>;
+    faqTitle: Record<Locale, string>;
+    faqSubtitle: Record<Locale, string>;
+    faqItems: SiteFaqItem[];
+    stats: SiteStat[];
+    agencyProjects: AgencyProject[];
   };
   /**
    * Optional site-wide notice (e.g. "orders resume Monday"). Shown as a banner

@@ -15,6 +15,8 @@ type Props = {
   locale: Locale;
   market: Market;
   product?: Product;
+  copyTitle?: string;
+  copySubtitle?: string;
   onDesign: (product: Product) => void;
   onExplore: () => void;
   renderPrice: (price: number, className: string) => ReactNode;
@@ -74,7 +76,7 @@ function FeatureCard({
   );
 }
 
-export function NfcChapter({ locale, market, product, onDesign, onExplore, renderPrice }: Props) {
+export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, onDesign, onExplore, renderPrice }: Props) {
   const isArabic = locale === 'ar';
   const sceneRef = useRef<HTMLElement>(null);
   const touchDragRef = useRef<{
@@ -91,7 +93,7 @@ export function NfcChapter({ locale, market, product, onDesign, onExplore, rende
   const pointerTiltY = useSpring(0, { stiffness: 170, damping: 24 });
   const touchRotation = useSpring(0, { stiffness: 150, damping: 22 });
   const { assets } = useSiteAssets();
-  const { getText } = useSiteContent();
+  const { content, getText } = useSiteContent();
   const { scrollYProgress } = useScroll({
     target: sceneRef,
     offset: ['start start', 'end end'],
@@ -112,10 +114,15 @@ export function NfcChapter({ locale, market, product, onDesign, onExplore, rende
   const sceneImage = cardAsset?.source === 'published' && cardAsset.type === 'image'
     ? publicAssetUrl(cardAsset.url) ?? art.cardsElite
     : art.cardsElite;
-  const title = getText('nfc.scene.title', locale) ?? (isArabic ? 'لمسة واحدة' : 'One tap');
+  const publishedTitle = content['nfc.scene.title']?.source === 'published'
+    ? getText('nfc.scene.title', locale)
+    : null;
+  const publishedSubtitle = content['nfc.scene.subtitle']?.source === 'published'
+    ? getText('nfc.scene.subtitle', locale)
+    : null;
+  const title = publishedTitle || copyTitle?.trim() || getText('nfc.scene.title', locale) || (isArabic ? 'لمسة واحدة' : 'One tap');
   const accent = getText('nfc.scene.accent', locale) ?? (isArabic ? 'عالمك كله' : 'your whole world');
-  const description = getText('nfc.scene.subtitle', locale)
-    ?? (isArabic
+  const description = publishedSubtitle || copySubtitle?.trim() || getText('nfc.scene.subtitle', locale) || (isArabic
       ? 'بطاقة واحدة تجمع هويتك الرقمية، روابطك، وحضورك في كل مكان.'
       : 'One card brings your digital identity, links and presence together.');
   const profileName = getText('nfc.profile.name', locale) ?? (isArabic ? 'أحمد م.' : 'Ahmed M.');
