@@ -285,11 +285,11 @@ export function FashionLookbook({
           <div aria-hidden="true" className="zx-lookbook-neighbors">
             {lookCount > 2 && (
               <div className="zx-lookbook-neighbor zx-lookbook-neighbor--previous">
-                <img alt="" src={publicAssetUrl(looks[(activeIndex + lookCount - 1) % lookCount].url)} />
+                <img alt="" loading="lazy" src={publicAssetUrl(looks[(activeIndex + lookCount - 1) % lookCount].url)} />
               </div>
             )}
             <div className="zx-lookbook-neighbor zx-lookbook-neighbor--next">
-              <img alt="" src={publicAssetUrl(looks[(activeIndex + 1) % lookCount].url)} />
+              <img alt="" loading="lazy" src={publicAssetUrl(looks[(activeIndex + 1) % lookCount].url)} />
             </div>
           </div>
         )}
@@ -314,6 +314,7 @@ export function FashionLookbook({
               alt={assets[currentLook.assetKey ?? '']?.alt[locale] || currentLook.product?.name[locale] || `${headline} ${currentIndex + 1}`}
               className="zx-lookbook-photo"
               key={currentLook.id}
+              loading="lazy"
               onError={() => brokenImages(currentLook.url)}
               src={publicAssetUrl(currentLook.url)}
               style={reduceMotion ? undefined : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}
@@ -322,6 +323,7 @@ export function FashionLookbook({
               alt=""
               aria-hidden="true"
               className="zx-lookbook-detail"
+              loading="lazy"
               onError={(event) => {
                 event.currentTarget.src = publicAssetUrl(currentLook.url) ?? currentLook.url;
               }}

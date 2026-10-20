@@ -43,6 +43,27 @@ function useScrollScrubVideo(
   }, [enabled, progress, videoRef]);
 }
 
+function useNearViewport(ref: { current: HTMLElement | null }) {
+  const [isNearViewport, setIsNearViewport] = useState(
+    () => !('IntersectionObserver' in window),
+  );
+
+  useEffect(() => {
+    const target = ref.current;
+    if (!target || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) {
+        setIsNearViewport(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: `${Math.round(window.innerHeight * 0.75)}px 0px` });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return isNearViewport;
+}
+
 type ChapterProps = {
   locale: Locale;
   market: Market;
@@ -115,6 +136,7 @@ export function CarsChapter({
   const reduceMotion = useReducedMotion() ?? false;
   const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
+  const isNearViewport = useNearViewport(sceneRef);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
   const { assets } = useSiteAssets();
   const { content, getText } = useSiteContent();
@@ -185,7 +207,7 @@ export function CarsChapter({
             aria-hidden="true"
             className="cars-hero-image"
             style={{
-              backgroundImage: `url("${publicAssetUrl(heroImage)}")`,
+              backgroundImage: isNearViewport ? `url("${publicAssetUrl(heroImage)}")` : undefined,
               scale: reduceMotion ? 1 : imageScale,
               x: reduceMotion ? 0 : imageX,
             }}
@@ -281,6 +303,7 @@ export function RealEstateChapter({
   const reduceMotion = useReducedMotion() ?? false;
   const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
+  const isNearViewport = useNearViewport(sceneRef);
   const scrubVideoRef = useRef<HTMLVideoElement>(null);
   const { assets } = useSiteAssets();
   const { content, getText } = useSiteContent();
@@ -343,7 +366,7 @@ export function RealEstateChapter({
             aria-hidden="true"
             className="estate-building"
             style={{
-              backgroundImage: `url("${publicAssetUrl(heroImage)}")`,
+              backgroundImage: isNearViewport ? `url("${publicAssetUrl(heroImage)}")` : undefined,
               scale: reduceMotion ? 1 : buildingScale,
             }}
           />
