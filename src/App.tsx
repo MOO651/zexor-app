@@ -42,11 +42,8 @@ import {
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
 } from './data/initialData';
-import { HomeHero } from './components/HomeHero';
+import { FutureGatewayHome } from './components/FutureGatewayHome';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
-import { NfcChapter } from './scenes/NfcChapter';
-import { FashionLookbook } from './scenes/FashionLookbook';
-import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
@@ -67,7 +64,6 @@ const CheckoutDrawer = lazy(() =>
 const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
-import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
@@ -1318,9 +1314,6 @@ export default function App() {
   const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
     (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
-  const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
-    .filter(isDepartmentActive).length;
-
   const navItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [
       { route: 'home', label: isArabic ? 'الرئيسية' : 'Home' },
@@ -1891,95 +1884,24 @@ export default function App() {
         )}
         {route === 'home' && (
           <div className="home-page-flow">
-            {/* 1. Interactive 3D Parallax Hero */}
-            <HomeHero
-              departmentCount={activeDepartmentCount}
-              departmentNames={{
-                cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
-                fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
-                services: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'),
-                cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
-                property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
-              }}
+            <FutureGatewayHome
+              categories={categories}
               heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
+              heroCta={getSiteText('hero.cta.primary', locale) ?? (isArabic ? 'استكشف العوالم' : 'Explore the worlds')}
               heroImage={resolvedSettings.heroImage}
               heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
               heroTitle={getSiteText('hero.headline', locale) ?? resolvedSettings.heroTitle[locale]}
+              isArabic={isArabic}
               locale={locale}
               navigate={navigate}
+              visible={{
+                cards: isDepartmentActive('cards'),
+                fashion: isDepartmentActive('fashion'),
+                cars: isDepartmentActive('cars'),
+                property: isDepartmentActive('property'),
+                services: isDepartmentActive('services'),
+              }}
             />
-
-            <NfcChapter
-              locale={locale}
-              market={market}
-              copyTitle={resolvedSettings.content.cardsTitle[locale]}
-              copySubtitle={resolvedSettings.content.cardsSubtitle[locale]}
-              onDesign={handleOpenNfcCustomizer}
-              onExplore={() => navigate('cards')}
-              product={storefrontProducts.find((product) => product.category === 'cards')}
-              renderPrice={(price, className) => (
-                <PriceTag className={className} price={price} market={market} locale={locale} />
-              )}
-            />
-
-            {isDepartmentActive('fashion') && (
-              <FashionLookbook
-                locale={locale}
-                market={market}
-                copyTitle={resolvedSettings.content.fashionTitle[locale]}
-                copySubtitle={resolvedSettings.content.fashionSubtitle[locale]}
-                navigateToFashion={() => navigate('fashion')}
-                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
-                onShare={handleShareProduct}
-                onToggleWishlist={handleToggleWishlist}
-                products={storefrontProducts}
-                renderPrice={(price, className) => (
-                  <PriceTag className={className} price={price} market={market} locale={locale} />
-                )}
-                wishlist={wishlist}
-              />
-            )}
-
-            {isDepartmentActive('cars') && (
-              <CarsChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                copyTitle={resolvedSettings.content.carsTitle[locale]}
-                copySummary={resolvedSettings.content.carsSubtitle[locale]}
-                vehicles={vehicles}
-              />
-            )}
-
-            {isDepartmentActive('property') && (
-              <RealEstateChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                copyTitle={resolvedSettings.content.propertyTitle[locale]}
-                copySummary={resolvedSettings.content.propertySubtitle[locale]}
-                properties={properties}
-              />
-            )}
-
-            {/* 2. Department Board — image-driven entry points into every section.
-                The `departments` id is the scroll target for the hero's
-                "Explore All 5 Departments" button. */}
-            <div id="departments" className="scroll-mt-24">
-              <CategoryShowcase
-                categories={categories}
-                isArabic={isArabic}
-                locale={locale}
-                navigate={navigate}
-                visible={{
-                  cards: isDepartmentActive('cards'),
-                  fashion: isDepartmentActive('fashion'),
-                  cars: isDepartmentActive('cars'),
-                  property: isDepartmentActive('property'),
-                  services: isDepartmentActive('services'),
-                }}
-              />
-            </div>
 
             {/* 3. Live Animated Stats Counter */}
             {resolvedSettings.sectionVisibility.homeStats && (

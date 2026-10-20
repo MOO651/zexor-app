@@ -418,11 +418,11 @@ export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  heroTitle: { en: 'Find what fits you', ar: 'اكتشف ما يناسبك' },
-  heroAccent: { en: 'all in one place.', ar: 'في مكان واحد.' },
+  heroTitle: { en: 'Your gateway to what’s next', ar: 'بوابتك للمستقبل' },
+  heroAccent: { en: 'choose your world.', ar: 'اختار عالمك.' },
   heroText: {
-    en: 'Shop smart NFC identity and considered essentials, or work with ZEXOR Studio. Serving Egypt and Saudi Arabia.',
-    ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع استوديو زكسور. نخدم مصر والسعودية.',
+    en: 'Five worlds for identity, style, ideas, the road ahead, and your next place. Choose where to begin.',
+    ar: 'خمسة عوالم تجمع هويتك وأسلوبك وأفكارك وطريقك ومكانك القادم — اختار نقطة البداية.',
   },
   heroImage: '',
   whatsappEg: '201005556553',

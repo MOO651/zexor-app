@@ -17,23 +17,23 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
   value_json: unknown;
 }> = {
   'hero.headline': {
-    value_ar: 'اكتشف ما يناسبك',
-    value_en: 'Find what fits you',
+    value_ar: 'بوابتك للمستقبل',
+    value_en: 'Your gateway to what’s next',
     value_json: null,
   },
   'hero.subtitle': {
-    value_ar: 'في مكان واحد.',
-    value_en: 'all in one place.',
+    value_ar: 'اختار عالمك.',
+    value_en: 'choose your world.',
     value_json: null,
   },
   'hero.description': {
-    value_ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع استوديو زكسور. نخدم مصر والسعودية.',
-    value_en: 'Shop smart NFC identity and considered essentials, or work with ZEXOR Studio. Serving Egypt and Saudi Arabia.',
+    value_ar: 'خمسة عوالم تجمع هويتك وأسلوبك وأفكارك وطريقك ومكانك القادم — اختار نقطة البداية.',
+    value_en: 'Five worlds for identity, style, ideas, the road ahead, and your next place. Choose where to begin.',
     value_json: null,
   },
   'hero.cta.primary': {
-    value_ar: 'اكتشف القسم',
-    value_en: 'Explore the chapter',
+    value_ar: 'استكشف العوالم',
+    value_en: 'Explore the worlds',
     value_json: null,
   },
   'hero.cta.secondary': { value_ar: null, value_en: null, value_json: null },

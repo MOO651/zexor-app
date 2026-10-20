@@ -1,24 +1,4 @@
-html:has(.home-page-flow) {
-  scroll-snap-type: y proximity;
-}
-
-.home-page-flow > :is(
-  .five-windows-scene,
-  .nfc-one-touch-scene,
-  .zx-lookbook-scene,
-  .studio-chapter,
-  .cars-chapter,
-  .estate-chapter
-) {
-  scroll-snap-align: start;
-}
-
 @media (max-width: 767px), (pointer: coarse) {
-  html:has(.home-page-flow) {
-    scroll-behavior: auto !important;
-    scroll-snap-type: y mandatory;
-  }
-
   .home-page-flow > * + *,
   .home-page-flow > .five-windows-scene + .nfc-one-touch-scene,
   .home-page-flow > .nfc-one-touch-scene + .zx-lookbook-scene,
