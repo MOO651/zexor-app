@@ -330,3 +330,899 @@
     transition: none;
   }
 }
+
+/* Full visual reset: editorial ZEXOR chapters, direct commerce, calm motion. */
+.zx-app-shell {
+  --zx-brand-ink: #10291f;
+  --zx-brand-green: #176244;
+  --zx-brand-flare: #b86f43;
+  --zx-brand-line: color-mix(in srgb, var(--zx-accent) 20%, var(--zx-border));
+}
+
+.home-page-flow {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding-block: 0.75rem;
+}
+
+.home-page-flow > * + * {
+  margin-block-start: 0;
+}
+
+.five-windows-scene,
+.nfc-one-touch-scene,
+.zx-lookbook-scene,
+.studio-chapter,
+.cars-chapter,
+.estate-chapter {
+  width: min(calc(100% - 2rem), var(--zx-container));
+  height: auto;
+  min-height: 0;
+  margin-inline: auto;
+  margin-block-start: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.five-windows-stage,
+.nfc-one-touch-stage,
+.zx-lookbook-stage,
+.studio-stage,
+.cars-stage,
+.estate-stage {
+  position: relative;
+  inset-block-start: auto;
+  width: 100%;
+  height: auto;
+  min-height: clamp(39rem, 76svh, 52rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--zx-mint) 20%, var(--zx-border));
+  border-radius: clamp(1.25rem, 3vw, 2rem);
+  box-shadow: 0 1.5rem 3.5rem -2.25rem color-mix(in srgb, var(--zx-brand-ink) 36%, transparent);
+}
+
+.five-windows-stage {
+  display: flex;
+  align-items: stretch;
+  background:
+    radial-gradient(ellipse at 84% 16%, rgb(188 235 194 / 18%), transparent 29%),
+    radial-gradient(ellipse at 8% 92%, rgb(194 119 69 / 15%), transparent 35%),
+    linear-gradient(145deg, #071811, #123928 58%, #081811);
+}
+
+.five-windows-stage::after {
+  opacity: 0.025;
+}
+
+.five-windows-content {
+  position: relative;
+  inset: auto;
+  display: grid;
+  width: 100%;
+  min-height: inherit;
+  grid-template-rows: auto auto 1fr auto;
+  align-content: center;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+.five-windows-eyebrow {
+  justify-content: flex-start;
+  color: #c5f2d1;
+  letter-spacing: 0.16em;
+}
+
+.five-windows-wordmark {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  gap: clamp(0.45rem, 1.2vw, 1rem);
+}
+
+.five-windows-window {
+  min-height: clamp(8rem, 18vw, 14rem);
+  flex-direction: column;
+  gap: 0.8rem;
+  border: 1px solid rgb(233 255 239 / 18%);
+  border-radius: 1.2rem;
+  background: linear-gradient(155deg, rgb(244 255 246 / 9%), rgb(244 255 246 / 2%));
+  box-shadow: inset 0 1px rgb(255 255 255 / 11%);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.five-windows-window.is-active {
+  border-color: rgb(183 239 198 / 65%);
+  background: linear-gradient(155deg, rgb(183 239 198 / 18%), rgb(244 255 246 / 3%));
+}
+
+.five-windows-glyph {
+  font-size: clamp(4.5rem, 11vw, 9rem);
+}
+
+.five-windows-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: #f4f6ed;
+}
+
+.five-windows-label svg {
+  width: 1rem;
+  height: 1rem;
+  color: #c5f2d1;
+}
+
+.five-windows-name {
+  display: inline;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.five-windows-number {
+  color: rgb(244 246 237 / 55%);
+  font-size: 0.65rem;
+}
+
+.five-windows-copy {
+  width: min(100%, 50rem);
+  justify-self: center;
+  text-align: center;
+}
+
+.five-windows-copy h1 {
+  font-size: clamp(2.5rem, 5.5vw, 5.3rem);
+}
+
+.five-windows-copy > p {
+  max-width: 42rem;
+  margin-block-start: 0.85rem;
+  color: rgb(244 246 237 / 78%);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+}
+
+.five-windows-accent {
+  color: #c2e9a5;
+}
+
+.five-windows-cta {
+  min-height: 3.35rem;
+  margin-block-start: 1rem;
+  border: 1px solid rgb(232 250 221 / 42%);
+  border-radius: 0.85rem;
+  background: #c2e9a5;
+  padding-inline: 1.5rem;
+  color: #10291f;
+}
+
+.five-windows-footer {
+  margin: 0;
+  border-block-start: 1px solid rgb(244 246 237 / 16%);
+  padding-block-start: 1rem;
+  color: rgb(244 246 237 / 66%);
+  font-size: 0.7rem;
+}
+
+.five-windows-footer a {
+  color: #c5f2d1;
+}
+
+.five-windows-scroll-line {
+  display: none;
+}
+
+.nfc-one-touch-stage {
+  min-height: 48rem;
+  background:
+    radial-gradient(ellipse at 70% 44%, rgb(99 198 148 / 19%), transparent 34%),
+    linear-gradient(145deg, #071b14, #12382a 64%, #081812);
+}
+
+.nfc-one-touch-copy {
+  inset-block-start: 9%;
+  inset-inline-start: 7%;
+  width: min(43%, 36rem);
+}
+
+.nfc-one-touch-copy h2 {
+  font-size: clamp(2.6rem, 5.8vw, 5.3rem);
+}
+
+.nfc-one-touch-card-wrap {
+  inset-block-start: 30%;
+  inset-inline-end: 9%;
+  width: min(38vw, 31rem);
+}
+
+.nfc-one-touch-phone {
+  inset-block-start: 23%;
+  inset-block-end: auto;
+  inset-inline-end: 7%;
+  width: 8rem;
+  opacity: 0.8;
+}
+
+.nfc-one-touch-profile {
+  inset-block-end: 25%;
+  inset-inline-end: 8%;
+}
+
+.nfc-one-touch-features {
+  inset-inline: 7%;
+  inset-block-end: 11%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.nfc-one-touch-feature {
+  border-block-start: 1px solid rgb(197 242 209 / 35%);
+  padding-block-start: 0.8rem;
+}
+
+.nfc-one-touch-footer {
+  inset-inline: 7%;
+  inset-block-end: 2rem;
+  align-items: center;
+}
+
+.zx-lookbook-stage {
+  min-height: 48rem;
+  background:
+    radial-gradient(ellipse at 53% 47%, rgb(198 143 95 / 18%), transparent 43%),
+    linear-gradient(150deg, #211b18, #11100f 70%);
+}
+
+.zx-lookbook-intro {
+  inset-block-start: 12%;
+  inset-inline-start: 7%;
+  width: min(31%, 27rem);
+}
+
+.zx-lookbook-intro h2 {
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+}
+
+.zx-lookbook-frame {
+  border: 1px solid rgb(234 206 175 / 44%);
+  border-radius: 1.2rem;
+  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 38%);
+}
+
+.zx-lookbook-controls button {
+  border-radius: 0.85rem;
+  backdrop-filter: none;
+}
+
+.zx-lookbook-shop-now {
+  min-height: 3.3rem;
+  border-radius: 0.85rem;
+  background: #d3a271;
+  color: #21180f;
+}
+
+.studio-stage {
+  min-height: 47rem;
+  background:
+    radial-gradient(ellipse at 75% 17%, rgb(126 176 255 / 18%), transparent 36%),
+    linear-gradient(145deg, #101b2a, #0a101b 70%);
+}
+
+.studio-heading {
+  inset-block-start: 11%;
+  inset-inline-start: 7%;
+  width: min(39%, 33rem);
+}
+
+.studio-heading h2 {
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+}
+
+.studio-cta {
+  min-height: 3.2rem;
+  border-radius: 0.85rem;
+}
+
+.cars-stage {
+  min-height: 48rem;
+  background:
+    radial-gradient(ellipse at 54% 48%, rgb(213 133 78 / 20%), transparent 42%),
+    linear-gradient(165deg, #171d1b, #090e0c 72%);
+}
+
+.cars-heading {
+  inset-block-start: 10%;
+  inset-inline-start: 7%;
+  width: min(37%, 34rem);
+}
+
+.cars-heading h2 {
+  font-size: clamp(2.7rem, 5.4vw, 5.4rem);
+}
+
+.cars-hero-image,
+.cars-hero-video {
+  inset-inline: 5%;
+  border-radius: 1rem;
+}
+
+.cars-specs {
+  inset-inline: 7%;
+  inset-block-end: 29%;
+}
+
+.cars-spec-card {
+  border-radius: 0.9rem;
+  background: rgb(8 15 12 / 78%);
+  backdrop-filter: blur(8px);
+}
+
+.cars-ending {
+  inset-inline: 7%;
+  inset-block-end: 2.2rem;
+}
+
+.cars-cta,
+.estate-cta {
+  min-height: 3.25rem;
+  border-radius: 0.85rem;
+}
+
+.estate-stage {
+  min-height: 48rem;
+  background: linear-gradient(155deg, #252a22, #101611 70%);
+}
+
+.estate-copy {
+  inset-block-start: 22%;
+  inset-inline-end: 7%;
+  width: min(43%, 40rem);
+  border-radius: 1.2rem;
+  background: rgb(13 22 16 / 84%);
+  backdrop-filter: blur(8px);
+}
+
+.estate-copy h2 {
+  font-size: clamp(2.5rem, 4.8vw, 4.8rem);
+}
+
+.estate-foreground {
+  opacity: 0.72;
+}
+
+.zx-department-board,
+.zx-marketplace,
+.zx-agency-page {
+  width: min(calc(100% - 2rem), var(--zx-container));
+  margin-inline: auto;
+}
+
+.zx-marketplace {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.6rem);
+}
+
+.zx-market-subcategories button[aria-pressed="true"] {
+  border-color: var(--zx-accent);
+  background: var(--zx-accent);
+  color: var(--zx-accent-contrast);
+}
+
+.zx-marketplace .zx-market-card {
+  overflow: hidden;
+  border-color: var(--zx-border);
+  background: var(--zx-surface-raised);
+}
+
+.zx-marketplace .zx-market-card h3 {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.zx-marketplace .zx-market-card button {
+  min-height: 2.8rem;
+  border-radius: 0.75rem;
+}
+
+.zx-marketplace[data-mode="cars"] .zx-department-banner-scrim {
+  background: linear-gradient(90deg, rgb(12 21 18 / 86%), rgb(12 21 18 / 30%) 70%, transparent);
+}
+
+.zx-marketplace[data-mode="property"] .zx-department-banner-scrim {
+  background: linear-gradient(90deg, rgb(27 34 26 / 82%), rgb(27 34 26 / 24%) 70%, transparent);
+}
+
+.zx-department-tile {
+  min-height: 20rem;
+  border-radius: 1.2rem;
+}
+
+.zx-agency-page > .zx-agency-hero {
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse at 95% 4%, rgb(169 229 192 / 15%), transparent 36%),
+    linear-gradient(135deg, var(--zx-surface-raised), var(--zx-surface));
+}
+
+@media (max-width: 767px) {
+  .five-windows-content > *,
+  .five-windows-window,
+  .five-windows-outline,
+  .nfc-one-touch-copy,
+  .nfc-one-touch-card-wrap,
+  .nfc-one-touch-pointer-tilt,
+  .nfc-one-touch-card,
+  .nfc-one-touch-phone,
+  .nfc-one-touch-profile,
+  .nfc-one-touch-feature,
+  .nfc-one-touch-footer,
+  .zx-lookbook-wordmark,
+  .zx-lookbook-neighbor,
+  .zx-lookbook-frame,
+  .zx-lookbook-detail,
+  .studio-heading,
+  .studio-devices,
+  .studio-final-card,
+  .cars-heading,
+  .cars-hero-image,
+  .cars-speed-line,
+  .cars-specs,
+  .cars-ending,
+  .estate-building,
+  .estate-copy,
+  .estate-foreground {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .nfc-one-touch-copy,
+  .nfc-one-touch-card-wrap,
+  .nfc-one-touch-pointer-tilt,
+  .nfc-one-touch-card,
+  .nfc-one-touch-phone,
+  .nfc-one-touch-profile,
+  .nfc-one-touch-feature,
+  .nfc-one-touch-footer,
+  .studio-heading,
+  .studio-devices,
+  .studio-final-card,
+  .cars-heading,
+  .cars-hero-image,
+  .cars-specs,
+  .cars-ending,
+  .estate-building,
+  .estate-copy,
+  .estate-foreground {
+    opacity: 1 !important;
+  }
+
+  .nfc-one-touch-card-wrap,
+  .nfc-one-touch-pointer-tilt,
+  .nfc-one-touch-card,
+  .nfc-one-touch-phone,
+  .nfc-one-touch-profile,
+  .studio-devices,
+  .studio-final-card,
+  .cars-hero-image,
+  .cars-hero-video,
+  .cars-speed-line,
+  .estate-building,
+  .estate-copy,
+  .estate-foreground {
+    transform: none !important;
+    filter: none;
+  }
+
+  .five-windows-glow,
+  .five-windows-mist,
+  .nfc-one-touch-glow,
+  .zx-lookbook-neighbor,
+  .studio-stage-glow,
+  .cars-headlight-glow,
+  .cars-speed-lines,
+  .estate-cloud,
+  .estate-grain {
+    display: none;
+  }
+
+  .home-page-flow {
+    gap: 0.85rem;
+    padding-block: 0.35rem;
+  }
+
+  .five-windows-scene,
+  .nfc-one-touch-scene,
+  .zx-lookbook-scene,
+  .studio-chapter,
+  .cars-chapter,
+  .estate-chapter {
+    width: calc(100% - 1rem);
+  }
+
+  .five-windows-stage,
+  .nfc-one-touch-stage,
+  .zx-lookbook-stage,
+  .studio-stage,
+  .cars-stage,
+  .estate-stage {
+    min-height: clamp(36rem, calc(100svh - 4rem), 46rem);
+    border-radius: 1.2rem;
+    box-shadow: 0 1rem 2rem -1.4rem rgb(9 23 16 / 44%);
+  }
+
+  .five-windows-content {
+    grid-template-rows: auto auto auto auto;
+    align-content: center;
+    gap: 1rem;
+    padding: 1.3rem 1rem 1rem;
+  }
+
+  .five-windows-eyebrow {
+    font-size: 0.63rem;
+    letter-spacing: 0.11em;
+  }
+
+  .five-windows-wordmark {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.28rem;
+  }
+
+  .five-windows-window {
+    min-height: 6.5rem;
+    gap: 0.25rem;
+    border-radius: 0.75rem;
+  }
+
+  .five-windows-glyph {
+    font-size: clamp(2.4rem, 12vw, 3.6rem);
+  }
+
+  .five-windows-label {
+    flex-direction: column;
+    gap: 0.08rem;
+  }
+
+  .five-windows-label svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .five-windows-name {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.57rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .five-windows-number {
+    display: none;
+  }
+
+  .five-windows-copy {
+    text-align: start;
+  }
+
+  .five-windows-copy h1 {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    line-height: 1.35;
+  }
+
+  .five-windows-copy > p {
+    margin-block-start: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .five-windows-cta {
+    min-height: 3rem;
+    margin-block-start: 0.75rem;
+  }
+
+  .five-windows-footer {
+    font-size: 0.63rem;
+  }
+
+  .five-windows-footer > span:first-child {
+    display: none;
+  }
+
+  .five-windows-footer a {
+    max-width: none;
+    margin-inline-start: 0;
+    text-align: start;
+  }
+
+  .nfc-one-touch-stage {
+    min-height: 44rem;
+  }
+
+  .nfc-one-touch-copy {
+    inset-block-start: 1.5rem;
+    inset-inline: 1.1rem;
+    width: auto;
+  }
+
+  .nfc-one-touch-copy h2 {
+    margin-block-start: 0.4rem;
+    font-size: clamp(2.1rem, 10vw, 3rem);
+  }
+
+  .nfc-one-touch-description {
+    max-width: 32rem;
+    margin-block-start: 0.35rem;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  .nfc-one-touch-card-wrap {
+    inset-block-start: 17rem;
+    inset-inline-end: auto;
+    left: 50%;
+    width: min(72vw, 19rem);
+    margin-left: calc(min(72vw, 19rem) / -2);
+  }
+
+  .nfc-one-touch-phone {
+    display: none;
+  }
+
+  .nfc-one-touch-profile {
+    inset-block-end: 9.2rem;
+    inset-inline-end: 0.75rem;
+    min-width: 10.5rem;
+  }
+
+  .nfc-one-touch-features {
+    inset-inline: 0.75rem;
+    inset-block-end: 5.5rem;
+    gap: 0.35rem;
+  }
+
+  .nfc-one-touch-feature {
+    min-height: 3.1rem;
+    gap: 0.2rem;
+    border: 1px solid rgb(197 242 209 / 24%);
+    border-radius: 0.65rem;
+    background: rgb(3 14 10 / 36%);
+    padding: 0.3rem;
+  }
+
+  .nfc-one-touch-feature-number {
+    display: none;
+  }
+
+  .nfc-one-touch-feature span:last-child {
+    font-size: 0.58rem;
+    line-height: 1.35;
+  }
+
+  .nfc-one-touch-footer {
+    inset-inline: 0.8rem;
+    inset-block-end: 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .nfc-one-touch-footer-eyebrow {
+    display: none;
+  }
+
+  .nfc-one-touch-footer strong {
+    font-size: 0.8rem;
+  }
+
+  .nfc-one-touch-cta {
+    min-height: 2.7rem;
+    padding-inline: 0.8rem;
+    font-size: 0.72rem;
+  }
+
+  .zx-lookbook-stage {
+    min-height: 43rem;
+  }
+
+  .zx-lookbook-intro {
+    inset-block-start: 1.5rem;
+    inset-inline: 1rem;
+    width: auto;
+    text-align: start;
+  }
+
+  .zx-lookbook-eyebrow {
+    justify-content: flex-start;
+  }
+
+  .zx-lookbook-intro h2 {
+    justify-content: flex-start;
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
+
+  .zx-lookbook-intro > p:last-of-type {
+    max-width: 29rem;
+    font-size: 0.8rem;
+  }
+
+  .zx-lookbook-wordmark {
+    inset-block-start: 36%;
+    font-size: clamp(4.5rem, 26vw, 7rem);
+  }
+
+  .zx-lookbook-frame {
+    inset-block-start: 56%;
+    width: min(70vw, 20rem);
+  }
+
+  .zx-lookbook-neighbor {
+    display: none;
+  }
+
+  .zx-lookbook-controls {
+    inset-inline: 0.5rem;
+    inset-block-start: 45%;
+  }
+
+  .zx-lookbook-controls button {
+    width: 2.65rem;
+    height: 2.65rem;
+    border-radius: 0.75rem;
+  }
+
+  .zx-lookbook-drop {
+    inset-block-end: 15%;
+    font-size: 0.68rem;
+  }
+
+  .zx-lookbook-shop-now {
+    min-width: 10.5rem;
+    min-height: 3rem;
+    inset-block-end: 0.8rem;
+    font-size: 0.82rem;
+  }
+
+  .studio-stage {
+    min-height: 44rem;
+  }
+
+  .studio-heading {
+    inset-block-start: 1.5rem;
+    inset-inline: 1.1rem;
+    width: auto;
+  }
+
+  .studio-heading h2 {
+    font-size: clamp(2.1rem, 9vw, 3rem);
+  }
+
+  .studio-devices {
+    inset-block-start: 36%;
+    transform: scale(0.74);
+    transform-origin: center top;
+  }
+
+  .studio-float-chip {
+    display: none;
+  }
+
+  .studio-final-card {
+    inset-inline: 0.8rem;
+    inset-block-end: 0.8rem;
+    border-radius: 0.95rem;
+  }
+
+  .cars-stage {
+    min-height: 45rem;
+  }
+
+  .cars-heading {
+    inset-block-start: 1.5rem;
+    inset-inline: 1.1rem;
+    width: auto;
+    text-align: start;
+  }
+
+  .cars-heading h2 {
+    font-size: clamp(2.1rem, 9vw, 3rem);
+  }
+
+  .cars-heading p {
+    margin-inline: 0;
+  }
+
+  .cars-hero-image,
+  .cars-hero-video {
+    inset: 30% -24% 26%;
+    border-radius: 0;
+  }
+
+  .cars-specs {
+    inset-inline: 0.75rem;
+    inset-block-end: 26%;
+    gap: 0.3rem;
+  }
+
+  .cars-spec-card {
+    min-height: 3.6rem;
+    padding: 0.5rem 0.35rem;
+    border-radius: 0.65rem;
+  }
+
+  .cars-ending {
+    inset-inline: 0.8rem;
+    inset-block-end: 0.8rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cars-rail-card {
+    flex-basis: 8.5rem;
+    min-width: 8.5rem;
+  }
+
+  .estate-stage {
+    min-height: 45rem;
+  }
+
+  .estate-outline-title {
+    inset-block-start: 19%;
+    font-size: clamp(3rem, 16vw, 5rem);
+  }
+
+  .estate-copy {
+    inset-block-start: 29%;
+    inset-inline: 0.8rem;
+    width: auto;
+    padding: 1rem;
+  }
+
+  .estate-copy h2 {
+    font-size: clamp(1.9rem, 8vw, 2.65rem);
+  }
+
+  .estate-copy > p {
+    font-size: 0.82rem;
+  }
+
+  .estate-foreground {
+    opacity: 0.5;
+  }
+
+  .estate-actions {
+    flex-wrap: wrap;
+  }
+
+  .zx-department-board,
+  .zx-marketplace,
+  .zx-agency-page {
+    width: calc(100% - 1.5rem);
+  }
+
+  .zx-department-tile {
+    min-height: 14rem;
+    border-radius: 0.9rem;
+  }
+
+  .zx-department-banner {
+    min-height: 29rem;
+    border-radius: 1rem;
+  }
+
+  .zx-department-banner-content {
+    min-height: 29rem;
+    padding: 1rem 1rem 4rem;
+  }
+
+  .zx-department-banner-controls {
+    bottom: 0.75rem;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .five-windows-window:hover .five-windows-glyph,
+  .zx-lookbook-frame:hover .zx-lookbook-detail,
+  .zx-department-tile:hover img,
+  .zx-marketplace .zx-market-card:hover > div:first-child img {
+    transform: none;
+  }
+}
