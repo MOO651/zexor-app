@@ -24,6 +24,12 @@
   studio, cars, and real-estate chapters and their original scene styles are
   active again. The known mobile scrolling issue is intentionally not fixed
   yet; the owner will provide the desired fix approach.
+- Later on 2026-10-21, at the owner's request, the October 18 visual version
+  (`980d3ce`) was restored for the home hero and department scenes. Its forest
+  green palette is applied across the storefront, and the inactive
+  `FutureGatewayHome` experiment, its WebP set, and unimported legacy styles
+  and scene components were removed. The current production build and lint
+  pass; real-device and visual sign-off remain pending.
 
 The original source of truth is available in `C:\Users\PC\Downloads\`:
 `REDESIGN_BRIEF.md`, `SCROLL_DESIGN_SPEC.md`, `SECTIONS_AND_TOOLS.md`, and
@@ -63,11 +69,11 @@ Status values: `DONE`, `IN PROGRESS`, `PENDING`, `UNUSED — VERIFY`, `REMOVED`.
 | `src/components/CheckoutDrawer.tsx` | Cart and checkout overlay | IN PROGRESS — accessibility pass; full review pending |
 | `src/components/DepartmentBanner.tsx` | Shared department-page banner | IN PROGRESS — responsive styling pass; full review pending |
 | `src/components/DepartmentEmptyState.tsx` | Empty and search states | IN PROGRESS — Phase 4 accessibility pass; visual review pending |
-| `src/components/FutureGatewayHome.tsx` | 2040 gateway, five connected story chapters and finale | IN PROGRESS — locally bundled responsive WebP images; final visual sign-off pending |
+| `src/components/FutureGatewayHome.tsx` | 2040 gateway experiment | REMOVED — October 18 home version restored; component and exclusive assets were unused |
 | `src/components/HomeSections.tsx` | FAQ, newsletter, footer and shared prompts | DONE — Phase 1 |
 | `src/components/Marketplace.tsx` | Product, car and property listings/details | IN PROGRESS — interaction, touch-target and image-dialog accessibility pass; full review pending |
 | `src/components/NfcCustomizerModal.tsx` | NFC customization experience | IN PROGRESS — published GLB preview and finish/name overlays wired; logo upload and real-device review pending |
-| `src/styles/future-home.css` | 2040 home gateway and story chapters | IN PROGRESS — responsive chapter flow and reduced-motion support |
+| `src/styles/future-home.css` | 2040 gateway experiment | REMOVED — inactive stylesheet after restoring the October 18 design |
 | `src/components/SiteExperienceExtras.tsx` | New session preloader and optional product finder | IN PROGRESS — flags wired; browser QA pending |
 | `src/components/ProductCard.tsx` | Shared product cards | IN PROGRESS — touch-target pass; full review pending |
 | `src/components/TestimonialsSection.tsx` | Reviews and empty state | DONE — truthful empty state and contact action; no fabricated reviews |
@@ -78,10 +84,10 @@ Status values: `DONE`, `IN PROGRESS`, `PENDING`, `UNUSED — VERIFY`, `REMOVED`.
 - [ ] Phase 1 — IN PROGRESS: forest-green home surfaces, dark glass navigation,
   responsive image ratios, and the scroll-triggered NFC preview are implemented.
   Requirement-by-requirement contrast, image-ratio, blur-up and visual QA remain.
-- [ ] Phase 2 — IN PROGRESS: the previous H1/C1–C5 scroll scenes were removed
-  from the active home route. `FutureGatewayHome` now presents the connected
-  NFC, fashion, studio, motors and estates story with a closing gateway;
-  final visual sign-off remains.
+- [ ] Phase 2 — IN PROGRESS: the October 18 pinned hero and department scenes
+  are active again. Real-device scroll behavior and final visual sign-off
+  remain pending; do not treat the removed `FutureGatewayHome` experiment as
+  the active route.
 - [ ] Phase 3 — IN PROGRESS: cars and estate scenes scrub uploaded image
   sequences or optional published MP4/WebM videos with a poster/static fallback;
   reduced-motion keeps the static image. The NFC customizer loads a published

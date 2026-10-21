@@ -44,7 +44,7 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
     value_en: 'One card brings your digital identity, links and presence together.',
     value_json: null,
   },
-  'nfc.profile.name': { value_ar: 'أحمد م.', value_en: 'Ahmed M.', value_json: null },
+  'nfc.profile.name': { value_ar: 'اسمك', value_en: 'Your Name', value_json: null },
   'fashion.lookbook.title': { value_ar: 'اختار لوكك', value_en: 'FIND YOUR', value_json: null },
   'fashion.lookbook.accent': { value_ar: 'حكايتك', value_en: 'LOOKBOOK', value_json: null },
   'fashion.lookbook.subtitle': {
@@ -89,13 +89,13 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
     value_json: null,
   },
   'studio.chip.traffic': {
-    value_ar: '+128٪ زيارات',
-    value_en: '+128% traffic',
+    value_ar: 'وصول أوضح',
+    value_en: 'Clearer reach',
     value_json: null,
   },
   'studio.chip.checkout': {
-    value_ar: 'الدفع في 2.1 ثانية',
-    value_en: 'Checkout 2.1s',
+    value_ar: 'دفع أسهل',
+    value_en: 'Simpler checkout',
     value_json: null,
   },
   'feature.preloader': { value_ar: null, value_en: null, value_json: true },

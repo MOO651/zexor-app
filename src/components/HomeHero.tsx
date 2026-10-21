@@ -1,297 +1,108 @@
-import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-} from 'framer-motion';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
-import { art } from '../data/imagery';
-import { useMobileViewport } from '../hooks/useMobileViewport';
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { ArrowDown, ArrowUpRight, Sparkles } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { PORTALS } from '../data/portals';
-import type { Locale, Route } from '../types';
-import { publicAssetUrl } from '../utils';
-import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
-
-const HERO_POSTERS: Record<string, string> = {
-  cards: 'hero.letter.z.poster',
-  fashion: 'hero.letter.e.poster',
-  services: 'hero.letter.x.poster',
-  cars: 'hero.letter.o.poster',
-  property: 'hero.letter.r.poster',
-};
-
-const HERO_FALLBACKS: Record<string, string> = {
-  cards: art.cardsElite,
-  fashion: art.hoodie,
-  services: art.studioPortal,
-  cars: art.vehiclesPortal,
-  property: art.estatePortal,
-};
-
-const HERO_GLYPHS = ['Z', 'E', 'X', 'O', 'R'] as const;
-
-function TiltCard({
-  children,
-  className = '',
-  intensity = 6,
-}: {
-  children: ReactNode;
-  className?: string;
-  intensity?: number;
-}) {
-  const reduceMotion = useReducedMotion() ?? false;
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [intensity, -intensity]), {
-    stiffness: 160,
-    damping: 18,
-  });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-intensity, intensity]), {
-    stiffness: 160,
-    damping: 18,
-  });
-
-  const handleMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduceMotion || event.pointerType !== 'mouse') return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    x.set((event.clientX - rect.left) / rect.width - 0.5);
-    y.set((event.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const reset = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      className={className}
-      onPointerLeave={reset}
-      onPointerMove={handleMove}
-      style={{
-        rotateX: reduceMotion ? 0 : rotateX,
-        rotateY: reduceMotion ? 0 : rotateY,
-        transformStyle: 'preserve-3d',
-      }}
-      transition={{ type: 'spring', stiffness: 140, damping: 18 }}
-    >
-      {children}
-    </motion.div>
-  );
-}
+import type { Locale, Market, Route } from '../types';
 
 type Props = {
   locale: Locale;
+  brandName: string;
+  market: Market;
+  onMarketChange: (m: Market) => void;
   navigate: (r: Route) => void;
   heroTitle: string;
   heroAccent: string;
   heroText: string;
   heroImage?: string;
   departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string>>;
-  departmentCount?: number;
 };
 
-export function HomeHero({
-  locale,
-  navigate,
-  heroTitle,
-  heroAccent,
-  heroText,
-  heroImage,
-  departmentNames,
-}: Props) {
-  const isArabic = locale === 'ar';
-  const sceneRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sceneRef,
-    offset: ['start start', 'end end'],
-  });
-  const { assets } = useSiteAssets();
-  const { getText } = useSiteContent();
-  const isMobileViewport = useMobileViewport();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [reduceMotion, setReduceMotion] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-  const taglineOpacity = useTransform(scrollYProgress, [0, 0.1, 0.12], [1, 1, 0]);
-  const taglineY = useTransform(scrollYProgress, [0.1, 0.12], ['0px', '-24px']);
-  const windowsOpacity = useTransform(scrollYProgress, [0, 0.12, 0.32, 0.45], [1, 1, 0, 0]);
-  const atmosphereOpacity = useTransform(scrollYProgress, [0.12, 0.32], [1, 0]);
-  const windowsScale = useTransform(scrollYProgress, [0, 0.12, 0.45], [1, 1.06, 0.92]);
-  const windowsPointerEvents = useTransform(
-    scrollYProgress,
-    [0, 0.12, 0.13, 1],
-    ['auto', 'auto', 'none', 'none'],
-  );
-  const outlineOpacity = useTransform(scrollYProgress, [0.12, 0.2, 0.9, 1], [0, 1, 1, 0]);
-  const outlineScale = useTransform(scrollYProgress, [0.12, 0.45, 0.7, 1], [1, 1.35, 1.35, 1.35]);
-  const departments = PORTALS.map((portal) => ({
-    ...portal,
-    name: departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale],
-  }));
-  const active = departments[activeIndex] ?? departments[0];
-  const accentWords = heroAccent.trim().split(/\s+/);
-  const accentWord = accentWords.pop() ?? '';
-  const accentPrefix = accentWords.join(' ');
+const sceneId: Record<string, string> = {
+  cards: 'nfc-story-scene', fashion: 'streetwear-scene', services: 'digital-experiences',
+  cars: 'rental-story-scene', property: 'estate-finale-scene',
+};
 
-  const openDepartment = (route: Route) => {
-    const chapter = document.getElementById(`chapter-${route}`);
-    if (chapter) {
-      chapter.scrollIntoView({
-        behavior: reduceMotion ? 'instant' : 'smooth',
-        block: 'start',
-      });
-      return;
-    }
-    navigate(route);
+export function HomeHero({ locale, brandName, market, onMarketChange, navigate, heroTitle, heroAccent, heroText, heroImage, departmentNames }: Props) {
+  const isArabic = locale === 'ar';
+  const reduceMotion = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(0);
+  const container = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: container, offset: ['start start', 'end end'] });
+  const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 30, restDelta: .001 });
+  const imageScale = useTransform(progress, [0, 1], [1.08, 1]);
+  const mistY = useTransform(progress, [0, 1], [0, -100]);
+  useMotionValueEvent(progress, 'change', (value) => {
+    const nextIndex = Math.min(PORTALS.length - 1, Math.floor(value * PORTALS.length));
+    if (nextIndex === activeIndexRef.current) return;
+    activeIndexRef.current = nextIndex;
+    setActiveIndex(nextIndex);
+  });
+  const background = heroImage?.trim() || '/images/zexor-cinematic-hero.webp';
+  const active = PORTALS[activeIndex] ?? PORTALS[0];
+  const title = [heroTitle, heroAccent].filter(Boolean).join(' ') || (isArabic ? 'كل حضورك، في مكان واحد' : 'Everything you stand for, in one place');
+
+  const focusPortal = (index: number) => {
+    activeIndexRef.current = index;
+    setActiveIndex(index);
+  };
+  const openPortal = (index: number) => {
+    activeIndexRef.current = index;
+    setActiveIndex(index);
+    const target = document.getElementById(sceneId[PORTALS[index]?.route]);
+    if (target) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    else navigate(PORTALS[index]?.route ?? 'home');
   };
 
-  useEffect(() => {
-    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updateMotionPreference = () => setReduceMotion(motionPreference.matches);
-    updateMotionPreference();
-    motionPreference.addEventListener('change', updateMotionPreference);
-    return () => {
-      motionPreference.removeEventListener('change', updateMotionPreference);
-    };
-  }, []);
-
   return (
-    <section
-      ref={sceneRef}
-      className="five-windows-scene"
-      aria-label={isArabic ? 'افتتاحية زكسور' : 'ZEXOR opening'}
-    >
-      <div className="five-windows-stage">
-        <motion.div
-          aria-hidden="true"
-          className="five-windows-atmosphere"
-          style={{ opacity: isMobileViewport ? 1 : atmosphereOpacity }}
-        >
-          <div className="five-windows-glow five-windows-glow--mint" />
-          <div className="five-windows-glow five-windows-glow--apricot" />
-          <div className="five-windows-mist five-windows-mist--far" />
-          <div className="five-windows-mist five-windows-mist--near" />
-        </motion.div>
+    <section aria-label={isArabic ? 'مقدمة زكسور' : 'ZEXOR introduction'} className="zx-cinematic-hero" dir={isArabic ? 'rtl' : 'ltr'} ref={container}>
+      <div className="zx-cine-sticky">
+        <motion.div aria-hidden="true" className="zx-cine-image" style={{ backgroundImage: `url("${background.replaceAll('"', '')}")`, scale: reduceMotion ? 1 : imageScale }} />
+        <div aria-hidden="true" className="zx-cine-grade" />
+        <motion.div aria-hidden="true" className="zx-cine-cloud zx-cine-cloud--far" style={reduceMotion ? undefined : { y: mistY }} />
+        <div aria-hidden="true" className="zx-cine-cloud zx-cine-cloud--near" />
+        <span aria-hidden="true" className="zx-cine-grain" />
 
-        <motion.div
-          aria-hidden="true"
-          className="five-windows-outline"
-          style={{
-            opacity: isMobileViewport ? 0 : outlineOpacity,
-            scale: reduceMotion || isMobileViewport ? 1 : outlineScale,
-          }}
-        >
-          ZEXOR
-        </motion.div>
-        <div className="five-windows-content">
-          <motion.p
-            className="five-windows-eyebrow"
-            style={{ opacity: isMobileViewport ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
-          >
-            <Sparkles aria-hidden="true" />
-            {isArabic ? 'تصميم · تقنية · ثقافة' : 'DESIGN · TECHNOLOGY · CULTURE'}
-          </motion.p>
+        <header className="zx-cine-header">
+          <a aria-label={brandName || 'ZEXOR'} className="zx-cine-brand" href="#top" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }); }}>
+            <span className="zx-cine-brand-mark">Z</span><span>{brandName || 'ZEXOR'}<small>DESIGN · TECHNOLOGY · CULTURE</small></span>
+          </a>
+          <div aria-label={isArabic ? 'اختيار السوق' : 'Choose market'} className="zx-cine-market">
+            {(['eg', 'ksa'] as const).map((option) => <button aria-pressed={market === option} className={market === option ? 'is-active' : ''} key={option} onClick={() => onMarketChange(option)} type="button">{option === 'eg' ? (isArabic ? 'مصر' : 'EGYPT') : (isArabic ? 'السعودية' : 'KSA')}</button>)}
+          </div>
+        </header>
 
-          <motion.nav
-            aria-label={isArabic ? 'اختار فصل من زكسور' : 'Choose a ZEXOR chapter'}
-            className="five-windows-wordmark"
-            dir="ltr"
-            style={{
-              opacity: isMobileViewport ? 1 : windowsOpacity,
-              scale: reduceMotion || isMobileViewport ? 1 : windowsScale,
-              pointerEvents: isMobileViewport ? 'auto' : windowsPointerEvents,
-            }}
-          >
-            {departments.map((department, index) => {
-              const poster = assets[HERO_POSTERS[department.route] ?? ''];
-              const fallback = index === 0 && heroImage
-                ? heroImage
-                : HERO_FALLBACKS[department.route] ?? department.image ?? art.cardsPortal;
-              const posterUrl = poster?.source === 'published' ? poster.url : fallback;
-              // Avoid downloading desktop sized posters on phones when no
-              // mobile rendition has been published; use the local artwork.
-              const windowImage = isMobileViewport ? poster?.mobileUrl ?? fallback : posterUrl;
-              const resolvedImage = publicAssetUrl(windowImage) ?? publicAssetUrl(fallback) ?? fallback;
-              const Glyph = HERO_GLYPHS[index] ?? 'X';
-              const Icon = department.icon;
-
-              return (
-                <motion.button
-                  aria-current={activeIndex === index ? 'page' : undefined}
-                  aria-label={`${String(index + 1).padStart(2, '0')} / 05 — ${department.name}`}
-                  className={`five-windows-window ${activeIndex === index ? 'is-active' : ''}`}
-                  key={department.route}
-                  onClick={() => {
-                    setActiveIndex(index);
-                    openDepartment(department.route);
-                  }}
-                  onFocus={() => setActiveIndex(index)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  style={{
-                    opacity: isMobileViewport ? 1 : windowsOpacity,
-                  }}
-                  type="button"
-                  initial={reduceMotion || isMobileViewport ? false : { y: '12%' }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 1.4, delay: index * 0.11, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="five-windows-glyph"
-                    style={{ backgroundImage: `url("${resolvedImage}")` }}
-                  >
-                    {Glyph}
-                  </span>
-                  <span aria-hidden="true" className="five-windows-label" dir="auto">
-                    <span className="five-windows-number" dir="ltr">0{index + 1} / 05</span>
-                    <Icon aria-hidden="true" />
-                    <span className="five-windows-name">{department.name}</span>
-                  </span>
-                </motion.button>
-              );
+        <div className="zx-cine-composition">
+          <p className="zx-cine-eyebrow"><Sparkles aria-hidden="true" className="h-4 w-4" />{isArabic ? 'مصر · السعودية · حضور بلا حدود' : 'EGYPT · SAUDI ARABIA · MADE TO MOVE'}</p>
+          <h1 className="zx-cine-word" aria-label="ZEXOR" dir="ltr">
+            {PORTALS.map((portal, index) => <button aria-label={`${portal.index}: ${departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale]}`} aria-pressed={index === activeIndex} className={index === activeIndex ? 'zx-cine-letter is-active' : 'zx-cine-letter'} key={portal.route} onClick={() => openPortal(index)} onFocus={() => focusPortal(index)} onPointerEnter={() => focusPortal(index)} style={{ backgroundImage: `linear-gradient(0deg, color-mix(in srgb, var(--zx-footer-bg) 35%, transparent), color-mix(in srgb, var(--zx-footer-bg) 35%, transparent)), url("${portal.image}")` }} type="button">{'ZEXOR'[index]}</button>)}
+          </h1>
+          <div className="zx-cine-copy">
+            <p className="zx-cine-kicker"><span dir="ltr">0{activeIndex + 1} / 05</span><span>{active.meta[locale]}</span></p>
+            <h2 className="zx-cine-heading">{title}</h2>
+            <p className="zx-cine-description">{activeIndex === 0 && heroText ? heroText : active.tagline[locale]}</p>
+            <button className="zx-cine-cta" onClick={() => navigate(active.route)} type="button">{isArabic ? `اكتشف ${departmentNames?.[active.route as keyof NonNullable<Props['departmentNames']>] ?? active.title[locale]}` : `Explore ${departmentNames?.[active.route as keyof NonNullable<Props['departmentNames']>] ?? active.title[locale]}`}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></button>
+          </div>
+          <div aria-label={isArabic ? 'مختارات من أقسام زكسور' : 'Selected ZEXOR departments'} className="zx-cine-featured">
+            {PORTALS.slice(0, 3).map((portal, index) => {
+              const name = departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale];
+              return <button aria-label={isArabic ? `اكتشف ${name}` : `Explore ${name}`} className="zx-cine-featured-card" key={portal.route} onClick={() => openPortal(index)} type="button">
+                <img alt="" loading="lazy" src={portal.image} />
+                <span>{name}<ArrowUpRight aria-hidden="true" /></span>
+              </button>;
             })}
-          </motion.nav>
-
-          <motion.div
-            className="five-windows-copy"
-            style={{ opacity: isMobileViewport ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
-          >
-            <h1 aria-label={`${heroTitle} ${heroAccent}`}>
-              <span className="five-windows-title-line">{heroTitle}</span>
-              <span className="five-windows-title-line">
-                {accentPrefix && <>{accentPrefix} </>}
-                <span className="five-windows-accent">{accentWord}</span>
-              </span>
-            </h1>
-            <p>{heroText}</p>
-            <button
-              className="five-windows-cta"
-              onClick={() => openDepartment(active.route)}
-              type="button"
-            >
-              {getText('hero.cta.primary', locale) ?? (isArabic ? `اكتشف ${active.name}` : `Explore ${active.name}`)}
-              <ArrowUpRight aria-hidden="true" />
-            </button>
-          </motion.div>
-
-          <motion.footer
-            className="five-windows-footer"
-            style={{ opacity: isMobileViewport || reduceMotion ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
-          >
-            <span>{isArabic ? 'اسحب للأسفل' : 'SCROLL TO EXPLORE'}</span>
-            <span aria-hidden="true" className="five-windows-scroll-line" />
-            <a href="#departments">
-              {isArabic ? 'خمسة فصول · تجربة واحدة' : 'FIVE CHAPTERS · ONE EXPERIENCE'}
-            </a>
-          </motion.footer>
+          </div>
+          <div className="zx-cine-proof" aria-label={isArabic ? 'عن زكسور' : 'About ZEXOR'}>
+            <span><b>02</b>{isArabic ? 'سوقان: مصر والسعودية' : 'Markets: Egypt & Saudi Arabia'}</span>
+            <span><b>05</b>{isArabic ? 'أقسام تحت علامة واحدة' : 'Departments, one brand'}</span>
+          </div>
+          <button className="zx-cine-bottomline" onClick={() => document.getElementById('nfc-story-scene')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })} type="button"><span>{isArabic ? 'خمسة عوالم · تجربة واحدة' : 'FIVE WORLDS · ONE EXPERIENCE'}</span><span>{isArabic ? 'ابدأ الرحلة' : 'SCROLL TO EXPLORE'}<ArrowDown aria-hidden="true" className="h-4 w-4" /></span></button>
         </div>
+        <div aria-label={isArabic ? 'أقسام زكسور' : 'ZEXOR departments'} className="zx-cine-departments">
+          {PORTALS.map((portal, index) => { const Icon = portal.icon; const name = departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale]; return <button aria-current={activeIndex === index ? 'true' : undefined} key={portal.route} onClick={() => openPortal(index)} onFocus={() => focusPortal(index)} onPointerEnter={() => focusPortal(index)} type="button"><Icon aria-hidden="true" /><span>{portal.index} · {name}</span></button>; })}
+        </div>
+        <div aria-hidden="true" className="zx-cine-scroll-progress"><motion.span style={{ scaleX: progress }} /></div>
       </div>
     </section>
   );
 }
-
-export { TiltCard };

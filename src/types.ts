@@ -212,7 +212,7 @@ export type SiteSettings = {
   heroAccent: Record<Locale, string>;
   heroText: Record<Locale, string>;
   // Optional background image for the hero (data-url or /images/... path).
-  // When empty the home page uses its bundled future-city image.
+  // When empty the home page uses its bundled cinematic hero image.
   heroImage: string;
   whatsappEg: string;
   whatsappKsa: string;

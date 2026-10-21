@@ -21,7 +21,6 @@ export const PHOTO_FILENAMES = {
   cardsElite: 'nfc-card.jpg',
   cardsSocial: 'social-profile.jpg',
   cardsBespoke: 'custom-identity.jpg',
-  cardsLifestyle: 'nfc-card.jpg',
   // Apparel — flat-lay or on-model, plain background.
   hoodie: 'streetwear-hoodie.jpg',
   tee: 'streetwear-collection.jpg',
@@ -29,7 +28,6 @@ export const PHOTO_FILENAMES = {
   // Digital studio — screenshots of real work, or your desk setup.
   studioWebsite: 'digital-studio.jpg',
   studioStore: 'digital-commerce.jpg',
-  studioWorkspace: 'digital-studio.jpg',
   // Vehicles — 3/4 front, clean background.
   vehicleSedan: 'vehicle-sedan.jpg',
   vehicleSuv: 'vehicle-suv.jpg',
@@ -49,13 +47,11 @@ export const photos = {
   cardsElite: IMG + PHOTO_FILENAMES.cardsElite,
   cardsSocial: IMG + PHOTO_FILENAMES.cardsSocial,
   cardsBespoke: IMG + PHOTO_FILENAMES.cardsBespoke,
-  cardsLifestyle: IMG + PHOTO_FILENAMES.cardsLifestyle,
   hoodie: IMG + PHOTO_FILENAMES.hoodie,
   tee: IMG + PHOTO_FILENAMES.tee,
   apparelLifestyle: IMG + PHOTO_FILENAMES.apparelLifestyle,
   studioWebsite: IMG + PHOTO_FILENAMES.studioWebsite,
   studioStore: IMG + PHOTO_FILENAMES.studioStore,
-  studioWorkspace: IMG + PHOTO_FILENAMES.studioWorkspace,
   vehicleSedan: IMG + PHOTO_FILENAMES.vehicleSedan,
   vehicleSuv: IMG + PHOTO_FILENAMES.vehicleSuv,
   vehicleCoupe: IMG + PHOTO_FILENAMES.vehicleCoupe,

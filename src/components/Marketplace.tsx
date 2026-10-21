@@ -515,18 +515,18 @@ Listing: ${itemTitle}`;
 
       {/* Grid: Cars or Properties */}
       {mode === 'cars' ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="zx-market-listing-grid zx-market-listing-grid--motors grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredVehicles.length === 0 ? (
             <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل السيارات' : 'تواصل مع فريق السيارات') : (hasMarketListings ? 'Show all vehicles' : 'Ask our vehicle team')} description={isArabic ? (hasMarketListings ? 'غيّرنا لك العرض ليتوافق مع بحثك. امسح الفلاتر لرؤية جميع السيارات المتاحة في سوقك.' : 'المعرض يستقبل اختيارات جديدة باستمرار. أخبرنا بنوع السيارة ومدة الإيجار التي تناسبك.') : (hasMarketListings ? 'No vehicles match these filters. Clear them to see all available vehicles in your market.' : 'Our showroom is being curated. Tell us what kind of vehicle and rental period you need.')} image={art.vehiclesPortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن سيارة للإيجار. هل يمكنكم مساعدتي بالخيارات المتاحة؟' : 'Hello, I am looking for a rental vehicle. Could you share the available options?')} title={isArabic ? 'نبحث لك عن السيارة المناسبة' : 'Let us find the right drive for you'} />
           ) : filteredVehicles.map((car) => (
             <article
-              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
+              className="zx-market-card zx-market-car-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={car.id}
             >
               {/* Image & Gallery Launcher */}
               <div
                 aria-label={isArabic ? `عرض صور ومواصفات ${car.title.ar}` : `View photos and specifications for ${car.title.en}`}
-                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
+                className="zx-market-card-media zx-market-car-media relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
                 onClick={() => openVehicleGallery(car)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -573,7 +573,7 @@ Listing: ${itemTitle}`;
               </div>
 
               {/* Card Details */}
-              <div className="flex flex-1 flex-col p-4 sm:p-5">
+              <div className="zx-market-card-details zx-market-car-details flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="line-clamp-1 text-sm font-bold leading-6 text-zx-text">{car.title[locale]}</h3>
                   <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
@@ -662,17 +662,17 @@ Listing: ${itemTitle}`;
         </div>
       ) : (
         /* Real Estate Grid */
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="zx-market-listing-grid zx-market-listing-grid--estates grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredProperties.length === 0 ? (
             <DepartmentEmptyState actionLabel={isArabic ? (hasMarketListings ? 'عرض كل المساحات' : 'تواصل مع فريق العقارات') : (hasMarketListings ? 'Show all spaces' : 'Ask our property team')} description={isArabic ? (hasMarketListings ? 'لا توجد نتائج بهذه المواصفات. امسح الفلاتر لاستكشاف كل المساحات المتاحة للإيجار.' : 'أخبرنا بالمدينة ونوع المساحة التي تبحث عنها، وسيساعدك فريقنا في الخيارات المتاحة للإيجار.') : (hasMarketListings ? 'No spaces match these filters. Clear them to explore all available rentals.' : 'Tell us which city and type of space you need, and our team can help with current rental options.')} image={art.estatePortal} locale={locale} onAction={() => hasMarketListings ? resetMarketplaceFilters() : onWhatsApp(market, isArabic ? 'مرحباً، أبحث عن عقار للإيجار. أود معرفة الخيارات المتاحة.' : 'Hello, I am looking for a property to rent. Please share the available options.')} title={isArabic ? 'مساحة مناسبة تستحق البحث' : 'The right space is worth finding'} />
           ) : filteredProperties.map((prop) => (
             <article
-              className="zx-market-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
+              className="zx-market-card zx-market-property-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
               key={prop.id}
             >
               <div
                 aria-label={isArabic ? `عرض صور وتفاصيل ${prop.title.ar}` : `View photos and details for ${prop.title.en}`}
-                className="relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
+                className="zx-market-card-media zx-market-property-media relative aspect-[1.42/1] cursor-pointer overflow-hidden bg-zx-mint"
                 onClick={() => openPropertyGallery(prop)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -711,7 +711,7 @@ Listing: ${itemTitle}`;
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col p-4 sm:p-5">
+              <div className="zx-market-card-details zx-market-property-details flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="line-clamp-1 text-sm font-bold leading-6 text-zx-text">{prop.title[locale]}</h3>
                   <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">

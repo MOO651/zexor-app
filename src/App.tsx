@@ -42,15 +42,11 @@ import {
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
 } from './data/initialData';
-import { CategoryShowcase } from './components/CategoryShowcase';
 import { HomeHero } from './components/HomeHero';
+import { CinematicDepartmentScenes } from './components/CinematicDepartmentScenes';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
-import { NfcChapter } from './scenes/NfcChapter';
-import { FashionLookbook } from './scenes/FashionLookbook';
-import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
-import { StudioChapter } from './scenes/StudioChapter';
 
 // Route-only surfaces are code-split so the home page ships a much smaller
 // initial bundle. Admins and buyers only download what they actually open.
@@ -586,7 +582,7 @@ export default function App() {
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -28px 0px' });
     const appRoot = document.querySelector('.zx-app-shell') ?? document.body;
-    const selector = '.zx-app-shell > main section:not(.five-windows-scene):not(.nfc-one-touch-scene):not(.zx-lookbook-scene):not(.studio-chapter):not(.cars-chapter):not(.estate-chapter), .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
+    const selector = '.zx-app-shell > main section:not(.zx-cinematic-hero):not(.zx-cinematic-scene), .zx-department-board, .zx-marketplace section, .zx-agency-page section, .zx-product, .zx-market-card, .zx-department-tile, .zx-showcase-card';
     let order = 0;
     const observeTarget = (target: HTMLElement) => {
       if (!target.classList.contains('zx-reveal')) {
@@ -1888,8 +1884,9 @@ export default function App() {
           </section>
         )}
         {route === 'home' && (
-          <div className="home-page-flow">
+          <div className="zx-home-flow space-y-20">
             <HomeHero
+              brandName={resolvedSettings.brand.name}
               departmentNames={{
                 cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
                 fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
@@ -1902,79 +1899,21 @@ export default function App() {
               heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
               heroTitle={getSiteText('hero.headline', locale) ?? resolvedSettings.heroTitle[locale]}
               locale={locale}
-              navigate={navigate}
-            />
-            <NfcChapter
-              copySubtitle={resolvedSettings.content.cardsSubtitle[locale]}
-              copyTitle={resolvedSettings.content.cardsTitle[locale]}
-              locale={locale}
               market={market}
-              onDesign={handleOpenNfcCustomizer}
-              onExplore={() => navigate('cards')}
-              product={storefrontProducts.find((product) => product.category === 'cards')}
-              renderPrice={(price, className) => (
-                <PriceTag className={className} price={price} market={market} locale={locale} />
-              )}
+              navigate={navigate}
+              onMarketChange={setMarket}
             />
-            {isDepartmentActive('fashion') && (
-              <FashionLookbook
-                copySubtitle={resolvedSettings.content.fashionSubtitle[locale]}
-                copyTitle={resolvedSettings.content.fashionTitle[locale]}
-                locale={locale}
-                market={market}
-                navigateToFashion={() => navigate('fashion')}
-                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
-                onShare={handleShareProduct}
-                onToggleWishlist={handleToggleWishlist}
-                products={storefrontProducts}
-                renderPrice={(price, className) => (
-                  <PriceTag className={className} price={price} market={market} locale={locale} />
-                )}
-                wishlist={wishlist}
-              />
-            )}
-            {isDepartmentActive('services') && (
-              <StudioChapter
-                locale={locale}
-                navigate={navigate}
-                projects={resolvedSettings.content.agencyProjects}
-              />
-            )}
-            {isDepartmentActive('cars') && (
-              <CarsChapter
-                copySummary={resolvedSettings.content.carsSubtitle[locale]}
-                copyTitle={resolvedSettings.content.carsTitle[locale]}
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                vehicles={vehicles}
-              />
-            )}
-            {isDepartmentActive('property') && (
-              <RealEstateChapter
-                copySummary={resolvedSettings.content.propertySubtitle[locale]}
-                copyTitle={resolvedSettings.content.propertyTitle[locale]}
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                properties={properties}
-              />
-            )}
-            <div className="scroll-mt-24" id="departments">
-              <CategoryShowcase
-                categories={categories}
-                isArabic={isArabic}
-                locale={locale}
-                navigate={navigate}
-                visible={{
-                  cards: isDepartmentActive('cards'),
-                  fashion: isDepartmentActive('fashion'),
-                  cars: isDepartmentActive('cars'),
-                  property: isDepartmentActive('property'),
-                  services: isDepartmentActive('services'),
-                }}
-              />
-            </div>
+            <CinematicDepartmentScenes
+              locale={locale}
+              navigate={navigate}
+              visible={{
+                cards: isDepartmentActive('cards'),
+                fashion: isDepartmentActive('fashion'),
+                services: isDepartmentActive('services'),
+                cars: isDepartmentActive('cars'),
+                property: isDepartmentActive('property'),
+              }}
+            />
 
             {/* 3. Live Animated Stats Counter */}
             {resolvedSettings.sectionVisibility.homeStats && (
@@ -2074,7 +2013,7 @@ export default function App() {
 
         {/* Route: Cards */}
         {route === 'cards' && (
-          <div className="space-y-10">
+          <div className="zx-department-page zx-department-cards space-y-10">
             {departmentBanner('cards', isArabic ? 'هويتك الرقمية، بلمسة واحدة' : 'Your identity, one tap away', isArabic ? 'بطاقات NFC عملية وأنيقة تربط تفاصيلك المهنية والاجتماعية مباشرة بهاتفك.' : 'Thoughtful NFC cards that connect your professional identity and social profiles in one tap.')}
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               {renderSubcategoryChips('cards', (subcategory) => storefrontProducts.filter((product) => product.category === 'cards' && (!subcategory ? true : product.subcategoryId === subcategory)).length)}
@@ -2123,7 +2062,7 @@ export default function App() {
 
         {/* Route: Fashion */}
         {route === 'fashion' && (
-          <div className="space-y-10">
+          <div className="zx-department-page zx-department-fashion space-y-10">
             {departmentBanner('fashion', isArabic ? 'تفاصيل يومية، بطابع مختلف' : 'Everyday pieces, a distinct point of view', isArabic ? 'اختيارات أزياء مريحة بقصّات واضحة وتفاصيل مدروسة تناسب يومك.' : 'Considered everyday essentials with confident silhouettes and thoughtful details.')}
 
             {activeFashionSubcategories.length > 0 && (
@@ -2181,7 +2120,7 @@ export default function App() {
 
         {/* Route: Services (Agency, Portfolio, Calculator, Reviews, CV) */}
         {(route === 'services' || route === 'pricing' || route === 'calculator') && (
-          <div className="space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
+          <div className="zx-department-page zx-department-services space-y-8">{departmentBanner('services', isArabic ? 'نبني حضورك الرقمي من الفكرة للإطلاق' : 'From first idea to a confident digital launch', isArabic ? 'مواقع ومتاجر وتجارب رقمية مصممة حول احتياج مشروعك.' : 'Websites, stores and digital experiences shaped around your business.')}
           <section className="space-y-5"><div className="flex flex-wrap items-end justify-between gap-4"><div><span className="text-[10px] font-bold uppercase tracking-[.2em] text-zx-text">{isArabic ? 'حلولنا' : 'OUR SERVICES'}</span><h2 className="zx-display mt-2 text-2xl font-bold text-zx-text">{isArabic ? 'خدمات تناسب احتياج مشروعك' : 'Services for your next step'}</h2></div>{renderSubcategoryChips('services', (subcategory) => storefrontProducts.filter((product) => product.category === 'services' && (!subcategory || product.subcategoryId === subcategory)).length)}</div>
           <div id="department-content" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{serviceProducts.length ? serviceProducts.map((product) => <ProductCard key={product.id} product={product} categoryLabel={categories.find((category) => category.slug === product.subcategoryId)?.name[locale] ?? categoryNameFor('services', 'ZEXOR STUDIO')} market={market} locale={locale} wishlisted={wishlist.includes(product.id)} renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />} onToggleWishlist={handleToggleWishlist} onShare={handleShareProduct} onNotifyAvailability={(item) => setRestockProduct(item)} onAddToCart={(item, variant) => handleAddToCart(item, undefined, variant)} />) : <DepartmentEmptyState actionLabel={isArabic ? 'ناقش مشروعك معنا' : 'Discuss a project'} description={isArabic ? 'احكِ لنا عن فكرتك وسنقترح عليك الخطوة المناسبة ونبني تجربة رقمية تناسب مشروعك.' : 'Tell us about your idea and we will help shape the right digital experience for your business.'} image={art.studioPortal} locale={locale} onAction={() => openWhatsApp(whatsappNumberFor(market, resolvedSettings), isArabic ? 'مرحباً، أرغب في مناقشة مشروع رقمي جديد.' : 'Hello, I would like to discuss a new digital project.')} title={isArabic ? 'كل مشروع ناجح يبدأ بحوار' : 'Every good project starts with a conversation'} />}</div></section>
           <AgencyPortfolio
@@ -2211,7 +2150,7 @@ export default function App() {
 
         {/* Route: Cars */}
         {route === 'cars' && (
-          <Marketplace
+          <div className="zx-department-page zx-department-cars"><Marketplace
             locale={locale}
             market={market}
             mode="cars"
@@ -2222,12 +2161,12 @@ export default function App() {
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
-          />
+          /></div>
         )}
 
         {/* Route: Property */}
         {route === 'property' && (
-          <Marketplace
+          <div className="zx-department-page zx-department-property"><Marketplace
             locale={locale}
             market={market}
             mode="property"
@@ -2238,7 +2177,7 @@ export default function App() {
             onWhatsApp={(m, text) => openWhatsApp(whatsappNumberFor(m, resolvedSettings), text)}
             properties={properties}
             vehicles={vehicles}
-          />
+          /></div>
         )}
 
         {currentDynamicDepartment && (

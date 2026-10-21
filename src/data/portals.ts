@@ -21,9 +21,6 @@ export type Portal = {
   meta: Record<Locale, string>;
   image: string;
   icon: LucideIcon;
-  accent: string;
-  /** `wide` marks a featured gateway that gets more visual weight. */
-  span?: 'wide' | 'normal';
 };
 
 /**
@@ -44,8 +41,6 @@ const ORDERED: Portal[] = [
     meta: { en: 'Elite · Social · Bespoke', ar: 'إيليت · سوشيال · مخصص' },
     image: art.cardsPortal,
     icon: CreditCard,
-    accent: 'var(--zx-mint)',
-    span: 'wide',
   },
   {
     route: 'fashion',
@@ -57,8 +52,6 @@ const ORDERED: Portal[] = [
     meta: { en: 'Limited · 450 GSM', ar: 'إصدار محدود · 450 جرام' },
     image: photos.apparelLifestyle,
     icon: Shirt,
-    accent: 'var(--zx-mint)',
-    span: 'wide',
   },
   {
     route: 'services',
@@ -70,8 +63,6 @@ const ORDERED: Portal[] = [
     meta: { en: 'Web · Commerce · Apps', ar: 'ويب · تجارة · تطبيقات' },
     image: photos.studioWebsite,
     icon: Code2,
-    accent: 'var(--zx-mint)',
-    span: 'wide',
   },
   {
     route: 'cars',
@@ -83,7 +74,6 @@ const ORDERED: Portal[] = [
     meta: { en: 'Daily · Weekly · Monthly', ar: 'يومي · أسبوعي · شهري' },
     image: photos.vehicleCoupe,
     icon: Car,
-    accent: 'var(--zx-mint)',
   },
   {
     route: 'property',
@@ -95,7 +85,6 @@ const ORDERED: Portal[] = [
     meta: { en: 'Monthly · Yearly · Selected spaces', ar: 'شهري · سنوي · مساحات مختارة' },
     image: photos.propertyVilla,
     icon: Building2,
-    accent: 'var(--zx-mint)',
   },
 ];
 
@@ -106,17 +95,3 @@ export const PORTALS: NumberedPortal[] = ORDERED.map((portal, i) => ({
   ...portal,
   index: pad(i + 1),
 }));
-
-/** Filters the five departments down to the ones the admin has enabled. */
-export function visiblePortals(visibility: {
-  cards: boolean;
-  fashion: boolean;
-  cars: boolean;
-  property: boolean;
-  services: boolean;
-}): NumberedPortal[] {
-  return PORTALS.filter((portal) => {
-    const key = portal.route as keyof typeof visibility;
-    return visibility[key] ?? true;
-  });
-}
