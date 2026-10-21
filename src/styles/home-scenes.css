@@ -3190,3 +3190,27 @@ html:lang(ar) .five-windows-copy h1 {
   }
 
 }
+
+/* Mobile does not scrub the lookbook image, so avoid holding that scene in place. */
+@media (max-width: 640px) {
+  .zx-lookbook-scene {
+    height: 100svh;
+  }
+
+  .studio-chapter,
+  .cars-chapter,
+  .estate-chapter {
+    height: 130svh;
+  }
+
+  .cars-spec-card,
+  .estate-copy,
+  .studio-device-caption,
+  .studio-final-card,
+  .nfc-one-touch-profile,
+  .zx-lookbook-hotspot-card,
+  .zx-lookbook-controls button {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
