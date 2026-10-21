@@ -1062,7 +1062,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .studio-float-chip {
-    animation: none !important;
+    animation: none;
   }
 }
 
@@ -1075,7 +1075,7 @@
   .zx-lookbook-detail,
   .zx-lookbook-hotspot,
   .zx-lookbook-neighbor {
-    animation: none;
+    animation: none !important;
   }
 
   .five-windows-glow,
