@@ -9,6 +9,7 @@ import {
 import { ArrowUpRight, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { PORTALS } from '../data/portals';
 import type { Locale, Route } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -110,12 +111,10 @@ export function HomeHero({
   });
   const { assets } = useSiteAssets();
   const { getText } = useSiteContent();
+  const isMobileViewport = useMobileViewport();
   const [activeIndex, setActiveIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-  const [isMobileViewport, setIsMobileViewport] = useState(
-    () => window.matchMedia('(max-width: 640px)').matches,
   );
   const taglineOpacity = useTransform(scrollYProgress, [0, 0.1, 0.12], [1, 1, 0]);
   const taglineY = useTransform(scrollYProgress, [0.1, 0.12], ['0px', '-24px']);
@@ -152,16 +151,10 @@ export function HomeHero({
 
   useEffect(() => {
     const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updateViewport = () => {
-      setIsMobileViewport(window.matchMedia('(max-width: 640px)').matches);
-    };
     const updateMotionPreference = () => setReduceMotion(motionPreference.matches);
-    updateViewport();
     updateMotionPreference();
-    window.addEventListener('resize', updateViewport, { passive: true });
     motionPreference.addEventListener('change', updateMotionPreference);
     return () => {
-      window.removeEventListener('resize', updateViewport);
       motionPreference.removeEventListener('change', updateMotionPreference);
     };
   }, []);
@@ -189,7 +182,7 @@ export function HomeHero({
           className="five-windows-outline"
           style={{
             opacity: outlineOpacity,
-            scale: reduceMotion ? 1 : outlineScale,
+            scale: reduceMotion || isMobileViewport ? 1 : outlineScale,
           }}
         >
           ZEXOR
@@ -209,7 +202,7 @@ export function HomeHero({
             dir="ltr"
             style={{
               opacity: windowsOpacity,
-              scale: reduceMotion ? 1 : windowsScale,
+              scale: reduceMotion || isMobileViewport ? 1 : windowsScale,
               pointerEvents: windowsPointerEvents,
             }}
           >
@@ -240,7 +233,7 @@ export function HomeHero({
                     opacity: windowsOpacity,
                   }}
                   type="button"
-                  initial={reduceMotion ? false : { y: '12%' }}
+                  initial={reduceMotion || isMobileViewport ? false : { y: '12%' }}
                   animate={{ y: 0 }}
                   transition={{ duration: 1.4, delay: index * 0.11, ease: [0.22, 1, 0.36, 1] }}
                 >
