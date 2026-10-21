@@ -348,10 +348,12 @@
 
 .zx-float-anchor[data-side="start"] {
   inset-inline-start: 1rem;
+  inset-block-end: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .zx-float-anchor[data-side="end"] {
   inset-inline-end: 1rem;
+  inset-block-end: calc(1.25rem + env(safe-area-inset-bottom, 0px));
 }
 
 .zx-scroll-progress {

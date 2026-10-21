@@ -1,5 +1,30 @@
 # ZEXOR redesign v2
 
+## Phase 1 execution log — 2026-10-21
+
+- Reworked the home gateway into five numbered chapters: hero `01`, NFC `02`,
+  fashion `03`, motors `04`, and a combined estates/studio experience `05`.
+- Added a premium ZEXOR wordmark lockup, scoped forest-green surfaces, dark
+  glass navigation, consistent mint accents and responsive scene image ratios.
+- The NFC scene now mounts its lazy 3D preview only after entering view. The
+  procedural preview remains the fallback until an approved published GLB is
+  available; mobile and reduced-motion devices use demand rendering.
+- Kept distinct responsive WebP assets for each department. No Supabase schema,
+  authentication, route, or commerce behavior was changed.
+- Responsive checks at 360, 768 and 1440 CSS pixels found no horizontal
+  overflow. The initial NFC canvas count was zero; it mounted after scrolling
+  into the NFC chapter. Production build and lint pass. Final visual and
+  real-device sign-off are still pending.
+- On 2026-10-21 the story chapters were changed to native CSS sticky panels
+  with bounded scroll runways and a per-chapter progress marker. This keeps
+  browser-native scrolling and mounted images; short-height screens fall back
+  to ordinary document flow, and reduced-motion disables scrub transforms.
+- Later the same day, at the owner's request, the prior pinned-scene homepage
+  was restored from commit `5f74348`: the five-window hero, NFC, fashion,
+  studio, cars, and real-estate chapters and their original scene styles are
+  active again. The known mobile scrolling issue is intentionally not fixed
+  yet; the owner will provide the desired fix approach.
+
 The original source of truth is available in `C:\Users\PC\Downloads\`:
 `REDESIGN_BRIEF.md`, `SCROLL_DESIGN_SPEC.md`, `SECTIONS_AND_TOOLS.md`, and
 `ASSETS_NEEDED.md`. The local asset inventory is also tracked in this
@@ -50,9 +75,9 @@ Status values: `DONE`, `IN PROGRESS`, `PENDING`, `UNUSED — VERIFY`, `REMOVED`.
 
 ## Phases
 
-- [ ] Phase 1 — IN PROGRESS: theme, shared surfaces, navigation and the
-  fallback-first media/content layer are present. Requirement-by-requirement
-  contrast, image-ratio, blur-up and visual QA remain.
+- [ ] Phase 1 — IN PROGRESS: forest-green home surfaces, dark glass navigation,
+  responsive image ratios, and the scroll-triggered NFC preview are implemented.
+  Requirement-by-requirement contrast, image-ratio, blur-up and visual QA remain.
 - [ ] Phase 2 — IN PROGRESS: the previous H1/C1–C5 scroll scenes were removed
   from the active home route. `FutureGatewayHome` now presents the connected
   NFC, fashion, studio, motors and estates story with a closing gateway;

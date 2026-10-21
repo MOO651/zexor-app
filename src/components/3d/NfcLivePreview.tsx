@@ -30,7 +30,7 @@ function ProceduralCard({ finishColor, children }: { finishColor: string; childr
         />
       </RoundedBox>
       <Html center distanceFactor={4.5} pointerEvents="none" position={[0, 0, 0.04]} transform>
-              <div className="w-100">{children}</div>
+              <div className="w-full">{children}</div>
       </Html>
     </>
   );
@@ -94,7 +94,7 @@ function PublishedCardModel({ url, finishColor, children }: {
     <>
       <primitive object={model} />
       <Html center distanceFactor={4.5} pointerEvents="none" position={[0, 0, 0.08]} transform>
-              <div className="w-100">{children}</div>
+              <div className="w-full">{children}</div>
       </Html>
     </>
   );
@@ -132,7 +132,7 @@ export function NfcLivePreview({
       >
         <ambientLight intensity={0.65} />
         <directionalLight color={readFinishColor('pearl')} intensity={2.1} position={[-3, 4, 5]} />
-        <pointLight color={readFinishColor('mint')} intensity={14} position={[0, 0, 1.7]} distance={4.5} />
+        <pointLight color={readFinishColor('mint')} intensity={5} position={[0, 0, 2]} distance={5} />
         {modelUrl
           ? <Suspense fallback={<ProceduralCard finishColor={finishColor}>{children}</ProceduralCard>}>
             <CardModelBoundary

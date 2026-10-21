@@ -19,7 +19,7 @@ import { useSiteAssets } from '../lib/siteMediaContext';
 import type { Locale, Market, NfcCustomization, Product } from '../types';
 import { publicAssetUrl } from '../utils';
 
-const NfcLivePreview = lazy(() => import('./NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
+const NfcLivePreview = lazy(() => import('./3d/NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
 
 type Props = {
   open: boolean;

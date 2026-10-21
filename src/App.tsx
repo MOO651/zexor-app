@@ -42,10 +42,15 @@ import {
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
 } from './data/initialData';
-import { FutureGatewayHome } from './components/FutureGatewayHome';
+import { CategoryShowcase } from './components/CategoryShowcase';
+import { HomeHero } from './components/HomeHero';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
+import { NfcChapter } from './scenes/NfcChapter';
+import { FashionLookbook } from './scenes/FashionLookbook';
+import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
+import { StudioChapter } from './scenes/StudioChapter';
 
 // Route-only surfaces are code-split so the home page ships a much smaller
 // initial bundle. Admins and buyers only download what they actually open.
@@ -1884,24 +1889,92 @@ export default function App() {
         )}
         {route === 'home' && (
           <div className="home-page-flow">
-            <FutureGatewayHome
-              categories={categories}
+            <HomeHero
+              departmentNames={{
+                cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
+                fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
+                services: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'),
+                cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
+                property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
+              }}
               heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
-              heroCta={getSiteText('hero.cta.primary', locale) ?? (isArabic ? 'استكشف العوالم' : 'Explore the worlds')}
               heroImage={resolvedSettings.heroImage}
               heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
               heroTitle={getSiteText('hero.headline', locale) ?? resolvedSettings.heroTitle[locale]}
-              isArabic={isArabic}
               locale={locale}
               navigate={navigate}
-              visible={{
-                cards: isDepartmentActive('cards'),
-                fashion: isDepartmentActive('fashion'),
-                cars: isDepartmentActive('cars'),
-                property: isDepartmentActive('property'),
-                services: isDepartmentActive('services'),
-              }}
             />
+            <NfcChapter
+              copySubtitle={resolvedSettings.content.cardsSubtitle[locale]}
+              copyTitle={resolvedSettings.content.cardsTitle[locale]}
+              locale={locale}
+              market={market}
+              onDesign={handleOpenNfcCustomizer}
+              onExplore={() => navigate('cards')}
+              product={storefrontProducts.find((product) => product.category === 'cards')}
+              renderPrice={(price, className) => (
+                <PriceTag className={className} price={price} market={market} locale={locale} />
+              )}
+            />
+            {isDepartmentActive('fashion') && (
+              <FashionLookbook
+                copySubtitle={resolvedSettings.content.fashionSubtitle[locale]}
+                copyTitle={resolvedSettings.content.fashionTitle[locale]}
+                locale={locale}
+                market={market}
+                navigateToFashion={() => navigate('fashion')}
+                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
+                onShare={handleShareProduct}
+                onToggleWishlist={handleToggleWishlist}
+                products={storefrontProducts}
+                renderPrice={(price, className) => (
+                  <PriceTag className={className} price={price} market={market} locale={locale} />
+                )}
+                wishlist={wishlist}
+              />
+            )}
+            {isDepartmentActive('services') && (
+              <StudioChapter
+                locale={locale}
+                navigate={navigate}
+                projects={resolvedSettings.content.agencyProjects}
+              />
+            )}
+            {isDepartmentActive('cars') && (
+              <CarsChapter
+                copySummary={resolvedSettings.content.carsSubtitle[locale]}
+                copyTitle={resolvedSettings.content.carsTitle[locale]}
+                locale={locale}
+                market={market}
+                navigate={navigate}
+                vehicles={vehicles}
+              />
+            )}
+            {isDepartmentActive('property') && (
+              <RealEstateChapter
+                copySummary={resolvedSettings.content.propertySubtitle[locale]}
+                copyTitle={resolvedSettings.content.propertyTitle[locale]}
+                locale={locale}
+                market={market}
+                navigate={navigate}
+                properties={properties}
+              />
+            )}
+            <div className="scroll-mt-24" id="departments">
+              <CategoryShowcase
+                categories={categories}
+                isArabic={isArabic}
+                locale={locale}
+                navigate={navigate}
+                visible={{
+                  cards: isDepartmentActive('cards'),
+                  fashion: isDepartmentActive('fashion'),
+                  cars: isDepartmentActive('cars'),
+                  property: isDepartmentActive('property'),
+                  services: isDepartmentActive('services'),
+                }}
+              />
+            </div>
 
             {/* 3. Live Animated Stats Counter */}
             {resolvedSettings.sectionVisibility.homeStats && (
@@ -2444,7 +2517,8 @@ Details: ${details}`;
       {/* 3. Floating WhatsApp Widget */}
       <a
         aria-label="Floating WhatsApp"
-        className="zx-float-anchor fixed inset-e-5 z-40 flex h-14 items-center gap-2.5 rounded-full border border-zx-border/70 bg-zx-accent px-4.5 text-zx-accent-contrast shadow-xl transition-all duration-300 hover:scale-105 hover:bg-zx-cinematic"
+        className="zx-float-anchor z-40 flex h-14 items-center gap-2.5 rounded-full border border-zx-border/70 bg-zx-accent px-4.5 text-zx-accent-contrast shadow-xl transition-all duration-300 hover:scale-105 hover:bg-zx-cinematic"
+        data-side="end"
         href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
           isArabic ? 'مرحباً ZEXOR، أود الاستفسار والتواصل السريع.' : 'Hello ZEXOR, I want to inquire.',
         )}`}
@@ -2463,7 +2537,8 @@ Details: ${details}`;
           <motion.button
             animate={{ opacity: 1, scale: 1 }}
             aria-label={isArabic ? 'العودة للأعلى' : 'Back to top'}
-            className="zx-float-anchor fixed inset-s-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/70 bg-zx-surface-raised/90 text-zx-text shadow-xl backdrop-blur-md transition-colors hover:bg-zx-mint"
+            className="zx-float-anchor z-40 flex h-11 w-11 items-center justify-center rounded-full border border-zx-border/70 bg-zx-surface-raised/90 text-zx-text shadow-xl backdrop-blur-md transition-colors hover:bg-zx-mint"
+            data-side="start"
             exit={{ opacity: 0, scale: 0.9 }}
             initial={{ opacity: 0, scale: 0.9 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

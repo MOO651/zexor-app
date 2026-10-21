@@ -6,7 +6,7 @@ import type { Locale, Product } from '../types';
 import { publicAssetUrl } from '../utils';
 import { useSiteMedia } from '../lib/siteMediaContext';
 
-const NfcLivePreview = lazy(() => import('./NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
+const NfcLivePreview = lazy(() => import('./3d/NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
 
 type Props = { locale: Locale; products: Product[]; onToast: (message: string) => void };
 type AssetRow = {

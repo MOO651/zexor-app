@@ -5,6 +5,6 @@
 @import "@fontsource-variable/playfair-display/wght.css";
 @import "./styles/base.css";
 @import "./styles/components.css";
+@import "./styles/home-scenes.css";
 @import "./styles/pages.css";
 @import "./styles/admin.css";
-@import "./styles/future-home.css";
