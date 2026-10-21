@@ -321,7 +321,7 @@ export function FashionLookbook({
               alt={assets[currentLook.assetKey ?? '']?.alt[locale] || currentLook.product?.name[locale] || `${headline} ${currentIndex + 1}`}
               className="zx-lookbook-photo"
               key={currentLook.id}
-              loading={isMobileViewport ? 'eager' : 'lazy'}
+              loading="lazy"
               onError={() => brokenImages(currentLook.url)}
               src={publicAssetUrl(currentLook.url)}
               style={reduceMotion || isMobileViewport ? undefined : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}

@@ -8,6 +8,7 @@ import { ArrowUpLeft, ArrowUpRight, Fingerprint, Radio, Sparkles } from 'lucide-
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { art } from '../data/imagery';
 import { useMobileViewport } from '../hooks/useMobileViewport';
+import { useNearViewport } from '../hooks/useNearViewport';
 import { useSiteAssets, useSiteContent } from '../lib/siteMediaContext';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
@@ -81,6 +82,7 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
   const isArabic = locale === 'ar';
   const isMobileViewport = useMobileViewport();
   const sceneRef = useRef<HTMLElement>(null);
+  const isNearViewport = useNearViewport(sceneRef);
   const touchDragRef = useRef<{
     startX: number;
     lastX: number;
@@ -114,7 +116,7 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
   const ctaOpacity = useTransform(scrollYProgress, [0.9, 1], [0, 1]);
   const cardAsset = assets['nfc.card'];
   const sceneImage = cardAsset?.source === 'published' && cardAsset.type === 'image'
-    ? publicAssetUrl(cardAsset.url) ?? art.cardsElite
+    ? publicAssetUrl(isMobileViewport ? cardAsset.mobileUrl ?? undefined : cardAsset.url) ?? art.cardsElite
     : art.cardsElite;
   const publishedTitle = content['nfc.scene.title']?.source === 'published'
     ? getText('nfc.scene.title', locale)
@@ -192,7 +194,7 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
         <div
           aria-hidden="true"
           className="nfc-one-touch-backdrop"
-          style={{ backgroundImage: `url("${sceneImage}")` }}
+          style={{ backgroundImage: isNearViewport ? `url("${sceneImage}")` : undefined }}
         />
         <div aria-hidden="true" className="nfc-one-touch-glow nfc-one-touch-glow--mint" />
         <div aria-hidden="true" className="nfc-one-touch-glow nfc-one-touch-glow--warm" />

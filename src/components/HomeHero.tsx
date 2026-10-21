@@ -212,7 +212,9 @@ export function HomeHero({
                 ? heroImage
                 : HERO_FALLBACKS[department.route] ?? department.image ?? art.cardsPortal;
               const posterUrl = poster?.source === 'published' ? poster.url : fallback;
-              const windowImage = isMobileViewport ? poster?.mobileUrl ?? posterUrl : posterUrl;
+              // Avoid downloading desktop sized posters on phones when no
+              // mobile rendition has been published; use the local artwork.
+              const windowImage = isMobileViewport ? poster?.mobileUrl ?? fallback : posterUrl;
               const resolvedImage = publicAssetUrl(windowImage) ?? publicAssetUrl(fallback) ?? fallback;
               const Glyph = HERO_GLYPHS[index] ?? 'X';
               const Icon = department.icon;
