@@ -1,0 +1,332 @@
+/* One ZEXOR visual system across the gateway, departments, and storefront. */
+.zx-app-shell {
+  --zx-brand-ink: #10291f;
+  --zx-brand-green: #176244;
+  --zx-brand-flare: #b86f43;
+  --zx-brand-line: color-mix(in srgb, var(--zx-accent) 18%, var(--zx-border));
+}
+
+.zx-site-header {
+  padding-inline: clamp(0.75rem, 2.5vw, 2rem);
+}
+
+.zx-site-nav {
+  border-color: color-mix(in srgb, var(--zx-accent) 18%, var(--zx-border));
+  border-radius: 1.15rem;
+  background: color-mix(in srgb, var(--zx-surface-raised) 94%, transparent);
+  box-shadow: 0 0.65rem 2rem color-mix(in srgb, var(--zx-brand-ink) 9%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.zx-site-nav > button:first-child {
+  min-height: 2.75rem;
+}
+
+.zx-site-nav button {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.zx-site-footer {
+  margin-block-start: clamp(3rem, 7vw, 6rem);
+  border-block-start: 0;
+  background:
+    radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--zx-mint) 13%, transparent), transparent 38%),
+    var(--zx-footer-bg);
+  color: var(--zx-footer-text);
+}
+
+.zx-site-footer :is(h2, h3, p, a, button, span) {
+  text-wrap: pretty;
+}
+
+.zx-product,
+.zx-market-card,
+.zx-showcase-card {
+  border-color: var(--zx-brand-line);
+  border-radius: 1.15rem;
+  box-shadow: 0 0.8rem 2rem -1.45rem color-mix(in srgb, var(--zx-brand-ink) 30%, transparent);
+}
+
+.zx-product {
+  will-change: auto;
+  transform-style: flat;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.zx-product-body {
+  min-height: 0;
+  background: var(--zx-surface-raised);
+  transform: none;
+}
+
+.zx-product-name {
+  color: var(--zx-text);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.zx-product-price {
+  color: var(--zx-brand-green);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.zx-product-body > button,
+.zx-product-body > div:last-child > button {
+  min-height: 2.9rem;
+  border-radius: 0.75rem;
+  box-shadow: none;
+}
+
+.zx-marketplace .zx-market-card {
+  border-radius: 1.1rem;
+  box-shadow: 0 0.8rem 2rem -1.4rem color-mix(in srgb, var(--zx-brand-ink) 28%, transparent);
+}
+
+.zx-marketplace .zx-market-card:hover,
+.zx-product:hover,
+.zx-showcase-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1rem 2rem -1.2rem color-mix(in srgb, var(--zx-brand-ink) 32%, transparent);
+}
+
+.zx-marketplace .zx-market-filters {
+  border-color: var(--zx-brand-line);
+  background: var(--zx-surface-raised);
+  box-shadow: 0 0.5rem 1.5rem -1.1rem color-mix(in srgb, var(--zx-brand-ink) 26%, transparent);
+}
+
+.zx-marketplace[data-mode="cars"] {
+  --zx-department-accent: #b9683d;
+  --zx-department-tint: #f3e6db;
+}
+
+.zx-marketplace[data-mode="property"] {
+  --zx-department-accent: #6f8060;
+  --zx-department-tint: #e9ecdf;
+}
+
+.zx-marketplace[data-mode="cars"] .zx-department-banner-scrim {
+  background: linear-gradient(90deg, rgb(18 24 23 / 92%), rgb(18 24 23 / 48%) 58%, transparent);
+}
+
+.zx-marketplace[data-mode="property"] .zx-department-banner-scrim {
+  background: linear-gradient(90deg, rgb(27 34 26 / 90%), rgb(27 34 26 / 44%) 58%, transparent);
+}
+
+.zx-marketplace[data-mode="cars"] .zx-market-filters {
+  border-block-start: 3px solid var(--zx-department-accent);
+}
+
+.zx-marketplace[data-mode="property"] .zx-market-filters {
+  border-block-start: 3px solid var(--zx-department-accent);
+}
+
+.zx-marketplace[data-mode="cars"] .zx-market-card,
+.zx-marketplace[data-mode="property"] .zx-market-card {
+  border-radius: 1.15rem;
+}
+
+.zx-marketplace[data-mode="cars"] .zx-market-card button,
+.zx-marketplace[data-mode="property"] .zx-market-card button {
+  border-radius: 0.75rem;
+}
+
+.zx-department-banner {
+  border-radius: 1.25rem;
+  box-shadow: 0 1.5rem 3rem -2.2rem color-mix(in srgb, var(--zx-brand-ink) 48%, transparent);
+}
+
+.zx-department-banner-image {
+  will-change: auto;
+}
+
+.zx-department-tile {
+  border: 1px solid color-mix(in srgb, white 18%, transparent);
+  border-radius: 1.15rem;
+  box-shadow: 0 1rem 2.2rem -1.5rem color-mix(in srgb, var(--zx-brand-ink) 50%, transparent);
+}
+
+.zx-agency-page > .zx-agency-hero,
+.zx-agency-page .zx-agency-calculator,
+.zx-agency-page .zx-agency-toolkit {
+  border-color: var(--zx-brand-line);
+  border-radius: 1.25rem;
+  box-shadow: 0 0.8rem 2rem -1.5rem color-mix(in srgb, var(--zx-brand-ink) 28%, transparent);
+}
+
+.zx-agency-page .zx-agency-hero button,
+.zx-agency-page .zx-agency-project-copy a,
+.zx-agency-page .zx-agency-tier > button {
+  min-height: 2.9rem;
+  border-radius: 0.75rem;
+}
+
+.zx-checkout-drawer {
+  border-inline-start-color: var(--zx-brand-line);
+}
+
+@media (max-width: 640px) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .zx-site-header {
+    inset-block-start: max(0.35rem, env(safe-area-inset-top, 0px));
+    padding-inline: 0.55rem;
+  }
+
+  .zx-site-nav {
+    min-height: 3.4rem;
+    gap: 0.35rem;
+    border-radius: 1rem;
+    padding: 0.3rem 0.55rem;
+    box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--zx-brand-ink) 8%, transparent);
+    backdrop-filter: none;
+  }
+
+  .zx-site-footer {
+    margin-block-start: 2.75rem;
+  }
+
+  .zx-product,
+  .zx-market-card,
+  .zx-showcase-card,
+  .zx-department-tile {
+    transform: none !important;
+    transform-style: flat;
+    backface-visibility: visible;
+    box-shadow: 0 0.5rem 1.25rem -1rem color-mix(in srgb, var(--zx-brand-ink) 24%, transparent);
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .zx-product.is-visible .zx-product-media > img {
+    animation: none;
+  }
+
+  .zx-product-media,
+  .zx-marketplace .zx-market-card > div:first-child {
+    perspective: none;
+  }
+
+  .zx-product-media > img,
+  .zx-marketplace .zx-market-card > div:first-child img,
+  .zx-department-banner-image,
+  .zx-app-shell img:not([data-no-photo-grade]),
+  .zx-app-shell video {
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+
+  .zx-app-shell img:not([data-no-photo-grade]):not([data-loaded="true"]) {
+    filter: none;
+    transform: none;
+  }
+
+  .zx-department-banner {
+    min-height: 31rem;
+    border-radius: 1.1rem;
+  }
+
+  .zx-department-banner-image {
+    object-position: 60% center;
+  }
+
+  .zx-department-banner-content {
+    min-height: 31rem;
+    justify-content: end;
+    padding: 1.5rem 1.1rem 4.5rem;
+  }
+
+  .zx-department-banner-title {
+    max-width: 15ch;
+    font-size: clamp(1.9rem, 8vw, 2.65rem);
+    line-height: 1.25;
+  }
+
+  .zx-department-banner-description {
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+
+  .zx-marketplace .zx-market-filters {
+    border-radius: 1rem;
+    box-shadow: none;
+  }
+
+  .zx-marketplace .zx-market-card {
+    border-radius: 0.95rem;
+  }
+
+  .zx-product {
+    border-radius: 0.95rem;
+  }
+
+  .zx-product-body {
+    padding: 0.8rem;
+  }
+
+  .zx-product-name {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .zx-product-description {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .zx-product-body > button,
+  .zx-product-body > div:last-child > button {
+    min-height: 2.75rem;
+    font-size: 0.78rem;
+  }
+
+  .zx-marketplace .zx-market-card:hover,
+  .zx-product:hover,
+  .zx-showcase-card:hover {
+    transform: none !important;
+  }
+
+  .zx-agency-page {
+    gap: 2.25rem;
+  }
+
+  .zx-agency-hero,
+  .zx-agency-calculator {
+    border-radius: 1rem;
+  }
+
+  .zx-checkout-drawer,
+  .zx-tracking-dialog,
+  .zx-nfc-customizer-dialog {
+    box-shadow: 0 -0.8rem 2rem color-mix(in srgb, var(--zx-brand-ink) 14%, transparent);
+  }
+
+  .zx-modal-backdrop {
+    backdrop-filter: none;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .zx-marketplace .zx-market-card:hover,
+  .zx-product:hover,
+  .zx-showcase-card:hover,
+  .zx-department-tile:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zx-product,
+  .zx-market-card,
+  .zx-showcase-card,
+  .zx-department-tile,
+  .zx-department-banner-image {
+    animation: none;
+    transition: none;
+  }
+}

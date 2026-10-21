@@ -3228,3 +3228,378 @@ html:lang(ar) .five-windows-copy h1 {
     backdrop-filter: none;
   }
 }
+
+/* Mobile home: give every department its own compact, editorial chapter. */
+@media (max-width: 640px) {
+  .home-page-flow {
+    display: grid;
+    gap: 1.25rem;
+    padding-block-end: 1.25rem;
+  }
+
+  .home-page-flow > * + * {
+    margin-block-start: 0;
+  }
+
+  .five-windows-scene,
+  .nfc-one-touch-scene,
+  .zx-lookbook-scene,
+  .studio-chapter,
+  .cars-chapter,
+  .estate-chapter {
+    height: auto;
+    min-height: 0;
+    margin-block-start: 0;
+    padding-inline: 0.75rem;
+    background: transparent;
+  }
+
+  .five-windows-stage,
+  .nfc-one-touch-stage,
+  .zx-lookbook-stage,
+  .studio-stage,
+  .cars-stage,
+  .estate-stage {
+    position: relative;
+    inset-block-start: auto;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    border: 1px solid color-mix(in srgb, var(--zx-mint) 18%, var(--zx-border));
+    border-radius: 1.5rem;
+    box-shadow: 0 1.25rem 3rem color-mix(in srgb, var(--zx-footer-bg) 14%, transparent);
+  }
+
+  .five-windows-stage {
+    display: flex;
+    min-height: min(46rem, calc(100svh - 5.5rem));
+    align-items: stretch;
+  }
+
+  .five-windows-content {
+    position: relative;
+    inset: auto;
+    display: flex;
+    width: 100%;
+    min-height: inherit;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.15rem;
+    padding: 2rem 1rem 1.15rem;
+  }
+
+  .five-windows-eyebrow {
+    font-size: 0.68rem;
+  }
+
+  .five-windows-wordmark {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    gap: 0.35rem;
+  }
+
+  .five-windows-window {
+    min-height: 7.1rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--zx-mint) 20%, transparent);
+    border-radius: 0.9rem;
+    background: linear-gradient(155deg, color-mix(in srgb, var(--zx-surface-raised) 72%, transparent), color-mix(in srgb, var(--zx-footer-bg) 44%, transparent));
+  }
+
+  .five-windows-window.is-active {
+    border-color: color-mix(in srgb, var(--zx-mint) 66%, transparent);
+    background: linear-gradient(155deg, color-mix(in srgb, var(--zx-mint) 15%, var(--zx-surface-raised)), color-mix(in srgb, var(--zx-footer-bg) 42%, transparent));
+  }
+
+  .five-windows-glyph {
+    font-size: clamp(2.8rem, 13vw, 4rem);
+  }
+
+  .five-windows-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: var(--zx-footer-text);
+  }
+
+  .five-windows-label svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    color: var(--zx-mint);
+  }
+
+  .five-windows-number {
+    display: none;
+  }
+
+  .five-windows-name {
+    display: inline;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .five-windows-copy {
+    padding-inline: 0.1rem;
+  }
+
+  .five-windows-copy h1 {
+    font-size: clamp(1.9rem, 8.2vw, 2.45rem);
+    line-height: 1.4;
+  }
+
+  .five-windows-copy > p {
+    font-size: 0.9rem;
+  }
+
+  .five-windows-footer {
+    margin-block-start: 0.2rem;
+  }
+
+  .five-windows-footer > span:first-child,
+  .five-windows-scroll-line {
+    display: none;
+  }
+
+  .five-windows-footer a {
+    max-width: none;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .nfc-one-touch-stage {
+    height: 54rem;
+    overflow: hidden;
+    border-color: color-mix(in srgb, #85e8c0 26%, transparent);
+    background: radial-gradient(ellipse at 50% 43%, #153c31, #081b18 66%);
+  }
+
+  .nfc-one-touch-copy {
+    inset-block-start: 2rem;
+    inset-inline: 1.25rem;
+  }
+
+  .nfc-one-touch-card-wrap {
+    inset-block-start: 18rem;
+    inset-inline-end: auto;
+    left: 50%;
+    width: min(74vw, 21rem);
+    margin-left: calc(min(74vw, 21rem) / -2);
+  }
+
+  .nfc-one-touch-profile {
+    inset-block-end: 14.8rem;
+    inset-inline-end: 0.8rem;
+    min-width: 11rem;
+  }
+
+  .nfc-one-touch-features {
+    inset-inline: 1rem;
+    inset-block-end: 7.8rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .nfc-one-touch-feature {
+    min-height: 3.6rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--zx-mint) 22%, transparent);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--zx-footer-bg) 48%, transparent);
+    padding: 0.35rem;
+    text-align: center;
+  }
+
+  .nfc-one-touch-feature-number {
+    display: none;
+  }
+
+  .nfc-one-touch-feature span:last-child {
+    font-size: 0.65rem;
+  }
+
+  .nfc-one-touch-footer {
+    inset-inline: 1rem;
+    inset-block-end: 1rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .nfc-one-touch-footer-eyebrow {
+    display: none;
+  }
+
+  .nfc-one-touch-cta {
+    flex: 0 0 auto;
+  }
+
+  .zx-lookbook-stage {
+    height: 48rem;
+    overflow: hidden;
+    border-color: color-mix(in srgb, #d9b98d 32%, var(--zx-border));
+    background: linear-gradient(155deg, #26201d, #100f0e 72%);
+  }
+
+  .zx-lookbook-intro {
+    inset-block-start: 2rem;
+    inset-inline: 1rem;
+  }
+
+  .zx-lookbook-wordmark {
+    inset-block-start: 37%;
+    font-size: clamp(4rem, 22vw, 6.8rem);
+    opacity: 0.48;
+  }
+
+  .zx-lookbook-frame {
+    inset-block-start: 55%;
+    width: min(72vw, 21rem);
+    border: 1px solid color-mix(in srgb, #e7c59a 54%, transparent);
+    border-radius: 1rem;
+    box-shadow: 0 1.25rem 2.8rem rgb(0 0 0 / 36%);
+  }
+
+  .zx-lookbook-neighbor {
+    opacity: 0.3;
+    filter: blur(3px) var(--zx-photo-grade);
+  }
+
+  .zx-lookbook-controls {
+    inset-inline: 0.55rem;
+    inset-block-start: 47%;
+  }
+
+  .zx-lookbook-controls button {
+    border-color: color-mix(in srgb, #e7c59a 38%, transparent);
+    background: #211a16;
+    color: #f6e6d2;
+  }
+
+  .zx-lookbook-shop-now {
+    background: #c79a69;
+    color: #20170f;
+  }
+
+  .studio-stage {
+    height: 48rem;
+    overflow: hidden;
+    border-color: color-mix(in srgb, #9bc9ff 28%, var(--zx-border));
+    background: radial-gradient(ellipse at 75% 18%, rgb(108 162 255 / 15%), transparent 38%), linear-gradient(150deg, #111927, #080d17);
+  }
+
+  .studio-heading {
+    inset-block-start: 2rem;
+    inset-inline: 1.25rem;
+    width: auto;
+    text-align: start;
+  }
+
+  .studio-devices {
+    inset-block-start: 36%;
+    transform: scale(0.83);
+    transform-origin: center top;
+  }
+
+  .studio-final-card {
+    inset-inline: 1rem;
+    inset-block-end: 1rem;
+    border-color: rgb(155 201 255 / 28%);
+    background: rgb(8 15 25 / 94%);
+  }
+
+  .studio-chapter .studio-cta {
+    min-height: 2.8rem;
+  }
+
+  .cars-stage {
+    height: 48rem;
+    overflow: hidden;
+    border-color: color-mix(in srgb, #f0b27b 30%, var(--zx-border));
+    background: radial-gradient(ellipse at 50% 55%, #36231c, #0c1012 70%);
+  }
+
+  .cars-road-grid,
+  .cars-speed-lines {
+    opacity: 0.45;
+  }
+
+  .cars-heading {
+    inset-block-start: 2rem;
+    inset-inline: 1.2rem;
+  }
+
+  .cars-heading h2 em {
+    color: #f2bd8c;
+  }
+
+  .cars-hero-image {
+    inset: 30% -32% 22%;
+    mask-image: linear-gradient(180deg, transparent, #000 14% 78%, transparent);
+  }
+
+  .cars-spec-card {
+    border-color: rgb(242 189 140 / 24%);
+    background: rgb(15 16 17 / 74%);
+  }
+
+  .estate-stage {
+    height: 49rem;
+    overflow: hidden;
+    border-color: color-mix(in srgb, #d6b889 32%, var(--zx-border));
+    background: linear-gradient(155deg, #25251f, #101311 72%);
+  }
+
+  .estate-building {
+    inset: 0 -24%;
+    filter: brightness(0.72) saturate(0.88);
+  }
+
+  .estate-cloud,
+  .estate-foreground {
+    opacity: 0.45;
+  }
+
+  .estate-outline-title {
+    inset-block-start: 18%;
+    font-size: clamp(3rem, 16vw, 5.5rem);
+    -webkit-text-stroke-color: rgb(255 242 219 / 52%);
+  }
+
+  .estate-copy {
+    inset-block-start: 27%;
+    inset-inline: 0.9rem;
+    border-color: rgb(246 227 194 / 28%);
+    background: rgb(17 20 18 / 88%);
+    box-shadow: 0 1.25rem 2.5rem rgb(0 0 0 / 28%);
+  }
+
+  .cars-ending,
+  .estate-chapter-mark {
+    inset-block-end: 1rem;
+  }
+
+  .cars-cta,
+  .estate-cta {
+    min-height: 3rem;
+  }
+
+  .nfc-one-touch-scene,
+  .zx-lookbook-scene,
+  .studio-chapter,
+  .cars-chapter,
+  .estate-chapter {
+    scroll-margin-block-start: 1rem;
+  }
+}
