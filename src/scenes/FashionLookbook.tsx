@@ -179,7 +179,7 @@ export function FashionLookbook({
   };
 
   useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    if (!lookCount) return;
+    if (!lookCount || isMobileViewport) return;
     const nextIndex = Math.min(lookCount - 1, Math.floor(progress * lookCount));
     setActiveIndex(nextIndex);
   });
@@ -272,7 +272,7 @@ export function FashionLookbook({
       ref={sceneRef}
     >
       <div className="zx-lookbook-stage">
-        <motion.div aria-hidden="true" className="zx-lookbook-wordmark" style={{ x: reduceMotion ? 0 : wordmarkX }}>
+        <motion.div aria-hidden="true" className="zx-lookbook-wordmark" style={{ x: reduceMotion || isMobileViewport ? 0 : wordmarkX }}>
           DROP 01
         </motion.div>
         <header className="zx-lookbook-intro">
@@ -311,7 +311,7 @@ export function FashionLookbook({
             tiltX.set(0);
             tiltY.set(0);
           }}
-          style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 1400, transformStyle: 'preserve-3d' }}
+          style={{ rotateX: isMobileViewport ? 0 : tiltX, rotateY: isMobileViewport ? 0 : tiltY, transformPerspective: 1400, transformStyle: 'preserve-3d' }}
         >
           <picture key={currentLook.id} className="zx-lookbook-picture">
             {assets[currentLook.assetKey ?? '']?.mobileUrl && (
@@ -324,9 +324,7 @@ export function FashionLookbook({
               loading="lazy"
               onError={() => brokenImages(currentLook.url)}
               src={publicAssetUrl(currentLook.url)}
-              style={reduceMotion ? undefined : isMobileViewport
-                ? { opacity: photoOpacity, scale: photoScale }
-                : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}
+              style={reduceMotion || isMobileViewport ? undefined : { clipPath: photoClipPath, opacity: photoOpacity, scale: photoScale }}
             />
             <img
               alt=""

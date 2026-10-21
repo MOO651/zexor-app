@@ -3191,10 +3191,24 @@ html:lang(ar) .five-windows-copy h1 {
 
 }
 
-/* Keep the lookbook's cinematic scroll sequence shorter on phones. */
+/* Mobile does not scrub the lookbook image, so avoid holding that scene in place. */
 @media (max-width: 640px) {
   .zx-lookbook-scene {
-    height: 145svh;
+    height: 100svh;
+  }
+
+  /* Keep the laptop chapter styling, but let the first three mobile chapters
+     move with the document instead of pinning a full-screen stage. */
+  .five-windows-scene,
+  .nfc-one-touch-scene {
+    height: 100svh;
+  }
+
+  .five-windows-stage,
+  .nfc-one-touch-stage,
+  .zx-lookbook-stage {
+    position: relative;
+    inset-block-start: auto;
   }
 
   .studio-chapter,

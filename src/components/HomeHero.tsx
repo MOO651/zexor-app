@@ -169,7 +169,7 @@ export function HomeHero({
         <motion.div
           aria-hidden="true"
           className="five-windows-atmosphere"
-          style={{ opacity: atmosphereOpacity }}
+          style={{ opacity: isMobileViewport ? 1 : atmosphereOpacity }}
         >
           <div className="five-windows-glow five-windows-glow--mint" />
           <div className="five-windows-glow five-windows-glow--apricot" />
@@ -181,7 +181,7 @@ export function HomeHero({
           aria-hidden="true"
           className="five-windows-outline"
           style={{
-            opacity: outlineOpacity,
+            opacity: isMobileViewport ? 0 : outlineOpacity,
             scale: reduceMotion || isMobileViewport ? 1 : outlineScale,
           }}
         >
@@ -190,7 +190,7 @@ export function HomeHero({
         <div className="five-windows-content">
           <motion.p
             className="five-windows-eyebrow"
-            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+            style={{ opacity: isMobileViewport ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
           >
             <Sparkles aria-hidden="true" />
             {isArabic ? 'تصميم · تقنية · ثقافة' : 'DESIGN · TECHNOLOGY · CULTURE'}
@@ -201,9 +201,9 @@ export function HomeHero({
             className="five-windows-wordmark"
             dir="ltr"
             style={{
-              opacity: windowsOpacity,
+              opacity: isMobileViewport ? 1 : windowsOpacity,
               scale: reduceMotion || isMobileViewport ? 1 : windowsScale,
-              pointerEvents: windowsPointerEvents,
+              pointerEvents: isMobileViewport ? 'auto' : windowsPointerEvents,
             }}
           >
             {departments.map((department, index) => {
@@ -232,7 +232,7 @@ export function HomeHero({
                   onFocus={() => setActiveIndex(index)}
                   onMouseEnter={() => setActiveIndex(index)}
                   style={{
-                    opacity: windowsOpacity,
+                    opacity: isMobileViewport ? 1 : windowsOpacity,
                   }}
                   type="button"
                   initial={reduceMotion || isMobileViewport ? false : { y: '12%' }}
@@ -258,7 +258,7 @@ export function HomeHero({
 
           <motion.div
             className="five-windows-copy"
-            style={{ opacity: taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+            style={{ opacity: isMobileViewport ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
           >
             <h1 aria-label={`${heroTitle} ${heroAccent}`}>
               <span className="five-windows-title-line">{heroTitle}</span>
@@ -280,7 +280,7 @@ export function HomeHero({
 
           <motion.footer
             className="five-windows-footer"
-            style={{ opacity: reduceMotion ? 1 : taglineOpacity, y: reduceMotion ? 0 : taglineY }}
+            style={{ opacity: isMobileViewport || reduceMotion ? 1 : taglineOpacity, y: reduceMotion || isMobileViewport ? 0 : taglineY }}
           >
             <span>{isArabic ? 'اسحب للأسفل' : 'SCROLL TO EXPLORE'}</span>
             <span aria-hidden="true" className="five-windows-scroll-line" />

@@ -143,7 +143,9 @@ export function NfcChapter({ locale, market, product, copyTitle, copySubtitle, o
     return () => preference.removeEventListener('change', updatePreference);
   }, []);
 
-  const staticMotion = prefersReducedMotion;
+  // Keep the card and its layered scroll animations static on touch devices.
+  // Repainting the 3D card while scrolling makes this scene feel sticky on phones.
+  const staticMotion = prefersReducedMotion || isMobileViewport;
   const handleCardPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch' || staticMotion) return;
     event.currentTarget.setPointerCapture(event.pointerId);
