@@ -16,7 +16,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'fashion', slug: 'fashion', name: { en: 'ZEXOR FASHION', ar: 'أزياء زكسور' }, icon: 'shirt', active: true },
   { id: 'fashion-hoodies', slug: 'hoodies', name: { en: 'Hoodies', ar: 'هوديز' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
   { id: 'fashion-t-shirts', slug: 't-shirts', name: { en: 'T-shirts', ar: 'تيشيرتات' }, icon: 'shirt', active: true, parentSlug: 'fashion' },
-  { id: 'services', slug: 'services', name: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' }, icon: 'code', active: true },
+  { id: 'services', slug: 'services', name: { en: 'ZEXOR DIGITAL STUDIO', ar: 'الاستوديو الرقمي' }, icon: 'code', active: true },
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
 ];
@@ -24,7 +24,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
 const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
   cards: ['NFC Cards', 'Smart NFC Cards', 'بطاقات NFC', 'بطاقات NFC الذكية'],
   fashion: ['Streetwear', 'ZEXOR ATELIER', 'الملابس والأزياء', 'الأزياء والستريت وير', 'أتيليه زكسور'],
-  services: ['ZEXOR Digital', 'ZEXOR DIGITAL', 'الخدمات الرقمية', 'زكسور ديجيتال'],
+  services: ['ZEXOR Digital', 'ZEXOR DIGITAL', 'ZEXOR STUDIO', 'الخدمات الرقمية', 'زكسور ديجيتال', 'استوديو زكسور'],
   cars: ['Vehicles', 'Vehicle Showroom', 'السيارات', 'معرض السيارات'],
   property: ['Real Estate', 'العقارات', 'العقارات الفاخرة'],
 };
@@ -193,7 +193,7 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     area: 0,
     region: 'Cairo',
     photo: photos.vehicleSedan,
-    gallery: [photos.vehicleSedan, photos.vehicleCoupe, photos.vehicleSuv],
+    gallery: [photos.vehicleSedan],
     make: 'Mercedes-Benz',
     year: 2024,
     mileage: 8500,
@@ -212,7 +212,7 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     area: 0,
     region: 'Giza',
     photo: photos.vehicleSuv,
-    gallery: [photos.vehicleSuv, photos.vehicleSedan, photos.vehicleCoupe],
+    gallery: [photos.vehicleSuv],
     make: 'Land Rover',
     year: 2025,
     mileage: 0,
@@ -232,7 +232,7 @@ export const INITIAL_VEHICLES: Vehicle[] = [
     area: 0,
     region: 'Riyadh',
     photo: photos.vehicleCoupe,
-    gallery: [photos.vehicleCoupe, photos.vehicleSedan, photos.vehicleSuv],
+    gallery: [photos.vehicleCoupe],
     make: 'Porsche',
     year: 2023,
     mileage: 14200,
@@ -377,7 +377,7 @@ export const FAQ_ITEMS: SiteFaqItem[] = [
     question: { en: 'How long does delivery take?', ar: 'كم تستغرق مدة التوصيل؟' },
     answer: {
       en: 'Orders inside Egypt usually arrive within 3–5 working days, and within 5–7 working days for Saudi Arabia. You receive a live tracking link the moment your order ships.',
-      ar: 'طلبات مصر تصل عادة خلال ٣–٥ أيام عمل، والسعودية خلال ٥–٧ أيام عمل. ويصلك رابط تتبع مباشر لحظة شحن الطلب.',
+      ar: 'طلبات مصر تصل عادة خلال 3–5 أيام عمل، والسعودية خلال 5–7 أيام عمل. ويصلك رابط تتبع مباشر لحظة شحن الطلب.',
     },
   },
   {
@@ -440,7 +440,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   vodafoneCashName: '',
   announcementText: {
     en: '15% off NFC cards and selected apparel with code ZEXOR15 · Free delivery on qualifying orders',
-    ar: 'خصم ١٥٪ على كروت NFC وبعض قطع الأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+    ar: 'خصم 15% على كروت NFC وبعض قطع الأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
   },
   announcementActive: true,
   discountBanner: {
@@ -582,7 +582,7 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
     },
     announcementText: {
       en: '✦ LAUNCH DROP — 15% OFF NFC Cards & Apparel with code ZEXOR15 · Free delivery above the order threshold',
-      ar: '✦ إصدار الإطلاق — خصم ١٥٪ على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
+      ar: '✦ إصدار الإطلاق — خصم 15% على كروت NFC والأزياء بكود ZEXOR15 · توصيل مجاني للطلبات المؤهلة',
     },
   };
   const legacyHeroTitle = {

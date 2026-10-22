@@ -81,7 +81,7 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
             <p className="zx-cine-kicker"><span dir="ltr">0{activeIndex + 1} / 05</span><span>{active.meta[locale]}</span></p>
             <h2 className="zx-cine-heading">{title}</h2>
             <p className="zx-cine-description">{activeIndex === 0 && heroText ? heroText : active.tagline[locale]}</p>
-            <button className="zx-cine-cta" onClick={() => navigate(active.route)} type="button">{isArabic ? `اكتشف ${departmentNames?.[active.route as keyof NonNullable<Props['departmentNames']>] ?? active.title[locale]}` : `Explore ${departmentNames?.[active.route as keyof NonNullable<Props['departmentNames']>] ?? active.title[locale]}`}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></button>
+            <button className="zx-cine-cta" onClick={() => navigate(active.route)} type="button">{isArabic ? 'تصفّح الأقسام' : 'Browse the sections'}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></button>
           </div>
           <div aria-label={isArabic ? 'مختارات من أقسام زكسور' : 'Selected ZEXOR departments'} className="zx-cine-featured">
             {PORTALS.slice(0, 3).map((portal, index) => {

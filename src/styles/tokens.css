@@ -1,6 +1,15 @@
-/* ZEXOR's original Jade Luxe palette, expressed as a theme-aware token system. */
+/* ZEXOR palette: Forest, Mint and Clay with quiet neutral surfaces. */
 :root {
   color-scheme: light;
+  --zx-forest: #28654d;
+  --zx-mint: #a5d8b8;
+  --zx-clay: #b66f56;
+  --zx-sand: #f5f3ed;
+  --zx-highlight: var(--zx-clay);
+  --zx-accent: var(--zx-forest);
+  --zx-accent-hover: #1d503b;
+  --zx-accent-contrast: #fffefa;
+  --zx-mint-contrast: #17251e;
   --zx-bg: #f5f3ed;
   --zx-bg-raised: #fffefa;
   --zx-surface: #edf1e9;
@@ -8,10 +17,9 @@
   --zx-glass: rgb(255 254 250 / 86%);
   --zx-glass-strong: rgb(255 254 250 / 96%);
   --zx-photo-scrim: linear-gradient(to top, rgb(16 37 28 / 78%), rgb(16 37 28 / 16%) 48%, transparent);
-  --zx-emerald: #28654d;
+  --zx-emerald: var(--zx-forest);
   --zx-emerald-bright: #4f8967;
-  --zx-mint: #a5d8b8;
-  --zx-accent-text: #28654d;
+  --zx-accent-text: var(--zx-clay);
   --zx-on-primary: #fffefa;
   --zx-footer-bg: #10251c;
   --zx-footer-text: #f5f3ed;
@@ -21,9 +29,9 @@
   --zx-border: rgb(40 101 77 / 15%);
   --zx-border-strong: rgb(40 101 77 / 30%);
   --zx-focus: var(--zx-mint);
-  --zx-danger: #a8322b;
-  --zx-success: #28654d;
-  --zx-warning: #b78168;
+  --zx-danger: var(--zx-clay);
+  --zx-success: var(--zx-forest);
+  --zx-warning: var(--zx-clay);
 
   /* Existing dashboard theme controls remain compatible, but stay on-brand. */
   --zx-jade: var(--zx-emerald);
@@ -34,10 +42,7 @@
   --brand-jade: #3c694f;
   --brand-mint: var(--zx-mint);
   --brand-mint-soft: #e8f2e9;
-  --brand-lilac: #a986e8;
-  --brand-lilac-soft: #f1eaff;
-  --brand-peach: #b78168;
-  --brand-peach-soft: #f5eee2;
+  --brand-clay: var(--zx-clay);
 
   /* Legacy semantic aliases map to the cinematic surfaces, never cream. */
   --c-bg: #f5f3ed;
@@ -116,6 +121,15 @@
 /* Dark mode keeps the cinematic green-black look. */
 [data-theme='dark'] {
   color-scheme: dark;
+  --zx-forest: #3c9c72;
+  --zx-mint: #a5d8b8;
+  --zx-clay: #d39178;
+  --zx-sand: #14221a;
+  --zx-highlight: var(--zx-clay);
+  --zx-accent: var(--zx-forest);
+  --zx-accent-hover: #55ad84;
+  --zx-accent-contrast: #08120e;
+  --zx-mint-contrast: #10251c;
   --zx-bg: #0d1712;
   --zx-bg-raised: #14221a;
   --zx-surface: #1b2c21;
@@ -125,8 +139,7 @@
   --zx-photo-scrim: linear-gradient(to top, rgb(7 19 15 / 82%), rgb(7 19 15 / 20%) 48%, transparent);
   --zx-emerald: #25805f;
   --zx-emerald-bright: #3c9c72;
-  --zx-mint: #a5d8b8;
-  --zx-accent-text: #a5d8b8;
+  --zx-accent-text: var(--zx-clay);
   --zx-on-primary: #ffffff;
   --zx-footer-bg: #08120e;
   --zx-footer-text: #edf2e9;
@@ -135,9 +148,9 @@
   --zx-text-muted: #a8b7a9;
   --zx-border: rgb(255 255 255 / 10%);
   --zx-border-strong: rgb(255 255 255 / 20%);
-  --zx-danger: #ff9692;
-  --zx-success: #84d6a0;
-  --zx-warning: #b78168;
+  --zx-danger: var(--zx-clay);
+  --zx-success: var(--zx-mint);
+  --zx-warning: var(--zx-clay);
   --zx-shadow-card: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -18px rgb(0 0 0 / 60%);
   --zx-shadow-float: 0 2px 4px rgb(0 0 0 / 35%), 0 22px 44px -22px rgb(0 0 0 / 70%);
   --zx-glow: 0 0 4rem rgb(60 156 114 / 18%);
@@ -177,6 +190,13 @@
   --color-zx-primary-hover: var(--zx-emerald-bright);
   --color-zx-on-primary: var(--zx-on-primary);
   --color-zx-accent: var(--zx-accent-text);
+  --color-zx-accent-contrast: var(--zx-accent-contrast);
+  --color-zx-highlight: var(--zx-highlight);
+  --color-zx-sand: var(--zx-sand);
+  --color-zx-mint: var(--zx-mint);
+  --color-zx-mint-contrast: var(--zx-mint-contrast);
+  --color-zx-forest: var(--zx-forest);
+  --color-zx-clay: var(--zx-clay);
   --color-zx-sale: var(--zx-warning);
   --color-zx-on-sale: var(--zx-bg);
   --color-zx-success: var(--zx-success);

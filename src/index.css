@@ -3770,7 +3770,7 @@ html:lang(ar) .zx-cine-heading { line-height: 1.5; letter-spacing: 0; }
 .zx-cine-heading, .zx-cine-description, .zx-chapter-title, .zx-chapter-description, .zx-digital-scene__description { min-width: 0; overflow-wrap: anywhere; }
 .zx-story-nfc-face { color: var(--zx-on-primary); }
 .zx-story-nfc-front > small, .zx-story-nfc-back > small { color: var(--zx-footer-text); }
-.zx-story-nfc-front > i { background: linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--zx-footer-text) 72%, transparent) 49%, transparent 51%), linear-gradient(0deg, transparent 48%, color-mix(in srgb, var(--zx-footer-text) 72%, transparent) 49%, transparent 51%), var(--brand-peach); }
+.zx-story-nfc-front > i { background: linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--zx-footer-text) 72%, transparent) 49%, transparent 51%), linear-gradient(0deg, transparent 48%, color-mix(in srgb, var(--zx-footer-text) 72%, transparent) 49%, transparent 51%), var(--zx-clay); }
 .zx-estate-finale__copy p { color: var(--zx-text-secondary); }
 .zx-cine-heading { text-align: start; }
 [data-theme="light"] .zx-cine-eyebrow, [data-theme="light"] .zx-chapter-eyebrow, [data-theme="light"] .zx-digital-scene__eyebrow { color: var(--zx-accent-text) !important; }
