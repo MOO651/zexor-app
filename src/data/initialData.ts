@@ -543,8 +543,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     ar: 'صيانة مجدولة — قد تستغرق الطلبات وقتاً أطول قليلاً من المعتاد.',
   },
   socials: {
-    instagramHandle: 'zexor.digtal.studio',
-    instagramUrl: 'https://www.instagram.com/zexor.digtal.studio',
+    instagramHandle: 'zexor.digital.studio',
+    instagramUrl: 'https://www.instagram.com/zexor.digital.studio',
     instapayNumber: '',
     instapayName: '',
     vodafoneCashNumber: '',

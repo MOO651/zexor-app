@@ -407,10 +407,10 @@ export default function App() {
       // Instagram and TikTok start from the brand's live handle so the footer
       // keeps working before the admin has saved anything.
       if (platform === 'instagram') {
-        return { ...blank, handle: 'zexor.digtal.studio', url: 'https://www.instagram.com/zexor.digtal.studio' };
+        return { ...blank, handle: 'zexor.digital.studio', url: 'https://www.instagram.com/zexor.digital.studio' };
       }
       if (platform === 'tiktok') {
-        return { ...blank, handle: 'zexor.digtal.studio', url: 'https://www.tiktok.com/@zexor.digtal.studio' };
+        return { ...blank, handle: 'zexor.digital.studio', url: 'https://www.tiktok.com/@zexor.digital.studio' };
       }
       return blank;
     }),

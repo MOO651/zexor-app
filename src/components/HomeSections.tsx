@@ -24,7 +24,7 @@ type Common = { locale: Locale; isArabic: boolean };
  * The official TikTok channel for the brand. Kept as a constant so the footer
  * link and any future reference stay in sync.
  */
-const TIKTOK_HANDLE = 'zexor.digtal.studio';
+const TIKTOK_HANDLE = 'zexor.digital.studio';
 const TIKTOK_URL = `https://www.tiktok.com/@${TIKTOK_HANDLE}`;
 
 /**
