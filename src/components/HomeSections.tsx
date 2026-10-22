@@ -279,8 +279,8 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
   ];
 
   return (
-    <footer className="zx-site-footer relative z-10 mt-16 border-t border-zx-border/70 bg-zx-surface-raised/70 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-5 gap-y-8 px-4 py-10 sm:gap-x-8 sm:px-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:gap-10">
+    <footer className="zx-site-footer relative z-10 mt-10 border-t border-zx-border/70 bg-zx-surface-raised/70 backdrop-blur-xl">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-5 gap-y-6 px-4 py-7 sm:gap-x-8 sm:px-8 sm:py-9 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:gap-10">
         {/* Brand */}
         <div className="col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2.5">
@@ -419,8 +419,8 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
         </div>}
       </div>
 
-      <div className="border-t border-zx-border/70 px-4 py-5 sm:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-zx-text-secondary sm:flex-row">
+      <div className="border-t border-zx-border/70 px-4 py-4 sm:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-zx-text sm:flex-row">
           <span>
             © {year} ZEXOR. {isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
           </span>
