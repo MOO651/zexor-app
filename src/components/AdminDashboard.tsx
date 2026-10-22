@@ -51,6 +51,7 @@ import type {
 } from '../types';
 import { blankSocialLink, type PaymentMethod, type SocialLink } from '../lib/siteData';
 import { validateStoreBackup } from '../lib/backupValidation';
+import { compressImageToWebp, isCompressibleRemoteImageUrl, mirrorRemoteImageAsWebp } from '../lib/imageCompress';
 import { sendTelegramTestNotification } from '../lib/siteData';
 import { AdminMediaCenter } from './AdminMediaCenter';
 
@@ -324,26 +325,14 @@ export function AdminDashboard({
       return;
     }
 
-    let bitmap: ImageBitmap | null = null;
     try {
-      bitmap = await createImageBitmap(file);
-      let scale = Math.min(1, 1400 / Math.max(bitmap.width, bitmap.height));
-      let blob: Blob | null = null;
-      for (let attempt = 0; attempt < 7; attempt += 1) {
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-        const context = canvas.getContext('2d');
-        if (!context) throw new Error('Canvas image processing is unavailable.');
-        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-        const quality = Math.max(0.32, 0.76 - attempt * 0.08);
-        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
-        if (blob && blob.size <= 450 * 1024) break;
-        scale *= 0.8;
-      }
-      if (!blob || blob.size > 450 * 1024) {
-        throw new Error('The image could not be compressed below 450 KB.');
-      }
+      const blob = await compressImageToWebp(file, {
+        maxDimension: 1400,
+        maxBytes: 450 * 1024,
+        startQuality: 0.76,
+        minQuality: 0.32,
+        attempts: 7,
+      });
 
       const reader = new FileReader();
       const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -361,8 +350,20 @@ export function AdminDashboard({
       onToast(isArabic
         ? 'تعذر تجهيز الصورة. جرّب صورة أصغر بصيغة JPG أو PNG أو WebP.'
         : `Could not prepare image: ${detail}`);
-    } finally {
-      bitmap?.close();
+    }
+  };
+
+  const compressLinkedImage = async (url: string, onResolved: (next: string) => void) => {
+    if (!isCompressibleRemoteImageUrl(url)) return;
+    try {
+      const next = await mirrorRemoteImageAsWebp(url);
+      onResolved(next);
+      onToast(isArabic ? 'تم ضغط صورة الرابط ورفعها. احفظ العنصر لنشر التغيير.' : 'Linked image compressed and uploaded. Save the item to publish the change.');
+    } catch (linkFailure) {
+      console.warn('Could not compress linked image, keeping the original URL:', linkFailure);
+      onToast(isArabic
+        ? 'تعذر ضغط صورة الرابط (غالبًا المصدر بيمنع الوصول إليه). تم الاحتفاظ بالرابط الأصلي.'
+        : 'Could not compress the linked image (the source likely blocks access). The original URL was kept.');
     }
   };
 
@@ -1507,7 +1508,7 @@ export function AdminDashboard({
                       <label className="text-[10px] text-zx-text">{isArabic ? 'وصف البانر بالعربي' : 'Banner description (Arabic)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-zx-border p-3 text-xs" onChange={(e) => setNewCatBannerTextAr(e.target.value)} value={newCatBannerTextAr} /></label>
                       <label className="text-[10px] text-zx-text">{isArabic ? 'وصف البانر بالإنجليزي' : 'Banner description (English)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-zx-border p-3 text-xs" onChange={(e) => setNewCatBannerTextEn(e.target.value)} value={newCatBannerTextEn} /></label>
                     </div>
-                    <label className="mt-3 block text-[10px] text-zx-text">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
+                    <label className="mt-3 block text-[10px] text-zx-text">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" onBlur={(e) => void compressLinkedImage(e.target.value, setNewCatBannerImage)} onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
                     <label className="mt-3 block text-[10px] text-zx-text">{isArabic ? 'لون التفاصيل' : 'Accent color'}
                       <select aria-label={isArabic ? 'لون تفاصيل البانر' : 'Banner accent color'} className="mt-1 h-9 rounded-lg border border-zx-border bg-zx-surface-raised px-3 text-xs" onChange={(event) => setNewCatBannerAccent(event.target.value)} value={newCatBannerAccent}>
                         <option value="var(--zx-mint)">{isArabic ? 'نعناعي' : 'Mint'}</option>
@@ -1523,7 +1524,8 @@ export function AdminDashboard({
                           <textarea aria-label={isArabic ? 'وصف الشريحة بالعربي' : 'Slide text Arabic'} className="min-h-16 rounded-xl border border-zx-border p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'ar', e.target.value)} placeholder={isArabic ? 'الوصف بالعربي' : 'Arabic description'} value={slide.text.ar} />
                           <textarea aria-label={isArabic ? 'وصف الشريحة بالإنجليزي' : 'Slide text English'} className="min-h-16 rounded-xl border border-zx-border p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'en', e.target.value)} placeholder={isArabic ? 'الوصف بالإنجليزي' : 'English description'} value={slide.text.en} />
                         </div>
-                        <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image} />
+                        <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs"                         onBlur={(e) => void compressLinkedImage(e.target.value, (next) => updateCategorySlide(index, 'image', 'ar', next))}
+                        onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image} />
                       </div>)}
                     </div>
                     <div className="mt-4 overflow-hidden rounded-4xl border border-zx-border p-2">
@@ -1819,8 +1821,8 @@ export function AdminDashboard({
                     <input
                       className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
                       dir="ltr"
+                      onBlur={(e) => void compressLinkedImage(e.target.value, setProdImageUrl)}
                       onChange={(e) => setProdImageUrl(e.target.value)}
-                      placeholder={isArabic ? 'أو الصق رابط الصورة https://…' : 'Or paste an image URL https://…'}
                       value={prodImageUrl.startsWith('data:') ? '' : prodImageUrl}
                     />
                     {prodImageUrl && (
@@ -2724,6 +2726,7 @@ export function AdminDashboard({
               <input
                 className="mt-1 h-10 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none"
                 dir="ltr"
+                onBlur={(event) => void compressLinkedImage(event.target.value, (next) => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: next } })))}
                 onChange={(event) => setSettings((previous) => ({ ...previous, brand: { ...previous.brand, logoUrl: event.target.value } }))}
                 placeholder="https://… or /images/logo.png"
                 value={settings.brand.logoUrl}
@@ -3177,6 +3180,15 @@ export function AdminDashboard({
                         <input
                           className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs outline-none"
                           maxLength={1000}
+                          onBlur={(event) => void compressLinkedImage(event.target.value, (next) => setSettings((previous) => ({
+                            ...previous,
+                            content: {
+                              ...previous.content,
+                              agencyProjects: previous.content.agencyProjects.map((entry) => entry.id === project.id
+                                ? { ...entry, image: next }
+                                : entry),
+                            },
+                          })))}
                           onChange={(event) => setSettings((previous) => ({
                             ...previous,
                             content: {
@@ -3236,6 +3248,7 @@ export function AdminDashboard({
                 <label className="text-[10px] text-zx-text">{isArabic ? 'صورة خلفية الواجهة (اختياري)' : 'Hero background image (optional)'}</label>
                 <input
                   className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs outline-none"
+                  onBlur={(e) => void compressLinkedImage(e.target.value, (next) => setSettings((prev) => ({ ...prev, heroImage: next })))}
                   onChange={(e) => setSettings((prev) => ({ ...prev, heroImage: e.target.value }))}
                   placeholder="/images/hero.jpg or https://…"
                   value={settings.heroImage}

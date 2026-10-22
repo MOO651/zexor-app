@@ -4,6 +4,7 @@ import { supabase, isSupabaseConfigured } from '../../supabase';
 import { DEFAULT_SITE_ASSETS, DEFAULT_SITE_CONTENT, type SiteAssetType } from '../config/assets';
 import type { Locale, Product } from '../types';
 import { dateLocale, publicAssetUrl } from '../utils';
+import { compressImageToWebp } from '../lib/imageCompress';
 import { useSiteMedia } from '../lib/siteMediaContext';
 
 const NfcLivePreview = lazy(() => import('./3d/NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
@@ -45,26 +46,12 @@ async function prepareImage(file: File, locale: Locale): Promise<File> {
   if (file.size > MAX_IMAGE_BYTES) {
     throw new Error(locale === 'ar' ? 'حجم الصورة الأصلية يجب ألا يتجاوز 20 ميجابايت.' : 'The original image must be 20 MB or smaller.');
   }
-  const bitmap = await createImageBitmap(file);
-  let scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
-  let blob: Blob | null = null;
+  let blob: Blob;
   try {
-    for (let attempt = 0; attempt < 6; attempt += 1) {
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error(locale === 'ar' ? 'تعذر تجهيز الصورة في هذا المتصفح.' : 'This browser could not prepare the image.');
-      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', Math.max(0.4, 0.78 - attempt * 0.07)));
-      if (blob && blob.size <= 1024 * 1024) break;
-      scale *= 0.82;
-    }
-  } finally {
-    bitmap.close();
+    blob = await compressImageToWebp(file, { maxDimension: 1800, maxBytes: 1024 * 1024 });
+  } catch {
+    throw new Error(locale === 'ar' ? 'تعذر ضغط الصورة إلى أقل من 1 ميجابايت.' : 'Could not compress the image below 1 MB.');
   }
-  if (!blob) throw new Error(locale === 'ar' ? 'تعذر تحويل الصورة إلى WebP.' : 'Could not convert the image to WebP.');
-  if (blob.size > 1024 * 1024) throw new Error(locale === 'ar' ? 'تعذر ضغط الصورة إلى أقل من 1 ميجابايت.' : 'Could not compress the image below 1 MB.');
   return new File([blob], `${file.name.replace(/\.[^.]+$/, '')}.webp`, { type: 'image/webp' });
 }
 
