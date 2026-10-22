@@ -28,6 +28,30 @@ const TIKTOK_HANDLE = 'zexor.digital.studio';
 const TIKTOK_URL = `https://www.tiktok.com/@${TIKTOK_HANDLE}`;
 
 /**
+ * Instagram glyph, drawn inline for the same reason as TikTok.
+ */
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
+    </svg>
+  );
+}
+
+/**
+ * Telegram glyph (paper plane), drawn inline for the same reason as TikTok.
+ */
+function TelegramIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M9.8 15.3 9.6 19c.4 0 .6-.2.8-.4l1.9-1.8 3.9 2.9c.7.4 1.2.2 1.4-.7l2.6-12.1c.3-1.1-.4-1.6-1.1-1.3L2.9 10.4c-1.1.4-1.1 1.1-.2 1.4l4.8 1.5 11.1-7c.5-.3 1-.1.6.2" />
+    </svg>
+  );
+}
+
+/**
  * TikTok brand glyph. lucide-react ships no brand icons, so the mark is drawn
  * inline — it inherits `currentColor` like every other footer icon.
  */
@@ -238,6 +262,9 @@ type FooterProps = Common & {
     supportEmail: string;
     whatsappEg: string;
     whatsappKsa: string;
+    instagramHandle?: string;
+    instagramUrl?: string;
+    telegramUsername?: string;
     brand: { name: string; logoUrl: string };
     content: { footerNote: Record<Locale, string> };
   };
@@ -262,6 +289,10 @@ type FooterProps = Common & {
 export function SiteFooter({ isArabic, settings, sectionVisibility, market, navigate, onTrackOrder, categories = [] }: FooterProps) {
   const year = new Date().getFullYear();
   const whatsapp = market === 'eg' ? settings.whatsappEg : settings.whatsappKsa;
+  const instagramHandle = settings.instagramHandle || 'zexor.digital.studio';
+  const instagramUrl = settings.instagramUrl || `https://www.instagram.com/${instagramHandle}`;
+  const instagramTitle = `Instagram · @${instagramHandle}`;
+  const telegramUrl = `https://t.me/${settings.telegramUsername || 'ZexorStudio'}`;
   const isCategoryActive = (slug: string) => categories.find((category) => category.slug === slug)?.active ?? true;
 
   const shopLinks: { label: string; route: Route; slug: string }[] = [
@@ -292,34 +323,6 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
               {settings.content.footerNote[isArabic ? 'ar' : 'en']}
             </p>
           )}
-          <div className="mt-4 flex items-center gap-2">
-            <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
-              href={`https://wa.me/${whatsapp}`}
-              rel="noreferrer"
-              target="_blank"
-              aria-label="WhatsApp"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </a>
-            <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
-              href={`mailto:${settings.supportEmail}`}
-              aria-label="Email"
-            >
-              <Mail className="h-4 w-4" />
-            </a>
-            <a
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
-              href={TIKTOK_URL}
-              rel="noreferrer"
-              target="_blank"
-              aria-label="TikTok"
-              title={`TikTok · @${TIKTOK_HANDLE}`}
-            >
-              <TikTokIcon className="h-4 w-4" />
-            </a>
-          </div>
         </div>
 
         {/* Shop */}
@@ -420,6 +423,54 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
       </div>
 
       <div className="border-t border-zx-border/70 px-4 py-4 sm:px-8">
+        <div className="mx-auto mb-4 flex max-w-7xl flex-wrap items-center justify-center gap-2">
+          <a
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
+            href={`https://wa.me/${whatsapp}`}
+            rel="noreferrer"
+            target="_blank"
+            aria-label="WhatsApp"
+          >
+            <MessageCircle className="h-4 w-4" />
+          </a>
+          <a
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
+            href={`mailto:${settings.supportEmail}`}
+            aria-label="Email"
+          >
+            <Mail className="h-4 w-4" />
+          </a>
+          <a
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
+            href={TIKTOK_URL}
+            rel="noreferrer"
+            target="_blank"
+            aria-label="TikTok"
+            title={`TikTok · @${TIKTOK_HANDLE}`}
+          >
+            <TikTokIcon className="h-4 w-4" />
+          </a>
+          <a
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
+            href={instagramUrl}
+            rel="noreferrer"
+            target="_blank"
+            aria-label="Instagram"
+            title={instagramTitle}
+          >
+            <InstagramIcon className="h-4 w-4" />
+          </a>
+          <a
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-zx-border text-zx-text transition-colors hover:bg-zx-mint"
+            href={telegramUrl}
+            rel="noreferrer"
+            target="_blank"
+            aria-label="Telegram"
+            title={telegramUrl}
+          >
+            <TelegramIcon className="h-4 w-4" />
+          </a>
+        </div>
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 text-xs text-zx-text sm:flex-row">
           <span>
             © {year} ZEXOR. {isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}

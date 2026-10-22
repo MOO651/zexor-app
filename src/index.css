@@ -3466,10 +3466,13 @@ body { background: var(--zx-bg); color: var(--zx-text); }
 
 .zx-float-anchor {
   --zx-float-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  position: fixed !important;
   bottom: var(--zx-float-bottom) !important;
   border-color: var(--zx-border-strong) !important;
   box-shadow: var(--zx-shadow-float), var(--zx-glow) !important;
 }
+.zx-float-anchor[data-side="end"] { inset-inline-end: max(1.25rem, env(safe-area-inset-right)); }
+.zx-float-anchor[data-side="start"] { inset-inline-start: max(1.25rem, env(safe-area-inset-left)); }
 .zx-whatsapp-float { inset-inline-end: max(1.25rem, env(safe-area-inset-right)) !important; color: var(--zx-bg) !important; background: var(--zx-mint) !important; }
 .zx-whatsapp-float :is(svg, span) { color: var(--zx-bg) !important; }
 .zx-back-to-top { inset-inline-start: max(1.25rem, env(safe-area-inset-left)) !important; color: var(--zx-text) !important; background: var(--zx-glass-strong) !important; backdrop-filter: blur(18px); }
@@ -3491,6 +3494,8 @@ html[lang="ar"] .zx-app-shell :is(p, li, label, button, input, textarea) { line-
   .zx-site-nav { min-height: 3.75rem; height: auto !important; gap: var(--zx-space-1) !important; padding-inline: var(--zx-space-3) !important; }
   .zx-site-nav > div:last-child { gap: var(--zx-space-1); }
   .zx-float-anchor { bottom: calc(.8rem + env(safe-area-inset-bottom)) !important; }
+  .zx-float-anchor[data-side="end"] { inset-inline-end: max(1rem, env(safe-area-inset-right)); }
+  .zx-float-anchor[data-side="start"] { inset-inline-start: .8rem; }
   .zx-whatsapp-float { width: 3.25rem; height: 3.25rem; justify-content: center; padding: 0; }
   .zx-back-to-top { inset-inline-start: .8rem !important; width: 3rem; height: 3rem; }
   .zx-site-footer { margin-top: var(--zx-space-12); }
