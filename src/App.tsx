@@ -65,7 +65,7 @@ const CheckoutDrawer = lazy(() =>
 const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
-import { DepartmentBanner } from './components/DepartmentBanner';
+import { DepartmentBanner, toDepartmentSceneKey } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
@@ -1453,7 +1453,7 @@ export default function App() {
     const primaryConfigured = Boolean(category?.bannerTitle?.[locale] || category?.bannerText?.[locale] || category?.bannerImage);
     const configuredSlides = primaryConfigured ? [{ title: category?.bannerTitle?.[locale] || category?.name[locale] || slug, text: category?.bannerText?.[locale] || fallbackText, image: category?.bannerImage || departmentImage(slug) }, ...extraSlides] : extraSlides;
     const slides = configuredSlides.length ? configuredSlides : storyImages[slug].map((slideImage, index) => ({ title: storyTitles[slug][locale][index], text: index === 0 ? fallbackText : storyTitles[slug][locale][index], image: slideImage }));
-    return <DepartmentBanner locale={locale} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} accent={category?.bannerAccent} slides={slides} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
+    return <DepartmentBanner locale={locale} scene={toDepartmentSceneKey(slug)} name={category?.name[locale] ?? slug.toUpperCase()} title={category?.bannerTitle?.[locale]} text={category?.bannerText?.[locale]} image={category?.bannerImage} accent={category?.bannerAccent} slides={slides} fallbackImage={departmentImage(slug)} fallbackTitle={fallbackTitle} fallbackText={fallbackText} />;
   };
   const renderSubcategoryChips = (slug: string, count: (subcategorySlug?: string) => number) => {
     const children = subcategoriesFor(slug);

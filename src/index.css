@@ -4187,6 +4187,61 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
   background: var(--zx-emerald-bright) !important;
 }
 
+/* Per-department cinematic layers: each section gets its own motif over the shared hero. */
+.zx-dept-scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.zx-dept-scene--cards::before {
+  content: ''; position: absolute; inset-block-start: 12%; inset-inline-end: 8%;
+  width: min(60vw, 22rem); aspect-ratio: 1.586; border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--zx-accent-contrast) 30%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--zx-accent-contrast) 14%, transparent), transparent 55%);
+  transform: rotate(-8deg); backdrop-filter: blur(4px);
+}
+.zx-dept-scene--cards::after {
+  content: ''; position: absolute; inset-block-start: 22%; inset-inline-end: 14%;
+  width: 4.5rem; height: 4.5rem; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--zx-accent-contrast) 35%, transparent);
+  box-shadow: 0 0 0 .75rem color-mix(in srgb, var(--zx-accent-contrast) 6%, transparent), 0 0 0 1.5rem color-mix(in srgb, var(--zx-accent-contrast) 4%, transparent);
+}
+.zx-dept-scene--fashion::before {
+  content: ''; position: absolute; inset-block: 0; inset-inline-start: 6%; width: 1px;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--zx-accent-contrast) 45%, transparent) 30%, color-mix(in srgb, var(--zx-accent-contrast) 45%, transparent) 70%, transparent);
+  box-shadow: 1.25rem 0 0 0 color-mix(in srgb, var(--zx-accent-contrast) 14%, transparent);
+}
+.zx-dept-scene--fashion::after {
+  content: ''; position: absolute; inset-block-start: 10%; inset-inline-end: 10%; width: 5.5rem; height: 7.5rem;
+  border: 1px solid color-mix(in srgb, var(--zx-accent-contrast) 25%, transparent); border-radius: .5rem;
+  background: repeating-linear-gradient(to bottom, transparent 0 .6rem, color-mix(in srgb, var(--zx-accent-contrast) 8%, transparent) .6rem .65rem);
+}
+.zx-dept-scene--services {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--zx-accent-contrast) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--zx-accent-contrast) 7%, transparent) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: linear-gradient(to bottom, transparent, #000 40%, #000);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 40%, #000);
+}
+.zx-dept-scene--cars::before {
+  content: ''; position: absolute; inset-inline: 0; inset-block-start: 38%; height: 1px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--zx-accent-contrast) 50%, transparent) 50%, transparent);
+}
+.zx-dept-scene--cars::after {
+  content: ''; position: absolute; inset-inline-start: 0; inset-block-start: 58%; width: 40%; height: 2px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--zx-accent-contrast) 40%, transparent));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .zx-dept-scene--cars::after { animation: zx-dept-streak 3.6s ease-in-out infinite; }
+}
+@keyframes zx-dept-streak {
+  0% { transform: translateX(-30%); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(260%); opacity: 0; }
+}
+.zx-dept-scene--property::before, .zx-dept-scene--property::after {
+  content: ''; position: absolute; width: 2.5rem; height: 2.5rem; border-color: color-mix(in srgb, var(--zx-accent-contrast) 40%, transparent); border-style: solid; border-width: 0;
+}
+.zx-dept-scene--property::before { inset-block-start: 1.5rem; inset-inline-start: 1.5rem; border-block-start-width: 1px; border-inline-start-width: 1px; }
+.zx-dept-scene--property::after { inset-block-end: 1.5rem; inset-inline-end: 1.5rem; border-block-end-width: 1px; border-inline-end-width: 1px; }
+
 /* Cinematic department hero: same full-height composition on mobile and desktop. */
 .zx-app-shell main .zx-department-banner {
   min-height: 78svh !important;

@@ -4,8 +4,23 @@ import { useEffect, useState } from 'react';
 import type { Locale } from '../types';
 import { publicAssetUrl } from '../utils';
 
+export type DepartmentSceneKey = 'cards' | 'fashion' | 'services' | 'cars' | 'property';
+
+const departmentSceneChapters: Record<DepartmentSceneKey, Record<Locale, string>> = {
+  cards: { ar: '01 / هوية متصلة', en: '01 / CONNECTED IDENTITY' },
+  fashion: { ar: '02 / أزياء زكسور', en: '02 / ZEXOR FASHION' },
+  services: { ar: '03 / الاستوديو الرقمي', en: '03 / DIGITAL STUDIO' },
+  cars: { ar: '04 / زكسور موتورز', en: '04 / ZEXOR MOTORS' },
+  property: { ar: '05 / زكسور إستيتس', en: '05 / ZEXOR ESTATES' },
+};
+
+export function toDepartmentSceneKey(slug: string): DepartmentSceneKey | undefined {
+  return slug in departmentSceneChapters ? (slug as DepartmentSceneKey) : undefined;
+}
+
 type Props = {
   locale: Locale;
+  scene?: DepartmentSceneKey;
   name: string;
   title?: string;
   text?: string;
@@ -18,7 +33,7 @@ type Props = {
   tint?: string;
 };
 
-export function DepartmentBanner({ locale, name, title, text, image, accent = 'var(--zx-mint)', slides = [], fallbackTitle, fallbackText, fallbackImage, tint = 'from-zx-cinematic/90 via-zx-cinematic/50 to-transparent' }: Props) {
+export function DepartmentBanner({ locale, scene, name, title, text, image, accent = 'var(--zx-mint)', slides = [], fallbackTitle, fallbackText, fallbackImage, tint = 'from-zx-cinematic/90 via-zx-cinematic/50 to-transparent' }: Props) {
   const isArabic = locale === 'ar';
   const reduceMotion = useReducedMotion();
   const safeAccent = accent === 'var(--zx-accent)' ? 'var(--zx-accent)' : 'var(--zx-mint)';
@@ -39,6 +54,7 @@ export function DepartmentBanner({ locale, name, title, text, image, accent = 'v
         <motion.img key={`bg-${slideIndex}-${current.image}`} alt="" aria-hidden="true" className="zx-department-banner-image absolute inset-0 h-full w-full object-cover" src={publicAssetUrl(current.image || fallbackImage)} initial={reduceMotion ? undefined : { opacity: 0, scale: 1.08, x: isArabic ? 24 : -24 }} animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: [1.02, 1.08, 1.02], x: [0, isArabic ? -8 : 8, 0] }} exit={reduceMotion ? undefined : { opacity: 0, scale: 1.03 }} transition={{ duration: 1.1, ease: 'easeInOut' }} />
       </AnimatePresence>
       <div className={`zx-department-banner-scrim absolute inset-0 bg-linear-to-r ${tint}`} />
+      {scene && <div aria-hidden="true" className={`zx-dept-scene zx-dept-scene--${scene}`} />}
       <motion.div aria-hidden="true" className="absolute -inset-e-20 -top-28 h-44 w-44 rounded-full border border-zx-border/15 sm:h-72 sm:w-72" animate={reduceMotion ? undefined : { rotate: 360 }} transition={{ duration: 50, repeat: Infinity, ease: 'linear' }} />
       <motion.div aria-hidden="true" className={`pointer-events-none absolute ${isArabic ? 'inset-s-[7%]' : 'inset-e-[7%]'} top-[8%] block h-20 w-14 rounded-2xl border border-zx-border/50 bg-zx-surface-raised/10 p-1 opacity-30 shadow-zx-card backdrop-blur-md sm:top-[12%] sm:h-40 sm:w-32 sm:rounded-[1.4rem] sm:p-2 sm:opacity-65 lg:h-52 lg:w-40 lg:opacity-100`} style={{ transformStyle: 'preserve-3d', perspective: 900 }} animate={reduceMotion ? undefined : { y: [0, -12, 0], rotateY: [-12, 5, -12], rotateX: [5, -3, 5], rotateZ: [-3, 2, -3] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}>
         <div className="relative h-full overflow-hidden rounded-[1.15rem] border border-zx-border/45 bg-zx-mint" style={{ transform: 'translateZ(18px)' }}>
@@ -50,7 +66,7 @@ export function DepartmentBanner({ locale, name, title, text, image, accent = 'v
       <motion.div aria-hidden="true" className={`absolute ${isArabic ? 'inset-s-[8%]' : 'inset-e-[8%]'} bottom-[10%] block h-9 w-9 rounded-full border border-zx-border/30 opacity-30 sm:h-16 sm:w-16 lg:h-28 lg:w-28 lg:opacity-100`} animate={reduceMotion ? undefined : { rotate: -360, scale: [1, 1.08, 1] }} transition={{ duration: 22, repeat: Infinity, ease: 'linear' }} />
       <div className={`zx-department-banner-content relative z-10 flex min-h-[78svh] max-w-3xl flex-col justify-end p-7 pb-16 text-zx-accent-contrast sm:min-h-[88svh] sm:p-16 sm:pb-20 ${isArabic ? 'ms-auto text-right' : 'me-auto text-left'}`}>
         <motion.p className="zx-department-banner-eyebrow flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.24em] text-zx-accent-contrast/75" initial={reduceMotion ? undefined : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ duration: .45 }}>
-          <span aria-hidden="true" className="h-px w-10 bg-zx-accent-contrast/50" /><Sparkles className="h-4 w-4" style={{ color: safeAccent }} /> {name}
+          <span aria-hidden="true" className="h-px w-10 bg-zx-accent-contrast/50" /><Sparkles className="h-4 w-4" style={{ color: safeAccent }} /> {scene ? departmentSceneChapters[scene][locale] : name}
         </motion.p>
         <motion.h1 className="zx-department-banner-title zx-display mt-4 text-4xl font-semibold leading-[1.04] sm:text-7xl" key={`${name}-${slideIndex}-title`} initial={reduceMotion ? undefined : { opacity: 0, y: 18, rotateX: -8 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0, rotateX: 0 }} transition={{ duration: .55, delay: .08 }}>
           {current.title}
