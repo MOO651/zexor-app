@@ -32,8 +32,8 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
     value_json: null,
   },
   'hero.cta.primary': {
-    value_ar: 'استكشف العوالم',
-    value_en: 'Explore the worlds',
+    value_ar: 'تصفّح الأقسام',
+    value_en: 'Browse the sections',
     value_json: null,
   },
   'hero.cta.secondary': { value_ar: null, value_en: null, value_json: null },
