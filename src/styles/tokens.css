@@ -36,7 +36,7 @@
   --brand-mint-soft: #e8f2e9;
   --brand-lilac: #a986e8;
   --brand-lilac-soft: #f1eaff;
-  --brand-peach: #d6b187;
+  --brand-peach: #b78168;
   --brand-peach-soft: #f5eee2;
 
   /* Legacy semantic aliases map to the cinematic surfaces, never cream. */
@@ -137,7 +137,7 @@
   --zx-border-strong: rgb(255 255 255 / 20%);
   --zx-danger: #ff9692;
   --zx-success: #84d6a0;
-  --zx-warning: #d6b187;
+  --zx-warning: #b78168;
   --zx-shadow-card: 0 1px 2px rgb(0 0 0 / 30%), 0 10px 28px -18px rgb(0 0 0 / 60%);
   --zx-shadow-float: 0 2px 4px rgb(0 0 0 / 35%), 0 22px 44px -22px rgb(0 0 0 / 70%);
   --zx-glow: 0 0 4rem rgb(60 156 114 / 18%);
