@@ -4187,6 +4187,21 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
   background: var(--zx-emerald-bright) !important;
 }
 
+/* Department heroes stay dark in both themes so the light copy keeps contrast over the artwork. */
+.zx-department-banner {
+  --color-zx-cinematic: #0d1712;
+  --zx-bg-cinematic: #0d1712;
+  --zx-accent-contrast: #fffefa;
+}
+.zx-department-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(13 23 18 / 0.92) 0%, rgb(13 23 18 / 0.55) 38%, rgb(13 23 18 / 0) 72%);
+}
+
 /* Per-department cinematic layers: each section gets its own motif over the shared hero. */
 .zx-dept-scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .zx-dept-scene--cards::before {
