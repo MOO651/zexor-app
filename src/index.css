@@ -4187,6 +4187,26 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
   background: var(--zx-emerald-bright) !important;
 }
 
+/* Cinematic department hero: same full-height composition on mobile and desktop. */
+.zx-app-shell main .zx-department-banner {
+  min-height: 78svh !important;
+  border-radius: var(--zx-radius-xl);
+}
+@media (min-width: 640px) {
+  .zx-app-shell main .zx-department-banner { min-height: 88svh !important; }
+}
+.zx-app-shell main .zx-department-banner > .relative.z-10 {
+  width: min(calc(100% - 2.5rem), 52rem) !important;
+  max-width: none !important;
+  min-height: inherit !important;
+  margin: 0 auto !important;
+  padding: 0 0 4.5rem !important;
+}
+@media (min-width: 640px) {
+  .zx-app-shell main .zx-department-banner > .relative.z-10 { padding-bottom: 5rem !important; }
+}
+.zx-app-shell main .zx-department-banner > .relative.z-10 { justify-content: flex-end; }
+
 /* October 18 opening palette: forest green, soft ivory and jade highlights. */
 .zx-app-shell:has(.zx-cinematic-hero) {
   --zx-bg: #0d1712;
