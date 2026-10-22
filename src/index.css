@@ -3989,7 +3989,7 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
 .zx-streetwear-piece span { z-index: 2; color: var(--zx-footer-text); }
 .zx-streetwear-piece b { z-index: 2; color: var(--zx-footer-text); }
 .zx-rental-spec b { direction: ltr; unicode-bidi: isolate; }
-.zx-department-banner > .relative.z-10 { width: min(calc(100% - 2rem), 42rem); max-width: none; min-height: 0 !important; margin: 1rem auto !important; padding: clamp(1rem, 3vw, 2rem) !important; border: 1px solid var(--zx-border-strong); border-radius: var(--zx-radius-lg); background: color-mix(in srgb, var(--zx-bg-raised) 92%, transparent); box-shadow: var(--zx-shadow-card); backdrop-filter: blur(18px); }
+.zx-department-banner > .relative.z-10 { width: min(calc(100% - 2rem), 42rem); max-width: none; min-height: 0 !important; margin: 1rem auto !important; padding: clamp(1rem, 3vw, 2rem) !important; border: 1px solid var(--zx-border-strong); border-radius: var(--zx-radius-lg); background: color-mix(in srgb, var(--zx-bg-raised) 92%, transparent); box-shadow: var(--zx-shadow-card); }
 .zx-department-banner > img { filter: saturate(.86); }
 @media (max-width: 760px) {
   .zx-digital-scene__content { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
@@ -4124,15 +4124,8 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
 }
 .zx-cine-bottomline { padding: 0; border: 0; background: transparent; text-align: start; cursor: pointer; }
 .zx-app-shell main .zx-department-banner { background: transparent !important; }
-.zx-department-banner > .relative.z-10 {
-  border-color: color-mix(in srgb, var(--zx-border-strong) 48%, transparent) !important;
-  background: color-mix(in srgb, var(--zx-bg-raised) 22%, transparent) !important;
-  box-shadow: 0 1.25rem 3rem color-mix(in srgb, var(--zx-bg) 16%, transparent) !important;
-  backdrop-filter: blur(10px) saturate(115%) !important;
-}
 .zx-banner-device { border-color: color-mix(in srgb, var(--zx-border-strong) 45%, transparent) !important; background: color-mix(in srgb, var(--zx-bg-raised) 16%, transparent) !important; }
 .zx-banner-device__surface { background: color-mix(in srgb, var(--zx-bg-raised) 12%, transparent) !important; }
-.zx-department-banner :is(button) { backdrop-filter: blur(10px); }
 .zx-app-shell main :is(.zx-product, .zx-market-card, .zx-showcase-card) {
   background-color: color-mix(in srgb, var(--zx-bg-raised) 78%, transparent) !important;
   backdrop-filter: blur(10px);
