@@ -552,6 +552,21 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
 };
 
+/** Eastern-Arabic digits and the Arabic percent sign are replaced by Latin ones. */
+function toLatinText(value: string): string {
+  return value.replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660)).replace(/٪/g, '%');
+}
+
+/** Applies toLatinText to every string nested in a settings value. */
+function latinizeStrings<T>(value: T): T {
+  if (typeof value === 'string') return toLatinText(value) as T;
+  if (Array.isArray(value)) return value.map((item) => latinizeStrings(item)) as T;
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, latinizeStrings(item)])) as T;
+  }
+  return value;
+}
+
 /** Upgrade the old starter section headings while preserving admin-written copy. */
 export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettings {
   const legacy: Partial<Record<keyof SiteSettings['content'], string[]>> = {
@@ -605,5 +620,5 @@ export function normalizeLegacySectionTitles(settings: SiteSettings): SiteSettin
   if (legacyHeroText.ar.includes(heroText.ar)) heroText.ar = DEFAULT_SETTINGS.heroText.ar;
   if (announcementText.en === oldCopy.announcementText.en) announcementText.en = DEFAULT_SETTINGS.announcementText.en;
   if (announcementText.ar === oldCopy.announcementText.ar) announcementText.ar = DEFAULT_SETTINGS.announcementText.ar;
-  return { ...settings, heroTitle, heroAccent, heroText, content, announcementText };
+  return latinizeStrings({ ...settings, heroTitle, heroAccent, heroText, content, announcementText });
 }
