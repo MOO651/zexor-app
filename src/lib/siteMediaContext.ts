@@ -56,8 +56,3 @@ export function useSiteContent(): Pick<SiteMediaContextValue, 'content' | 'getTe
   const { content, getText, status, refresh } = useSiteMedia();
   return { content, getText, status, refresh };
 }
-
-export function useSiteHotspots(): Pick<SiteMediaContextValue, 'hotspots' | 'status' | 'refresh'> {
-  const { hotspots, status, refresh } = useSiteMedia();
-  return { hotspots, status, refresh };
-}

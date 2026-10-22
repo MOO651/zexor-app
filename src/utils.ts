@@ -8,13 +8,6 @@ import type { Locale, Market, Route } from './types';
 export const DEFAULT_LOCALE: Locale = 'ar';
 
 /**
- * Locale identifier used by Intl for the given app locale.
- */
-export function intlLocale(locale: Locale): string {
-  return locale === 'ar' ? 'ar-EG' : 'en';
-}
-
-/**
  * Locale for dates shown in the dashboards. Keeps Arabic month/day names but
  * forces Latin digits (`nu-latn`), matching the rest of the site's numerals.
  */
@@ -157,15 +150,6 @@ export function whatsappNumberFor(
   settings: { whatsappEg: string; whatsappKsa: string },
 ): string {
   return market === 'eg' ? settings.whatsappEg : settings.whatsappKsa;
-}
-
-/**
- * Builds a short human-readable reference such as `ZX-INQ-482913`.
- * Kept as a plain module function (not called during render) so React's
- * purity rules stay satisfied.
- */
-export function makeReference(prefix: string): string {
-  return `${prefix}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
 /** Resolve public-root paths against Vite's base so subpath deployments work. */

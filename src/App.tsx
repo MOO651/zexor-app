@@ -65,7 +65,8 @@ const CheckoutDrawer = lazy(() =>
 const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
-import { DepartmentBanner, toDepartmentSceneKey } from './components/DepartmentBanner';
+import { toDepartmentSceneKey } from './data/departmentScenes';
+import { DepartmentBanner } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';

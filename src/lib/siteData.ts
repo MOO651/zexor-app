@@ -438,14 +438,6 @@ export function blankPaymentMethod(method: string, market: Market = 'eg', sortOr
   };
 }
 
-export function socialLabel(platform: string, locale: Locale): string {
-  return SOCIAL_LABELS[platform]?.[locale] ?? platform;
-}
-
-export function walletLabel(method: string, locale: Locale): string {
-  return WALLET_LABELS[method]?.[locale] ?? method;
-}
-
 /* ------------------------------------------------------------------ */
 /* Row <-> app-type mapping                                            */
 /* ------------------------------------------------------------------ */
