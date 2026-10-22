@@ -4192,7 +4192,7 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to top, rgb(13 23 18 / 0.92) 0%, rgb(13 23 18 / 0.55) 38%, rgb(13 23 18 / 0) 72%);
+  background: linear-gradient(to top, rgb(13 23 18 / 0.95) 0%, rgb(13 23 18 / 0.72) 42%, rgb(13 23 18 / 0) 78%);
 }
 
 /* Per-department cinematic layers: each section gets its own motif over the shared hero. */
