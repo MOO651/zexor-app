@@ -2455,7 +2455,7 @@ Details: ${details}`;
 
       {/* 3. Floating WhatsApp Widget */}
       <a
-        aria-label="Floating WhatsApp"
+        aria-label={isArabic ? 'تواصل معنا على واتساب' : 'Chat with us on WhatsApp'}
         className="zx-float-anchor z-40 flex h-14 items-center gap-2.5 rounded-full border border-zx-border/70 bg-zx-accent px-4.5 text-zx-accent-contrast shadow-xl transition-all duration-300 hover:scale-105 hover:bg-zx-cinematic"
         data-side="end"
         href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
@@ -2466,7 +2466,7 @@ Details: ${details}`;
       >
         <MessageCircle className="h-6 w-6" />
         <span className="hidden text-xs font-bold sm:inline">
-          {isArabic ? 'تواصل فوري واتساب' : 'Chat on WhatsApp'}
+          {isArabic ? 'تواصل معنا على واتساب' : 'Chat with us on WhatsApp'}
         </span>
       </a>
 
