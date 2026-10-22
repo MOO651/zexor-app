@@ -2,6 +2,7 @@ import { motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, us
 import { ArrowDown, ArrowUpRight, Sparkles } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { PORTALS } from '../data/portals';
+import { useSiteAssets } from '../lib/siteMediaContext';
 import type { Locale, Market, Route } from '../types';
 
 type Props = {
@@ -39,6 +40,8 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
     setActiveIndex(nextIndex);
   });
   const background = heroImage?.trim() || '/images/zexor-cinematic-hero.webp';
+  const { assets } = useSiteAssets();
+  const portalImages = PORTALS.map((portal, index) => assets[`hero.letter.${'zexor'[index]}.poster`]?.url || portal.image);
   const active = PORTALS[activeIndex] ?? PORTALS[0];
   const title = [heroTitle, heroAccent].filter(Boolean).join(' ') || (isArabic ? 'كل حضورك، في مكان واحد' : 'Everything you stand for, in one place');
 
@@ -75,7 +78,7 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
         <div className="zx-cine-composition">
           <p className="zx-cine-eyebrow"><Sparkles aria-hidden="true" className="h-4 w-4" />{isArabic ? 'مصر · السعودية · حضور بلا حدود' : 'EGYPT · SAUDI ARABIA · MADE TO MOVE'}</p>
           <h1 className="zx-cine-word" aria-label="ZEXOR" dir="ltr">
-            {PORTALS.map((portal, index) => <button aria-label={`${portal.index}: ${departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale]}`} aria-pressed={index === activeIndex} className={index === activeIndex ? 'zx-cine-letter is-active' : 'zx-cine-letter'} key={portal.route} onClick={() => openPortal(index)} onFocus={() => focusPortal(index)} onPointerEnter={() => focusPortal(index)} style={{ backgroundImage: `linear-gradient(0deg, color-mix(in srgb, var(--zx-footer-bg) 35%, transparent), color-mix(in srgb, var(--zx-footer-bg) 35%, transparent)), url("${portal.image}")` }} type="button">{'ZEXOR'[index]}</button>)}
+            {PORTALS.map((portal, index) => <button aria-label={`${portal.index}: ${departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale]}`} aria-pressed={index === activeIndex} className={index === activeIndex ? 'zx-cine-letter is-active' : 'zx-cine-letter'} key={portal.route} onClick={() => openPortal(index)} onFocus={() => focusPortal(index)} onPointerEnter={() => focusPortal(index)} style={{ backgroundImage: `linear-gradient(0deg, color-mix(in srgb, var(--zx-footer-bg) 35%, transparent), color-mix(in srgb, var(--zx-footer-bg) 35%, transparent)), url("${portalImages[index]}")` }} type="button">{'ZEXOR'[index]}</button>)}
           </h1>
           <div className="zx-cine-copy">
             <p className="zx-cine-kicker"><span dir="ltr">0{activeIndex + 1} / 05</span><span>{active.meta[locale]}</span></p>
@@ -87,7 +90,7 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
             {PORTALS.slice(0, 3).map((portal, index) => {
               const name = departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale];
               return <button aria-label={isArabic ? `اكتشف ${name}` : `Explore ${name}`} className="zx-cine-featured-card" key={portal.route} onClick={() => openPortal(index)} type="button">
-                <img alt="" loading="lazy" src={portal.image} />
+                <img alt="" loading="lazy" src={portalImages[index]} />
                 <span>{name}<ArrowUpRight aria-hidden="true" /></span>
               </button>;
             })}

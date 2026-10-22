@@ -71,7 +71,7 @@ import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { PORTALS } from './data/portals';
-import { useSiteContent } from './lib/siteMediaContext';
+import { useSiteAssets, useSiteContent } from './lib/siteMediaContext';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   blankPaymentMethod,
@@ -1433,7 +1433,8 @@ export default function App() {
     'home', 'cards', 'fashion', 'services', 'cars', 'property', 'contact',
     'dashboard', 'admin', 'pricing', 'calculator', 'reviews', 'tracking',
   ].includes(route) && !currentDynamicDepartment;
-  const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
+  const { assets: siteAssets } = useSiteAssets();
+  const departmentImage = (slug: string) => siteAssets[`department.${slug}.banner`]?.url || ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
   const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
     const category = departmentFor(slug);
     const storyImages: Record<string, string[]> = {
