@@ -1707,7 +1707,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 [data-theme="dark"] .zx-hero-accent {
-  color: var(--zx-danger);
+  color: var(--zx-warning);
 }
 
 [data-theme="dark"] .zx-hero-badge,
@@ -1947,7 +1947,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 .zx-home-hero--showroom .zx-hero-accent {
-  color: var(--zx-danger);
+  color: var(--zx-warning);
   font-weight: 500;
 }
 
@@ -2112,7 +2112,7 @@ html[dir='rtl'] .zx-hero-visual {
 }
 
 [data-theme="dark"] .zx-home-hero--showroom .zx-hero-accent {
-  color: var(--zx-danger);
+  color: var(--zx-warning);
 }
 
 [data-theme="dark"] .zx-hero-arrow {
@@ -2727,7 +2727,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 [data-theme="dark"] .zx-hero-accent {
-  color: var(--zx-danger);
+  color: var(--zx-warning);
 }
 
 [data-theme="dark"] .zx-hero-badge,
