@@ -179,7 +179,7 @@ export function ProductCard({
             {renderPrice(price, 'zx-display text-[23px] leading-none text-zx-ink')}
           </div>
           {offer && <div className="flex flex-col items-end gap-1">
-            <span className="rounded-full bg-zx-sale/25 px-2 py-0.5 text-[9px] font-bold text-zx-on-sale">{isArabic ? `خصم ${offer.percent}٪` : `${offer.percent}% OFF`}</span>
+            <span className="rounded-full bg-zx-sale/25 px-2 py-0.5 text-[9px] font-bold text-zx-on-sale">{isArabic ? `خصم ${offer.percent}%` : `${offer.percent}% OFF`}</span>
             {renderPrice(offer.oldPrice, 'zx-strike text-[10px] text-zx-muted')}
           </div>}
         </div>
