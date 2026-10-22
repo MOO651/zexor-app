@@ -628,6 +628,9 @@ textarea:focus-visible {
   will-change: transform, clip-path;
 }
 
+.zx-cine-image-slide { position: absolute; inset: 0; background-position: center 48%; background-size: cover; opacity: 0; transition: opacity 1000ms ease; }
+.zx-cine-image-slide.is-active { opacity: 1; }
+
 .zx-cine-grade {
   z-index: -3;
   background:
@@ -4055,7 +4058,7 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
 /* Responsive finish: keep scroll animation, remove dead travel and balance the hero at wide widths. */
 .zx-nav-brand { flex: 0 0 auto; min-width: max-content; }
 .zx-nav-brand > span:last-child { direction: ltr; max-width: 8rem; overflow: visible; text-overflow: clip; white-space: nowrap; }
-.zx-cine-featured { position: absolute; inset-inline-start: 2.5rem; inset-block-end: 5.25rem; display: grid; width: min(43%, 35rem); grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.zx-cine-featured { position: absolute; inset-inline-start: 2.5rem; inset-block-end: 5.25rem; display: grid; width: min(50%, 40rem); grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; }
 .zx-cine-composition { justify-content: flex-start; }
 .zx-cine-bottomline { margin-block-start: auto; }
 .zx-cine-featured-card { position: relative; min-width: 0; height: clamp(7rem, 16vh, 10.5rem); overflow: hidden; border: 1px solid var(--zx-border); border-radius: var(--zx-radius-lg); background: var(--zx-bg-raised); text-align: start; box-shadow: var(--zx-shadow-card); }
@@ -4069,7 +4072,7 @@ html[data-theme="light"] .zx-digital-scene__title { color: var(--zx-text) !impor
   .zx-cine-featured { inset-inline-start: auto; inset-inline-end: 2.5rem; }
 }
 @media (max-width: 1099px) {
-  .zx-cine-featured { position: static; display: grid; width: 100%; margin-block-start: clamp(.75rem, 2vh, 1.25rem); }
+  .zx-cine-featured { position: static; display: grid; width: 100%; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); margin-block-start: clamp(.75rem, 2vh, 1.25rem); }
   .zx-cine-featured-card { height: clamp(6.5rem, 15vh, 9rem); }
   .zx-cine-proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-block-start: .75rem; }
   .zx-cine-proof > span { display: flex; min-height: 2.75rem; align-items: center; gap: .55rem; padding: .45rem .65rem; border: 1px solid var(--zx-border); border-radius: var(--zx-radius-md); background: color-mix(in srgb, var(--zx-bg-raised) 78%, transparent); color: var(--zx-text-secondary); font-size: .65rem; line-height: 1.35; }

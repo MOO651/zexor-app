@@ -60,7 +60,13 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
   return (
     <section aria-label={isArabic ? 'مقدمة زكسور' : 'ZEXOR introduction'} className="zx-cinematic-hero" dir={isArabic ? 'rtl' : 'ltr'} ref={container}>
       <div className="zx-cine-sticky">
-        <motion.div aria-hidden="true" className="zx-cine-image" style={{ backgroundImage: `url("${background.replaceAll('"', '')}")`, scale: reduceMotion ? 1 : imageScale }} />
+        {heroImage?.trim() ? (
+          <motion.div aria-hidden="true" className="zx-cine-image" style={{ backgroundImage: `url("${background.replaceAll('"', '')}")`, scale: reduceMotion ? 1 : imageScale }} />
+        ) : (
+          <motion.div aria-hidden="true" className="zx-cine-image" style={{ scale: reduceMotion ? 1 : imageScale }}>
+            {PORTALS.map((portal, index) => <div className={index === activeIndex ? 'zx-cine-image-slide is-active' : 'zx-cine-image-slide'} key={portal.route} style={{ backgroundImage: `url("${portalImages[index].replaceAll('"', '')}")` }} />)}
+          </motion.div>
+        )}
         <div aria-hidden="true" className="zx-cine-grade" />
         <motion.div aria-hidden="true" className="zx-cine-cloud zx-cine-cloud--far" style={reduceMotion ? undefined : { y: mistY }} />
         <div aria-hidden="true" className="zx-cine-cloud zx-cine-cloud--near" />
@@ -87,7 +93,7 @@ export function HomeHero({ locale, brandName, market, onMarketChange, navigate, 
             <button className="zx-cine-cta" onClick={() => navigate(active.route)} type="button">{isArabic ? 'تصفّح الأقسام' : 'Browse the sections'}<ArrowUpRight aria-hidden="true" className="h-4 w-4" /></button>
           </div>
           <div aria-label={isArabic ? 'مختارات من أقسام زكسور' : 'Selected ZEXOR departments'} className="zx-cine-featured">
-            {PORTALS.slice(0, 3).map((portal, index) => {
+            {PORTALS.map((portal, index) => {
               const name = departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale];
               return <button aria-label={isArabic ? `اكتشف ${name}` : `Explore ${name}`} className="zx-cine-featured-card" key={portal.route} onClick={() => openPortal(index)} type="button">
                 <img alt="" loading="lazy" src={portalImages[index]} />
