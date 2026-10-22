@@ -54,6 +54,7 @@ import { validateStoreBackup } from '../lib/backupValidation';
 import { compressImageToWebp, isCompressibleRemoteImageUrl, mirrorRemoteImageAsWebp } from '../lib/imageCompress';
 import { sendTelegramTestNotification } from '../lib/siteData';
 import { AdminMediaCenter } from './AdminMediaCenter';
+import { AdminAlbumField, AdminImageUploadButton } from './AdminAlbumField';
 
 const csvCell = (value: unknown) => {
   const text = String(value ?? '');
@@ -273,6 +274,8 @@ export function AdminDashboard({
   const [prodOldPriceEg, setProdOldPriceEg] = useState('');
   const [prodOldPriceKsa, setProdOldPriceKsa] = useState('');
   const [prodImageUrl, setProdImageUrl] = useState('');
+  const [prodGallery, setProdGallery] = useState<string[]>([]);
+  const [prodVideo, setProdVideo] = useState('');
   // Extra merchandising fields added for Salla-style product management.
   const [prodSku, setProdSku] = useState('');
   const [prodBrand, setProdBrand] = useState('');
@@ -298,6 +301,8 @@ export function AdminDashboard({
   const [carLocation, setCarLocation] = useState('Cairo');
   const [carCondition, setCarCondition] = useState<'New' | 'Used'>('Used');
   const [carPhoto, setCarPhoto] = useState('');
+  const [carGallery, setCarGallery] = useState<string[]>([]);
+  const [carVideo, setCarVideo] = useState('');
   const carFileInputRef = useRef<HTMLInputElement>(null);
 
   // Add / Edit Property Modal State
@@ -313,6 +318,8 @@ export function AdminDashboard({
   const [propRooms, setPropRooms] = useState('3');
   const [propLocation, setPropLocation] = useState('Cairo');
   const [propPhoto, setPropPhoto] = useState('');
+  const [propGallery, setPropGallery] = useState<string[]>([]);
+  const [propVideo, setPropVideo] = useState('');
   const propFileInputRef = useRef<HTMLInputElement>(null);
 
   const readImageFile = async (file: File, onLoaded: (dataUrl: string) => void) => {
@@ -467,7 +474,7 @@ export function AdminDashboard({
     setNewCatBannerTextEn(category.bannerText?.en ?? '');
     setNewCatBannerImage(category.bannerImage ?? '');
     setNewCatBannerAccent(category.bannerAccent === 'var(--zx-accent)' ? 'var(--zx-accent)' : 'var(--zx-mint)');
-    setNewCatExtraSlides([0, 1].map((index) => category.bannerSlides?.[index] ?? { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }));
+    setNewCatExtraSlides(Array.from({ length: Math.max(2, category.bannerSlides?.length ?? 0) }, (_, index) => category.bannerSlides?.[index] ?? { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }));
     setShowCategoryModal(true);
   };
 
@@ -534,6 +541,8 @@ export function AdminDashboard({
       finish: 'pearl',
       available: prodAvailable,
       imageUrl: prodImageUrl || art.cardsElite,
+      gallery: prodGallery.length > 0 ? prodGallery : undefined,
+      videoUrl: prodVideo.trim() || undefined,
       sku: prodSku.trim() || undefined,
       brand: prodBrand.trim() || undefined,
       badge: prodBadge.trim() || undefined,
@@ -576,6 +585,8 @@ export function AdminDashboard({
     setProdOldPriceEg(prod.oldPrice ? String(prod.oldPrice.eg) : '');
     setProdOldPriceKsa(prod.oldPrice ? String(prod.oldPrice.ksa) : '');
     setProdImageUrl(prod.imageUrl ?? '');
+    setProdGallery(prod.gallery ?? []);
+    setProdVideo(prod.videoUrl ?? '');
     setProdSku(prod.sku ?? '');
     setProdBrand(prod.brand ?? '');
     setProdBadge(prod.badge ?? '');
@@ -645,7 +656,8 @@ export function AdminDashboard({
       area: existing?.area ?? 0,
       region: (carLocation as Vehicle['region']) || 'Cairo',
       photo,
-      gallery: existing?.gallery?.length ? existing.gallery : [photo],
+      gallery: [photo, ...carGallery.filter((url) => url !== photo)],
+      videoUrl: carVideo.trim() || undefined,
       make: carMake,
       year: Number(carYear) || 2024,
       mileage: carCondition === 'New' ? 0 : existing?.mileage || 15000,
@@ -679,6 +691,8 @@ export function AdminDashboard({
     setCarLocation(v.region);
     setCarCondition(v.condition);
     setCarPhoto(v.photo);
+    setCarGallery(v.gallery.filter((url) => url !== v.photo));
+    setCarVideo(v.videoUrl ?? '');
     setShowCarModal(true);
   };
 
@@ -706,7 +720,8 @@ export function AdminDashboard({
       area: Number(propArea) || 150,
       region: (propLocation as Property['region']) || 'Cairo',
       photo,
-      gallery: existing?.gallery?.length ? existing.gallery : [photo],
+      gallery: [photo, ...propGallery.filter((url) => url !== photo)],
+      videoUrl: propVideo.trim() || undefined,
       type: propType,
       deal: propDeal,
       rentalPeriod: propDeal === 'Rent' ? propRentalPeriod : undefined,
@@ -740,6 +755,8 @@ export function AdminDashboard({
     setPropRooms(String(p.rooms));
     setPropLocation(p.region);
     setPropPhoto(p.photo);
+    setPropGallery(p.gallery.filter((url) => url !== p.photo));
+    setPropVideo(p.videoUrl ?? '');
     setShowPropModal(true);
   };
 
@@ -1508,7 +1525,11 @@ export function AdminDashboard({
                       <label className="text-[10px] text-zx-text">{isArabic ? 'وصف البانر بالعربي' : 'Banner description (Arabic)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-zx-border p-3 text-xs" onChange={(e) => setNewCatBannerTextAr(e.target.value)} value={newCatBannerTextAr} /></label>
                       <label className="text-[10px] text-zx-text">{isArabic ? 'وصف البانر بالإنجليزي' : 'Banner description (English)'}<textarea className="mt-1 min-h-20 w-full rounded-xl border border-zx-border p-3 text-xs" onChange={(e) => setNewCatBannerTextEn(e.target.value)} value={newCatBannerTextEn} /></label>
                     </div>
-                    <label className="mt-3 block text-[10px] text-zx-text">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" onBlur={(e) => void compressLinkedImage(e.target.value, setNewCatBannerImage)} onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage} /></label>
+                    <div className="mt-3 flex flex-wrap items-end gap-2">
+                      <label className="block min-w-48 flex-1 text-[10px] text-zx-text">{isArabic ? 'رابط صورة البانر' : 'Banner image URL'}<input className="mt-1 h-9 w-full rounded-xl border border-zx-border px-3 text-xs" dir="ltr" onBlur={(e) => void compressLinkedImage(e.target.value, setNewCatBannerImage)} onChange={(e) => setNewCatBannerImage(e.target.value)} placeholder="https://…" value={newCatBannerImage.startsWith('data:') ? '' : newCatBannerImage} /></label>
+                      <AdminImageUploadButton folder="departments" label={isArabic ? 'رفع صورة' : 'Upload image'} locale={locale} onToast={onToast} onUploaded={setNewCatBannerImage} />
+                      {newCatBannerImage && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(newCatBannerImage)} />}
+                    </div>
                     <label className="mt-3 block text-[10px] text-zx-text">{isArabic ? 'لون التفاصيل' : 'Accent color'}
                       <select aria-label={isArabic ? 'لون تفاصيل البانر' : 'Banner accent color'} className="mt-1 h-9 rounded-lg border border-zx-border bg-zx-surface-raised px-3 text-xs" onChange={(event) => setNewCatBannerAccent(event.target.value)} value={newCatBannerAccent}>
                         <option value="var(--zx-mint)">{isArabic ? 'نعناعي' : 'Mint'}</option>
@@ -1524,10 +1545,17 @@ export function AdminDashboard({
                           <textarea aria-label={isArabic ? 'وصف الشريحة بالعربي' : 'Slide text Arabic'} className="min-h-16 rounded-xl border border-zx-border p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'ar', e.target.value)} placeholder={isArabic ? 'الوصف بالعربي' : 'Arabic description'} value={slide.text.ar} />
                           <textarea aria-label={isArabic ? 'وصف الشريحة بالإنجليزي' : 'Slide text English'} className="min-h-16 rounded-xl border border-zx-border p-2 text-xs" onChange={(e) => updateCategorySlide(index, 'text', 'en', e.target.value)} placeholder={isArabic ? 'الوصف بالإنجليزي' : 'English description'} value={slide.text.en} />
                         </div>
-                        <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="mt-2 h-9 w-full rounded-xl border border-zx-border px-3 text-xs"                         onBlur={(e) => void compressLinkedImage(e.target.value, (next) => updateCategorySlide(index, 'image', 'ar', next))}
-                        onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image} />
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <input aria-label={isArabic ? 'صورة الشريحة' : 'Slide image URL'} className="h-9 min-w-48 flex-1 rounded-xl border border-zx-border px-3 text-xs" dir="ltr"
+                            onBlur={(e) => void compressLinkedImage(e.target.value, (next) => updateCategorySlide(index, 'image', 'ar', next))}
+                            onChange={(e) => updateCategorySlide(index, 'image', 'ar', e.target.value)} placeholder="https:// image URL" value={slide.image.startsWith('data:') ? '' : slide.image} />
+                          <AdminImageUploadButton folder="departments" label={isArabic ? 'رفع صورة' : 'Upload image'} locale={locale} onToast={onToast} onUploaded={(next) => updateCategorySlide(index, 'image', 'ar', next)} />
+                          {slide.image && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(slide.image)} />}
+                          {newCatExtraSlides.length > 2 && <button aria-label={isArabic ? 'حذف الشريحة' : 'Remove slide'} className="flex h-9 w-9 items-center justify-center rounded-xl border border-zx-border text-red-600" onClick={() => setNewCatExtraSlides((current) => current.filter((_, slideIndex) => slideIndex !== index))} type="button"><Trash2 className="h-4 w-4" /></button>}
+                        </div>
                       </div>)}
                     </div>
+                    {newCatExtraSlides.length < 8 && <button className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-xl border border-zx-border px-3 text-[10px] font-semibold text-zx-text" onClick={() => setNewCatExtraSlides((current) => [...current, { title: { ar: '', en: '' }, text: { ar: '', en: '' }, image: '' }])} type="button"><Plus className="h-3.5 w-3.5" />{isArabic ? 'إضافة شريحة' : 'Add slide'}</button>}
                     <div className="mt-4 overflow-hidden rounded-4xl border border-zx-border p-2">
                       <p className="mb-2 px-2 text-[10px] font-bold text-zx-text">{isArabic ? 'معاينة مباشرة' : 'Live preview'}</p>
                       <DepartmentBanner locale={locale} name={newCatNameAr || newCatNameEn || (isArabic ? 'القسم الجديد' : 'New department')} accent={newCatBannerAccent} slides={[
@@ -1579,6 +1607,8 @@ export function AdminDashboard({
                 setProdOldPriceEg('');
                 setProdOldPriceKsa('');
                 setProdImageUrl('');
+                setProdGallery([]);
+                setProdVideo('');
                 setProdSku('');
                 setProdBrand('');
                 setProdBadge('');
@@ -1833,6 +1863,8 @@ export function AdminDashboard({
                     )}
                   </div>
 
+                  <AdminAlbumField folder="products" images={prodGallery} locale={locale} onImagesChange={setProdGallery} onToast={onToast} onVideoChange={setProdVideo} videoUrl={prodVideo} />
+
                   {/* Price & Old Price Fields (Discounts) */}
                   <div>
                     <label className="text-[10px] text-zx-text">{isArabic ? 'السعر الحالي (ج.م)' : 'Current Price (EGP)'}</label>
@@ -1984,6 +2016,8 @@ export function AdminDashboard({
                 setCarLocation('Cairo');
                 setCarCondition('Used');
                 setCarPhoto('');
+                setCarGallery([]);
+                setCarVideo('');
                 setShowCarModal(true);
               }}
               type="button"
@@ -2125,6 +2159,9 @@ export function AdminDashboard({
                       {carPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(carPhoto)} />}
                     </div>
                   </div>
+                  <div className="sm:col-span-2">
+                    <AdminAlbumField folder="vehicles" images={carGallery} locale={locale} onImagesChange={setCarGallery} onToast={onToast} onVideoChange={setCarVideo} videoUrl={carVideo} />
+                  </div>
                 </div>
                 <button className="mt-5 min-h-10 w-full rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast hover:bg-zx-cinematic" type="submit">
                   {editingCarId ? (isArabic ? 'حفظ التعديلات' : 'Save Changes') : isArabic ? 'حفظ وإضافة للمعرض' : 'Save Vehicle'}
@@ -2161,6 +2198,8 @@ export function AdminDashboard({
                 setPropRooms('3');
                 setPropLocation('Cairo');
                 setPropPhoto('');
+                setPropGallery([]);
+                setPropVideo('');
                 setShowPropModal(true);
               }}
               type="button"
@@ -2299,6 +2338,9 @@ export function AdminDashboard({
                       </button>
                       {propPhoto && <img alt="" className="h-9 w-12 rounded-lg object-cover" src={publicAssetUrl(propPhoto)} />}
                     </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <AdminAlbumField folder="properties" images={propGallery} locale={locale} onImagesChange={setPropGallery} onToast={onToast} onVideoChange={setPropVideo} videoUrl={propVideo} />
                   </div>
                 </div>
                 <button className="mt-5 min-h-10 w-full rounded-full bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast hover:bg-zx-cinematic" type="submit">

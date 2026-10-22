@@ -53,6 +53,8 @@ function validProduct(value: unknown): value is Product {
     && (value.stock === undefined || (Number.isInteger(value.stock) && Number(value.stock) >= 0))
     && (value.variants === undefined || isTextArray(value.variants))
     && (value.imageUrl === undefined || isText(value.imageUrl))
+    && (value.gallery === undefined || isTextArray(value.gallery))
+    && (value.videoUrl === undefined || isText(value.videoUrl))
     && (value.featured === undefined || typeof value.featured === 'boolean')
     && (value.sku === undefined || isText(value.sku))
     && (value.brand === undefined || isText(value.brand))
@@ -72,7 +74,8 @@ function validVehicle(value: unknown): value is Vehicle {
     && isNumber(value.price) && value.price >= 0 && isNumber(value.area) && value.area >= 0 && isText(value.photo)
     && (value.deal === undefined || ['Sale', 'Rent'].includes(String(value.deal)))
     && (value.rentalPeriod === undefined || ['Day', 'Week', 'Month'].includes(String(value.rentalPeriod)))
-    && isTextArray(value.gallery) && isText(value.make) && Number.isInteger(value.year)
+    && isTextArray(value.gallery) && (value.videoUrl === undefined || isText(value.videoUrl))
+    && isText(value.make) && Number.isInteger(value.year)
     && (value.oldPrice === undefined || (isNumber(value.oldPrice) && value.oldPrice >= value.price))
     && isNumber(value.mileage) && ['Automatic', 'Manual'].includes(String(value.transmission))
     && ['New', 'Used'].includes(String(value.condition))
@@ -85,7 +88,8 @@ function validProperty(value: unknown): value is Property {
   const regions = ['Cairo', 'Giza', 'Alexandria', 'Riyadh', 'Jeddah'];
   return isRecord(value) && isText(value.id) && isTextPair(value.title) && isTextPair(value.location)
     && isNumber(value.price) && value.price >= 0 && isNumber(value.area) && value.area >= 0 && regions.includes(String(value.region)) && isText(value.photo)
-    && isTextArray(value.gallery) && ['Apartment', 'Villa', 'Land', 'Shop'].includes(String(value.type))
+    && isTextArray(value.gallery) && (value.videoUrl === undefined || isText(value.videoUrl))
+    && ['Apartment', 'Villa', 'Land', 'Shop'].includes(String(value.type))
     && ['Sale', 'Rent'].includes(String(value.deal))
     && isNumber(value.rooms) && value.rooms >= 0 && isNumber(value.floor)
     && isNumber(value.bathrooms) && value.bathrooms >= 0

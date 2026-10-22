@@ -57,6 +57,10 @@ export type Product = {
   finish: string;
   available: boolean;
   imageUrl?: string;
+  /** Extra album photos shown after the cover image. */
+  gallery?: string[];
+  /** YouTube/Vimeo link or a direct video file. */
+  videoUrl?: string;
   variants?: string[];
   /** Optional merchant SKU / internal code shown in the admin table. */
   sku?: string;
@@ -169,6 +173,7 @@ export type Vehicle = {
   region: 'Cairo' | 'Giza' | 'Alexandria' | 'Riyadh' | 'Jeddah';
   photo: string;
   gallery: string[];
+  videoUrl?: string;
   make: string;
   year: number;
   mileage: number;
@@ -188,6 +193,7 @@ export type Property = {
   region: 'Cairo' | 'Giza' | 'Alexandria' | 'Riyadh' | 'Jeddah';
   photo: string;
   gallery: string[];
+  videoUrl?: string;
   type: 'Apartment' | 'Villa' | 'Land' | 'Shop';
   deal: 'Sale' | 'Rent';
   rentalPeriod?: 'Month' | 'Year';

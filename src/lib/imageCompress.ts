@@ -7,6 +7,18 @@ export function isCompressibleRemoteImageUrl(url: string) {
   return /^https?:\/\//i.test(trimmed) && !trimmed.includes(SITE_MEDIA_MARKER);
 }
 
+export async function uploadSiteMedia(blob: Blob, folder: string, extension: string, contentType: string): Promise<string> {
+  if (!isSupabaseConfigured) throw new Error('Supabase is not configured.');
+  const objectPath = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+  const { error } = await supabase.storage.from('site-media').upload(objectPath, blob, {
+    cacheControl: '31536000, immutable',
+    contentType,
+    upsert: false,
+  });
+  if (error) throw error;
+  return supabase.storage.from('site-media').getPublicUrl(objectPath).data.publicUrl;
+}
+
 export async function mirrorRemoteImageAsWebp(url: string): Promise<string> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured.');
   const response = await fetch(url.trim(), { mode: 'cors' });
@@ -17,14 +29,7 @@ export async function mirrorRemoteImageAsWebp(url: string): Promise<string> {
   }
   const source = await response.blob();
   const blob = await compressImageToWebp(source, { maxDimension: 1800, maxBytes: 1024 * 1024 });
-  const objectPath = `links/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
-  const { error } = await supabase.storage.from('site-media').upload(objectPath, blob, {
-    cacheControl: '31536000, immutable',
-    contentType: 'image/webp',
-    upsert: false,
-  });
-  if (error) throw error;
-  return supabase.storage.from('site-media').getPublicUrl(objectPath).data.publicUrl;
+  return uploadSiteMedia(blob, 'links', 'webp', 'image/webp');
 }
 
 export type CompressImageOptions = {

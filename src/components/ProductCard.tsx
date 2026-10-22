@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { BellRing, Fingerprint, Heart, Share2, ShoppingBag, Sparkles } from 'lucide-react';
+import { BellRing, ChevronLeft, ChevronRight, Fingerprint, Heart, Play, Share2, ShoppingBag, Sparkles, X } from 'lucide-react';
 import { art } from '../data/imagery';
+import { parseVideoSource } from '../lib/videoEmbed';
 import type { Locale, Market, Product } from '../types';
 import { publicAssetUrl } from '../utils';
+import { MediaVideo } from './MediaVideo';
 
 type ProductCardProps = {
   product: Product;
@@ -58,6 +60,14 @@ export function ProductCard({
   );
   const [failedImageUrl, setFailedImageUrl] = useState('');
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [albumIndex, setAlbumIndex] = useState(0);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const album = [product.imageUrl, ...(product.gallery ?? [])].filter((url): url is string => Boolean(url));
+  const currentImage = album[Math.min(albumIndex, Math.max(album.length - 1, 0))];
+  const showAlbumImage = (index: number) => {
+    setImageLoaded(false);
+    setAlbumIndex((index + album.length) % album.length);
+  };
   const reduceMotion = useReducedMotion();
   const fallbackImage = fallbackFor(product);
   const labels = {
@@ -81,8 +91,10 @@ export function ProductCard({
   return (
     <motion.article className="zx-product zx-card group flex h-full flex-col overflow-hidden rounded-3xl border border-zx-line bg-zx-surface" data-cursor="view" data-product-category={product.category} data-product-id={product.id} initial={reduceMotion ? undefined : { opacity: 0, y: 18 }} style={{ transformPerspective: 1100 }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} viewport={{ once: true, amount: 0.08 }} whileHover={reduceMotion ? undefined : { y: -5 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} whileTap={reduceMotion ? undefined : { scale: 0.985, rotateX: -1.5 }}>
       <div className="zx-product-media relative aspect-4/3 overflow-hidden bg-zx-surface-2">
-        {!imageLoaded && <span aria-hidden="true" className="zx-image-skeleton absolute inset-0" />}
-        {product.imageUrl && failedImageUrl !== product.imageUrl ? (
+        {!imageLoaded && !videoOpen && <span aria-hidden="true" className="zx-image-skeleton absolute inset-0" />}
+        {videoOpen ? (
+          <MediaVideo autoPlay className="absolute inset-0 h-full w-full" title={product.name[locale]} url={product.videoUrl} />
+        ) : currentImage && failedImageUrl !== currentImage ? (
           <img
             alt={product.name[locale]}
             className={`relative h-full w-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.045] ${imageLoaded ? 'opacity-100' : 'opacity-0'} ${soldOut ? 'grayscale' : ''}`}
@@ -90,8 +102,8 @@ export function ProductCard({
             height={900}
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
-            onError={() => setFailedImageUrl(product.imageUrl ?? '')}
-            src={publicAssetUrl(product.imageUrl)}
+            onError={() => setFailedImageUrl(currentImage)}
+            src={publicAssetUrl(currentImage)}
           />
         ) : (
           <img
@@ -103,6 +115,21 @@ export function ProductCard({
             onLoad={() => setImageLoaded(true)}
             src={publicAssetUrl(fallbackImage)}
           />
+        )}
+
+        {!videoOpen && album.length > 1 && (
+          <>
+            <button aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'} className="absolute inset-s-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-zx-border/50 bg-zx-surface-raised/85 text-zx-text opacity-0 shadow-md backdrop-blur-md transition focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100" onClick={() => showAlbumImage(albumIndex - 1)} type="button"><ChevronLeft aria-hidden="true" className="size-4 rtl:rotate-180" /></button>
+            <button aria-label={isArabic ? 'الصورة التالية' : 'Next image'} className="absolute inset-e-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-zx-border/50 bg-zx-surface-raised/85 text-zx-text opacity-0 shadow-md backdrop-blur-md transition focus-visible:opacity-100 group-hover:opacity-100 max-sm:opacity-100" onClick={() => showAlbumImage(albumIndex + 1)} type="button"><ChevronRight aria-hidden="true" className="size-4 rtl:rotate-180" /></button>
+            <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center gap-1">
+              {album.map((url, index) => <span className={`h-1.5 rounded-full bg-zx-surface-raised/90 transition-all ${index === albumIndex ? 'w-4' : 'w-1.5 opacity-60'}`} key={`${url.slice(-24)}-${index}`} />)}
+            </span>
+          </>
+        )}
+        {product.videoUrl && parseVideoSource(product.videoUrl) && (
+          <button aria-label={videoOpen ? (isArabic ? 'إغلاق الفيديو' : 'Close video') : (isArabic ? 'تشغيل الفيديو' : 'Play video')} className="absolute inset-e-3 bottom-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-zx-border/50 bg-zx-cinematic/85 text-zx-accent-contrast shadow-lg backdrop-blur-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent" onClick={() => setVideoOpen((open) => !open)} type="button">
+            {videoOpen ? <X aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" fill="currentColor" />}
+          </button>
         )}
 
         <span

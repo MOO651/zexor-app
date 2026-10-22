@@ -12,6 +12,7 @@ import {
   MapPin,
   Maximize2,
   MessageCircle,
+  Play,
   SlidersHorizontal,
   X,
   Check,
@@ -20,8 +21,10 @@ import { INITIAL_PROPERTIES, INITIAL_VEHICLES } from '../data/initialData';
 import type { Locale, Market, PlatformInquiry, Property, Vehicle } from '../types';
 import type { DynamicCategory } from '../types';
 import { publicAssetUrl } from '../utils';
+import { parseVideoSource } from '../lib/videoEmbed';
 import { DepartmentBanner } from './DepartmentBanner';
 import { DepartmentEmptyState } from './DepartmentEmptyState';
+import { MediaVideo } from './MediaVideo';
 import { art } from '../data/imagery';
 
 type Props = {
@@ -131,6 +134,11 @@ export function Marketplace({
   const [activeProperty, setActiveProperty] = useState<Property | null>(null);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const activeGallery = activeVehicle?.gallery ?? activeProperty?.gallery ?? [];
+  const activeVideo = (activeVehicle ?? activeProperty)?.videoUrl;
+  const hasActiveVideo = Boolean(activeVideo && parseVideoSource(activeVideo));
+  const gallerySlideCount = Math.max(1, activeGallery.length + (hasActiveVideo ? 1 : 0));
+  const isVideoSlide = hasActiveVideo && galleryIndex === activeGallery.length;
   const zoomCloseButtonRef = useRef<HTMLButtonElement>(null);
   const zoomTriggerRef = useRef<HTMLElement | null>(null);
 
@@ -858,14 +866,15 @@ Listing: ${itemTitle}`;
                 <div className="space-y-4">
                   {/* Slider Main Photo */}
                   <div className="relative aspect-[1.45/1] overflow-hidden rounded-2xl bg-zx-mint">
-                    {activeVehicle && (
+                    {isVideoSlide && <MediaVideo className="h-full w-full" title={isArabic ? 'فيديو الإعلان' : 'Listing video'} url={activeVideo} />}
+                    {!isVideoSlide && activeVehicle && (
                       <img
                         alt="Vehicle"
                         className="h-full w-full object-cover"
                         src={publicAssetUrl(activeVehicle.gallery[galleryIndex] || activeVehicle.photo)}
                       />
                     )}
-                    {activeProperty && (
+                    {!isVideoSlide && activeProperty && (
                       <img
                         alt="Property"
                         className="h-full w-full object-cover"
@@ -877,13 +886,7 @@ Listing: ${itemTitle}`;
                     <button
                       aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
                       className="absolute inset-s-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
-                      onClick={() =>
-                        setGalleryIndex((prev) =>
-                          prev === 0
-                            ? (activeVehicle?.gallery.length ?? activeProperty?.gallery.length ?? 1) - 1
-                            : prev - 1,
-                        )
-                      }
+                      onClick={() => setGalleryIndex((prev) => (prev === 0 ? gallerySlideCount - 1 : prev - 1))}
                       type="button"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -891,19 +894,13 @@ Listing: ${itemTitle}`;
                     <button
                       aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
                       className="absolute inset-e-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-zx-surface-raised/80 text-zx-text shadow-md backdrop-blur-md hover:bg-zx-surface-raised"
-                      onClick={() =>
-                        setGalleryIndex(
-                          (prev) =>
-                            (prev + 1) %
-                            (activeVehicle?.gallery.length ?? activeProperty?.gallery.length ?? 1),
-                        )
-                      }
+                      onClick={() => setGalleryIndex((prev) => (prev + 1) % gallerySlideCount)}
                       type="button"
                     >
                       <ChevronRight className="h-4 w-4" />
                     </button>
 
-                    <button
+                    {!isVideoSlide && <button
                       aria-label={isArabic ? 'تكبير الصورة' : 'Zoom image'}
                       className="absolute bottom-3 inset-e-3 flex h-11 w-11 items-center justify-center rounded-full bg-zx-cinematic/60 text-zx-accent-contrast backdrop-blur-md"
                       onClick={(event) => {
@@ -919,14 +916,14 @@ Listing: ${itemTitle}`;
                       type="button"
                     >
                       <Maximize2 className="h-4 w-4" />
-                    </button>
+                    </button>}
                   </div>
 
                   {/* Thumbnail Row */}
                 <div className="zx-no-bar flex gap-2 overflow-x-auto pb-1">
                     {(activeVehicle ? activeVehicle.gallery : activeProperty?.gallery ?? []).map((img, idx) => (
                       <button
-                        className={`aspect-video w-20 overflow-hidden rounded-xl border-2 transition-all ${
+                        className={`aspect-video w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
                           galleryIndex === idx ? 'border-zx-border shadow-md' : 'border-transparent opacity-60'
                         }`}
                         key={img + idx}
@@ -936,6 +933,18 @@ Listing: ${itemTitle}`;
                         <img alt={`${isArabic ? 'الصورة' : 'Photo'} ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" src={publicAssetUrl(img)} />
                       </button>
                     ))}
+                    {hasActiveVideo && (
+                      <button
+                        aria-label={isArabic ? 'تشغيل الفيديو' : 'Play video'}
+                        className={`flex aspect-video w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 bg-zx-cinematic text-zx-accent-contrast transition-all ${
+                          isVideoSlide ? 'border-zx-border shadow-md' : 'border-transparent opacity-60'
+                        }`}
+                        onClick={() => setGalleryIndex(activeGallery.length)}
+                        type="button"
+                      >
+                        <Play aria-hidden="true" className="h-5 w-5" fill="currentColor" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Property Map Visual Locator */}
