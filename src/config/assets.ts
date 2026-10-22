@@ -59,7 +59,7 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
     value_en: 'A considered fleet, ready to book and explore.',
     value_json: null,
   },
-  'cars.chapter.action': { value_ar: 'استكشف السيارات', value_en: 'Explore vehicles', value_json: null },
+  'cars.chapter.action': { value_ar: 'تصفّح السيارات', value_en: 'Browse vehicles', value_json: null },
   'property.chapter.title': { value_ar: 'مساحة لحكايتك', value_en: 'Room for what matters', value_json: null },
   'property.chapter.accent': { value_ar: 'تبدأ من هنا', value_en: 'starts here', value_json: null },
   'property.chapter.summary': {
@@ -67,7 +67,7 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
     value_en: 'Curated homes and spaces across Egypt and Saudi Arabia.',
     value_json: null,
   },
-  'property.chapter.action': { value_ar: 'استكشف العقارات', value_en: 'Explore properties', value_json: null },
+  'property.chapter.action': { value_ar: 'تصفّح العقارات', value_en: 'Browse properties', value_json: null },
   'studio.headline': {
     value_ar: 'نبني تجارب رقمية',
     value_en: 'We build digital experiences',

@@ -11,16 +11,16 @@ const NfcHero3D = lazy(() => import('./NfcHero3D').then((module) => ({ default: 
 
 const sceneCopy = {
   ar: {
-    fashion: { chapter: '02 / أزياء زكسور', lines: ['حضورك،', 'بأسلوبك.'], body: 'قطع يومية بتفاصيل مدروسة، تعكس أسلوبك من غير تكلّف.', cta: 'اكتشف الأزياء', labels: ['القطعة الأولى', 'تفاصيل الخامة'] },
+    fashion: { chapter: '02 / أزياء زكسور', lines: ['حضورك،', 'بأسلوبك.'], body: 'قطع يومية بتفاصيل مدروسة، تعكس أسلوبك من غير تكلّف.', cta: 'تصفّح الأزياء', labels: ['القطعة الأولى', 'تفاصيل الخامة'] },
     cards: { chapter: '01 / هوية متصلة', lines: ['لمسة واحدة.', 'عالمك كله.'], body: 'بطاقة NFC تجمع روابطك وهويتك الرقمية، وتشاركها بلمسة واحدة.', cta: 'صمّم بطاقتك', labels: ['قرّب هاتفك', 'هويتك الرقمية'] },
-    cars: { chapter: '04 / زكسور موتورز', lines: ['الطريق،', 'على مزاجك.'], body: 'اعرف تفاصيل السيارات المتاحة، واختار مدة الإيجار المناسبة لمشاويرك.', cta: 'استكشف السيارات', labels: ['اختيارك', 'رحلتك'] },
-    property: { chapter: '05 / زكسور إستيتس', lines: ['المكان المناسب', 'يغيّر كل شيء.'], body: 'تصفّح العقارات المنشورة، واطلب معاينة للمكان المناسب لك.', cta: 'اكتشف العقارات', labels: ['مساحات مختلفة', 'اطلب معاينة'] },
+    cars: { chapter: '04 / زكسور موتورز', lines: ['الطريق،', 'على مزاجك.'], body: 'اعرف تفاصيل السيارات المتاحة، واختار مدة الإيجار المناسبة لمشاويرك.', cta: 'تصفّح السيارات', labels: ['اختيارك', 'رحلتك'] },
+    property: { chapter: '05 / زكسور إستيتس', lines: ['المكان المناسب', 'يغيّر كل شيء.'], body: 'تصفّح العقارات المنشورة، واطلب معاينة للمكان المناسب لك.', cta: 'تصفّح العقارات', labels: ['مساحات مختلفة', 'اطلب معاينة'] },
   },
   en: {
-    fashion: { chapter: '02 / ZEXOR FASHION', lines: ['A presence', 'of your own.'], body: 'Everyday pieces with considered details, made to feel like your own.', cta: 'Explore fashion', labels: ['The first piece', 'Considered details'] },
+    fashion: { chapter: '02 / ZEXOR FASHION', lines: ['A presence', 'of your own.'], body: 'Everyday pieces with considered details, made to feel like your own.', cta: 'Browse fashion', labels: ['The first piece', 'Considered details'] },
     cards: { chapter: '01 / CONNECTED IDENTITY', lines: ['One tap.', 'Your whole world.'], body: 'Bring your digital profile and links together on one NFC card, ready to share with a tap.', cta: 'Design your card', labels: ['Bring your phone close', 'Your digital identity'] },
-    cars: { chapter: '04 / ZEXOR MOTORS', lines: ['Take the road', 'your way.'], body: 'Explore available vehicles, compare rental options and choose what suits your plans.', cta: 'Explore cars', labels: ['Your choice', 'Your journey'] },
-    property: { chapter: '05 / ZEXOR ESTATES', lines: ['The right place', 'changes everything.'], body: 'Explore listed homes and spaces, then request a viewing for the one that fits.', cta: 'Explore properties', labels: ['Find your space', 'Request a viewing'] },
+    cars: { chapter: '04 / ZEXOR MOTORS', lines: ['Take the road', 'your way.'], body: 'Explore available vehicles, compare rental options and choose what suits your plans.', cta: 'Browse cars', labels: ['Your choice', 'Your journey'] },
+    property: { chapter: '05 / ZEXOR ESTATES', lines: ['The right place', 'changes everything.'], body: 'Explore listed homes and spaces, then request a viewing for the one that fits.', cta: 'Browse properties', labels: ['Find your space', 'Request a viewing'] },
   },
 } as const;
 
