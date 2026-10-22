@@ -36,7 +36,7 @@ import {
 import { art } from '../data/imagery';
 import { DepartmentBanner } from './DepartmentBanner';
 import { INITIAL_CATEGORIES, SHIPPING_RATES } from '../data/initialData';
-import { publicAssetUrl } from '../utils';
+import { dateLocale, formatNumber, publicAssetUrl } from '../utils';
 import type {
   CustomerOrder,
   DynamicCategory,
@@ -1239,7 +1239,7 @@ export function AdminDashboard({
           <div className="grid gap-4 xl:grid-cols-2">
             <div className="rounded-2xl border border-zx-border bg-zx-surface-raised/90 p-5 shadow-sm">
               <div className="flex items-center justify-between"><h3 className="text-xs font-bold">{isArabic ? 'أحدث الطلبات' : 'Recent orders'}</h3><button className="text-[10px] font-semibold text-zx-text" onClick={() => setActiveTab('orders')} type="button">{isArabic ? 'كل الطلبات ←' : 'All orders →'}</button></div>
-              {recentOrders.length ? <div className="mt-3 divide-y divide-zx-border">{recentOrders.map((order) => <button className="flex w-full items-center justify-between gap-3 py-2 text-start" key={order.id} onClick={() => { setOrderSearch(order.id); setOrderMarketFilter('all'); setOrderStatusFilter('all'); setOrderDetailsId(order.id); setActiveTab('orders'); }} type="button"><span><span className="block text-[11px] font-semibold">{order.customer} · {order.id}</span><span className="text-[9px] text-zx-text-secondary">{new Date(order.createdAt).toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB')}</span></span><span className="text-[10px] font-bold">{order.total.toLocaleString()} {order.market === 'eg' ? 'ج.م' : 'ر.س'}</span></button>)}</div> : <p className="mt-3 text-xs text-zx-text-secondary">{isArabic ? 'لا توجد طلبات بعد.' : 'No orders yet.'}</p>}
+              {recentOrders.length ? <div className="mt-3 divide-y divide-zx-border">{recentOrders.map((order) => <button className="flex w-full items-center justify-between gap-3 py-2 text-start" key={order.id} onClick={() => { setOrderSearch(order.id); setOrderMarketFilter('all'); setOrderStatusFilter('all'); setOrderDetailsId(order.id); setActiveTab('orders'); }} type="button"><span><span className="block text-[11px] font-semibold">{order.customer} · {order.id}</span><span className="text-[9px] text-zx-text-secondary">{new Date(order.createdAt).toLocaleDateString(dateLocale(locale))}</span></span><span className="text-[10px] font-bold">{formatNumber(order.total)} {order.market === 'eg' ? 'ج.م' : 'ر.س'}</span></button>)}</div> : <p className="mt-3 text-xs text-zx-text-secondary">{isArabic ? 'لا توجد طلبات بعد.' : 'No orders yet.'}</p>}
             </div>
             <div className="rounded-2xl border border-zx-border bg-zx-surface-raised/90 p-5 shadow-sm">
               <div className="flex items-center justify-between"><h3 className="text-xs font-bold">{isArabic ? 'تنبيهات المخزون' : 'Stock alerts'}</h3><button className="text-[10px] font-semibold text-zx-text" onClick={() => { setInventoryLowOnly(true); setActiveTab('inventory'); }} type="button">{isArabic ? 'إدارة المخزون ←' : 'Manage inventory →'}</button></div>
@@ -1302,7 +1302,7 @@ export function AdminDashboard({
             const spentEg = customer.orders.filter((order) => order.market === 'eg' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0);
             const spentKsa = customer.orders.filter((order) => order.market === 'ksa' && order.status === 'complete').reduce((sum, order) => sum + order.total, 0);
             const validOrderCount = customer.orders.filter((order) => order.status !== 'cancelled').length;
-            return <tr key={customer.key}><td className="p-3 font-semibold">{customer.name}{validOrderCount >= 3 && <span className="ms-2 rounded-full bg-zx-surface px-2 py-0.5 text-[9px] text-zx-text-secondary">VIP</span>}</td><td className="p-3 font-mono">{customer.phone}</td><td className="p-3">{validOrderCount}</td><td className="p-3">{customer.inquiries.length}</td><td className="p-3">{spentEg.toLocaleString()} ج.م</td><td className="p-3">{spentKsa.toLocaleString()} ر.س</td><td className="p-3">{lastActivity ? new Date(lastActivity).toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB') : '—'}</td><td className="p-3"><a className="rounded-full bg-zx-cinematic px-3 py-1.5 text-[10px] text-zx-accent-contrast" href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} rel="noreferrer" target="_blank">WhatsApp</a></td></tr>;
+            return <tr key={customer.key}><td className="p-3 font-semibold">{customer.name}{validOrderCount >= 3 && <span className="ms-2 rounded-full bg-zx-surface px-2 py-0.5 text-[9px] text-zx-text-secondary">VIP</span>}</td><td className="p-3 font-mono">{customer.phone}</td><td className="p-3">{validOrderCount}</td><td className="p-3">{customer.inquiries.length}</td><td className="p-3">{formatNumber(spentEg)} ج.م</td><td className="p-3">{formatNumber(spentKsa)} ر.س</td><td className="p-3">{lastActivity ? new Date(lastActivity).toLocaleDateString(dateLocale(locale)) : '—'}</td><td className="p-3"><a className="rounded-full bg-zx-cinematic px-3 py-1.5 text-[10px] text-zx-accent-contrast" href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`} rel="noreferrer" target="_blank">WhatsApp</a></td></tr>;
           })}</tbody></table></div>
         </section>
       )}
@@ -2018,7 +2018,7 @@ export function AdminDashboard({
                   <div>
                     <h4 className="text-xs font-bold text-zx-text">{v.title.ar}</h4>
                     <p className="text-[10px] text-zx-text">
-                      {v.make} · {v.year} · {v.price.toLocaleString()} {v.region === 'Riyadh' || v.region === 'Jeddah' ? 'ر.س' : 'ج.م'}{v.deal === 'Rent' ? ` / ${isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[v.rentalPeriod ?? 'Day'] : (v.rentalPeriod ?? 'Day').toLowerCase()}` : ''} · {v.deal === 'Rent' ? (isArabic ? 'إيجار' : 'Rent') : isArabic ? 'بيع' : 'Sale'}
+                      {v.make} · {v.year} · {formatNumber(v.price)} {v.region === 'Riyadh' || v.region === 'Jeddah' ? 'ر.س' : 'ج.م'}{v.deal === 'Rent' ? ` / ${isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[v.rentalPeriod ?? 'Day'] : (v.rentalPeriod ?? 'Day').toLowerCase()}` : ''} · {v.deal === 'Rent' ? (isArabic ? 'إيجار' : 'Rent') : isArabic ? 'بيع' : 'Sale'}
                     </p>
                   </div>
                 </div>
@@ -2193,7 +2193,7 @@ export function AdminDashboard({
                   <div>
                     <h4 className="text-xs font-bold text-zx-text">{p.title.ar}</h4>
                     <p className="text-[10px] text-zx-text">
-                      {p.type} · {p.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? `إيجار ${p.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `Rent · ${p.rentalPeriod === 'Year' ? 'yearly' : 'monthly'}`} · {p.price.toLocaleString()}
+                      {p.type} · {p.deal === 'Sale' ? (isArabic ? 'بيع بتفويض المالك' : 'Owner-authorized sale') : isArabic ? `إيجار ${p.rentalPeriod === 'Year' ? 'سنوي' : 'شهري'}` : `Rent · ${p.rentalPeriod === 'Year' ? 'yearly' : 'monthly'}`} · {formatNumber(p.price)}
                     </p>
                   </div>
                 </div>
@@ -2453,7 +2453,7 @@ export function AdminDashboard({
                             <ul className="mt-1 space-y-1 text-[10px]">{order.items.map((item, index) => <li key={`${item.productId}-${index}`}>{item.quantity} × {item.name}{item.variant ? ` · ${item.variant}` : ''}</li>)}</ul>
                           </div>
                           <div className="space-y-1 text-[10px]">
-                            <p><strong>{isArabic ? 'تاريخ الطلب:' : 'Placed:'}</strong> {new Date(order.createdAt).toLocaleString(isArabic ? 'ar-EG' : 'en-GB')}</p>
+                            <p><strong>{isArabic ? 'تاريخ الطلب:' : 'Placed:'}</strong> {new Date(order.createdAt).toLocaleString(dateLocale(locale))}</p>
                             <p><strong>{isArabic ? 'طريقة الدفع:' : 'Payment:'}</strong> {order.paymentMethod || '—'}</p>
                             {order.paymentStatus && <p><strong>{isArabic ? 'حالة الدفع:' : 'Payment status:'}</strong> {order.paymentStatus === 'paid' ? (isArabic ? 'مدفوع' : 'Paid') : order.paymentStatus === 'pending' ? (isArabic ? 'بانتظار الدفع' : 'Awaiting payment') : order.paymentStatus === 'failed' ? (isArabic ? 'لم يكتمل الدفع' : 'Payment failed') : order.paymentStatus === 'refunded' ? (isArabic ? 'مسترد' : 'Refunded') : (isArabic ? 'غير مدفوع' : 'Unpaid')}</p>}
                             <p><strong>{isArabic ? 'كود الخصم:' : 'Promo:'}</strong> {order.promoCode || '—'}</p>
@@ -2676,21 +2676,21 @@ export function AdminDashboard({
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'طلبات الفترة' : 'Orders in period'}</span><p className="mt-1 text-xl font-bold">{periodOrders.length}</p></div>
             <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'مكتملة' : 'Completed'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.length}</p></div>
-            <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'إيراد مصر' : 'Egypt revenue'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.filter((order) => order.market === 'eg').reduce((sum, order) => sum + order.total, 0).toLocaleString()} ج.م</p></div>
-            <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'إيراد السعودية' : 'Saudi revenue'}</span><p className="mt-1 text-xl font-bold">{periodCompletedOrders.filter((order) => order.market === 'ksa').reduce((sum, order) => sum + order.total, 0).toLocaleString()} ر.س</p></div>
+            <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'إيراد مصر' : 'Egypt revenue'}</span><p className="mt-1 text-xl font-bold">{formatNumber(periodCompletedOrders.filter((order) => order.market === 'eg').reduce((sum, order) => sum + order.total, 0))} ج.م</p></div>
+            <div className="rounded-2xl bg-zx-mint p-4"><span className="text-[10px] text-zx-text">{isArabic ? 'إيراد السعودية' : 'Saudi revenue'}</span><p className="mt-1 text-xl font-bold">{formatNumber(periodCompletedOrders.filter((order) => order.market === 'ksa').reduce((sum, order) => sum + order.total, 0))} ر.س</p></div>
           </div>
           <div className="grid gap-4 xl:grid-cols-2">
             {(['eg', 'ksa'] as const).map((marketKey) => {
               const maximum = Math.max(1, ...salesTimeline.map((day) => day[marketKey]));
               return <div className="rounded-2xl border border-zx-border p-4" key={marketKey}>
                 <h3 className="text-xs font-bold">{marketKey === 'eg' ? (isArabic ? 'إيرادات مصر · ج.م' : 'Egypt revenue · EGP') : (isArabic ? 'إيرادات السعودية · ر.س' : 'Saudi revenue · SAR')}</h3>
-                <div className="mt-5 flex h-40 items-end gap-1 overflow-x-auto border-b border-zx-border pb-2">{salesTimeline.map((day) => <div className="flex h-full min-w-5 flex-1 flex-col items-center justify-end gap-1" key={localDateKey(day.date)} title={`${day.date.toLocaleDateString()} · ${day[marketKey].toLocaleString()} ${marketKey === 'eg' ? 'EGP' : 'SAR'} · ${day.count} orders`}><div className="w-full max-w-7 rounded-t-md bg-zx-accent transition-all" style={{ height: `${day[marketKey] ? Math.max(4, day[marketKey] / maximum * 100) : 0}%` }} /><span className="text-[8px] text-zx-text-secondary">{day.date.toLocaleDateString(isArabic ? 'ar-EG' : 'en-GB', { day: 'numeric', month: salesPeriodDays === 7 ? undefined : 'short' })}</span></div>)}</div>
+                <div className="mt-5 flex h-40 items-end gap-1 overflow-x-auto border-b border-zx-border pb-2">{salesTimeline.map((day) => <div className="flex h-full min-w-5 flex-1 flex-col items-center justify-end gap-1" key={localDateKey(day.date)} title={`${day.date.toLocaleDateString(dateLocale(locale))} · ${formatNumber(day[marketKey])} ${marketKey === 'eg' ? 'EGP' : 'SAR'} · ${day.count} orders`}><div className="w-full max-w-7 rounded-t-md bg-zx-accent transition-all" style={{ height: `${day[marketKey] ? Math.max(4, day[marketKey] / maximum * 100) : 0}%` }} /><span className="text-[8px] text-zx-text-secondary">{day.date.toLocaleDateString(dateLocale(locale), { day: 'numeric', month: salesPeriodDays === 7 ? undefined : 'short' })}</span></div>)}</div>
               </div>;
             })}
           </div>
           <div className="rounded-2xl border border-zx-border p-4">
             <h3 className="text-xs font-bold">{isArabic ? 'الأكثر مبيعاً في الفترة' : 'Top products in this period'}</h3>
-            {bestSellers.length ? <div className="mt-3 divide-y divide-zx-border">{bestSellers.map(([id, product], index) => <div className="flex items-center justify-between gap-3 py-2 text-xs" key={id}><span className="font-semibold">{index + 1}. {product.name}</span><span className="text-zx-text">{product.quantity} {isArabic ? 'قطعة' : 'sold'} · {product.revenueEg.toLocaleString()} ج.م / {product.revenueKsa.toLocaleString()} ر.س</span></div>)}</div> : <p className="mt-3 text-xs text-zx-text-secondary">{isArabic ? 'لا توجد طلبات مكتملة في هذه الفترة.' : 'No completed orders in this period yet.'}</p>}
+            {bestSellers.length ? <div className="mt-3 divide-y divide-zx-border">{bestSellers.map(([id, product], index) => <div className="flex items-center justify-between gap-3 py-2 text-xs" key={id}><span className="font-semibold">{index + 1}. {product.name}</span><span className="text-zx-text">{product.quantity} {isArabic ? 'قطعة' : 'sold'} · {formatNumber(product.revenueEg)} ج.م / {formatNumber(product.revenueKsa)} ر.س</span></div>)}</div> : <p className="mt-3 text-xs text-zx-text-secondary">{isArabic ? 'لا توجد طلبات مكتملة في هذه الفترة.' : 'No completed orders in this period yet.'}</p>}
           </div>
         </section>
       )}

@@ -3,7 +3,7 @@ import { Check, Eye, RotateCcw, UploadCloud } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../supabase';
 import { DEFAULT_SITE_ASSETS, DEFAULT_SITE_CONTENT, type SiteAssetType } from '../config/assets';
 import type { Locale, Product } from '../types';
-import { publicAssetUrl } from '../utils';
+import { dateLocale, publicAssetUrl } from '../utils';
 import { useSiteMedia } from '../lib/siteMediaContext';
 
 const NfcLivePreview = lazy(() => import('./3d/NfcLivePreview').then((module) => ({ default: module.NfcLivePreview })));
@@ -629,7 +629,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
                         {draft
                           ? (isArabic ? 'مسودة جاهزة للنشر' : 'Draft ready to publish')
                           : row ? (isArabic ? row.status === 'published' ? 'مخصص · منشور' : 'مخصص · مسودة' : `Custom · ${row.status}`) : (isArabic ? 'افتراضي' : 'Default')}
-                        {previewRow?.updated_at && <time className="ms-2 font-normal text-zx-text-secondary" dateTime={previewRow.updated_at}>{new Date(previewRow.updated_at).toLocaleDateString(isArabic ? 'ar-EG' : 'en')}</time>}
+                        {previewRow?.updated_at && <time className="ms-2 font-normal text-zx-text-secondary" dateTime={previewRow.updated_at}>{new Date(previewRow.updated_at).toLocaleDateString(dateLocale(isArabic ? 'ar' : 'en'))}</time>}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                       <button className="min-h-11 rounded-lg bg-zx-cinematic px-3 text-xs font-semibold text-zx-accent-contrast" disabled={busyKey === key} onClick={() => {
@@ -655,7 +655,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
                     {selectedKey === key && history.length > 0 && (
                       <ul className="mt-3 space-y-2 border-t border-zx-border pt-3">
                         {history.map((version) => <li className="flex flex-wrap items-center justify-between gap-2 text-xs" key={version.id}>
-                          <time dateTime={version.archived_at}>{new Date(version.archived_at).toLocaleString(isArabic ? 'ar-EG' : 'en')}</time>
+                          <time dateTime={version.archived_at}>{new Date(version.archived_at).toLocaleString(dateLocale(isArabic ? 'ar' : 'en'))}</time>
                           <button className="min-h-11 rounded-lg border border-zx-border px-3" onClick={() => void rollbackAsset(key, version)} type="button">{isArabic ? 'استرجاع' : 'Roll back'}</button>
                         </li>)}
                       </ul>

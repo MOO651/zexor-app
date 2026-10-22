@@ -15,6 +15,14 @@ export function intlLocale(locale: Locale): string {
 }
 
 /**
+ * Locale for dates shown in the dashboards. Keeps Arabic month/day names but
+ * forces Latin digits (`nu-latn`), matching the rest of the site's numerals.
+ */
+export function dateLocale(locale: Locale): string {
+  return locale === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB';
+}
+
+/**
  * Currency label for a market in a given locale.
  *
  * The Arabic form deliberately omits the period ("جم" rather than "ج.م").
