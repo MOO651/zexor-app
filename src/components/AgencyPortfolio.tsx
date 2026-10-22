@@ -366,7 +366,7 @@ I would like to discuss next steps.`;
                 {isArabic ? 'ملخص التقدير الفوري' : 'Instant Cost Breakdown'}
               </span>
               <p aria-atomic="true" aria-live="polite" className="mt-3 text-3xl font-extrabold text-zx-text">
-                {new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en').format(totalEstimate)} {currency}
+                {new Intl.NumberFormat('en-US').format(totalEstimate)} {currency}
               </p>
               <p className="mt-1 text-[10px] text-zx-text-secondary">
                 {isArabic

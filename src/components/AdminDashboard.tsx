@@ -1222,13 +1222,13 @@ export function AdminDashboard({
             <div className="rounded-2xl border border-zx-border bg-zx-surface-raised/90 p-5 shadow-sm">
               <span className="text-[10px] text-zx-text">{isArabic ? 'إيرادات مصر المكتملة' : 'Revenue Egypt'}</span>
               <p className="mt-2 text-2xl font-bold text-zx-text">
-                {new Intl.NumberFormat('ar-EG').format(totalRevenueEg)} ج.م
+                {new Intl.NumberFormat('en-US').format(totalRevenueEg)} ج.م
               </p>
             </div>
             <div className="rounded-2xl border border-zx-border bg-zx-surface-raised/90 p-5 shadow-sm">
               <span className="text-[10px] text-zx-text">{isArabic ? 'إيرادات السعودية المكتملة' : 'Revenue KSA'}</span>
               <p className="mt-2 text-2xl font-bold text-zx-text">
-                {new Intl.NumberFormat('ar-SA').format(totalRevenueKsa)} ر.س
+                {new Intl.NumberFormat('en-US').format(totalRevenueKsa)} ر.س
               </p>
             </div>
             <div className="rounded-2xl border border-zx-border bg-zx-surface-raised/90 p-5 shadow-sm">

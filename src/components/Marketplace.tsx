@@ -174,7 +174,7 @@ export function Marketplace({
     ? (isArabic ? 'ر.س' : 'SAR')
     : (isArabic ? 'جم' : 'EGP'));
   const formatListingPrice = (price: number, region: string) =>
-    `${new Intl.NumberFormat(isArabic ? (market === 'ksa' ? 'ar-SA' : 'ar-EG') : 'en').format(price)} ${listingCurrency(region)}`;
+    `${new Intl.NumberFormat('en-US').format(price)} ${listingCurrency(region)}`;
   const rentalPeriodLabel = (vehicle: Vehicle) => {
     const period = vehicle.rentalPeriod ?? 'Day';
     if (!isArabic) return period.toLowerCase();
