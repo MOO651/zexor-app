@@ -1415,7 +1415,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 .zx-hero-accent {
-  color: var(--zx-text-muted);
+  color: var(--zx-highlight);
 }
 
 .zx-hero-badge {
@@ -1706,10 +1706,6 @@ html:lang(ar) .zx-hero-title {
   color: var(--zx-text);
 }
 
-[data-theme="dark"] .zx-hero-accent {
-  color: var(--zx-warning);
-}
-
 [data-theme="dark"] .zx-hero-badge,
 [data-theme="dark"] .zx-hero-secondary,
 [data-theme="dark"] .zx-hero-departments button {
@@ -1947,7 +1943,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 .zx-home-hero--showroom .zx-hero-accent {
-  color: var(--zx-warning);
+  color: var(--zx-highlight);
   font-weight: 500;
 }
 
@@ -2112,7 +2108,7 @@ html[dir='rtl'] .zx-hero-visual {
 }
 
 [data-theme="dark"] .zx-home-hero--showroom .zx-hero-accent {
-  color: var(--zx-warning);
+  color: var(--zx-highlight);
 }
 
 [data-theme="dark"] .zx-hero-arrow {
@@ -2255,7 +2251,7 @@ html:lang(ar) .zx-hero-title {
 }
 
 .zx-hero-accent {
-  color: var(--zx-text-muted);
+  color: var(--zx-highlight);
   text-decoration: none;
 }
 
