@@ -29,6 +29,7 @@ const HERO_FALLBACKS: Record<string, string> = {
   services: art.studioPortal,
   cars: art.vehiclesPortal,
   property: art.estatePortal,
+  market: art.studioPortal,
 };
 
 const HERO_GLYPHS = ['Z', 'E', 'X', 'O', 'R', '+'] as const;
