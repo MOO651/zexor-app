@@ -20,6 +20,7 @@ type HomePageProps = {
   vehicles: Vehicle[];
   properties: Property[];
   settings: SiteSettings;
+  categories: DynamicCategory[];
   wishlist: string[];
   navigate: (route: Route) => void;
   onToggleWishlist: (product: Product) => void;
@@ -31,7 +32,7 @@ type HomePageProps = {
 };
 
 export function HomePage({
-  locale, isArabic, market, products, vehicles, properties, settings, wishlist,
+  locale, isArabic, market, products, vehicles, properties, settings, categories, wishlist,
   navigate, onToggleWishlist, onAddToCart, onOpenNfcCustomizer, onToast, onTrackOrder, renderPrice,
 }: HomePageProps) {
   const { sectionVisibility, content } = settings;
@@ -54,6 +55,7 @@ export function HomePage({
     <div className="zx-new-home">
       <SitePreloader enabled={siteContent['feature.preloader']?.value_json === true} locale={locale} />
       <HomeHero
+        departmentNames={Object.fromEntries(categories.filter((category) => !category.parentSlug).map((category) => [category.slug, category.name[locale]))}
         heroAccent={settings.heroAccent[locale]}
         heroImage={settings.heroImage}
         heroText={settings.heroText[locale]}
@@ -71,7 +73,7 @@ export function HomePage({
       </section>
 
       <div id="departments" className="zx-new-departments">
-        <CategoryShowcase isArabic={isArabic} locale={locale} navigate={navigate} visible={visible} />
+        <CategoryShowcase categories={categories} isArabic={isArabic} locale={locale} navigate={navigate} visible={visible} />
       </div>
 
       {siteContent['feature.quiz']?.value_json === true && <ProductFinderQuiz locale={locale} onNavigate={navigate} />}
