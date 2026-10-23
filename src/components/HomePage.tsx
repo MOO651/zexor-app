@@ -2,7 +2,7 @@ import { ArrowUpRight, MessageCircle, Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { STATS } from '../data/initialData';
 import { PORTALS } from '../data/portals';
-import type { Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
+import type { DynamicCategory, Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
 import { publicAssetUrl, whatsappNumberFor } from '../utils';
 import { CategoryShowcase } from './CategoryShowcase';
 import { HomeHero } from './HomeHero';
