@@ -45,6 +45,7 @@ import {
   STATS,
 } from './data/initialData';
 import { HomeHero, TiltCard } from './components/HomeHero';
+import { HomePage } from './components/HomePage';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
 import { NfcChapter } from './scenes/NfcChapter';
 import { FashionLookbook } from './scenes/FashionLookbook';
