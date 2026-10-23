@@ -41,7 +41,7 @@ type Props = {
   heroAccent: string;
   heroText: string;
   heroImage?: string;
-  departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string>>;
+  departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property' | 'market', string>>;
   departmentCount?: number;
 };
 
