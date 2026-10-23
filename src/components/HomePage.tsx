@@ -32,7 +32,7 @@ type HomePageProps = {
 };
 
 export function HomePage({
-  locale, isArabic, market, products, vehicles, properties, settings, categories, wishlist,
+  locale, isArabic, market, products, settings, categories, wishlist,
   navigate, onToggleWishlist, onAddToCart, onOpenNfcCustomizer, onToast, onTrackOrder, renderPrice,
 }: HomePageProps) {
   const { sectionVisibility, content } = settings;
