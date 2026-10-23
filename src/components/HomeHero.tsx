@@ -121,7 +121,7 @@ export function HomeHero({
               >
                 {videoUrl && <video aria-hidden="true" autoPlay className="zx-bold-world-video" loop muted playsInline poster={resolvedImage} preload="none" src={videoUrl} />}
                 <span className="zx-bold-world-shade" />
-                <span className="zx-bold-world-index">0{index + 1}<span> / 05</span></span>
+                <span className="zx-bold-world-index">0{index + 1}<span> / 06</span></span>
                 <span className="zx-bold-world-glyph">{Glyph}</span>
                 <span className="zx-bold-world-bottom">
                   <span className="zx-bold-world-icon"><Icon aria-hidden="true" /></span>
