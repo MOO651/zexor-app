@@ -1,0 +1,629 @@
+/*
+ * ZEXOR brand refresh
+ * A unified, editorial storefront language: warm porcelain, ink, and electric
+ * lime. Scoped to the existing app so business flows and admin functionality
+ * remain intact.
+ */
+:root {
+  --zx-brand-ink: #111713;
+  --zx-brand-paper: #f6f7f2;
+  --zx-brand-muted: #737a73;
+  --zx-brand-line: rgba(17, 23, 19, .12);
+  --zx-brand-lime: #c9fa55;
+  --zx-brand-radius: 1.25rem;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  background: var(--zx-bg, var(--zx-brand-paper));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a {
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    color .22s ease,
+    box-shadow .22s ease,
+    transform .22s ease;
+}
+
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--zx-mint, var(--zx-brand-lime)) 72%, white);
+  outline-offset: 3px;
+}
+
+/* Consistent top-level frame */
+.zx-app-shell {
+  overflow-x: clip;
+}
+
+.zx-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  border-bottom: 1px solid var(--zx-brand-line);
+  background: color-mix(in srgb, var(--zx-bg, var(--zx-brand-paper)) 88%, transparent);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+
+.zx-site-header :where(a, button) {
+  border-radius: 999px;
+}
+
+.zx-site-header :where(a, button):hover {
+  background-color: color-mix(in srgb, var(--zx-mint, var(--zx-brand-lime)) 15%, transparent);
+}
+
+/* New homepage: strong editorial layout, readable on mobile */
+.zx-home-redesign {
+  height: auto !important;
+  min-height: min(820px, calc(100svh - 4rem));
+  margin-block: 1rem 3rem;
+  overflow: clip;
+  border: 1px solid var(--zx-brand-line);
+  border-radius: clamp(1.25rem, 3vw, 2.5rem);
+  background: var(--zx-bg, var(--zx-brand-paper));
+}
+
+.zx-home-redesign .zx-home-redesign-stage {
+  position: relative;
+  min-height: min(820px, calc(100svh - 4rem));
+  height: auto;
+  overflow: hidden;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 12% 5%, color-mix(in srgb, var(--zx-mint, var(--zx-brand-lime)) 20%, transparent), transparent 42%),
+    linear-gradient(135deg, var(--zx-bg, var(--zx-brand-paper)), color-mix(in srgb, var(--zx-bg, var(--zx-brand-paper)) 80%, var(--zx-mint, var(--zx-brand-lime))));
+  color: var(--zx-text, var(--zx-brand-ink));
+}
+
+.zx-home-redesign .zx-home-redesign-content {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  width: min(100%, 1440px);
+  min-height: inherit;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 4.5rem);
+}
+
+.zx-home-redesign .five-windows-atmosphere,
+.zx-home-redesign .five-windows-outline {
+  display: none;
+}
+
+.zx-home-redesign .five-windows-eyebrow {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--zx-text-secondary, var(--zx-brand-muted));
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.zx-home-redesign .five-windows-copy {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  max-width: 42rem;
+}
+
+.zx-home-redesign .five-windows-copy h1 {
+  margin: 0;
+  font-size: clamp(2.7rem, 5.8vw, 6.6rem);
+  font-weight: 850;
+  letter-spacing: -.065em;
+  line-height: .99;
+  text-wrap: balance;
+}
+
+.zx-home-redesign .five-windows-title-line {
+  display: block;
+}
+
+.zx-home-redesign .five-windows-accent {
+  color: var(--zx-accent, var(--zx-brand-ink));
+  text-decoration: underline;
+  text-decoration-color: var(--zx-mint, var(--zx-brand-lime));
+  text-decoration-thickness: .09em;
+  text-underline-offset: .1em;
+}
+
+.zx-home-redesign .five-windows-copy > p {
+  max-width: 34rem;
+  margin-block: 1.25rem 0;
+  color: var(--zx-text-secondary, var(--zx-brand-muted));
+  font-size: clamp(.95rem, 1.25vw, 1.15rem);
+  line-height: 1.85;
+}
+
+.zx-home-redesign .zx-home-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .9rem 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.zx-home-redesign .five-windows-cta {
+  display: inline-flex;
+  min-height: 3.2rem;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  padding: .85rem 1.35rem;
+  border: 1px solid var(--zx-brand-ink);
+  border-radius: 999px;
+  background: var(--zx-brand-ink);
+  color: white;
+  font-size: .9rem;
+  font-weight: 750;
+}
+
+.zx-home-redesign .five-windows-cta:hover {
+  transform: translateY(-2px);
+  background: var(--zx-mint, var(--zx-brand-lime));
+  border-color: var(--zx-mint, var(--zx-brand-lime));
+  color: var(--zx-brand-ink);
+  box-shadow: 0 12px 30px rgba(17, 23, 19, .12);
+}
+
+.zx-home-redesign .zx-home-hero-note {
+  color: var(--zx-text-secondary, var(--zx-brand-muted));
+  font-size: .8rem;
+}
+
+.zx-home-redesign .five-windows-wordmark.zx-home-departments {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  white-space: normal;
+}
+
+.zx-home-redesign .zx-home-department {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: clamp(10rem, 19vw, 16rem);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: .55rem;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, .26);
+  border-radius: 1.2rem;
+  background-color: #202721;
+  background-position: center;
+  background-size: cover;
+  color: white;
+  text-align: start;
+  isolation: isolate;
+}
+
+.zx-home-redesign .zx-home-department::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 13, 10, .04) 5%, rgba(8, 13, 10, .16) 35%, rgba(8, 13, 10, .88) 100%);
+  content: "";
+}
+
+.zx-home-redesign .zx-home-department::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  content: "";
+  transition: border-color .2s ease;
+}
+
+.zx-home-redesign .zx-home-department:hover,
+.zx-home-redesign .zx-home-department:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(10, 20, 12, .18);
+}
+
+.zx-home-redesign .zx-home-department.is-active::after {
+  border-color: var(--zx-mint, var(--zx-brand-lime));
+}
+
+.zx-home-redesign .five-windows-video {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.zx-home-redesign .five-windows-glyph {
+  display: none;
+}
+
+.zx-home-redesign .five-windows-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  min-width: 0;
+}
+
+.zx-home-redesign .five-windows-number {
+  width: 100%;
+  color: rgba(255, 255, 255, .7);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.zx-home-redesign .five-windows-label > svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--zx-mint, var(--zx-brand-lime));
+}
+
+.zx-home-redesign .five-windows-name {
+  font-size: clamp(.78rem, 1vw, 1rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.zx-home-redesign .zx-home-department-action {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  color: rgba(255, 255, 255, .75);
+  font-size: .72rem;
+}
+
+.zx-home-redesign .five-windows-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+  margin-top: .25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--zx-brand-line);
+  color: var(--zx-text-secondary, var(--zx-brand-muted));
+  font-size: .7rem;
+  font-weight: 750;
+  letter-spacing: .06em;
+}
+
+/* Existing storefront components share the same visual rhythm */
+.zx-app-shell main :where(.rounded-3xl, .rounded-\[1\.7rem\]) {
+  scroll-margin-top: 7rem;
+}
+
+.zx-app-shell main :where(input, select, textarea) {
+  min-height: 2.8rem;
+  border-radius: .85rem;
+}
+
+.zx-app-shell main :where(input, select, textarea):focus {
+  border-color: var(--zx-mint, var(--zx-brand-lime));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--zx-mint, var(--zx-brand-lime)) 18%, transparent);
+}
+
+.zx-app-shell main button:not(.five-windows-cta):not(.zx-home-department) {
+  touch-action: manipulation;
+}
+
+@media (min-width: 1500px) {
+  .zx-home-redesign .zx-home-redesign-content {
+    padding-inline: 5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .zx-home-redesign .zx-home-redesign-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 5vw, 2.5rem);
+  }
+
+  .zx-home-redesign .five-windows-copy {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .zx-home-redesign .five-windows-wordmark.zx-home-departments {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .zx-home-redesign .five-windows-footer {
+    grid-column: 1;
+  }
+
+  .zx-home-redesign .zx-home-department {
+    min-height: clamp(9rem, 28vw, 13rem);
+  }
+}
+
+@media (max-width: 520px) {
+  .zx-home-redesign {
+    margin-block: .5rem 2rem;
+    border-radius: 1.15rem;
+  }
+
+  .zx-home-redesign .zx-home-redesign-content {
+    gap: 1.25rem;
+    padding: 1.1rem;
+  }
+
+  .zx-home-redesign .five-windows-copy h1 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .zx-home-redesign .five-windows-wordmark.zx-home-departments {
+    gap: .55rem;
+  }
+
+  .zx-home-redesign .zx-home-department {
+    min-height: 9.25rem;
+    padding: .8rem;
+    border-radius: .95rem;
+  }
+
+  .zx-home-redesign .five-windows-footer {
+    font-size: .62rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .zx-home-redesign *,
+  .zx-site-header *,
+  .zx-app-shell button,
+  .zx-app-shell a {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ZEXOR complete visual system — aligned to the existing forest / mint / sand identity. */
+:root {
+  --zx-brand-ink: #12241B;
+  --zx-brand-paper: #F4F0E6;
+  --zx-brand-muted: #6B7F73;
+  --zx-brand-line: #E2DBC9;
+  --zx-brand-lime: #A9E5C0;
+  --zx-brand-radius: 1.25rem;
+}
+
+[data-theme="dark"] {
+  --zx-brand-ink: #F2EEE3;
+  --zx-brand-paper: #07130E;
+  --zx-brand-muted: #86A092;
+  --zx-brand-line: rgb(169 229 192 / 16%);
+  --zx-brand-lime: #7FE0A8;
+}
+
+/* Make every public page feel like the same premium brand. */
+.zx-app-shell {
+  background: var(--zx-bg);
+  color: var(--zx-text);
+  isolation: isolate;
+}
+
+.zx-app-shell main {
+  width: 100%;
+  max-width: 100%;
+  color: var(--zx-text);
+}
+
+.zx-site-header {
+  inset-block-start: 0;
+  padding: .55rem clamp(.65rem, 2.4vw, 2rem);
+  border-bottom: 1px solid var(--zx-border);
+  background: color-mix(in srgb, var(--zx-bg) 88%, transparent);
+}
+
+.zx-site-nav {
+  width: min(100%, var(--zx-container));
+  margin-inline: auto;
+  border: 1px solid color-mix(in srgb, var(--zx-border) 75%, transparent);
+  border-radius: 999px;
+  background: var(--zx-glass);
+  box-shadow: 0 8px 32px -26px var(--zx-footer-bg);
+  backdrop-filter: blur(20px);
+}
+
+.zx-app-shell main :where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+.zx-app-shell main :where(p, li, label) {
+  text-wrap: pretty;
+}
+
+.zx-app-shell main :where(section) {
+  scroll-margin-top: 6rem;
+}
+
+.zx-app-shell main :where(input, select, textarea) {
+  width: auto;
+  min-height: 2.9rem;
+  border: 1px solid var(--zx-border);
+  border-radius: .9rem;
+  background: var(--zx-surface-raised);
+  color: var(--zx-text);
+}
+
+.zx-app-shell main :where(input, select, textarea)::placeholder {
+  color: var(--zx-text-muted);
+}
+
+.zx-app-shell main :where(input, select, textarea):focus-visible {
+  border-color: var(--zx-accent);
+  outline: 3px solid color-mix(in srgb, var(--zx-accent) 22%, transparent);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+.zx-app-shell main :where([class*="rounded-2xl"], [class*="rounded-3xl"], [class*="rounded-[1."]) {
+  scroll-margin-top: 6rem;
+}
+
+.zx-app-shell main :where(.zx-card, .zx-product-card, .zx-market-card, .zx-showcase-card, .zx-tile, .zx-panel) {
+  border-color: var(--zx-border);
+  border-radius: var(--zx-radius-lg);
+  box-shadow: var(--zx-shadow-card);
+}
+
+.zx-app-shell main :where(.zx-card, .zx-product-card, .zx-market-card, .zx-panel) {
+  background-color: var(--zx-surface-raised);
+  color: var(--zx-text);
+}
+
+.zx-app-shell main :where(.zx-button-primary, .zx-btn-primary, [data-variant="primary"]) {
+  border-color: var(--zx-accent);
+  background: var(--zx-accent);
+  color: var(--zx-accent-contrast);
+}
+
+.zx-app-shell main :where(.zx-button-primary, .zx-btn-primary, [data-variant="primary"]):hover {
+  background: var(--zx-accent-hover);
+  border-color: var(--zx-accent-hover);
+}
+
+.zx-app-shell main :where(a, button) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zx-app-shell main :where(a, button):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--zx-accent) 68%, white);
+  outline-offset: 3px;
+}
+
+.zx-home-redesign {
+  width: min(calc(100% - clamp(1rem, 4vw, 3rem)), 96rem);
+  margin: clamp(.75rem, 2vw, 1.5rem) auto clamp(2.5rem, 6vw, 5rem);
+  border-color: var(--zx-border);
+  box-shadow: var(--zx-shadow-card);
+}
+
+.zx-home-redesign .zx-home-redesign-stage {
+  background:
+    radial-gradient(ellipse at 95% 4%, color-mix(in srgb, var(--zx-mint) 24%, transparent), transparent 35%),
+    linear-gradient(145deg, var(--zx-bg), var(--zx-surface));
+}
+
+.zx-home-redesign .five-windows-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  color: var(--zx-accent);
+}
+
+.zx-home-redesign .five-windows-eyebrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.zx-home-redesign .five-windows-copy h1 {
+  font-family: var(--zx-display);
+  font-weight: 800;
+  letter-spacing: -.045em;
+}
+
+.zx-home-redesign .five-windows-accent {
+  color: var(--zx-accent);
+  text-decoration-color: var(--zx-mint);
+}
+
+.zx-home-redesign .five-windows-cta {
+  border-color: var(--zx-accent);
+  background: var(--zx-accent);
+  color: var(--zx-accent-contrast);
+}
+
+.zx-home-redesign .five-windows-cta:hover {
+  border-color: var(--zx-accent-hover);
+  background: var(--zx-accent-hover);
+  color: var(--zx-accent-contrast);
+}
+
+.zx-home-redesign .zx-home-department {
+  border-color: color-mix(in srgb, var(--zx-mint) 28%, transparent);
+  border-radius: var(--zx-radius-lg);
+}
+
+.zx-home-redesign .zx-home-department.is-active::after {
+  border-color: var(--zx-mint);
+}
+
+.zx-home-redesign .five-windows-label > svg {
+  color: var(--zx-mint);
+}
+
+.zx-home-redesign .five-windows-footer {
+  border-color: var(--zx-border);
+}
+
+@media (max-width: 900px) {
+  .zx-home-redesign {
+    width: calc(100% - 1.25rem);
+  }
+  .zx-home-redesign .zx-home-redesign-content {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .zx-site-header {
+    padding: max(.4rem, env(safe-area-inset-top, 0px)) .45rem .45rem;
+  }
+  .zx-site-nav {
+    border-radius: 1.15rem;
+  }
+  .zx-home-redesign {
+    width: calc(100% - 1rem);
+    margin-block: .5rem 2.5rem;
+  }
+  .zx-home-redesign .five-windows-copy h1 {
+    line-height: 1.12;
+    letter-spacing: 0;
+  }
+  .zx-home-redesign .five-windows-copy > p {
+    line-height: 1.9;
+  }
+  .zx-home-redesign .zx-home-department {
+    min-height: 9rem;
+  }
+}
+
+html:lang(ar) .zx-home-redesign .five-windows-copy h1 {
+  letter-spacing: 0;
+  line-height: 1.35;
+}
