@@ -98,6 +98,18 @@ const ORDERED: Portal[] = [
     icon: Building2,
     accent: 'var(--zx-mint)',
   },
+  {
+    route: 'market',
+    title: { en: 'ZEXOR MARKET', ar: 'زكسور ماركت' },
+    tagline: {
+      en: 'A considered edit of useful finds, fresh drops and everyday essentials.',
+      ar: 'اختيارات مميزة ومنتجات جديدة واحتياجات يومية في مكان واحد.',
+    },
+    meta: { en: 'Discover · Curated · Everyday', ar: 'اكتشف · مختارات · يومي' },
+    image: photos.studioStore,
+    icon: ShoppingBag,
+    accent: 'var(--zx-mint)',
+  },
 ];
 
 const pad = (n: number) => String(n).padStart(2, '0');
