@@ -91,6 +91,8 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
 .zx-bold-world-bottom { color: #fff; }
 .zx-bold-world-icon { border-color: rgb(255 255 255 / 48%); background: rgb(10 11 14 / 22%); }
 .zx-bold-world:hover .zx-bold-world-icon, .zx-bold-world.is-active .zx-bold-world-icon { border-color: var(--zx-accent); background: var(--zx-accent); color: #101109; }
+.zx-bold-world-6 { grid-column: 1 / span 2; grid-row: 9 / span 2; min-height: 8rem; }
+.zx-bold-world-6 .zx-bold-world-glyph { font-size: clamp(3rem, 8vw, 6rem); }
 .zx-bold-home-bottomline { border-color: var(--zx-border); }
 
 /* Section rhythm and product surfaces. */
