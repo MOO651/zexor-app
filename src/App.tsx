@@ -41,18 +41,11 @@ import {
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
-  AGENCY_PROJECTS,
-  STATS,
 } from './data/initialData';
-import { HomeHero, TiltCard } from './components/HomeHero';
 import { HomePage } from './components/HomePage';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
-import { NfcChapter } from './scenes/NfcChapter';
-import { FashionLookbook } from './scenes/FashionLookbook';
-import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
-import { StudioChapter } from './scenes/StudioChapter';
 import { TestimonialsSection } from './components/TestimonialsSection';
-import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
+import { SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
 // Route-only surfaces are code-split so the home page ships a much smaller
 // initial bundle. Admins and buyers only download what they actually open.
@@ -77,7 +70,6 @@ import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { PORTALS } from './data/portals';
-import { useSiteContent } from './lib/siteMediaContext';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   blankPaymentMethod,
@@ -646,13 +638,6 @@ export default function App() {
     () => normalizeLegacySectionTitles(mergeSettings(DEFAULT_SETTINGS, settings)),
     [settings],
   );
-  const { content: siteContent, getText: getResolvedSiteText } = useSiteContent();
-  const getSiteText = (key: string, language: Locale) => (
-    siteContent[key]?.source === 'published'
-      ? getResolvedSiteText(key, language)
-      : null
-  );
-
   const [route, setRoute] = useState<Route>(pageFromHash);
   useEffect(() => {
     if (route === 'admin' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1397,8 +1382,6 @@ export default function App() {
   const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
     (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
-  const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
-    .filter(isDepartmentActive).length;
 
   const navItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [
