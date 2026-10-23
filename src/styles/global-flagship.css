@@ -385,3 +385,38 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
  .zx-new-hero-copy h1 { font-size: 3.3rem; }
  .zx-new-hero-art { min-height: 21rem; }
 }
+
+/* Admin becomes an operations workspace with its own visual hierarchy. */
+.zx-admin { display: flex; flex-direction: column; gap: 1.5rem; max-width: 100%; }
+.zx-admin > div:first-child { position: relative; display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; padding: clamp(1.2rem, 3vw, 2.8rem); border: 1px solid #30323a; background: radial-gradient(ellipse at 100% 0%, rgb(216 255 69 / 8%), transparent 38%), #0d0e12; }
+.zx-admin > div:first-child h1 { max-width: 18ch; font-size: clamp(1.7rem, 3.3vw, 3.1rem); font-weight: 850; letter-spacing: -.065em; line-height: 1.02; }
+.zx-admin > div:first-child > div:last-child { gap: .45rem; }
+.zx-admin > div:first-child > div:last-child button { min-height: 2.7rem; border-radius: 2px !important; border-color: #383a43 !important; background: #17191f !important; padding-inline: .8rem; }
+.zx-admin > div:first-child > div:last-child button:hover { border-color: #d8ff45 !important; color: #d8ff45 !important; }
+.zx-admin > .grid { gap: 1rem !important; }
+.zx-admin-tabs { display: flex; flex-direction: column; gap: .35rem !important; padding: .65rem !important; border: 1px solid #30323a !important; background: #0d0e12 !important; }
+.zx-admin-tabs button { min-height: 2.75rem; padding: .7rem .85rem !important; border: 1px solid transparent; border-radius: 2px !important; font-size: .75rem !important; }
+.zx-admin-tabs button[class*="bg-zx-cinematic"] { border-color: #d8ff45 !important; background: #d8ff45 !important; color: #11120d !important; box-shadow: none !important; }
+.zx-admin-tabs button:not([class*="bg-zx-cinematic"]) { background: transparent !important; color: #b8bac3 !important; }
+.zx-admin-tabs button:not([class*="bg-zx-cinematic"]):hover { border-color: #383a43; background: #191b21 !important; color: #f3f0e8 !important; }
+.zx-admin :where(.rounded-3xl,.rounded-2xl,.rounded-xl) { border-radius: 2px !important; }
+.zx-admin :where(.bg-zx-surface,.bg-zx-surface-raised) { background-color: #111318 !important; }
+.zx-admin :where([class*="border-zx-border"]) { border-color: #30323a !important; }
+.zx-admin :where(h2,h3) { letter-spacing: -.035em; }
+.zx-admin :where(button,input,select,textarea) { border-radius: 2px; }
+.zx-admin :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) { background: #0b0c0f !important; }
+.zx-admin table thead { background: #1b1d24; }
+.zx-admin table :where(th,td) { padding: .8rem .7rem; }
+@media (max-width: 1024px) {
+ .zx-admin > div:first-child { align-items: start; flex-direction: column; }
+ .zx-admin > .grid { grid-template-columns: minmax(0, 1fr) !important; }
+ .zx-admin-tabs { position: sticky !important; top: 4.5rem !important; z-index: 35; flex-direction: row !important; overflow-x: auto !important; border: 1px solid #30323a !important; padding: .45rem !important; }
+ .zx-admin-tabs button { width: auto !important; justify-content: center !important; }
+}
+@media (max-width: 700px) {
+ .zx-admin > div:first-child { padding: 1rem; }
+ .zx-admin > div:first-child h1 { font-size: 1.8rem; }
+ .zx-admin > div:first-child > div:last-child { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; }
+ .zx-admin > div:first-child > div:last-child button { justify-content: center; min-width: 0; padding-inline: .45rem; font-size: .65rem; }
+ .zx-admin-tabs { top: 3.9rem !important; }
+}
