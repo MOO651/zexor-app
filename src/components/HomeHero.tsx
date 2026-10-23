@@ -129,8 +129,10 @@ export function HomeHero({
                   aria-label={`${department.name}`}
                   className={`five-windows-window zx-home-department ${activeIndex === index ? 'is-active' : ''}`}
                   key={department.route}
-                  onClick={() => setActiveIndex(index)}
-                  onDoubleClick={() => openDepartment(department.route)}
+                  onClick={() => {
+                    setActiveIndex(index);
+                    openDepartment(department.route);
+                  }}
                   onFocus={() => setActiveIndex(index)}
                   style={{ backgroundImage: `url("${resolvedImage}")` }}
                   type="button"
