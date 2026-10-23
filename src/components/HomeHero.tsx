@@ -62,9 +62,6 @@ export function HomeHero({
     name: departmentNames?.[portal.route as keyof NonNullable<Props['departmentNames']>] ?? portal.title[locale],
   }));
   const active = departments[activeIndex] ?? departments[0];
-  const accentWords = heroAccent.trim().split(/\s+/);
-  const accentWord = accentWords.pop() ?? '';
-  const accentPrefix = accentWords.join(' ');
 
   const openDepartment = (route: Route) => {
     const chapter = document.getElementById(`chapter-${route}`);
