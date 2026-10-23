@@ -87,7 +87,10 @@ function DepartmentTile({
 /** Five image-led gateways form a calm, consistent directory for the store. */
 export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
   const reduceMotion = useReducedMotion();
-  const portals = visiblePortals(visible);
+  const portals = visiblePortals(visible).filter((portal) => {
+    const category = categories.find((item) => item.slug === portal.route && !item.parentSlug);
+    return !category || category.active;
+  });
 
   if (portals.length === 0) return null;
 
