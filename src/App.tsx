@@ -1960,10 +1960,8 @@ export default function App() {
             onToast={(message) => setToast(message)}
             onTrackOrder={() => setTrackingOpen(true)}
             products={storefrontProducts}
-            properties={properties}
             renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />}
             settings={resolvedSettings}
-            vehicles={vehicles}
             wishlist={wishlist}
           />
         )}
