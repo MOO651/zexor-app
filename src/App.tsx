@@ -41,17 +41,11 @@ import {
   INITIAL_PRODUCTS,
   INITIAL_PROPERTIES,
   INITIAL_VEHICLES,
-  AGENCY_PROJECTS,
-  STATS,
 } from './data/initialData';
-import { HomeHero, TiltCard } from './components/HomeHero';
+import { HomePage } from './components/HomePage';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
-import { NfcChapter } from './scenes/NfcChapter';
-import { FashionLookbook } from './scenes/FashionLookbook';
-import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
-import { StudioChapter } from './scenes/StudioChapter';
 import { TestimonialsSection } from './components/TestimonialsSection';
-import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
+import { SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
 // Route-only surfaces are code-split so the home page ships a much smaller
 // initial bundle. Admins and buyers only download what they actually open.
@@ -70,13 +64,11 @@ const CheckoutDrawer = lazy(() =>
 const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
-import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
 import { art } from './data/imagery';
 import { PORTALS } from './data/portals';
-import { useSiteContent } from './lib/siteMediaContext';
 import { isSupabaseConfigured, supabase } from '../supabase';
 import {
   blankPaymentMethod,
@@ -645,13 +637,6 @@ export default function App() {
     () => normalizeLegacySectionTitles(mergeSettings(DEFAULT_SETTINGS, settings)),
     [settings],
   );
-  const { content: siteContent, getText: getResolvedSiteText } = useSiteContent();
-  const getSiteText = (key: string, language: Locale) => (
-    siteContent[key]?.source === 'published'
-      ? getResolvedSiteText(key, language)
-      : null
-  );
-
   const [route, setRoute] = useState<Route>(pageFromHash);
   useEffect(() => {
     if (route === 'admin' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1396,8 +1381,6 @@ export default function App() {
   const isDepartmentActive = useCallback((slug: 'cards' | 'fashion' | 'services' | 'cars' | 'property') =>
     (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
-  const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
-    .filter(isDepartmentActive).length;
 
   const navItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [
@@ -1965,489 +1948,23 @@ export default function App() {
           </section>
         )}
         {route === 'home' && (
-          <div className="home-page-flow">
-            {/* 1. Interactive 3D Parallax Hero */}
-            <HomeHero
-              departmentCount={activeDepartmentCount}
-              departmentNames={{
-                cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
-                fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
-                services: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'),
-                cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
-                property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
-              }}
-              heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
-              heroImage={resolvedSettings.heroImage}
-              heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
-              heroTitle={getSiteText('hero.headline', locale) ?? resolvedSettings.heroTitle[locale]}
-              locale={locale}
-              navigate={navigate}
-            />
-
-            <NfcChapter
-              locale={locale}
-              market={market}
-              onDesign={handleOpenNfcCustomizer}
-              onExplore={() => navigate('cards')}
-              product={storefrontProducts.find((product) => product.category === 'cards')}
-              renderPrice={(price, className) => (
-                <PriceTag className={className} price={price} market={market} locale={locale} />
-              )}
-            />
-
-            {isDepartmentActive('fashion') && (
-              <FashionLookbook
-                locale={locale}
-                market={market}
-                navigateToFashion={() => navigate('fashion')}
-                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
-                onShare={handleShareProduct}
-                onToggleWishlist={handleToggleWishlist}
-                products={storefrontProducts}
-                renderPrice={(price, className) => (
-                  <PriceTag className={className} price={price} market={market} locale={locale} />
-                )}
-                wishlist={wishlist}
-              />
-            )}
-
-            {isDepartmentActive('services') && (
-              <StudioChapter
-                locale={locale}
-                navigate={navigate}
-                projects={AGENCY_PROJECTS}
-              />
-            )}
-
-            {isDepartmentActive('cars') && (
-              <CarsChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                vehicles={vehicles}
-              />
-            )}
-
-            {isDepartmentActive('property') && (
-              <RealEstateChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                properties={properties}
-              />
-            )}
-
-            {/* 2. Department Board — image-driven entry points into every section.
-                The `departments` id is the scroll target for the hero's
-                "Explore All 5 Departments" button. */}
-            <div id="departments" className="scroll-mt-24">
-              <CategoryShowcase
-                categories={categories}
-                isArabic={isArabic}
-                locale={locale}
-                navigate={navigate}
-                visible={{
-                  cards: isDepartmentActive('cards'),
-                  fashion: isDepartmentActive('fashion'),
-                  cars: isDepartmentActive('cars'),
-                  property: isDepartmentActive('property'),
-                  services: isDepartmentActive('services'),
-                }}
-              />
-            </div>
-
-            {/* 3. Live Animated Stats Counter */}
-            <section className="zx-feature-band relative overflow-hidden rounded-4xl p-6 shadow-sm sm:p-8">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -inset-e-16 -top-16 h-48 w-48 rounded-full bg-zx-mint/60 blur-3xl"
-              />
-              <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-4">
-                {STATS.map((s, i) => (
-                  <motion.div
-                    className="text-center"
-                    initial={{ opacity: 0, y: 14 }}
-                    key={s.id}
-                    transition={{ duration: 0.5, delay: i * 0.08 }}
-                    viewport={{ once: true }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                  >
-                    <p className="zx-display zx-feature-value text-3xl sm:text-4xl">
-                      {s.value}
-                    </p>
-                    <p className="zx-eyebrow zx-feature-label mt-2">{s.label[locale]}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
-            {/* 3. Section 01: 3D Smart NFC Identity Cards Showcase */}
-            {isDepartmentActive('cards') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      01 / {isArabic ? 'بطاقات الهوية المتصلة' : 'CONNECTED IDENTITY'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.cardsTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('cards')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كافة البطاقات' : 'View All Cards'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {storefrontProducts.filter((p) => p.category === 'cards').slice(0, 3).length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف البطاقات' : 'Explore NFC cards'} description={isArabic ? 'نجهّز لك تجربة بطاقات تربط حضورك الرقمي بلمسة واحدة. تواصل معنا لمساعدتك في اختيار التصميم المناسب.' : 'We are preparing a considered NFC collection. Talk to our team and we will help you choose the right design.'} image={art.cardsPortal} locale={locale} onAction={() => navigate('cards')} title={isArabic ? 'هويتك الرقمية تبدأ من هنا' : 'Your connected identity starts here'} />
-                  ) : storefrontProducts
-                    .filter((p) => p.category === 'cards')
-                    .slice(0, 3)
-                    .map((p) => (
-                      <ProductCard
-                        key={p.id}
-                        product={p}
-                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
-                        market={market}
-                        locale={locale}
-                        wishlisted={wishlist.includes(p.id)}
-                        renderPrice={(price, className) => (
-                          <PriceTag className={className} price={price} market={market} locale={locale} />
-                        )}
-                        onToggleWishlist={handleToggleWishlist}
-                        onShare={handleShareProduct}
-                        onNotifyAvailability={(item) => setRestockProduct(item)}
-                        onAddToCart={(prod) => handleAddToCart(prod)}
-                        onCustomize={handleOpenNfcCustomizer}
-                      />
-                    ))}
-                </div>
-              </section>
-            )}
-
-            {/* 4. Section 02: Streetwear Collection Showcase */}
-            {isDepartmentActive('fashion') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      02 / {isArabic ? 'مجموعة الأزياء والستريت وير' : 'STREETWEAR COLLECTION'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.fashionTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('fashion')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض التشكيلة' : 'View Drop'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {storefrontProducts.filter((p) => p.category === 'fashion').slice(0, 2).length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'اكتشف الأزياء' : 'Explore fashion'} description={isArabic ? 'المجموعة الجديدة قيد التجهيز. استكشف قسم الأزياء أو تواصل معنا لمعرفة المتاح.' : 'The next fashion collection is being prepared. Explore the department or ask our team what is available.'} image={art.hoodie} locale={locale} onAction={() => navigate('fashion')} title={isArabic ? 'تفاصيل مختارة ليومك' : 'Thoughtful pieces for every day'} />
-                  ) : storefrontProducts
-                    .filter((p) => p.category === 'fashion')
-                    .slice(0, 2)
-                    .map((p) => (
-                      <ProductCard
-                        key={p.id}
-                        product={p}
-                        categoryLabel={categories.find((category) => category.slug === p.subcategoryId)?.name[locale] ?? categoryNameFor(p.category, p.category.toUpperCase())}
-                        market={market}
-                        locale={locale}
-                        wishlisted={wishlist.includes(p.id)}
-                        renderPrice={(price, className) => (
-                          <PriceTag className={className} price={price} market="eg" locale={locale} />
-                        )}
-                        onToggleWishlist={handleToggleWishlist}
-                        onShare={handleShareProduct}
-                        onNotifyAvailability={(item) => setRestockProduct(item)}
-                        onAddToCart={(prod, variant) => handleAddToCart(prod, undefined, variant)}
-                        badge={isArabic ? 'إصدار محدود' : 'Limited Drop'}
-                      />
-                    ))}
-                </div>
-              </section>
-            )}
-
-            {/* 5. Section 03: Digital Studio, Live Demos & Software Agency */}
-            {isDepartmentActive('services') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      03 / {isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.servicesTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('services')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'فتح الاستوديو وحاسبة التكلفة' : 'Open Full Studio & Calculator'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-3">
-                  {AGENCY_PROJECTS.map((proj) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={proj.id}
-                    >
-                      <div className="relative aspect-[1.55/1] overflow-hidden bg-zx-mint">
-                        <img alt={proj.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(proj.image)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-zx-cinematic/35 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/80 px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast backdrop-blur-md">
-                          {proj.category[locale]}
-                        </span>
-                      </div>
-                      <div className="flex min-h-47.5 flex-col p-4 sm:p-5">
-                        <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{proj.title[locale]}</h3>
-                        <p className="mt-2 line-clamp-3 min-h-15 text-[11px] leading-5 text-zx-text">{proj.description[locale]}</p>
-                        <a
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-xs transition hover:bg-zx-cinematic"
-                          href={proj.demoUrl}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          <ArrowUpRight className="h-3.5 w-3.5" />
-                          {isArabic ? 'معاينة حية للمشروع (Live Demo)' : 'Live Demo'}
-                        </a>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 6. Section 04: Luxury Car Showroom */}
-            {isDepartmentActive('cars') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      04 / {isArabic ? 'معرض ومكتب السيارات الفاخرة' : 'CURATED VEHICLES'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.carsTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('cars')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كل السيارات' : 'View All Cars'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {vehicles.length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق السيارات' : 'Ask our vehicle team'} description={isArabic ? 'لا توجد سيارات منشورة في المعرض حالياً. فريقنا يساعدك في العثور على خيار الإيجار المناسب.' : 'There are no published vehicles in the showroom right now. Our team can help you find a rental that fits.'} image={art.vehiclesPortal} locale={locale} onAction={() => navigate('cars')} title={isArabic ? 'اختيارك القادم يبدأ من هنا' : 'Your next drive starts here'} />
-                  ) : vehicles.map((car) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={car.id}
-                    >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
-                        <img alt={car.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(car.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/55 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">{car.id}</span>
-                        <span className="absolute inset-e-3 top-3 rounded-full border border-zx-border/20 bg-zx-cinematic/85 px-2.5 py-1 text-[9px] font-bold text-zx-accent-contrast backdrop-blur-md">
-                          {car.deal === 'Rent' ? isArabic ? 'للإيجار' : 'For rent' : isArabic ? 'للبيع' : 'For sale'}
-                        </span>
-                      </div>
-                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-1 text-sm font-bold text-zx-text">{car.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">{car.make}</span>
-                        </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{car.location[locale]}</p>
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {[String(car.year), car.transmission === 'Automatic' ? (isArabic ? 'أوتوماتيك' : 'Automatic') : (isArabic ? 'مانيوال' : 'Manual'), car.body].map((spec) => (
-                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>
-                              {isArabic ? ({ Sedan: 'سيدان', SUV: 'دفع رباعي', Coupe: 'كوبيه' } as Record<string, string>)[spec] ?? spec : spec}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="mt-4 border-t border-zx-border pt-3">
-                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-zx-text">
-                            {money(car.price, car.region === 'Riyadh' || car.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                            {car.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">/ {isArabic ? ({ Day: 'يوم', Week: 'أسبوع', Month: 'شهر' } as const)[car.rentalPeriod ?? 'Day'] : (car.rentalPeriod ?? 'Day').toLowerCase()}</span>}
-                          </p>
-                        </div>
-                        <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
-                          onClick={() => {
-                            const msg = isArabic
-                              ? `${car.deal === 'Rent' ? 'طلب استئجار' : 'طلب حجز معاينة للسيارة'} ${car.id}: ${car.title.ar}`
-                              : `${car.deal === 'Rent' ? 'Rental inquiry' : 'Booking inspection'} for ${car.id}: ${car.title.en}`;
-                            openWhatsApp(whatsappNumberFor(market, resolvedSettings), msg);
-                          }}
-                          type="button"
-                        >
-                          <MessageCircle className="h-3.5 w-3.5" />
-                            {car.deal === 'Rent' ? isArabic ? 'استفسر عن الإيجار' : 'Ask about rental' : isArabic ? 'احجز معاينة على واتساب' : 'Book Inspection'}
-                        </button>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 7. Section 05: Prime Real Estate Showcase */}
-            {isDepartmentActive('property') && (
-              <section className="space-y-6">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-                  <div>
-                    <span className="zx-eyebrow text-zx-text">
-                      05 / {isArabic ? 'قسم العقارات والمساحات' : 'PRIME REAL ESTATE'}
-                    </span>
-                    <h2 className="zx-display mt-2 text-2xl text-zx-text sm:text-3xl">
-                      {resolvedSettings.content.propertyTitle[locale]}
-                    </h2>
-                  </div>
-                  <button
-                    className="flex items-center gap-1.5 text-xs font-bold text-zx-text hover:text-zx-text"
-                    onClick={() => navigate('property')}
-                    type="button"
-                  >
-                    <span>{isArabic ? 'استعراض كل العقارات' : 'View All Properties'}</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {properties.length === 0 ? (
-                    <DepartmentEmptyState actionLabel={isArabic ? 'تواصل مع فريق العقارات' : 'Ask our property team'} description={isArabic ? 'لا توجد مساحات منشورة حالياً. أخبرنا بما تبحث عنه وسنساعدك في العثور على إيجار مناسب.' : 'There are no published spaces right now. Tell us what you need and we will help find a suitable rental.'} image={art.estatePortal} locale={locale} onAction={() => navigate('property')} title={isArabic ? 'مساحة تناسب خطوتك القادمة' : 'Find room for what comes next'} />
-                  ) : properties.map((prop) => (
-                    <TiltCard
-                      className="zx-showcase-card group overflow-hidden rounded-[1.7rem] border border-zx-border bg-zx-surface-raised shadow-zx-card transition-all duration-300 hover:-translate-y-1 hover:border-zx-border hover:shadow-zx-card"
-                      intensity={8}
-                      key={prop.id}
-                    >
-                      <div className="relative aspect-[1.42/1] overflow-hidden bg-zx-mint">
-                        <img alt={prop.title[locale]} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" src={publicAssetUrl(prop.photo)} />
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-zx-cinematic/50 to-transparent" />
-                        <span className="absolute inset-s-3 top-3 rounded-full bg-zx-cinematic/60 px-2.5 py-1 text-[8px] font-bold text-zx-accent-contrast backdrop-blur-md">
-                          {prop.id}
-                        </span>
-                        <span className="absolute inset-e-3 top-3 rounded-full bg-zx-cinematic px-2.5 py-1 text-[8px] font-semibold text-zx-accent-contrast">
-                          {prop.deal === 'Sale' ? (isArabic ? 'للبيع' : 'Sale') : isArabic ? 'للإيجار' : 'Rent'}
-                        </span>
-                      </div>
-                      <div className="flex                       min-h-56.25 flex-col p-4 sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="line-clamp-2 min-h-10 text-sm font-bold text-zx-text">{prop.title[locale]}</h3>
-                          <span className="shrink-0 rounded-full bg-zx-mint px-2.5 py-1 text-[9px] font-bold text-zx-mint-contrast">
-                            {isArabic ? ({ Apartment: 'شقة', Villa: 'فيلا', Land: 'أرض', Shop: 'محل' } as Record<string, string>)[prop.type] ?? prop.type : prop.type}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 line-clamp-1 text-[10px] text-zx-text">{prop.location[locale]}</p>
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {[`${new Intl.NumberFormat('en-US').format(prop.area)} ${isArabic ? 'م²' : 'm²'}`, prop.rooms > 0 ? `${prop.rooms} ${isArabic ? 'غرف' : 'rooms'}` : ''].filter(Boolean).map((spec) => (
-                            <span className="rounded-lg border border-zx-border bg-zx-mint px-2 py-1 text-[9px] font-semibold text-zx-mint-contrast" key={spec}>{spec}</span>
-                          ))}
-                        </div>
-                        <div className="mt-4 border-t border-zx-border pt-3">
-                          <span className="block text-[9px] font-semibold text-zx-text-secondary">{isArabic ? 'السعر' : 'PRICE'}</span>
-                          <p className="zx-display mt-1 text-lg text-zx-text">
-                            {money(prop.price, prop.region === 'Riyadh' || prop.region === 'Jeddah' ? 'ksa' : 'eg', locale)}
-                          {prop.deal === 'Rent' && <span className="ms-1 font-sans text-[10px] font-semibold text-zx-text">{isArabic ? 'إيجار' : 'rent'}</span>}
-                          </p>
-                        </div>
-                        <button
-                          className="mt-auto flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-zx-cinematic text-xs font-semibold text-zx-accent-contrast transition hover:bg-zx-cinematic"
-                          onClick={() => navigate('property')}
-                          type="button"
-                        >
-                          {isArabic ? 'طلب معاينة ميدانية' : 'Request Viewing'}
-                        </button>
-                      </div>
-                    </TiltCard>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* 8. Section 06: Client Testimonials & Reviews */}
-            <TestimonialsSection
-              locale={locale}
-              onContact={() => openWhatsApp(
-                whatsappNumberFor(market, resolvedSettings),
-                isArabic ? 'مرحباً، أرغب في مشاركة تجربتي مع ZEXOR.' : 'Hello, I would like to share my experience with ZEXOR.',
-              )}
-            />
-
-            {/* 9. Section 07: Interactive FAQ */}
-            <FaqSection isArabic={isArabic} locale={locale} />
-
-            {/* 10. Section 08: Order Tracking + Newsletter */}
-            <TrackingAndNewsletter
-              isArabic={isArabic}
-              locale={locale}
-              onSubscribe={(email) =>
-                setToast(
-                  isArabic
-                    ? `تمت إضافة ${email} إلى قائمة الإصدارات!`
-                    : `Added ${email} to the drop list!`,
-                )
-              }
-              onTrackOrder={() => setTrackingOpen(true)}
-            />
-
-            {/* 9. Section 07: High-Impact Call to Action */}
-            <section className="relative overflow-hidden rounded-4xl border border-zx-border bg-linear-to-br from-zx-cinematic to-zx-cinematic p-8 text-zx-accent-contrast shadow-2xl sm:p-14">
-              <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-                <div className="max-w-xl">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-zx-text-secondary">
-                    {isArabic ? 'ابدأ خطوتك القادمة الآن' : 'YOUR NEXT MOVE STARTS HERE'}
-                  </span>
-                  <h2 className="mt-2 text-3xl font-extrabold sm:text-5xl">
-                    {resolvedSettings.content.ctaTitle[locale]}
-                  </h2>
-                  <p className="mt-3 text-xs leading-6 text-zx-accent-contrast/75 sm:text-sm">
-                    {resolvedSettings.content.ctaText[locale]}
-                  </p>
-                </div>
-                <a
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-zx-surface-raised px-8 text-xs font-bold text-zx-text shadow-lg transition-all hover:bg-zx-accent"
-                  href={`https://wa.me/${market === 'eg' ? resolvedSettings.whatsappEg : resolvedSettings.whatsappKsa}?text=${encodeURIComponent(
-                    isArabic ? 'مرحباً ZEXOR، أود بدء محادثة ومناقشة مشروع جديد.' : 'Hello ZEXOR, I want to start a new project.',
-                  )}`}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>{isArabic ? 'محادثة فورية على واتساب' : 'Chat on WhatsApp'}</span>
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
-              </div>
-            </section>
-          </div>
+          <HomePage
+            categories={categories}
+            isArabic={isArabic}
+            locale={locale}
+            market={market}
+            navigate={navigate}
+            onAddToCart={(product, customization, variant) => handleAddToCart(product, customization, variant)}
+            onOpenNfcCustomizer={handleOpenNfcCustomizer}
+            onToggleWishlist={handleToggleWishlist}
+            onToast={(message) => setToast(message)}
+            onTrackOrder={() => setTrackingOpen(true)}
+            products={storefrontProducts}
+            renderPrice={(price, className) => <PriceTag className={className} price={price} market={market} locale={locale} />}
+            settings={resolvedSettings}
+            wishlist={wishlist}
+          />
         )}
-
-        {/* Route: Cards */}
         {route === 'cards' && (
           <div className="space-y-10">
             {departmentBanner('cards', isArabic ? 'هويتك الرقمية، بلمسة واحدة' : 'Your identity, one tap away', isArabic ? 'بطاقات NFC عملية وأنيقة تربط تفاصيلك المهنية والاجتماعية مباشرة بهاتفك.' : 'Thoughtful NFC cards that connect your professional identity and social profiles in one tap.')}
