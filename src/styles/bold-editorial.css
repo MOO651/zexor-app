@@ -1,0 +1,197 @@
+/*
+ * ZEXOR / BOLD EDITORIAL SYSTEM
+ * Visual-only layer. Keeps existing routes, state, auth, Supabase and checkout
+ * components untouched; uses the current forest / mint / sand brand tokens.
+ */
+:root {
+  --zx-editorial-ink: #10271d;
+  --zx-editorial-paper: #f4f0e6;
+  --zx-editorial-line: color-mix(in srgb, var(--zx-border) 82%, transparent);
+  --zx-editorial-radius: 1.4rem;
+  --zx-editorial-ease: cubic-bezier(.2,.8,.2,1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background:
+    radial-gradient(ellipse at 8% 0%, color-mix(in srgb, var(--zx-mint) 13%, transparent), transparent 32rem),
+    var(--zx-bg);
+  letter-spacing: -.012em;
+}
+::selection { background: var(--zx-mint); color: var(--zx-editorial-ink); }
+:where(a,button,input,select,textarea):focus-visible {
+  outline: 3px solid var(--zx-accent-hover);
+  outline-offset: 3px;
+}
+.zx-app-shell { min-height: 100vh; overflow-x: clip; }
+.zx-app-shell main { isolation: isolate; }
+.zx-app-shell main > * { animation: zx-editorial-enter .55s var(--zx-editorial-ease) both; }
+.zx-app-shell main > *:nth-child(2) { animation-delay: .035s; }
+.zx-app-shell main > *:nth-child(3) { animation-delay: .07s; }
+.zx-app-shell main > *:nth-child(4) { animation-delay: .105s; }
+@keyframes zx-editorial-enter { from { opacity: .78; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Navigation: compact, glassy, confident; brand mark remains unchanged. */
+.zx-site-header {
+  top: .5rem !important;
+  margin-inline: auto;
+  width: min(calc(100% - 1rem), 94rem);
+  border: 1px solid var(--zx-editorial-line) !important;
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--zx-surface-raised) 86%, transparent) !important;
+  box-shadow: 0 12px 38px -30px var(--zx-footer-bg);
+  backdrop-filter: blur(22px) saturate(1.3);
+}
+.zx-site-header :where(a,button) { transition: background .2s ease, color .2s ease, transform .2s ease; }
+.zx-site-header :where(a,button):hover { transform: translateY(-1px); }
+
+/* Landing / hero: large editorial type, asymmetry and cinematic image panels. */
+.zx-home-redesign {
+  width: min(100%, 96rem);
+  min-height: min(850px, calc(100svh - 5rem)) !important;
+  margin: 1.25rem auto 4rem !important;
+  border: 1px solid var(--zx-editorial-line) !important;
+  border-radius: clamp(1.25rem, 3vw, 2.75rem) !important;
+  box-shadow: 0 30px 90px -64px var(--zx-footer-bg);
+}
+.zx-home-redesign .zx-home-redesign-stage {
+  min-height: inherit !important;
+  background:
+    radial-gradient(ellipse at 85% 15%, color-mix(in srgb, var(--zx-mint) 26%, transparent), transparent 35%),
+    linear-gradient(135deg, var(--zx-bg), color-mix(in srgb, var(--zx-bg) 76%, var(--zx-sand)));
+}
+.zx-home-redesign .zx-home-redesign-content { padding: clamp(1.25rem, 4.5vw, 5rem) !important; }
+.zx-home-redesign .five-windows-copy h1 {
+  font-size: clamp(3rem, 6.4vw, 7.2rem) !important;
+  line-height: .93 !important;
+  letter-spacing: -.075em !important;
+}
+.zx-home-redesign .five-windows-accent {
+  color: var(--zx-accent) !important;
+  text-decoration-color: var(--zx-mint) !important;
+  text-decoration-thickness: .12em !important;
+}
+.zx-home-redesign .five-windows-eyebrow { letter-spacing: .17em; }
+.zx-home-redesign .five-windows-cta {
+  border-radius: .85rem !important;
+  background: var(--zx-accent) !important;
+  border-color: var(--zx-accent) !important;
+  color: var(--zx-accent-contrast) !important;
+  box-shadow: 0 14px 34px -22px var(--zx-footer-bg);
+}
+.zx-home-redesign .five-windows-cta:hover {
+  background: var(--zx-mint) !important;
+  border-color: var(--zx-mint) !important;
+  color: var(--zx-editorial-ink) !important;
+}
+.zx-home-redesign .zx-home-department {
+  min-height: clamp(11rem, 20vw, 17rem) !important;
+  border-radius: .9rem !important;
+  border-color: color-mix(in srgb, white 40%, transparent) !important;
+  transition: transform .35s var(--zx-editorial-ease), box-shadow .35s ease !important;
+}
+.zx-home-redesign .zx-home-department:hover { transform: translateY(-6px) scale(1.01) !important; }
+.zx-home-redesign .five-windows-number { color: var(--zx-mint) !important; }
+
+/* Distinct visual signatures for each department; no content or links replaced. */
+.home-page-flow > section,
+.home-page-flow > div:not(#departments) > section {
+  position: relative;
+}
+.home-page-flow > section:has(.zx-feature-value) {
+  border: 0 !important;
+  border-radius: 1.5rem !important;
+  background: var(--zx-cinematic-gradient) !important;
+  color: var(--zx-accent-contrast) !important;
+  box-shadow: 0 22px 60px -42px var(--zx-footer-bg);
+}
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-value,
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-label { color: var(--zx-accent-contrast) !important; }
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-value { font-size: clamp(2.4rem, 5vw, 4.5rem) !important; letter-spacing: -.06em; }
+.home-page-flow section:has(> .grid > .zx-product),
+.home-page-flow section:has(> .grid > div .zx-product) { border-radius: 1.5rem; }
+.home-page-flow h2 { letter-spacing: -.045em; }
+.home-page-flow .zx-section-heading-title { font-size: clamp(1.8rem, 3.5vw, 3.1rem) !important; line-height: 1.05; }
+.home-page-flow .zx-eyebrow { letter-spacing: .14em; font-weight: 800; }
+.home-page-flow .zx-feature-band { isolation: isolate; }
+
+/* Product cards and market listings feel like collectible objects. */
+.zx-product, .zx-market-card, .zx-showcase-card, .zx-tile,
+.zx-app-shell main [class*="rounded-3xl"][class*="bg-zx-surface-raised"] {
+  border-color: var(--zx-editorial-line) !important;
+  border-radius: var(--zx-editorial-radius) !important;
+  box-shadow: 0 12px 32px -26px var(--zx-footer-bg);
+  transition: transform .3s var(--zx-editorial-ease), box-shadow .3s ease, border-color .3s ease;
+}
+.zx-product:hover, .zx-market-card:hover, .zx-showcase-card:hover, .zx-tile:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 50px -34px var(--zx-footer-bg);
+  border-color: color-mix(in srgb, var(--zx-accent) 35%, var(--zx-border)) !important;
+}
+.zx-product-media, .zx-market-card > :first-child { overflow: hidden; }
+.zx-product img, .zx-market-card img, .zx-showcase-card img { transition: transform .6s var(--zx-editorial-ease); }
+.zx-product:hover img, .zx-market-card:hover img, .zx-showcase-card:hover img { transform: scale(1.035); }
+.zx-product button, .zx-market-card button, .zx-showcase-card button { min-height: 2.75rem; }
+.zx-button--primary, .zx-home-redesign .five-windows-cta { font-weight: 800; }
+
+/* Every page: clear hierarchy, consistent form fields, less cramped mobile rhythm. */
+.zx-app-shell main :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) {
+  min-height: 2.9rem;
+  border-radius: .85rem;
+  border-color: var(--zx-editorial-line);
+  background-color: var(--zx-surface-raised);
+}
+.zx-app-shell main :where(input,select,textarea):focus {
+  border-color: var(--zx-accent-hover);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--zx-mint) 28%, transparent);
+}
+.zx-app-shell main :where(button,a) { -webkit-tap-highlight-color: transparent; }
+.zx-department-banner { border-radius: clamp(1.25rem, 3vw, 2rem) !important; }
+.zx-department-banner-content { padding: clamp(1.5rem, 5vw, 4.5rem) !important; }
+.zx-department-banner-title { letter-spacing: -.055em; }
+.zx-marketplace .zx-market-filters { border-radius: 1.25rem !important; }
+
+/* Admin: a purpose-built control room, retaining every existing action and data flow. */
+.zx-admin {
+  --zx-admin-border: color-mix(in srgb, var(--zx-accent) 17%, var(--zx-border));
+  --zx-admin-shadow: 0 18px 45px -35px var(--zx-footer-bg);
+}
+.zx-admin > * { min-width: 0; }
+.zx-admin [class*="rounded-3xl"][class*="bg-zx-surface-raised"],
+.zx-admin [class*="rounded-2xl"][class*="bg-zx-surface-raised"],
+.zx-admin .zx-card, .zx-admin .zx-theme-panel {
+  border: 1px solid var(--zx-admin-border) !important;
+  border-radius: 1.15rem !important;
+  box-shadow: var(--zx-admin-shadow) !important;
+}
+.zx-admin :where(button) { font-weight: 700; }
+.zx-admin :where(button[class*="bg-zx-accent"], .zx-button--primary) {
+  box-shadow: 0 10px 26px -20px var(--zx-footer-bg);
+}
+.zx-admin :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) {
+  min-height: 2.8rem;
+  border: 1px solid var(--zx-admin-border);
+  border-radius: .75rem;
+  background: var(--zx-surface-raised);
+  color: var(--zx-text);
+}
+.zx-admin table { border-collapse: separate; border-spacing: 0; }
+.zx-admin table thead { background: color-mix(in srgb, var(--zx-accent) 8%, var(--zx-surface)); }
+.zx-admin table :where(th,td) { padding: .8rem .9rem; border-bottom: 1px solid var(--zx-editorial-line); }
+.zx-admin :where([class*="text-[9px]"],[class*="text-[10px]"]) { font-size: .75rem; line-height: 1.3rem; }
+.zx-admin form label { font-weight: 700; }
+[data-theme="dark"] .zx-admin { --zx-admin-border: color-mix(in srgb, var(--zx-accent) 25%, var(--zx-border)); }
+
+/* Respect motion preferences and preserve legibility on smaller screens. */
+@media (max-width: 720px) {
+  .zx-site-header { top: .25rem !important; width: calc(100% - .5rem); border-radius: .9rem; }
+  .zx-home-redesign { margin-block: .5rem 2.5rem !important; }
+  .zx-home-redesign .five-windows-copy h1 { font-size: clamp(2.65rem, 12vw, 4.4rem) !important; }
+  .zx-home-redesign .zx-home-department { min-height: 9.25rem !important; }
+  .home-page-flow > section:has(.zx-feature-value) { border-radius: 1.1rem !important; }
+  .zx-admin table { display: block; max-width: 100%; overflow-x: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
