@@ -1,5 +1,6 @@
 import { ArrowUpRight, Sparkles } from 'lucide-react';
-import { motion, type ReactNode } from 'framer-motion';
+import { motion } from 'framer-motion';
+import type { ReactNode } from 'react';
 import type { Locale, Route } from '../types';
 import { PORTALS } from '../data/portals';
 import { publicAssetUrl } from '../utils';
