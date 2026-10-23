@@ -55,7 +55,7 @@ export function HomePage({
     <div className="zx-new-home">
       <SitePreloader enabled={siteContent['feature.preloader']?.value_json === true} locale={locale} />
       <HomeHero
-        departmentNames={Object.fromEntries(categories.filter((category) => !category.parentSlug).map((category) => [category.slug, category.name[locale]))}
+        departmentNames={Object.fromEntries(categories.filter((category) => !category.parentSlug).map((category) => [category.slug, category.name[locale]]))}
         heroAccent={settings.heroAccent[locale]}
         heroImage={settings.heroImage}
         heroText={settings.heroText[locale]}
