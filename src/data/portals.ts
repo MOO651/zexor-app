@@ -4,13 +4,14 @@ import {
   Code2,
   CreditCard,
   Shirt,
+  ShoppingBag,
   type LucideIcon,
 } from 'lucide-react';
 import type { Locale, Route } from '../types';
 import { art, photos } from './imagery';
 
 /**
- * The five ZEXOR departments. Kept in one place so the landing-page portals,
+ * The six ZEXOR departments. Kept in one place so the landing-page portals,
  * the navigation bar and the admin dashboard all read from the same source of
  * truth (and so the order can be re-tuned without hunting through the app).
  */
