@@ -1,5 +1,6 @@
+import { motion } from 'framer-motion';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { art } from '../data/imagery';
 import { PORTALS } from '../data/portals';
 import type { Locale, Route } from '../types';
@@ -159,5 +160,28 @@ export function HomeHero({
         </div>
       </div>
     </section>
+  );
+}
+
+
+/** Lightweight interactive card wrapper shared by the homepage sections. */
+export function TiltCard({
+  children,
+  className = '',
+  intensity = 8,
+}: {
+  children: ReactNode;
+  className?: string;
+  intensity?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      whileHover={{ y: -3, scale: 1.005 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+      data-tilt-intensity={intensity}
+    >
+      {children}
+    </motion.div>
   );
 }
