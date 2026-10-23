@@ -64,7 +64,6 @@ const CheckoutDrawer = lazy(() =>
 const TrackingModal = lazy(() =>
   import('./components/TrackingModal').then((m) => ({ default: m.TrackingModal })),
 );
-import { CategoryShowcase } from './components/CategoryShowcase';
 import { DepartmentBanner } from './components/DepartmentBanner';
 import { DepartmentEmptyState } from './components/DepartmentEmptyState';
 import { ProductCard } from './components/ProductCard';
