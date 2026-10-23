@@ -31,7 +31,7 @@ const HERO_FALLBACKS: Record<string, string> = {
   property: art.estatePortal,
 };
 
-const HERO_GLYPHS = ['Z', 'E', 'X', 'O', 'R'] as const;
+const HERO_GLYPHS = ['Z', 'E', 'X', 'O', 'R', '+'] as const;
 
 type Props = {
   locale: Locale;
@@ -133,8 +133,8 @@ export function HomeHero({
         </div>
       </div>
       <div className="zx-bold-home-bottomline">
-        <span>{isArabic ? 'خمسة عوالم، برؤية واحدة.' : 'FIVE WORLDS. ONE POINT OF VIEW.'}</span>
-        <span className="zx-bold-home-bottom-mark">ZEXOR <i /> 01—05</span>
+        <span>{isArabic ? 'ستة عوالم، برؤية واحدة.' : 'SIX WORLDS. ONE POINT OF VIEW.'}</span>
+        <span className="zx-bold-home-bottom-mark">ZEXOR <i /> 01—06</span>
       </div>
     </section>
   );
