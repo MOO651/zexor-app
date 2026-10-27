@@ -1557,18 +1557,10 @@ export default function App() {
       <div aria-hidden="true" className="zx-scroll-progress">
         <span style={{ width: `${scrollProgress * 100}%` }} />
       </div>
-      {/* Dynamic Background Glow Elements */}
+      {/* Static ambient tones: preserve depth without perpetual GPU-heavy blur motion. */}
       <div aria-hidden="true" className="zx-ambient pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{ x: [0, 36, 0], y: [0, 24, 0] }}
-          className="absolute -top-64 inset-s-[4%] h-168 w-2xl rounded-full bg-zx-mint/70 blur-[130px]"
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          animate={{ x: [0, -28, 0], y: [0, 34, 0] }}
-          className="absolute top-200 -inset-e-52 h-160 w-160 rounded-full bg-zx-surface/55 blur-[140px]"
-          transition={{ duration: 21, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <div className="absolute -top-64 inset-s-[4%] h-168 w-2xl rounded-full bg-zx-mint/40 blur-[72px]" />
+        <div className="absolute top-200 -inset-e-52 h-160 w-160 rounded-full bg-zx-surface/35 blur-[80px]" />
       </div>
 
       {/* 1. Dynamic Announcement Bar */}
