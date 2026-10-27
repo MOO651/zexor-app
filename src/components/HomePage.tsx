@@ -107,7 +107,7 @@ export function HomePage({
   return (
     <div className="home-page-flow">
       <SitePreloader enabled={siteContent['feature.preloader']?.value_json === true} locale={locale} />
-      {/* 1. Interactive 3D Parallax Hero */}
+      {/* 1. Main brand statement */}
       <HomeHero
         heroAccent={settings.heroAccent[locale]}
         heroImage={settings.heroImage}
@@ -117,18 +117,7 @@ export function HomePage({
         navigate={navigate}
       />
 
-      <NfcChapter
-        locale={locale}
-        market={market}
-        onDesign={onOpenNfcCustomizer}
-        onExplore={() => navigate('cards')}
-        product={cards[0]}
-        renderPrice={renderPrice}
-      />
-
-      {/* 2. Department Board — image-driven entry points into every section.
-          The `departments` id is the scroll target for the hero's
-          "Explore All 5 Departments" button. */}
+      {/* 2. Lightweight department index — direct links, no image-scroll gallery. */}
       <div id="departments" className="scroll-mt-24">
         <CategoryShowcase
           isArabic={isArabic}
@@ -143,6 +132,15 @@ export function HomePage({
           }}
         />
       </div>
+
+      <NfcChapter
+        locale={locale}
+        market={market}
+        onDesign={onOpenNfcCustomizer}
+        onExplore={() => navigate('cards')}
+        product={cards[0]}
+        renderPrice={renderPrice}
+      />
 
       {siteContent['feature.quiz']?.value_json === true && (
         <ProductFinderQuiz locale={locale} onNavigate={navigate} />
