@@ -103,7 +103,7 @@ export function HomeHero({
             const fallback = index === 0 && heroImage ? heroImage : HERO_FALLBACKS[department.route] ?? department.image ?? art.cardsPortal;
             const posterUrl = poster?.source === 'published' ? poster.url : fallback;
             const resolvedImage = publicAssetUrl(poster?.mobileUrl && window.matchMedia('(max-width: 640px)').matches ? poster.mobileUrl : posterUrl) ?? fallback;
-            const videoUrl = content['feature.heavy_media']?.value_json !== false && video?.source === 'published' && video.type === 'video'
+            const videoUrl = content['feature.heavy_media']?.value_json === true && video?.source === 'published' && video.type === 'video'
               ? publicAssetUrl(video.url)
               : null;
             const Glyph = HERO_GLYPHS[index] ?? 'X';
