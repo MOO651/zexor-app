@@ -240,3 +240,81 @@ html[data-theme="dark"] .zx-site-header {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+
+/* Department index v2: a fast, typographic directory instead of image scroll cards. */
+.zx-department-index {
+  width: min(100%, 96rem); margin-inline: auto; padding: clamp(1.15rem, 3vw, 3rem);
+  border: 1px solid var(--zx-border); border-radius: .85rem;
+  background: var(--zx-surface); color: var(--zx-text);
+}
+.zx-department-index-head {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem;
+  padding-bottom: clamp(1.5rem, 3vw, 2.6rem);
+}
+.zx-department-index-kicker {
+  color: var(--zx-accent); font-size: .67rem; font-weight: 750;
+  letter-spacing: .13em; text-transform: uppercase;
+}
+.zx-department-index-head h2 {
+  margin-top: .75rem; font-size: clamp(2.1rem, 5.2vw, 4.8rem);
+  line-height: .98; letter-spacing: -.065em; font-weight: 820;
+}
+.zx-department-index-head p {
+  max-width: 38rem; margin-top: .9rem; color: var(--zx-text-secondary);
+  font-size: .9rem; line-height: 1.8;
+}
+.zx-department-index-market {
+  display: inline-flex; flex-shrink: 0; align-items: center; gap: .5rem;
+  padding: .7rem .9rem; border: 1px solid var(--zx-border); border-radius: 999px;
+  color: var(--zx-text-secondary); font-size: .68rem; letter-spacing: .06em;
+}
+.zx-department-index-market svg { width: 1rem; height: 1rem; }
+.zx-department-list { border-top: 1px solid var(--zx-border); }
+.zx-department-link {
+  display: grid; grid-template-columns: 2.5rem 3.25rem minmax(0,1fr) 2.75rem;
+  align-items: center; gap: clamp(.65rem, 1.6vw, 1.5rem); width: 100%;
+  min-height: 7.3rem; padding: 1.1rem .25rem; border-bottom: 1px solid var(--zx-border);
+  background: transparent; color: inherit; text-align: start; cursor: pointer;
+  transition: background-color .18s ease, padding-inline .18s ease;
+}
+.zx-department-link:hover { padding-inline: .75rem; background: color-mix(in srgb, var(--zx-accent) 7%, transparent); }
+.zx-department-number { align-self: start; padding-top: .2rem; color: var(--zx-text-muted); font-size: .72rem; font-variant-numeric: tabular-nums; }
+.zx-department-icon {
+  display: grid; width: 3rem; height: 3rem; place-items: center;
+  border: 1px solid var(--zx-border); border-radius: .65rem;
+  background: var(--zx-bg); color: var(--zx-accent);
+}
+.zx-department-icon svg { width: 1.25rem; height: 1.25rem; }
+.zx-department-copy { display: grid; gap: .35rem; min-width: 0; }
+.zx-department-title { font-size: clamp(1.05rem, 2.4vw, 1.7rem); font-weight: 780; letter-spacing: -.035em; line-height: 1.15; }
+.zx-department-tagline { color: var(--zx-text-secondary); font-size: .78rem; line-height: 1.65; }
+.zx-department-meta { color: var(--zx-text-muted); font-size: .63rem; letter-spacing: .04em; }
+.zx-department-arrow {
+  display: grid; width: 2.5rem; height: 2.5rem; place-items: center;
+  border: 1px solid var(--zx-border); border-radius: 50%; color: var(--zx-text-secondary);
+  transition: background-color .18s ease, color .18s ease;
+}
+.zx-department-arrow svg { width: 1rem; height: 1rem; }
+.zx-department-link:hover .zx-department-arrow { background: var(--zx-accent); color: var(--zx-accent-contrast); }
+.zx-department-index-foot {
+  display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem;
+  color: var(--zx-text-muted); font-size: .61rem; letter-spacing: .12em;
+}
+html[dir="rtl"] .zx-department-index-head h2 { letter-spacing: -.035em; }
+@media (max-width: 640px) {
+  .zx-department-index { padding: 1rem; border-radius: .65rem; }
+  .zx-department-index-head { align-items: flex-start; flex-direction: column; gap: 1rem; padding-bottom: 1.25rem; }
+  .zx-department-index-head h2 { font-size: clamp(2.1rem, 10vw, 3.2rem); }
+  .zx-department-index-head p { font-size: .8rem; margin-top: .65rem; }
+  .zx-department-index-market { padding: .55rem .75rem; }
+  .zx-department-link { grid-template-columns: 1.5rem 2.5rem minmax(0,1fr) 2rem; gap: .6rem; min-height: 6.4rem; padding-block: .9rem; }
+  .zx-department-link:hover { padding-inline: .25rem; }
+  .zx-department-icon { width: 2.35rem; height: 2.35rem; border-radius: .55rem; }
+  .zx-department-icon svg { width: 1.05rem; height: 1.05rem; }
+  .zx-department-title { font-size: 1rem; }
+  .zx-department-tagline { font-size: .7rem; }
+  .zx-department-meta { font-size: .58rem; line-height: 1.5; }
+  .zx-department-arrow { width: 1.85rem; height: 1.85rem; }
+  .zx-department-index-foot { font-size: .52rem; letter-spacing: .07em; }
+}
