@@ -318,3 +318,37 @@ html[dir="rtl"] .zx-department-index-head h2 { letter-spacing: -.035em; }
   .zx-department-arrow { width: 1.85rem; height: 1.85rem; }
   .zx-department-index-foot { font-size: .52rem; letter-spacing: .07em; }
 }
+
+
+/* Product presentation: editorial square crops on mobile, clean information hierarchy. */
+.home-page-flow section:has(> .grid .zx-product) > .grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(.55rem, 1.5vw, 1.25rem);
+}
+.home-page-flow .zx-product {
+  border-radius: .65rem !important;
+  background: var(--zx-surface-raised) !important;
+}
+.home-page-flow .zx-product-media { aspect-ratio: 1 / 1 !important; }
+.home-page-flow .zx-product-body { padding: clamp(.6rem, 1.4vw, 1.15rem) !important; }
+.home-page-flow .zx-product-category { font-size: .57rem !important; letter-spacing: .07em !important; }
+.home-page-flow .zx-product-name { margin-top: .45rem !important; font-size: clamp(.78rem, 1.2vw, .98rem) !important; line-height: 1.4 !important; }
+.home-page-flow .zx-product-description { min-height: 2.6rem !important; font-size: .67rem !important; line-height: 1.55 !important; }
+.home-page-flow .zx-product-price { min-height: 3.8rem !important; padding-top: .65rem !important; }
+.home-page-flow .zx-product-price > div > p { font-size: .56rem !important; }
+.home-page-flow .zx-product-price .zx-display { font-size: clamp(1rem, 2vw, 1.4rem) !important; }
+.home-page-flow .zx-product-body > button,
+.home-page-flow .zx-product-body > div > button {
+  min-height: 2.75rem !important; border-radius: .45rem !important; font-size: .7rem !important;
+  box-shadow: none !important;
+}
+.home-page-flow .zx-product-media > button[aria-label] { width: 2.2rem !important; height: 2.2rem !important; }
+.home-page-flow .zx-product-media > button[aria-label] svg { width: 1rem !important; height: 1rem !important; }
+.home-page-flow .zx-product-variants { flex-wrap: wrap; gap: .3rem !important; }
+.home-page-flow .zx-product-variant-option { min-width: 2rem !important; height: 2rem !important; padding-inline: .4rem !important; border-radius: .35rem !important; font-size: .65rem !important; }
+@media (max-width: 380px) {
+  .home-page-flow .zx-product-description { font-size: .61rem !important; }
+  .home-page-flow .zx-product-body { padding: .55rem !important; }
+  .home-page-flow .zx-product-price { gap: .25rem !important; }
+  .home-page-flow .zx-product-media > button[aria-label] { width: 1.9rem !important; height: 1.9rem !important; }
+}
