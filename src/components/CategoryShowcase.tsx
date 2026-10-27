@@ -1,5 +1,5 @@
 import { ArrowUpLeft, ArrowUpRight, Globe2 } from 'lucide-react';
-import { PORTALS, visiblePortals } from '../data/portals';
+import { visiblePortals } from '../data/portals';
 import type { DynamicCategory, Locale, Route } from '../types';
 
 type Props = {
