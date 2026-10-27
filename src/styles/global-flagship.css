@@ -1,45 +1,78 @@
-/* ZEXOR GLOBAL FLAGSHIP — responsive visual system.
-   Presentation-only overrides: preserve existing React routes, data and integrations. */
+/* ZEXOR FLAGSHIP SYSTEM
+   Stage 1: warm editorial foundation. Presentation-only overrides:
+   keep routes, commerce state, auth, Supabase and admin behavior unchanged. */
+
 :root,
-html[data-theme="light"],
+html[data-theme="light"] {
+  color-scheme: light;
+  --zx-bg: #f3eee5;
+  --zx-surface: #fbf8f2;
+  --zx-surface-raised: #fffdf9;
+  --zx-text: #252522;
+  --zx-text-secondary: #625f58;
+  --zx-text-muted: #888176;
+  --zx-border: #ded6c9;
+  --zx-accent: #9b805d;
+  --zx-accent-hover: #7f6547;
+  --zx-accent-contrast: #fffaf2;
+  --zx-mint: #c7b394;
+  --zx-highlight: #b7a18a;
+  --zx-highlight-contrast: #252522;
+  --zx-sand: #e6dccd;
+  --zx-sage: #a99a84;
+  --zx-metal-light: #d6cbb9;
+  --zx-footer-bg: #20211f;
+  --zx-footer-text: #f4eee4;
+  --zx-scrim: rgb(18 18 16 / 64%);
+  --zx-cinematic: #20211f;
+  --zx-cinematic-gradient: linear-gradient(135deg, #20211f, #35342f);
+  --zx-art-ink: #252522;
+  --zx-art-paper: #f3eee5;
+  --zx-art-acid: #c7b394;
+  --zx-art-rule: rgb(37 37 34 / 14%);
+  --zx-radius-xs: .25rem;
+  --zx-radius-sm: .5rem;
+  --zx-radius-md: .75rem;
+  --zx-radius-lg: 1rem;
+  --zx-radius-xl: 1.25rem;
+  --zx-shadow-card: 0 14px 36px -26px rgb(40 34 26 / 25%);
+  --zx-shadow-float: 0 24px 65px -32px rgb(40 34 26 / 34%);
+}
+
 html[data-theme="dark"] {
   color-scheme: dark;
-  --zx-bg: #0a0b0e;
-  --zx-surface: #111318;
-  --zx-surface-raised: #181b22;
-  --zx-text: #f4f3ef;
-  --zx-text-secondary: #b6b8c1;
-  --zx-text-muted: #858994;
-  --zx-border: #292c35;
-  --zx-accent: #d7ff3f;
-  --zx-accent-hover: #e5ff79;
-  --zx-accent-contrast: #11130a;
-  --zx-mint: #d7ff3f;
-  --zx-highlight: #8e83ff;
-  --zx-highlight-contrast: #0a0b0e;
-  --zx-sand: #252833;
-  --zx-sage: #8e83ff;
-  --zx-metal-light: #d9d9df;
-  --zx-footer-bg: #06070a;
-  --zx-footer-text: #f4f3ef;
-  --zx-scrim: rgb(3 4 7 / 74%);
-  --zx-cinematic: #08090d;
-  --zx-cinematic-gradient: linear-gradient(135deg, #08090d, #1b1e29);
-  --zx-art-ink: #0a0b0e;
-  --zx-art-paper: #f4f3ef;
-  --zx-art-acid: #d7ff3f;
-  --zx-art-rule: rgb(255 255 255 / 13%);
-  --zx-radius-xs: .3rem;
-  --zx-radius-sm: .55rem;
-  --zx-radius-md: .8rem;
-  --zx-radius-lg: 1.1rem;
-  --zx-radius-xl: 1.4rem;
-  --zx-shadow-card: 0 14px 36px -26px rgb(0 0 0 / 90%);
-  --zx-shadow-float: 0 24px 65px -32px rgb(0 0 0 / 95%);
+  --zx-bg: #20211f;
+  --zx-surface: #292a27;
+  --zx-surface-raised: #32332f;
+  --zx-text: #f4eee4;
+  --zx-text-secondary: #c8c0b5;
+  --zx-text-muted: #a49b8e;
+  --zx-border: #45453f;
+  --zx-accent: #c7b394;
+  --zx-accent-hover: #dfc9a5;
+  --zx-accent-contrast: #20211f;
+  --zx-mint: #c7b394;
+  --zx-highlight: #b7a18a;
+  --zx-highlight-contrast: #20211f;
+  --zx-sand: #48443d;
+  --zx-sage: #b7a18a;
+  --zx-metal-light: #d6cbb9;
+  --zx-footer-bg: #171816;
+  --zx-footer-text: #f4eee4;
+  --zx-scrim: rgb(10 10 9 / 72%);
+  --zx-cinematic: #171816;
+  --zx-cinematic-gradient: linear-gradient(135deg, #171816, #292a27);
+  --zx-art-ink: #f4eee4;
+  --zx-art-paper: #20211f;
+  --zx-art-acid: #c7b394;
+  --zx-art-rule: rgb(244 238 228 / 14%);
+  --zx-shadow-card: 0 14px 36px -26px rgb(0 0 0 / 55%);
+  --zx-shadow-float: 0 24px 65px -32px rgb(0 0 0 / 72%);
 }
-html { background: #0a0b0e; scroll-behavior: smooth; scroll-padding-top: 6rem; }
+
+html { background: var(--zx-bg); scroll-behavior: smooth; scroll-padding-top: 6rem; }
 body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
-::selection { background: var(--zx-accent); color: #0a0b0e; }
+::selection { background: var(--zx-accent); color: var(--zx-accent-contrast); }
 :focus-visible { outline-color: var(--zx-accent) !important; }
 .zx-app-shell { min-height: 100vh; overflow-x: clip; background: var(--zx-bg); color: var(--zx-text); }
 .zx-app-shell main { width: min(100%, 120rem); margin-inline: auto; padding-inline: clamp(.5rem, 2.1vw, 2rem); }
@@ -54,85 +87,102 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
 }
 .zx-app-shell :where(input, select, textarea):focus-visible { outline: 2px solid var(--zx-accent); outline-offset: 2px; }
 
-/* Compact flagship navigation with clear contrast on every screen. */
+/* Slim translucent header; switches surface with the selected theme. */
 .zx-site-header {
   position: sticky !important; top: .5rem !important; z-index: 80 !important;
   width: min(calc(100% - 1.5rem), 96rem); margin: .5rem auto 0 !important;
-  border: 1px solid var(--zx-border) !important; border-radius: .8rem !important;
-  background: rgb(17 19 24 / 88%) !important; color: var(--zx-text) !important;
-  box-shadow: 0 16px 42px -32px #000 !important; backdrop-filter: blur(22px) saturate(1.2);
+  border: 1px solid var(--zx-border) !important; border-radius: .75rem !important;
+  background: rgb(251 248 242 / 91%) !important; color: #252522 !important;
+  box-shadow: 0 16px 42px -32px rgb(40 34 26 / 28%) !important;
+  backdrop-filter: blur(22px) saturate(1.15);
 }
-.zx-site-header :where(a,button) { border-radius: .5rem; }
-.zx-site-header :where(a,button):hover { color: var(--zx-accent) !important; }
+.zx-site-header :where(a,button) { border-radius: .45rem; }
+.zx-site-header :where(a,button):hover { color: var(--zx-accent-hover) !important; }
+html[data-theme="dark"] .zx-site-header {
+  background: rgb(32 33 31 / 91%) !important; color: var(--zx-text) !important;
+}
 
-/* Hero: editorial typography plus cinematic gallery, with no fixed viewport assumptions. */
+/* Hero remains cinematic; the warmer neutrals keep the rest of the site calm. */
 .zx-bold-home {
   width: min(100%, 96rem); margin: 1rem auto 0 !important; padding: clamp(1rem, 2.5vw, 2.5rem);
-  border: 1px solid var(--zx-border); border-radius: 1rem;
-  background: radial-gradient(ellipse at 78% 16%, rgb(142 131 255 / 9%), transparent 38%), #0d0f14;
-  color: var(--zx-text);
+  border: 1px solid #44433d; border-radius: 1rem;
+  background: radial-gradient(ellipse at 78% 16%, rgb(199 179 148 / 12%), transparent 38%), #20211f;
+  color: #f4eee4;
 }
-.zx-bold-home-topline, .zx-bold-home-bottomline { color: #a9acb6; }
+.zx-bold-home-topline, .zx-bold-home-bottomline { color: #c4bbae; }
 .zx-bold-home-index i, .zx-bold-home-bottom-mark i { background: var(--zx-accent); }
-.zx-bold-home-copy h1 { font-family: var(--zx-font-body); font-weight: 900; letter-spacing: -.075em; }
-.zx-bold-home-copy h1 > .zx-bold-home-accent { color: var(--zx-accent); }
-.zx-bold-home-copy h1 > .zx-bold-home-accent::after { background: var(--zx-highlight); opacity: .6; }
-.zx-bold-home-description { color: #b7bac4; }
-.zx-bold-home-cta { border-color: var(--zx-accent); background: var(--zx-accent); color: #101109; }
-.zx-bold-home-cta:hover { border-color: #efffa5; background: #efffa5; color: #101109; }
-.zx-bold-home-wordmark { color: rgb(255 255 255 / 8%); }
+.zx-bold-home-copy h1 { font-family: var(--zx-font-body); font-weight: 850; letter-spacing: -.065em; }
+.zx-bold-home-copy h1 > .zx-bold-home-accent { color: #c7b394; }
+.zx-bold-home-copy h1 > .zx-bold-home-accent::after { background: #8e7c65; opacity: .65; }
+.zx-bold-home-description { color: #d0c9be; }
+.zx-bold-home-cta { border-color: #c7b394; background: #c7b394; color: #20211f; }
+.zx-bold-home-cta:hover { border-color: #dfcdb3; background: #dfcdb3; color: #20211f; }
+.zx-bold-home-wordmark { color: rgb(244 238 228 / 8%); }
 .zx-bold-home-gallery { gap: .65rem; }
-.zx-bold-world { border: 1px solid rgb(255 255 255 / 16%); border-radius: .75rem; background-color: #1a1c24; }
+.zx-bold-world { border: 1px solid rgb(244 238 228 / 18%); border-radius: .65rem; background-color: #292a27; }
 .zx-bold-world::after { position: absolute; inset: 0; border: 1px solid transparent; border-radius: inherit; content: ""; pointer-events: none; transition: border-color .25s; }
-.zx-bold-world.is-active::after, .zx-bold-world:hover::after { border-color: var(--zx-accent); }
-.zx-bold-world-shade { background: linear-gradient(180deg, rgb(3 4 7 / 4%) 8%, rgb(3 4 7 / 18%) 42%, rgb(3 4 7 / 88%) 100%); }
-.zx-bold-world-glyph { color: rgb(255 255 255 / 54%); font-weight: 900; text-shadow: 0 4px 40px rgb(0 0 0 / 25%); }
-.zx-bold-world-index { color: #fff; }
-.zx-bold-world-bottom { color: #fff; }
-.zx-bold-world-icon { border-color: rgb(255 255 255 / 48%); background: rgb(10 11 14 / 22%); }
-.zx-bold-world:hover .zx-bold-world-icon, .zx-bold-world.is-active .zx-bold-world-icon { border-color: var(--zx-accent); background: var(--zx-accent); color: #101109; }
+.zx-bold-world.is-active::after, .zx-bold-world:hover::after { border-color: #c7b394; }
+.zx-bold-world-shade { background: linear-gradient(180deg, rgb(10 10 9 / 3%) 8%, rgb(10 10 9 / 20%) 42%, rgb(10 10 9 / 88%) 100%); }
+.zx-bold-world-glyph { color: rgb(244 238 228 / 56%); font-weight: 850; text-shadow: 0 4px 40px rgb(0 0 0 / 25%); }
+.zx-bold-world-index, .zx-bold-world-bottom { color: #fffaf2; }
+.zx-bold-world-icon { border-color: rgb(255 250 242 / 48%); background: rgb(32 33 31 / 30%); }
+.zx-bold-world:hover .zx-bold-world-icon, .zx-bold-world.is-active .zx-bold-world-icon { border-color: #c7b394; background: #c7b394; color: #20211f; }
 .zx-bold-world-6 { grid-column: 1 / span 2; grid-row: 9 / span 2; min-height: 8rem; }
 .zx-bold-world-6 .zx-bold-world-glyph { font-size: clamp(3rem, 8vw, 6rem); }
-.zx-bold-home-bottomline { border-color: var(--zx-border); }
+.zx-bold-home-bottomline { border-color: #45453f; }
 
-/* Section rhythm and product surfaces. */
+/* Editorial rhythm and product surfaces. */
 .home-page-flow .zx-eyebrow { color: var(--zx-accent) !important; }
-.home-page-flow .zx-section-heading-title { color: var(--zx-text) !important; font-family: var(--zx-font-body); font-weight: 850; letter-spacing: -.055em; }
-.home-page-flow > section:has(.zx-feature-value) { border: 1px solid var(--zx-border); background: linear-gradient(125deg, #171922, #101116) !important; color: var(--zx-text) !important; }
-.home-page-flow > section:has(.zx-feature-value) .zx-feature-value { color: var(--zx-accent) !important; }
-.home-page-flow > section:has(.zx-feature-value) .zx-feature-label { color: #b5b8c1 !important; }
+.home-page-flow .zx-section-heading-title { color: var(--zx-text) !important; font-family: var(--zx-font-body); font-weight: 800; letter-spacing: -.045em; }
+.home-page-flow > section:has(.zx-feature-value) {
+  border: 1px solid #45453f; background: linear-gradient(125deg, #292a27, #20211f) !important;
+  color: #f4eee4 !important;
+}
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-value { color: #c7b394 !important; }
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-label { color: #c8c0b5 !important; }
 .home-page-flow .zx-product, .home-page-flow .zx-market-card, .home-page-flow .zx-showcase-card, .home-page-flow .zx-tile, .zx-department-tile {
-  border: 1px solid var(--zx-border) !important; border-radius: .8rem !important; background-color: var(--zx-surface) !important;
-  box-shadow: none !important; overflow: hidden;
+  border: 1px solid var(--zx-border) !important; border-radius: .65rem !important;
+  background-color: var(--zx-surface) !important; box-shadow: var(--zx-shadow-card) !important; overflow: hidden;
   transition: transform .3s cubic-bezier(.2,.75,.25,1), border-color .25s, box-shadow .25s;
 }
 .home-page-flow .zx-product:hover, .home-page-flow .zx-market-card:hover, .home-page-flow .zx-showcase-card:hover, .home-page-flow .zx-tile:hover, .zx-department-tile:hover {
-  border-color: rgb(215 255 63 / 55%) !important; box-shadow: 0 24px 48px -38px #000 !important;
+  border-color: color-mix(in srgb, var(--zx-accent) 72%, var(--zx-border)) !important;
+  box-shadow: var(--zx-shadow-float) !important;
 }
+.zx-department-board { width: min(100%, 96rem); margin-inline: auto; }
+.zx-department-grid {
+  display: grid !important; grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: clamp(8rem, 12vw, 12rem); gap: clamp(.65rem, 1.25vw, 1.1rem) !important;
+}
+.zx-department-grid > .zx-department-tile { grid-column: span 2; min-height: 0 !important; height: 100%; }
+.zx-department-grid > .zx-department-tile:nth-child(1) { grid-column: span 3; grid-row: span 2; }
+.zx-department-grid > .zx-department-tile:nth-child(2) { grid-column: span 3; }
+.zx-department-grid > .zx-department-tile:nth-child(3) { grid-column: span 3; }
+.zx-department-grid > .zx-department-tile:nth-child(6) { grid-column: span 2; }
 .zx-department-tile { min-height: clamp(18rem, 29vw, 31rem) !important; }
-.zx-department-banner { border: 1px solid var(--zx-border); border-radius: .85rem !important; overflow: hidden; }
-.zx-department-banner-title { font-size: clamp(2.8rem, 7vw, 6.5rem) !important; font-weight: 900 !important; letter-spacing: -.075em; line-height: .94; }
-.zx-marketplace .zx-market-filters { border: 1px solid var(--zx-border) !important; border-radius: .75rem !important; }
+.zx-department-banner { border: 1px solid var(--zx-border); border-radius: .75rem !important; overflow: hidden; }
+.zx-department-banner-title { font-size: clamp(2.8rem, 7vw, 6.5rem) !important; font-weight: 850 !important; letter-spacing: -.065em; line-height: .96; }
+.zx-marketplace .zx-market-filters { border: 1px solid var(--zx-border) !important; border-radius: .65rem !important; }
 
-/* Admin console: readable dark surfaces, touch-safe controls, usable narrow tables. */
+/* Admin stays calm and practical, with strong contrast for important actions. */
 .zx-admin { --zx-admin-line: var(--zx-border); --zx-admin-border: var(--zx-border); color: var(--zx-text); }
 .zx-admin [class*="rounded-3xl"][class*="bg-zx-surface-raised"],
 .zx-admin [class*="rounded-2xl"][class*="bg-zx-surface-raised"],
 .zx-admin .zx-card, .zx-admin .zx-theme-panel {
-  border: 1px solid var(--zx-admin-line) !important; border-radius: .75rem !important; box-shadow: none !important;
+  border: 1px solid var(--zx-admin-line) !important; border-radius: .7rem !important; box-shadow: none !important;
 }
 .zx-admin-tabs { border-bottom-color: var(--zx-admin-line) !important; }
-.zx-admin-tabs :where(button,[role=tab]) { min-height: 2.75rem; border-radius: .5rem !important; }
+.zx-admin-tabs :where(button,[role=tab]) { min-height: 2.75rem; border-radius: .45rem !important; }
 .zx-admin :where(button) { min-height: 2.55rem; }
 .zx-admin :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) {
-  min-height: 2.8rem; border-color: var(--zx-admin-line); background: #111318; color: #f4f3ef;
+  min-height: 2.8rem; border-color: var(--zx-admin-line); background: var(--zx-surface); color: var(--zx-text);
 }
 .zx-admin table { border-collapse: separate; border-spacing: 0; }
-.zx-admin table thead { background: #20232c; }
+.zx-admin table thead { background: color-mix(in srgb, var(--zx-surface) 70%, var(--zx-border)); }
 .zx-admin table :where(th,td) { border-bottom: 1px solid var(--zx-admin-line); }
 .zx-admin :where(button,a):focus-visible { outline: 2px solid var(--zx-accent); outline-offset: 3px; }
 
-/* Tablet, laptop and phone are compositions in their own right, not scaled desktop. */
+/* Responsive layouts are composed deliberately, not just scaled down. */
 @media (min-width: 1500px) {
   .zx-bold-home-gallery { min-height: 50rem; }
   .zx-app-shell main { padding-inline: 2.5rem; }
@@ -147,7 +197,7 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
 @media (max-width: 720px) {
   .zx-site-header { top: .25rem !important; width: calc(100% - .5rem); margin-top: .25rem !important; }
   .zx-app-shell main { padding-inline: .65rem; }
-  .zx-bold-home { width: 100%; margin-top: .5rem !important; padding: .9rem; border-radius: .75rem; }
+  .zx-bold-home { width: 100%; margin-top: .5rem !important; padding: .9rem; border-radius: .7rem; }
   .zx-bold-home-topline, .zx-bold-home-bottomline { gap: .5rem; font-size: .53rem; letter-spacing: .055em; }
   .zx-bold-home-layout { grid-template-columns: 1fr; gap: 1.6rem; padding-block: 1.8rem 1rem; }
   .zx-bold-home-copy h1 { max-width: 10ch; font-size: clamp(3.25rem, 15vw, 5.6rem); }
@@ -156,15 +206,25 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
   .zx-bold-home-cta { min-height: 3rem; }
   .zx-bold-home-wordmark { margin-top: 1.4rem; font-size: 2.6rem; }
   .zx-bold-home-gallery { min-height: 29rem; grid-template-rows: repeat(6, minmax(3.4rem, 1fr)); gap: .45rem; }
-  .zx-bold-world { padding: .65rem; border-radius: .5rem; }
+  .zx-bold-world { padding: .65rem; border-radius: .45rem; }
   .zx-bold-world-glyph { font-size: clamp(3.5rem, 17vw, 6rem); }
   .zx-bold-world-name { font-size: .76rem; }
   .zx-bold-world-icon { flex-basis: 1.5rem; width: 1.5rem; height: 1.5rem; }
-  .home-page-flow > section:has(.zx-feature-value) { min-height: 12rem; padding: 1.15rem; border-radius: .65rem !important; }
+  .home-page-flow > section:has(.zx-feature-value) { min-height: 12rem; padding: 1.15rem; border-radius: .6rem !important; }
   .home-page-flow .zx-section-heading-title { font-size: clamp(1.75rem, 8vw, 2.7rem) !important; }
   .home-page-flow > section:not(:has(.zx-feature-value)) { padding-inline: 0; }
   .home-page-flow .grid { gap: .85rem; }
-  .zx-department-tile { min-height: 19rem !important; }
+  .zx-department-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; gap: .65rem !important; }
+  .zx-department-grid > .zx-department-tile,
+  .zx-department-grid > .zx-department-tile:nth-child(1),
+  .zx-department-grid > .zx-department-tile:nth-child(2),
+  .zx-department-grid > .zx-department-tile:nth-child(3),
+  .zx-department-grid > .zx-department-tile:nth-child(6) {
+    grid-column: span 1; grid-row: auto; min-height: 17rem !important;
+  }
+  .zx-department-grid > .zx-department-tile:nth-child(1),
+  .zx-department-grid > .zx-department-tile:nth-child(6) { grid-column: span 2; min-height: 13.5rem !important; }
+  .zx-department-tile { min-height: 17rem !important; }
   .zx-admin { max-width: 100%; overflow-x: clip; }
   .zx-admin table { display: block; max-width: 100%; overflow-x: auto; }
   .zx-admin :where(input,select,textarea) { max-width: 100%; }
@@ -175,6 +235,7 @@ body { min-width: 320px; background: var(--zx-bg); color: var(--zx-text); }
   .zx-bold-home-copy h1 { font-size: clamp(2.8rem, 14.5vw, 3.5rem); }
   .zx-bold-home-gallery { min-height: 25rem; }
   .zx-bold-world-name { font-size: .68rem; }
+  .zx-department-grid > .zx-department-tile { min-height: 15rem !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
