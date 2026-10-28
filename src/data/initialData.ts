@@ -18,6 +18,7 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
   { id: 'market', slug: 'market', name: { en: 'ZEXOR MARKET', ar: 'زكسور ماركت' }, icon: 'shopping-bag', active: true },
+  { id: 'antiques', slug: 'antiques', name: { en: 'ZEXOR ARCHIVE', ar: 'زكسور أركايف' }, icon: 'gem', active: true },
 ];
 
 const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
