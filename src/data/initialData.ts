@@ -374,11 +374,11 @@ export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  heroTitle: { en: 'Find what fits you', ar: 'اكتشف ما يناسبك' },
-  heroAccent: { en: 'all in one place.', ar: 'في مكان واحد.' },
+  heroTitle: { en: 'Beyond the expected.', ar: 'أبعد من المعتاد.' },
+  heroAccent: { en: 'Made distinct.', ar: 'بهويّة مختلفة.' },
   heroText: {
-    en: 'Shop smart NFC identity and considered essentials, or work with ZEXOR Studio. Serving Egypt and Saudi Arabia.',
-    ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع استوديو زكسور. نخدم مصر والسعودية.',
+    en: 'Explore smart identity, considered fashion, digital experiences and curated spaces — brought together by one distinct point of view.',
+    ar: 'اكتشف الهوية الذكية والأزياء والتجارب الرقمية والمساحات المختارة، في عوالم تجمعها رؤية واحدة وهوية مختلفة.',
   },
   heroImage: '',
   whatsappEg: '201005556553',
@@ -476,8 +476,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
       ar: 'تواصل مباشرة مع استوديو ZEXOR عبر واتساب لمناقشة كروت NFC، تطوير متجرك، أو حجز معاينة.',
     },
     footerNote: {
-      en: 'Smart identity, apparel, software and property — one house, two markets.',
-      ar: 'هوية ذكية، أزياء، برمجيات وعقارات — بيت واحد وسوقان.',
+      en: 'Smart identity, fashion, digital experiences and curated spaces — one identity, many possibilities.',
+      ar: 'هوية ذكية وأزياء وتجارب رقمية ومساحات مختارة — هوية واحدة وإمكانيات متعددة.',
     },
   },
   maintenanceActive: false,
