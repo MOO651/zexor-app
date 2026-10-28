@@ -260,3 +260,146 @@
   .zx-department-arrow { width: 2rem; height: 2rem; }
   .home-page-flow .zx-product-media { aspect-ratio: 4 / 4.5; }
 }
+
+
+/* 2026 homepage structural refresh: replace the old scrolling department list
+   with a responsive editorial tile board. */
+.zx-department-index {
+  width: min(100%, 96rem);
+  margin-inline: auto;
+  padding: clamp(1.2rem, 3.5vw, 3.5rem);
+  border: 1px solid var(--zx-border, rgb(80 70 55 / 16%));
+  border-radius: 1.4rem;
+  background: var(--zx-bg, #f4f0e6);
+}
+.zx-department-index-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: clamp(1.4rem, 3vw, 2.5rem);
+}
+.zx-department-index-head h2 {
+  max-width: 12ch;
+  margin-top: .65rem;
+  font-size: clamp(2.5rem, 6.5vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -.075em;
+  line-height: .94;
+}
+.zx-department-index-head p {
+  max-width: 38rem;
+  margin-top: 1rem;
+  color: var(--zx-text-secondary, #73776d);
+  line-height: 1.8;
+}
+.zx-department-index-kicker {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+.zx-department-index-market {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: .45rem;
+  padding: .65rem .9rem;
+  border: 1px solid var(--zx-border, rgb(80 70 55 / 16%));
+  border-radius: 999px;
+  font-size: .72rem;
+}
+.zx-department-tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: .85rem;
+}
+.zx-department-tile {
+  position: relative;
+  display: flex;
+  min-height: clamp(17rem, 31vw, 29rem);
+  grid-column: span 2;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: clamp(1rem, 2vw, 1.7rem);
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 1rem;
+  background: #1c2721;
+  color: #f6f1e7;
+  text-align: start;
+  isolation: isolate;
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+.zx-department-tile:nth-child(4), .zx-department-tile:nth-child(5) { grid-column: span 3; min-height: clamp(14rem, 23vw, 21rem); }
+.zx-department-tile::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background: radial-gradient(ellipse at 85% 10%, rgb(205 181 140 / 28%), transparent 45%), linear-gradient(145deg, transparent 20%, rgb(0 0 0 / 42%));
+  content: "";
+}
+.zx-department-tile::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, transparent 0 34px, rgb(255 255 255 / 3%) 35px 36px);
+  content: "";
+  opacity: .7;
+}
+.zx-department-tile-1 { background-color: #5b4a3b; }
+.zx-department-tile-2 { background-color: #252c36; }
+.zx-department-tile-3 { background-color: #45483c; }
+.zx-department-tile-4 { background-color: #322a28; }
+.zx-department-tile:hover { transform: translateY(-5px); box-shadow: 0 22px 50px rgb(20 20 15 / 16%); }
+.zx-tile-number {
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  font-weight: 850;
+  letter-spacing: -.09em;
+  line-height: .8;
+  color: rgb(255 255 255 / 16%);
+}
+.zx-tile-icon {
+  position: absolute;
+  top: 1.4rem;
+  inset-inline-end: 1.4rem;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 7%);
+  backdrop-filter: blur(12px);
+}
+.zx-tile-icon svg { width: 1.2rem; height: 1.2rem; }
+.zx-tile-content { display: flex; flex-direction: column; gap: .55rem; max-width: 34rem; }
+.zx-tile-kicker { color: #d0bea0; font-size: .65rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.zx-tile-title { font-size: clamp(1.3rem, 2.4vw, 2.45rem); font-weight: 800; letter-spacing: -.045em; line-height: 1.05; }
+.zx-tile-description { max-width: 32rem; color: rgb(246 241 231 / 72%); font-size: .82rem; line-height: 1.7; }
+.zx-tile-action {
+  position: absolute;
+  inset-inline-end: 1.4rem;
+  bottom: 1.4rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 50%;
+}
+.zx-department-index-foot { margin-top: 1.3rem; }
+@media (max-width: 760px) {
+  .zx-department-index-head { align-items: flex-start; flex-direction: column; gap: 1rem; }
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+  .zx-department-tile, .zx-department-tile:nth-child(n) { grid-column: span 1; min-height: 16rem; padding: .95rem; border-radius: .8rem; }
+  .zx-department-tile:nth-child(5) { grid-column: 1 / -1; min-height: 13rem; }
+  .zx-tile-number { font-size: 3.5rem; }
+  .zx-tile-icon { top: .85rem; inset-inline-end: .85rem; width: 2.4rem; height: 2.4rem; }
+  .zx-tile-title { font-size: clamp(1.1rem, 5vw, 1.55rem); }
+  .zx-tile-description { font-size: .72rem; }
+  .zx-tile-action { inset-inline-end: .85rem; bottom: .85rem; width: 2rem; height: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-department-tile { transition: none; }
+}
