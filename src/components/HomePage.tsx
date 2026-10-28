@@ -9,7 +9,6 @@ import { HomeHero, TiltCard } from './HomeHero';
 import { FaqSection, TrackingAndNewsletter } from './HomeSections';
 import { ProductCard } from './ProductCard';
 import { TestimonialsSection } from './TestimonialsSection';
-import { NfcChapter } from '../scenes/NfcChapter';
 import { ProductFinderQuiz, SitePreloader } from './SiteExperienceExtras';
 import { useSiteMedia } from '../lib/siteMediaContext';
 
@@ -132,15 +131,6 @@ export function HomePage({
           }}
         />
       </div>
-
-      <NfcChapter
-        locale={locale}
-        market={market}
-        onDesign={onOpenNfcCustomizer}
-        onExplore={() => navigate('cards')}
-        product={cards[0]}
-        renderPrice={renderPrice}
-      />
 
       {siteContent['feature.quiz']?.value_json === true && (
         <ProductFinderQuiz locale={locale} onNavigate={navigate} />
