@@ -16,7 +16,7 @@ type Props = {
   categories?: DynamicCategory[];
 };
 
-/** Image-free editorial department tiles; routes and admin labels stay live. */
+/** Photo-led editorial department tiles; routes and admin labels stay live. */
 export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
   const portals = visiblePortals(visible);
   const Arrow = isArabic ? ArrowUpLeft : ArrowUpRight;
@@ -51,6 +51,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             <button
               className={`zx-department-tile zx-department-tile-${index % 5}`}
               key={portal.route}
+              style={{ backgroundImage: `url("${portal.image}")` }}
               onClick={() => navigate(portal.route)}
               type="button"
             >
