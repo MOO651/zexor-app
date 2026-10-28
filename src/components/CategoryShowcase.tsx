@@ -16,15 +16,10 @@ type Props = {
   categories?: DynamicCategory[];
 };
 
-/**
- * Lightweight department index: no background photography, video, scroll
- * animation, image decoding, or 3D transforms. Real department routes and
- * admin-controlled category labels remain unchanged.
- */
+/** Image-free editorial department tiles; routes and admin labels stay live. */
 export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
   const portals = visiblePortals(visible);
   const Arrow = isArabic ? ArrowUpLeft : ArrowUpRight;
-
   if (portals.length === 0) return null;
 
   return (
@@ -32,42 +27,41 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
       <div className="zx-department-index-head">
         <div>
           <span className="zx-department-index-kicker">
-            {isArabic ? 'عالم ZEXOR — 01 / 06' : 'THE ZEXOR WORLDS — 01 / 06'}
+            {isArabic ? 'عوالم زكسور — 01 / 06' : 'THE ZEXOR WORLDS — 01 / 06'}
           </span>
           <h2 id="zx-department-index-title">
-            {isArabic ? 'اختار عالمك.' : 'Find your world.'}
+            {isArabic ? 'أكتر من مجرد براند.' : 'More than one world.'}
           </h2>
           <p>
             {isArabic
-              ? 'ستة اتجاهات مختلفة، تحت هوية واحدة. اختار القسم وادخل مباشرة.'
-              : 'Six different directions, one identity. Choose a department and go straight in.'}
+              ? 'من المنتجات والتقنية إلى المساحات والخدمات — اكتشف كل عالم بطريقته.'
+              : 'From objects and technology to spaces and services — explore each world on its own terms.'}
           </p>
         </div>
         <span className="zx-department-index-market">
-          <Globe2 aria-hidden="true" />
-          {isArabic ? 'مصر والسعودية' : 'EGYPT / KSA'}
+          <Globe2 aria-hidden="true" /> {isArabic ? 'مصر والسعودية' : 'EGYPT / KSA'}
         </span>
       </div>
 
-      <div className="zx-department-list">
-        {portals.map((portal) => {
+      <div className="zx-department-tiles">
+        {portals.map((portal, index) => {
           const Icon = portal.icon;
           const title = categories.find((category) => category.slug === portal.route)?.name[locale] ?? portal.title[locale];
           return (
             <button
-              className="zx-department-link"
+              className={`zx-department-tile zx-department-tile-${index % 5}`}
               key={portal.route}
               onClick={() => navigate(portal.route)}
               type="button"
             >
-              <span className="zx-department-number">{portal.index}</span>
-              <span className="zx-department-icon"><Icon aria-hidden="true" /></span>
-              <span className="zx-department-copy">
-                <span className="zx-department-title">{title}</span>
-                <span className="zx-department-tagline">{portal.tagline[locale]}</span>
-                <span className="zx-department-meta">{portal.meta[locale]}</span>
+              <span className="zx-tile-number">{String(index + 1).padStart(2, '0')}</span>
+              <span className="zx-tile-icon"><Icon aria-hidden="true" /></span>
+              <span className="zx-tile-content">
+                <span className="zx-tile-kicker">{portal.meta[locale]}</span>
+                <span className="zx-tile-title">{title}</span>
+                <span className="zx-tile-description">{portal.tagline[locale]}</span>
               </span>
-              <span className="zx-department-arrow"><Arrow aria-hidden="true" /></span>
+              <span className="zx-tile-action"><Arrow aria-hidden="true" /></span>
             </button>
           );
         })}
