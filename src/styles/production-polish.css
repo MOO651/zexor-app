@@ -403,3 +403,190 @@
 @media (prefers-reduced-motion: reduce) {
   .zx-department-tile { transition: none; }
 }
+
+
+/* ZEXOR finish pass — palette, proportions, and responsive rhythm. */
+html[data-theme="light"] {
+  --zx-bg: #f5f1e8;
+  --zx-surface: #fbf8f1;
+  --zx-surface-raised: #fffdf8;
+  --zx-text: #20221e;
+  --zx-text-secondary: #62665c;
+  --zx-text-muted: #85877d;
+  --zx-border: #dfd8ca;
+  --zx-accent: #725b3f;
+  --zx-accent-hover: #59452f;
+  --zx-accent-contrast: #fffaf0;
+  --zx-mint: #c9b28e;
+  --zx-highlight: #b69c74;
+  --zx-sand: #e9dfcf;
+  --zx-footer-bg: #20231f;
+  --zx-footer-text: #f6f0e5;
+}
+html[data-theme="dark"] {
+  --zx-bg: #171a17;
+  --zx-surface: #20241f;
+  --zx-surface-raised: #292d27;
+  --zx-text: #f5f0e6;
+  --zx-text-secondary: #c8c0b2;
+  --zx-text-muted: #a49b8c;
+  --zx-border: #41443b;
+  --zx-accent: #d1b88e;
+  --zx-accent-hover: #e4cca3;
+  --zx-accent-contrast: #20221e;
+  --zx-mint: #c9b28e;
+  --zx-highlight: #b69c74;
+  --zx-sand: #38382f;
+  --zx-footer-bg: #10120f;
+  --zx-footer-text: #f5f0e6;
+}
+.zx-app-shell main { padding-inline: clamp(.75rem, 2.8vw, 2.75rem); }
+.zx-app-shell main > .home-page-flow > * + * {
+  margin-block-start: clamp(3.25rem, 6.5vw, 6.25rem);
+}
+.zx-site-header {
+  width: min(calc(100% - 1.25rem), 94rem);
+  border-radius: 1rem !important;
+}
+.zx-site-header :where(button, a) { min-height: 2.6rem; }
+.home-page-flow .zx-hero-editorial {
+  width: min(100%, 94rem);
+  min-height: clamp(31rem, 54vw, 43rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.25rem, 3.6vw, 3.75rem);
+  border-radius: clamp(.9rem, 1.7vw, 1.5rem);
+  background:
+    radial-gradient(ellipse at 78% 20%, rgb(209 184 142 / 20%), transparent 36%),
+    radial-gradient(ellipse at 5% 100%, rgb(209 184 142 / 9%), transparent 32%),
+    linear-gradient(125deg, #1b201b 0%, #292b25 60%, #363229 100%);
+}
+.zx-hero-editorial .zx-hero-copy h1 {
+  font-size: clamp(3.25rem, 7.4vw, 7.2rem);
+  line-height: .96;
+  max-width: 10ch;
+}
+.zx-hero-editorial .zx-hero-art { width: min(100%, 34rem); min-height: clamp(18rem, 34vw, 32rem); }
+.zx-hero-editorial .zx-hero-art-disc { width: clamp(8rem, 16vw, 14rem); aspect-ratio: 1; }
+.zx-department-index {
+  padding: clamp(1.1rem, 3vw, 2.75rem);
+  border-radius: clamp(.9rem, 1.8vw, 1.5rem);
+  background: var(--zx-surface);
+}
+.zx-department-index-head { margin-bottom: clamp(1.25rem, 2.5vw, 2rem); }
+.zx-department-index-head h2 {
+  max-width: 14ch;
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+  line-height: 1;
+}
+.zx-department-tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.65rem, 1.2vw, 1rem);
+}
+.zx-department-tile,
+.zx-department-tile:nth-child(4),
+.zx-department-tile:nth-child(5) {
+  grid-column: span 1;
+  min-height: clamp(16rem, 25vw, 24rem);
+  padding: clamp(1rem, 1.7vw, 1.6rem);
+  border-radius: 1rem;
+}
+.zx-department-tile-0 { background-color: #4c3d31; }
+.zx-department-tile-1 { background-color: #29323a; }
+.zx-department-tile-2 { background-color: #3b453b; }
+.zx-department-tile-3 { background-color: #47372f; }
+.zx-department-tile-4 { background-color: #30313b; }
+.zx-department-tile-0::before { background: radial-gradient(ellipse at 85% 10%, rgb(209 184 142 / 30%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-1::before { background: radial-gradient(ellipse at 85% 10%, rgb(154 183 205 / 24%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-2::before { background: radial-gradient(ellipse at 85% 10%, rgb(177 201 169 / 23%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-3::before { background: radial-gradient(ellipse at 85% 10%, rgb(209 184 142 / 23%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-4::before { background: radial-gradient(ellipse at 85% 10%, rgb(190 181 215 / 22%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-tile-number { font-size: clamp(3rem, 5.5vw, 5.5rem); }
+.zx-tile-icon { width: clamp(2.35rem, 3vw, 3rem); height: clamp(2.35rem, 3vw, 3rem); }
+.zx-tile-title { font-size: clamp(1.25rem, 2vw, 2rem); }
+.zx-tile-description { max-width: 27rem; font-size: clamp(.74rem, .9vw, .84rem); }
+.zx-department-index-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--zx-text-muted);
+  font-size: .67rem;
+  letter-spacing: .08em;
+}
+.home-page-flow .zx-product {
+  border-radius: .8rem !important;
+  background: var(--zx-surface) !important;
+  border-color: var(--zx-border) !important;
+}
+.home-page-flow .zx-product-media {
+  aspect-ratio: 4 / 4.8;
+  background: var(--zx-sand);
+}
+.home-page-flow .zx-product > div:last-child { gap: .55rem; }
+.home-page-flow .zx-product :where(h3, [class*="font-semibold"]) { line-height: 1.45; }
+.home-page-flow .zx-product button { min-height: 2.65rem; }
+.home-page-flow section:has(.zx-product) .grid {
+  column-gap: clamp(.65rem, 1.5vw, 1.25rem);
+  row-gap: clamp(1rem, 2vw, 1.6rem);
+}
+.zx-app-shell main :where(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
+  min-height: 2.9rem;
+  border-radius: .7rem;
+}
+.zx-admin .zx-card,
+.zx-admin .zx-theme-panel {
+  border-radius: .85rem !important;
+}
+.zx-admin :where(button, [role="tab"]) { min-height: 2.65rem; }
+.zx-admin :where(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
+  min-height: 2.8rem;
+  border-radius: .65rem;
+}
+@media (min-width: 1500px) {
+  .zx-department-tiles { gap: 1.1rem; }
+  .zx-department-tile,
+  .zx-department-tile:nth-child(4),
+  .zx-department-tile:nth-child(5) { min-height: 25rem; }
+}
+@media (max-width: 900px) {
+  .zx-app-shell main { padding-inline: .9rem; }
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zx-department-tile,
+  .zx-department-tile:nth-child(4),
+  .zx-department-tile:nth-child(5) { min-height: clamp(14rem, 30vw, 19rem); }
+}
+@media (max-width: 640px) {
+  .zx-app-shell main { padding-inline: .55rem; }
+  .home-page-flow .zx-hero-editorial {
+    min-height: auto;
+    gap: 2rem;
+    padding: 1rem;
+    border-radius: .85rem;
+  }
+  .zx-hero-editorial .zx-hero-copy h1 { font-size: clamp(3rem, 14vw, 4.8rem); }
+  .zx-hero-editorial .zx-hero-art { min-height: 17rem; }
+  .zx-department-index { padding: .85rem; }
+  .zx-department-index-head h2 { font-size: clamp(2rem, 9vw, 3rem); }
+  .zx-department-tiles { gap: .55rem; }
+  .zx-department-tile,
+  .zx-department-tile:nth-child(4),
+  .zx-department-tile:nth-child(5) {
+    min-height: 14.5rem;
+    padding: .85rem;
+    border-radius: .7rem;
+  }
+  .zx-department-tile:nth-child(6) { grid-column: 1 / -1; min-height: 12rem; }
+  .zx-tile-number { font-size: 3.1rem; }
+  .zx-tile-title { font-size: clamp(1rem, 4.6vw, 1.35rem); }
+  .zx-tile-description { font-size: .7rem; line-height: 1.6; }
+  .zx-tile-action { inset-inline-end: .7rem; bottom: .7rem; width: 1.85rem; height: 1.85rem; }
+  .zx-department-index-foot { font-size: .58rem; }
+  .home-page-flow section:has(.zx-product) .grid { column-gap: .55rem; row-gap: .9rem; }
+  .home-page-flow .zx-product > div:last-child { padding: .7rem; }
+  .home-page-flow .zx-product button { min-height: 2.45rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-department-tile, .home-page-flow .zx-product { transition: none !important; }
+}
