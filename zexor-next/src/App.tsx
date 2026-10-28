@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Heart, Menu, Search, ShoppingBag, X, Globe2, Sparkles } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Menu, Search, ShoppingBag, X, Globe2, Sparkles } from 'lucide-react'
 
 type Lang = 'ar' | 'en'
 const worlds = [
@@ -18,10 +18,8 @@ export default function App() {
   const [lang,setLang] = useState<Lang>('ar')
   const [menu,setMenu] = useState(false)
   const [search,setSearch] = useState(false)
-  const [favorites,setFavorites] = useState<string[]>([])
   const t = copy[lang]
   const rtl = lang === 'ar'
-  const toggleFavorite = (id:string) => setFavorites(prev => prev.includes(id) ? prev.filter(x=>x!==id) : [...prev,id])
   return <main dir={rtl?'rtl':'ltr'} lang={lang}>
     <div className="announcement"><span className="announcement-dot" />{t.note}<span className="announcement-right">EST. 2026 · ZEXOR</span></div>
     <header className="header">
