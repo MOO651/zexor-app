@@ -4,7 +4,7 @@ import {
   Code2,
   CreditCard,
   Shirt,
-  ShoppingBag,
+  Gem,
   type LucideIcon,
 } from 'lucide-react';
 import type { Locale, Route } from '../types';
@@ -99,15 +99,15 @@ const ORDERED: Portal[] = [
     accent: 'var(--zx-mint)',
   },
   {
-    route: 'market',
-    title: { en: 'ZEXOR MARKET', ar: 'زكسور ماركت' },
+    route: 'antiques',
+    title: { en: 'ZEXOR ARCHIVE', ar: 'زكسور أركايف' },
     tagline: {
-      en: 'A considered edit of useful finds, fresh drops and everyday essentials.',
-      ar: 'اختيارات مميزة ومنتجات جديدة واحتياجات يومية في مكان واحد.',
+      en: 'Vintage objects and distinctive finds, chosen for their character.',
+      ar: 'قطع عتيقة واختيارات مميزة لكل قطعة فيها حكاية وطابع خاص.',
     },
-    meta: { en: 'Discover · Curated · Everyday', ar: 'اكتشف · مختارات · يومي' },
+    meta: { en: 'Vintage · Objects · Collectibles', ar: 'فينتاج · قطع مميزة · مقتنيات' },
     image: photos.studioStore,
-    icon: ShoppingBag,
+    icon: Gem,
     accent: 'var(--zx-mint)',
   },
 ];
