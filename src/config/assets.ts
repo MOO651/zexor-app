@@ -17,18 +17,18 @@ export const DEFAULT_SITE_CONTENT: Record<string, {
   value_json: unknown;
 }> = {
   'hero.headline': {
-    value_ar: 'اكتشف ما يناسبك',
-    value_en: 'Find what fits you',
+    value_ar: 'أبعد من المعتاد.',
+    value_en: 'Beyond the expected.',
     value_json: null,
   },
   'hero.subtitle': {
-    value_ar: 'في مكان واحد.',
-    value_en: 'all in one place.',
+    value_ar: 'بهويّة مختلفة.',
+    value_en: 'Made distinct.',
     value_json: null,
   },
   'hero.description': {
-    value_ar: 'اكتشف كروت NFC والأزياء المختارة، أو ابدأ مشروعك مع استوديو زكسور. نخدم مصر والسعودية.',
-    value_en: 'Shop smart NFC identity and considered essentials, or work with ZEXOR Studio. Serving Egypt and Saudi Arabia.',
+    value_ar: 'اكتشف الهوية الذكية والأزياء والتجارب الرقمية والمساحات المختارة، في عوالم تجمعها رؤية واحدة وهوية مختلفة.',
+    value_en: 'Explore smart identity, considered fashion, digital experiences and curated spaces — brought together by one distinct point of view.',
     value_json: null,
   },
   'hero.cta.primary': {
