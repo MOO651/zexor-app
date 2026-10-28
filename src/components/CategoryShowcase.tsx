@@ -30,12 +30,12 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             {isArabic ? 'عوالم زكسور — 01 / 06' : 'THE ZEXOR WORLDS — 01 / 06'}
           </span>
           <h2 id="zx-department-index-title">
-            {isArabic ? 'أكتر من مجرد براند.' : 'More than one world.'}
+            {isArabic ? 'أكثر من مجرد علامة.' : 'One identity. Many worlds.'}
           </h2>
           <p>
             {isArabic
-              ? 'من المنتجات والتقنية إلى المساحات والخدمات — اكتشف كل عالم بطريقته.'
-              : 'From objects and technology to spaces and services — explore each world on its own terms.'}
+              ? 'من المنتجات الذكية والأزياء إلى العقارات والخدمات الرقمية — لكل عالم تجربته، وتجمعها هوية واحدة.'
+              : 'Discover smart products, considered fashion, digital services and curated spaces — all under one distinct identity.'}
           </p>
         </div>
         <span className="zx-department-index-market">
@@ -67,7 +67,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
         })}
       </div>
       <div className="zx-department-index-foot">
-        <span>{isArabic ? 'فكرة واحدة. عوالم متعددة.' : 'ONE POINT OF VIEW. MANY WORLDS.'}</span>
+        <span>{isArabic ? 'هوية واحدة. عوالم متعددة.' : 'ONE IDENTITY. MANY WORLDS.'}</span>
         <span>ZEXOR®</span>
       </div>
     </section>
