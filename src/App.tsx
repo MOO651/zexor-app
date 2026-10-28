@@ -46,10 +46,6 @@ import {
 } from './data/initialData';
 import { HomeHero, TiltCard } from './components/HomeHero';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
-import { NfcChapter } from './scenes/NfcChapter';
-import { FashionLookbook } from './scenes/FashionLookbook';
-import { CarsChapter, RealEstateChapter } from './scenes/FinalChapters';
-import { StudioChapter } from './scenes/StudioChapter';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
 
@@ -1975,59 +1971,6 @@ export default function App() {
               locale={locale}
               navigate={navigate}
             />
-
-            <NfcChapter
-              locale={locale}
-              market={market}
-              onDesign={handleOpenNfcCustomizer}
-              onExplore={() => navigate('cards')}
-              product={storefrontProducts.find((product) => product.category === 'cards')}
-              renderPrice={(price, className) => (
-                <PriceTag className={className} price={price} market={market} locale={locale} />
-              )}
-            />
-
-            {isDepartmentActive('fashion') && (
-              <FashionLookbook
-                locale={locale}
-                market={market}
-                navigateToFashion={() => navigate('fashion')}
-                onAddToCart={(product, variant) => handleAddToCart(product, undefined, variant)}
-                onShare={handleShareProduct}
-                onToggleWishlist={handleToggleWishlist}
-                products={storefrontProducts}
-                renderPrice={(price, className) => (
-                  <PriceTag className={className} price={price} market={market} locale={locale} />
-                )}
-                wishlist={wishlist}
-              />
-            )}
-
-            {isDepartmentActive('services') && (
-              <StudioChapter
-                locale={locale}
-                navigate={navigate}
-                projects={AGENCY_PROJECTS}
-              />
-            )}
-
-            {isDepartmentActive('cars') && (
-              <CarsChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                vehicles={vehicles}
-              />
-            )}
-
-            {isDepartmentActive('property') && (
-              <RealEstateChapter
-                locale={locale}
-                market={market}
-                navigate={navigate}
-                properties={properties}
-              />
-            )}
 
             {/* 2. Department Board — image-driven entry points into every section.
                 The `departments` id is the scroll target for the hero's
