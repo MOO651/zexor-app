@@ -1,8 +1,8 @@
 /* ZEXOR production storefront polish — visual-only layer.
    Keeps existing product, auth, checkout, admin and Supabase behavior intact. */
 :root {
-  --zx-polish-ink: #191a18;
-  --zx-polish-paper: #f6f2ea;
+  --zx-polish-ink: #151b25;
+  --zx-polish-paper: #f2f5f7;
   --zx-polish-line: color-mix(in srgb, var(--zx-text, #191a18) 13%, transparent);
 }
 .home-page-flow {
@@ -127,13 +127,13 @@
   width: min(100%, 96rem);
   margin-inline: auto;
   padding: clamp(1.25rem, 4vw, 4rem);
-  border: 1px solid #45453f;
+  border: 1px solid #3b4657;
   border-radius: 1.1rem;
   background:
-    radial-gradient(ellipse at 78% 18%, rgb(199 179 148 / 19%), transparent 38%),
-    radial-gradient(ellipse at 12% 100%, rgb(199 179 148 / 9%), transparent 36%),
-    linear-gradient(125deg, #20211f 0%, #292a27 62%, #343129 100%);
-  color: #f4eee4;
+    radial-gradient(ellipse at 78% 18%, rgb(126 224 208 / 18%), transparent 38%),
+    radial-gradient(ellipse at 12% 100%, rgb(150 183 232 / 10%), transparent 36%),
+    linear-gradient(125deg, #151b25 0%, #202a38 62%, #283747 100%);
+  color: #f2f5f7;
   box-shadow: 0 28px 80px -50px rgb(25 26 24 / 65%);
 }
 .home-page-flow .zx-hero-editorial::before {
@@ -149,7 +149,7 @@
 .zx-hero-editorial .zx-hero-overline,
 .zx-hero-editorial .zx-hero-location,
 .zx-hero-editorial .zx-hero-index,
-.zx-hero-editorial .zx-hero-editorial-bottom { color: #c8c0b5; }
+.zx-hero-editorial .zx-hero-editorial-bottom { color: #b8c5d6; }
 .zx-hero-editorial .zx-hero-copy h1 {
   max-width: 9ch;
   font-size: clamp(3.2rem, 8vw, 7.6rem);
@@ -157,34 +157,34 @@
   letter-spacing: -.075em;
   font-weight: 850;
 }
-.zx-hero-editorial .zx-hero-accent { color: #c7b394; }
+.zx-hero-editorial .zx-hero-accent { color: #7ee0d0; }
 .zx-hero-editorial .zx-hero-description {
   max-width: 34rem;
-  color: #e0d9cf;
+  color: #d8e2ec;
   font-size: clamp(.95rem, 1.2vw, 1.1rem);
   line-height: 1.9;
 }
 .zx-hero-editorial .zx-hero-primary {
   min-height: 3.25rem;
-  border: 1px solid #c7b394;
+  border: 1px solid #7ee0d0;
   border-radius: 999px;
-  background: #c7b394;
-  color: #20211f;
+  background: #7ee0d0;
+  color: #151b25;
   font-weight: 750;
 }
 .zx-hero-editorial .zx-hero-secondary {
   min-height: 3.25rem;
   border: 1px solid rgb(244 238 228 / 32%);
   border-radius: 999px;
-  color: #f4eee4;
+  color: #f2f5f7;
 }
 .zx-hero-editorial .zx-hero-art-disc {
-  border-color: rgb(199 179 148 / 62%);
-  background: radial-gradient(circle at 35% 28%, #4b473e, #20211f 68%);
-  box-shadow: 0 0 0 1px rgb(199 179 148 / 12%), 0 0 90px rgb(199 179 148 / 12%);
+  border-color: rgb(126 224 208 / 62%);
+  background: radial-gradient(circle at 35% 28%, #344b5b, #151b25 68%);
+  box-shadow: 0 0 0 1px rgb(126 224 208 / 12%), 0 0 90px rgb(126 224 208 / 12%);
 }
-.zx-hero-editorial .zx-hero-art-ring { border-color: rgb(199 179 148 / 30%); }
-.zx-hero-editorial .zx-hero-art-label { color: #c7b394; }
+.zx-hero-editorial .zx-hero-art-ring { border-color: rgb(126 224 208 / 30%); }
+.zx-hero-editorial .zx-hero-art-label { color: #7ee0d0; }
 .zx-department-index {
   border-radius: 1rem;
   box-shadow: 0 20px 55px -45px rgb(25 26 24 / 50%);
@@ -347,10 +347,10 @@
   content: "";
   opacity: .7;
 }
-.zx-department-tile-1 { background-color: #5b4a3b; }
-.zx-department-tile-2 { background-color: #252c36; }
-.zx-department-tile-3 { background-color: #45483c; }
-.zx-department-tile-4 { background-color: #322a28; }
+.zx-department-tile-1 { background-color: #263b4c; }
+.zx-department-tile-2 { background-color: #263b4c; }
+.zx-department-tile-3 { background-color: #254943; }
+.zx-department-tile-4 { background-color: #343a55; }
 .zx-department-tile:hover { transform: translateY(-5px); box-shadow: 0 22px 50px rgb(20 20 15 / 16%); }
 .zx-tile-number {
   font-size: clamp(3.5rem, 7vw, 7rem);
@@ -407,38 +407,38 @@
 
 /* ZEXOR finish pass — palette, proportions, and responsive rhythm. */
 html[data-theme="light"] {
-  --zx-bg: #f5f1e8;
-  --zx-surface: #fbf8f1;
-  --zx-surface-raised: #fffdf8;
-  --zx-text: #20221e;
-  --zx-text-secondary: #62665c;
-  --zx-text-muted: #85877d;
-  --zx-border: #dfd8ca;
-  --zx-accent: #725b3f;
-  --zx-accent-hover: #59452f;
-  --zx-accent-contrast: #fffaf0;
-  --zx-mint: #c9b28e;
-  --zx-highlight: #b69c74;
-  --zx-sand: #e9dfcf;
-  --zx-footer-bg: #20231f;
-  --zx-footer-text: #f6f0e5;
+  --zx-bg: #f2f5f7;
+  --zx-surface: #fbfcfd;
+  --zx-surface-raised: #ffffff;
+  --zx-text: #151b25;
+  --zx-text-secondary: #536174;
+  --zx-text-muted: #788596;
+  --zx-border: #d9e1e8;
+  --zx-accent: #286b72;
+  --zx-accent-hover: #1d5158;
+  --zx-accent-contrast: #f7fbfc;
+  --zx-mint: #7ee0d0;
+  --zx-highlight: #8bb9cb;
+  --zx-sand: #e3ebef;
+  --zx-footer-bg: #151b25;
+  --zx-footer-text: #f2f5f7;
 }
 html[data-theme="dark"] {
-  --zx-bg: #171a17;
-  --zx-surface: #20241f;
-  --zx-surface-raised: #292d27;
-  --zx-text: #f5f0e6;
-  --zx-text-secondary: #c8c0b2;
-  --zx-text-muted: #a49b8c;
-  --zx-border: #41443b;
-  --zx-accent: #d1b88e;
-  --zx-accent-hover: #e4cca3;
-  --zx-accent-contrast: #20221e;
-  --zx-mint: #c9b28e;
-  --zx-highlight: #b69c74;
-  --zx-sand: #38382f;
-  --zx-footer-bg: #10120f;
-  --zx-footer-text: #f5f0e6;
+  --zx-bg: #111720;
+  --zx-surface: #192331;
+  --zx-surface-raised: #222f3e;
+  --zx-text: #f2f5f7;
+  --zx-text-secondary: #c3cfdd;
+  --zx-text-muted: #96a5b7;
+  --zx-border: #354457;
+  --zx-accent: #7ee0d0;
+  --zx-accent-hover: #a0f0e2;
+  --zx-accent-contrast: #151b25;
+  --zx-mint: #7ee0d0;
+  --zx-highlight: #8bb9cb;
+  --zx-sand: #29394a;
+  --zx-footer-bg: #0b1018;
+  --zx-footer-text: #f2f5f7;
 }
 .zx-app-shell main { padding-inline: clamp(.75rem, 2.8vw, 2.75rem); }
 .zx-app-shell main > .home-page-flow > * + * {
@@ -492,16 +492,16 @@ html[data-theme="dark"] {
   padding: clamp(1rem, 1.7vw, 1.6rem);
   border-radius: 1rem;
 }
-.zx-department-tile-0 { background-color: #4c3d31; }
-.zx-department-tile-1 { background-color: #29323a; }
-.zx-department-tile-2 { background-color: #3b453b; }
-.zx-department-tile-3 { background-color: #47372f; }
-.zx-department-tile-4 { background-color: #30313b; }
-.zx-department-tile-0::before { background: radial-gradient(ellipse at 85% 10%, rgb(209 184 142 / 30%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
-.zx-department-tile-1::before { background: radial-gradient(ellipse at 85% 10%, rgb(154 183 205 / 24%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
-.zx-department-tile-2::before { background: radial-gradient(ellipse at 85% 10%, rgb(177 201 169 / 23%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
-.zx-department-tile-3::before { background: radial-gradient(ellipse at 85% 10%, rgb(209 184 142 / 23%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
-.zx-department-tile-4::before { background: radial-gradient(ellipse at 85% 10%, rgb(190 181 215 / 22%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-0 { background-color: #263b4c; }
+.zx-department-tile-1 { background-color: #254943; }
+.zx-department-tile-2 { background-color: #3b3e57; }
+.zx-department-tile-3 { background-color: #253d52; }
+.zx-department-tile-4 { background-color: #343a55; }
+.zx-department-tile-0::before { background: radial-gradient(ellipse at 85% 10%, rgb(126 224 208 / 30%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-1::before { background: radial-gradient(ellipse at 85% 10%, rgb(150 183 232 / 24%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-2::before { background: radial-gradient(ellipse at 85% 10%, rgb(126 224 208 / 20%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-3::before { background: radial-gradient(ellipse at 85% 10%, rgb(126 224 208 / 23%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
+.zx-department-tile-4::before { background: radial-gradient(ellipse at 85% 10%, rgb(164 178 230 / 22%), transparent 45%), linear-gradient(145deg, transparent 15%, rgb(0 0 0 / 45%)); }
 .zx-tile-number { font-size: clamp(3rem, 5.5vw, 5.5rem); }
 .zx-tile-icon { width: clamp(2.35rem, 3vw, 3rem); height: clamp(2.35rem, 3vw, 3rem); }
 .zx-tile-title { font-size: clamp(1.25rem, 2vw, 2rem); }
