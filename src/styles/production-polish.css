@@ -1,0 +1,119 @@
+/* ZEXOR production storefront polish — visual-only layer.
+   Keeps existing product, auth, checkout, admin and Supabase behavior intact. */
+:root {
+  --zx-polish-ink: #191a18;
+  --zx-polish-paper: #f6f2ea;
+  --zx-polish-line: color-mix(in srgb, var(--zx-text, #191a18) 13%, transparent);
+}
+.home-page-flow {
+  overflow: clip;
+}
+.home-page-flow > * + * {
+  margin-block-start: clamp(3.5rem, 7vw, 6.75rem);
+}
+.home-page-flow > #departments,
+.home-page-flow > div:has(> #departments) {
+  margin-block-start: clamp(2rem, 4vw, 3.75rem);
+}
+.home-page-flow > section {
+  position: relative;
+}
+.home-page-flow .zx-section-heading-title {
+  max-width: 18ch;
+  font-size: clamp(1.65rem, 3vw, 2.7rem) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.045em;
+}
+.home-page-flow .zx-eyebrow {
+  letter-spacing: .14em;
+  font-size: .65rem;
+}
+.home-page-flow .zx-feature-band {
+  border: 1px solid var(--zx-polish-line);
+  background:
+    radial-gradient(ellipse at 90% 0%, color-mix(in srgb, var(--zx-mint, #d8e4d8) 30%, transparent), transparent 42%),
+    var(--zx-surface-raised, #eeece5);
+}
+.home-page-flow .zx-feature-band > div > div {
+  padding: clamp(.75rem, 2vw, 1.5rem) .5rem;
+}
+.home-page-flow .zx-feature-band > div > div + div {
+  border-inline-start: 1px solid var(--zx-polish-line);
+}
+.home-page-flow .zx-product,
+.home-page-flow .zx-market-card,
+.home-page-flow .zx-showcase-card,
+.home-page-flow .zx-tile {
+  border-radius: 1rem !important;
+  border-color: var(--zx-polish-line) !important;
+  box-shadow: 0 1px 0 rgb(20 20 20 / 3%);
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+.home-page-flow .zx-product:hover,
+.home-page-flow .zx-market-card:hover,
+.home-page-flow .zx-showcase-card:hover,
+.home-page-flow .zx-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgb(20 20 20 / 8%);
+  border-color: color-mix(in srgb, var(--zx-accent, #ad8b62) 45%, transparent) !important;
+}
+.home-page-flow .grid {
+  align-items: stretch;
+}
+.home-page-flow .grid > * {
+  min-width: 0;
+}
+.home-page-flow img {
+  -webkit-user-drag: none;
+}
+.home-page-flow section:has(.zx-product) {
+  padding-block: clamp(.25rem, 1.2vw, 1rem);
+}
+.home-page-flow section:has(.zx-product) .grid {
+  row-gap: clamp(1rem, 2.4vw, 1.8rem);
+}
+.home-page-flow section:has(.zx-product) > div:first-child {
+  margin-block-end: clamp(1.25rem, 2.6vw, 2rem);
+}
+.home-page-flow a,
+.home-page-flow button {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 1024px) {
+  .home-page-flow section:has(.zx-product) .grid {
+    column-gap: 1.35rem;
+  }
+}
+@media (max-width: 640px) {
+  .home-page-flow > * + * {
+    margin-block-start: 3.5rem;
+  }
+  .home-page-flow .zx-feature-band {
+    border-radius: 1.25rem !important;
+    padding: 1rem !important;
+  }
+  .home-page-flow .zx-feature-band > div > div {
+    padding: .75rem .25rem;
+  }
+  .home-page-flow .zx-feature-band > div > div:nth-child(odd) {
+    border-inline-start: 0;
+  }
+  .home-page-flow .zx-feature-band > div > div:nth-child(n+3) {
+    border-block-start: 1px solid var(--zx-polish-line);
+  }
+  .home-page-flow .zx-section-heading-title {
+    font-size: clamp(1.45rem, 6vw, 2rem) !important;
+  }
+  .home-page-flow section:has(.zx-product) .grid {
+    column-gap: .7rem;
+    row-gap: 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-page-flow .zx-product,
+  .home-page-flow .zx-market-card,
+  .home-page-flow .zx-showcase-card,
+  .home-page-flow .zx-tile {
+    transition: none;
+  }
+}
