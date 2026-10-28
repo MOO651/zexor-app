@@ -34,8 +34,8 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
           </h2>
           <p>
             {isArabic
-              ? 'من المنتجات الذكية والأزياء إلى العقارات والخدمات الرقمية — لكل عالم تجربته، وتجمعها هوية واحدة.'
-              : 'Discover smart products, considered fashion, digital services and curated spaces — all under one distinct identity.'}
+              ? 'من البطاقات الذكية والأزياء والخدمات الرقمية إلى السيارات والعقارات والقطع العتيقة — لكل عالم تجربته، وتجمعها هوية واحدة.'
+              : 'Discover connected identity, considered fashion, digital services, vehicles, real estate and distinctive vintage finds — all under one identity.'}
           </p>
         </div>
         <span className="zx-department-index-market">
