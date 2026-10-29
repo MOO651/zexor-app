@@ -581,56 +581,10 @@ export default function App() {
     return () => { active = false; };
   }, [setProducts, setCategories, setVehicles, setProperties, setPromoCodes]);
 
-  // Keep already-open storefront tabs aligned with published admin changes.
-  // Realtime is enabled only for publicly readable tables; order and inquiry
-  // payloads remain on the separately authenticated admin channel below.
-  useEffect(() => {
-    if (!isSupabaseConfigured) return;
-    let active = true;
-    const refreshSettings = () => {
-      void fetchSiteSettings(DEFAULT_SETTINGS).then((remote) => {
-        if (!active || !remote) return;
-        setSettings((current) => ({
-          ...remote,
-          telegramBotToken: current.telegramBotToken,
-          telegramChatId: current.telegramChatId,
-        }));
-      });
-    };
-    const refreshSocials = () => {
-      void fetchSocialLinks(false).then((remote) => {
-        if (active && remote) setSocialLinks(completeSocialRows(remote));
-      });
-    };
-    const refreshPayments = () => {
-      void fetchPaymentMethods(false).then((remote) => {
-        if (active && remote) setPaymentMethods(completePaymentRows(remote));
-      });
-    };
-    const refreshContent = (payload: { new?: unknown; old?: unknown }) => {
-      const changedRow = (payload.new ?? payload.old) as { key?: unknown } | undefined;
-      const key = changedRow?.key;
-      if (typeof key !== 'string' || !['products', 'categories', 'vehicles', 'properties', 'promo_codes'].includes(key)) return;
-      void fetchStoreContent<unknown>(key as StoreContentKey).then((remote) => {
-        if (!active || !isValidObjectArray(remote)) return;
-        if (key === 'products') setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(remote as Product[])));
-        else if (key === 'categories') setCategories(normalizeCategories(remote as DynamicCategory[]));
-        else if (key === 'vehicles') setVehicles(normalizeStarterVehicles(remote as Vehicle[]));
-        else if (key === 'properties') setProperties(normalizeStarterProperties(remote as Property[]));
-        else setPromoCodes(remote as PromoCode[]);
-      });
-    };
-    const channel = supabase.channel('zexor-published-store-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, refreshSettings)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'social_links' }, refreshSocials)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'payment_methods' }, refreshPayments)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_content' }, refreshContent)
-      .subscribe();
-    return () => {
-      active = false;
-      void supabase.removeChannel(channel);
-    };
-  }, [setCategories, setPaymentMethods, setProducts, setPromoCodes, setProperties, setSettings, setSocialLinks, setVehicles]);
+  // Realtime subscriptions were removed to avoid a public-client reconnection loop
+  // and unnecessary message/egress usage. Storefront data loads on page entry;
+  // admin data is refreshed by the existing authenticated load/save flows.
+
 
   // Merge the persisted settings over the current defaults so a payload written
   // by an earlier build (before `brand`/`content`/`maintenanceText` existed) still
@@ -967,34 +921,9 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [adminAuthenticated, cloudInquiriesLoaded, inbox, isArabic, reportCloudSave]);
 
-  useEffect(() => {
-    if (!adminAuthenticated) return;
-    let active = true;
-    const refreshOrders = () => {
-      void fetchAdminOrders().then((remoteOrders) => {
-        if (!active || !remoteOrders) return;
-        const previouslySyncedIds = cloudOrderIds.current;
-        cloudOrderIds.current = new Set(remoteOrders.map((order) => order.id));
-        setOrders((currentOrders) => mergeRemoteRows(remoteOrders, currentOrders, previouslySyncedIds));
-      });
-    };
-    const refreshInquiries = () => {
-      void fetchAdminInquiries().then((remoteInquiries) => {
-        if (!active || !remoteInquiries) return;
-        const previouslySyncedIds = cloudInquiryIds.current;
-        cloudInquiryIds.current = new Set(remoteInquiries.map((inquiry) => inquiry.id));
-        setInbox((currentInquiries) => mergeRemoteRows(remoteInquiries, currentInquiries, previouslySyncedIds));
-      });
-    };
-    const channel = supabase.channel('zexor-admin-live-updates')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_orders' }, refreshOrders)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'store_inquiries' }, refreshInquiries)
-      .subscribe();
-    return () => {
-      active = false;
-      void supabase.removeChannel(channel);
-    };
-  }, [adminAuthenticated, setInbox, setOrders, setProducts]);
+  // Admin live subscriptions removed: they are optional convenience only and
+  // were opening additional Realtime connections. Order/inquiry persistence remains intact.
+
 
   useEffect(() => {
     if (!adminAuthenticated) return;
