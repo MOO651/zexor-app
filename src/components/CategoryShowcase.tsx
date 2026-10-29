@@ -12,6 +12,7 @@ type Props = {
     cars: boolean;
     property: boolean;
     services: boolean;
+    antiques: boolean;
   };
   categories?: DynamicCategory[];
 };
