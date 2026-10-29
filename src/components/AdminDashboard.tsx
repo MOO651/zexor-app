@@ -1384,7 +1384,7 @@ export function AdminDashboard({
                     {cat.active ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                     {cat.active ? (cat.parentSlug ? (isArabic ? 'ظاهر' : 'Visible') : (isArabic ? 'مفعّل بالنافبار' : 'Active')) : isArabic ? 'مخفي' : 'Hidden'}
                   </button>
-                  {!['cards', 'fashion', 'services', 'cars', 'property'].includes(cat.slug)
+                  {!['cards', 'fashion', 'services', 'cars', 'property', 'antiques'].includes(cat.slug)
                     && !INITIAL_CATEGORIES.some((builtIn) => builtIn.id === cat.id && builtIn.parentSlug)
                     && <button
                     className="p-1.5 text-zx-text hover:text-zx-text"
