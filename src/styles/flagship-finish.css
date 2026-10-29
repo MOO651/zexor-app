@@ -1,50 +1,51 @@
 /* ZEXOR flagship finish — one coherent premium layer over legacy styles.
    Presentation only: does not alter routes, store state, auth, checkout or Supabase. */
 html[data-theme="light"] {
-  --zx-bg: #f3f5f6;
-  --zx-surface: #fbfcfd;
-  --zx-surface-raised: #ffffff;
-  --zx-text: #151b25;
-  --zx-text-secondary: #536174;
-  --zx-text-muted: #788596;
-  --zx-border: #d8e0e7;
-  --zx-accent: #286b72;
-  --zx-accent-hover: #1d5158;
-  --zx-accent-contrast: #f7fbfc;
-  --zx-mint: #7ee0d0;
-  --zx-highlight: #8bb9cb;
-  --zx-highlight-contrast: #151b25;
-  --zx-sand: #e3ebef;
-  --zx-sage: #8bb9cb;
-  --zx-metal-light: #dce6eb;
-  --zx-footer-bg: #151b25;
-  --zx-footer-text: #f2f5f7;
-  --zx-cinematic: #151b25;
-  --zx-cinematic-gradient: linear-gradient(135deg, #151b25, #263c4c);
+  color-scheme: light;
+  --zx-bg: #F7F4EE;
+  --zx-surface: #FFFCF7;
+  --zx-surface-raised: #FFFFFF;
+  --zx-text: #29251F;
+  --zx-text-secondary: #625B51;
+  --zx-text-muted: #82796D;
+  --zx-border: #E7DED1;
+  --zx-accent: #92754F;
+  --zx-accent-hover: #765B39;
+  --zx-accent-contrast: #FFFFFF;
+  --zx-mint: #D8C7A7;
+  --zx-highlight: #C7B08B;
+  --zx-highlight-contrast: #29251F;
+  --zx-sand: #EFE7DA;
+  --zx-sage: #C9B99D;
+  --zx-metal-light: #F1E9DD;
+  --zx-footer-bg: #302A23;
+  --zx-footer-text: #F8F4EC;
+  --zx-cinematic: #F3EDE3;
+  --zx-cinematic-gradient: linear-gradient(135deg, #F9F6F0, #E9DECE);
 }
 html[data-theme="dark"] {
-  --zx-bg: #101720;
-  --zx-surface: #182331;
-  --zx-surface-raised: #202e3d;
-  --zx-text: #f2f5f7;
-  --zx-text-secondary: #c3cfdd;
-  --zx-text-muted: #96a5b7;
-  --zx-border: #354457;
-  --zx-accent: #7ee0d0;
-  --zx-accent-hover: #a0f0e2;
-  --zx-accent-contrast: #151b25;
-  --zx-mint: #7ee0d0;
-  --zx-highlight: #8bb9cb;
-  --zx-highlight-contrast: #151b25;
-  --zx-sand: #29394a;
-  --zx-sage: #8bb9cb;
-  --zx-metal-light: #344557;
-  --zx-footer-bg: #0b1018;
-  --zx-footer-text: #f2f5f7;
-  --zx-cinematic: #0b1018;
-  --zx-cinematic-gradient: linear-gradient(135deg, #0b1018, #192b3b);
+  color-scheme: dark;
+  --zx-bg: #24211D;
+  --zx-surface: #302B25;
+  --zx-surface-raised: #3B342C;
+  --zx-text: #F8F4EC;
+  --zx-text-secondary: #D5CABC;
+  --zx-text-muted: #B4A794;
+  --zx-border: #51473A;
+  --zx-accent: #D8C09A;
+  --zx-accent-hover: #E7D4B7;
+  --zx-accent-contrast: #29251F;
+  --zx-mint: #D8C7A7;
+  --zx-highlight: #C7B08B;
+  --zx-highlight-contrast: #29251F;
+  --zx-sand: #453B30;
+  --zx-sage: #C9B99D;
+  --zx-metal-light: #4B4136;
+  --zx-footer-bg: #191713;
+  --zx-footer-text: #F8F4EC;
+  --zx-cinematic: #191713;
+  --zx-cinematic-gradient: linear-gradient(135deg, #191713, #393126);
 }
-
 /* Sharper hierarchy and deliberate spacing, without making the page feel crowded. */
 html { scroll-behavior: smooth; }
 .zx-app-shell main { max-width: 120rem; }
@@ -386,4 +387,44 @@ html[data-theme="dark"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .zx-app-shell :where(button, [role="button"], a) { transition: none !important; }
+}
+
+
+/* Warm luxury visual system: ivory, stone, champagne and ink. */
+html[data-theme="light"] body,
+html[data-theme="light"] .zx-app-shell { background-color: #F7F4EE; color: #29251F; }
+html[data-theme="light"] .zx-hero-editorial {
+  border-color: #E5D9C8;
+  background:
+    radial-gradient(ellipse at 84% 14%, rgb(201 185 157 / 45%), transparent 37%),
+    radial-gradient(ellipse at 8% 100%, rgb(231 220 202 / 70%), transparent 38%),
+    linear-gradient(125deg, #FFFCF7 0%, #F4EDE2 58%, #EAE0D1 100%) !important;
+  color: #29251F !important;
+  box-shadow: 0 28px 80px -55px rgb(73 57 36 / 28%);
+}
+html[data-theme="light"] .zx-hero-editorial :is(.zx-hero-overline,.zx-hero-location,.zx-hero-index,.zx-hero-editorial-bottom) { color: #76664F !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-accent { color: #92754F !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-description { color: #625B51 !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-primary { background: #92754F !important; border-color: #92754F !important; color: #fff !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-secondary { border-color: #CBBBA4 !important; color: #4D4336 !important; background: rgb(255 252 247 / 68%); }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-art-disc { border-color: #B79C73 !important; background: radial-gradient(circle at 35% 28%, #E8DCC9, #CDB99A 72%) !important; color: #55432C; box-shadow: 0 0 0 1px rgb(146 117 79 / 15%), 0 0 70px rgb(146 117 79 / 14%) !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-art-ring { border-color: rgb(146 117 79 / 38%) !important; }
+html[data-theme="light"] .zx-hero-editorial .zx-hero-art-label { color: #806744 !important; }
+html[data-theme="light"] .zx-department-tile { border-color: rgb(255 255 255 / 75%) !important; box-shadow: 0 16px 42px -32px rgb(63 49 31 / 35%) !important; }
+html[data-theme="light"] .zx-department-tile::before { background: linear-gradient(180deg, rgb(38 31 23 / 2%) 0%, rgb(38 31 23 / 10%) 34%, rgb(38 31 23 / 76%) 100%), linear-gradient(135deg, rgb(221 203 173 / 15%), transparent 60%); }
+html[data-theme="light"] .zx-tile-kicker { color: #F2E5D0 !important; }
+html[data-theme="light"] .zx-department-tile:hover,
+html[data-theme="light"] .zx-department-tile:focus-visible { border-color: #D6C09D !important; box-shadow: 0 24px 55px -30px rgb(63 49 31 / 38%) !important; }
+html[data-theme="light"] .zx-site-footer { background: #302A23 !important; color: #F8F4EC !important; }
+html[data-theme="light"] .zx-site-header { box-shadow: 0 12px 38px -30px rgb(66 51 32 / 28%) !important; }
+html[data-theme="light"] .home-page-flow .zx-product,
+html[data-theme="light"] .home-page-flow .zx-market-card,
+html[data-theme="light"] .home-page-flow .zx-showcase-card,
+html[data-theme="light"] .home-page-flow .zx-tile { box-shadow: 0 10px 30px -24px rgb(66 51 32 / 30%); }
+html[data-theme="light"] .home-page-flow :is(.zx-section-heading-kicker,.zx-eyebrow) { color: #92754F !important; }
+html[data-theme="light"] :where(.zx-admin, .zx-marketplace, .zx-agency-page) { color: #29251F; }
+html[data-theme="light"] :where(.zx-admin, .zx-marketplace, .zx-agency-page) :where(input,select,textarea) { background: #FFFCF7; color: #29251F; border-color: #E0D5C5; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .zx-department-tile, .home-page-flow .zx-product, .home-page-flow .zx-market-card { transition: none !important; }
 }
