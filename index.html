@@ -4,28 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#F3F5F6" />
+    <meta name="theme-color" content="#FAF8F4" />
     <script>
       (() => {
         const root = document.documentElement;
-        let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        // ZEXOR uses the approved white-and-beige identity on every device.
+        // Do not flash a system-dark theme before the application styles load.
+        const theme = 'light';
         try {
-          const storedTheme = JSON.parse(window.localStorage.getItem('zexor-theme') || 'null');
           const storedLocale = window.localStorage.getItem('zexor-locale');
-          if (storedTheme === 'light' || storedTheme === 'dark') theme = storedTheme;
           if (storedLocale === 'ar' || storedLocale === 'en') {
             root.lang = storedLocale;
             root.dir = storedLocale === 'ar' ? 'rtl' : 'ltr';
           }
         } catch {
-          // Keep the system theme and Arabic defaults when browser storage is unavailable.
+          // Keep the Arabic default when browser storage is unavailable.
         }
         root.dataset.theme = theme;
         root.style.colorScheme = theme;
-        document.querySelector('meta[name="theme-color"]')?.setAttribute(
-          'content',
-          theme === 'dark' ? '#101720' : '#F3F5F6',
-        );
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#FAF8F4');
       })();
     </script>
     <meta name="description" content="ZEXOR brings smart NFC identity, considered fashion, digital studio services, curated vehicles and spaces, and distinctive vintage finds together across Egypt and Saudi Arabia." />
