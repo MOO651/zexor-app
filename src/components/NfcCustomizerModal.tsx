@@ -50,20 +50,20 @@ export function NfcCustomizerModal({
   const [flipped, setFlipped] = useState(false);
   const [activeTab, setActiveTab] = useState<'card' | 'profile'>('card');
 
+  // Start with blank customer details so demo contact data can never be
+  // accidentally sent with a real NFC order.
   const [formData, setFormData] = useState<NfcCustomization>({
-    fullName: isArabic ? 'م. كريم الصاوي' : 'Karim El-Sawy',
-    jobTitle: isArabic ? 'مؤسس ومدير إبداعي' : 'Founder & Creative Director',
-    companyName: 'ZEXOR STUDIO',
-    bio: isArabic
-      ? 'نساعد العلامات التجارية على النمو بتصاميم وتجارب رقمية متفردة.'
-      : 'Designing impactful digital products and connected brand experiences.',
-    phone: '+20 100 555 6553',
-    email: 'karim@zexor.studio',
-    website: 'https://zexor.studio',
-    socialHandle: '@karim.elsawy',
+    fullName: '',
+    jobTitle: '',
+    companyName: '',
+    bio: '',
+    phone: '',
+    email: '',
+    website: '',
+    socialHandle: '',
     finish: 'pearl',
     profileLinked: true,
-    profileSlug: 'karim-elsawy',
+    profileSlug: '',
   });
 
   if (!open) return null;
@@ -418,6 +418,7 @@ Phone: ${formData.phone}`;
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     value={formData.fullName}
+                    placeholder={isArabic ? 'اكتب اسمك' : 'Enter your name'}
                   />
                 </div>
                 <div>
@@ -426,6 +427,7 @@ Phone: ${formData.phone}`;
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
                     onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
                     value={formData.jobTitle}
+                    placeholder={isArabic ? 'مثال: مصمم' : 'e.g. Designer'}
                   />
                 </div>
                 <div>
@@ -434,6 +436,7 @@ Phone: ${formData.phone}`;
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
                     onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                     value={formData.companyName}
+                    placeholder={isArabic ? 'اسم الشركة (اختياري)' : 'Company (optional)'}
                   />
                 </div>
                 <div>
@@ -442,6 +445,8 @@ Phone: ${formData.phone}`;
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     value={formData.phone}
+                    placeholder={isArabic ? 'رقم التواصل' : 'Contact number'}
+                    inputMode="tel"
                   />
                 </div>
               </div>
