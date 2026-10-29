@@ -53,9 +53,8 @@ export function ProductCard({
     : null;
   const soldOut = !product.available || product.stock === 0;
   const variants = product.variants ?? [];
-  const [variant, setVariant] = useState<string | undefined>(() =>
-    variants.includes('L') ? 'L' : variants[0],
-  );
+  const [variant, setVariant] = useState<string | undefined>();
+  const needsVariant = variants.length > 0 && !variant;
   const [failedImageUrl, setFailedImageUrl] = useState('');
   const [imageLoaded, setImageLoaded] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -69,6 +68,7 @@ export function ProductCard({
     customize: isArabic ? 'تخصيص الكارت' : 'Personalize',
     addToCart: isArabic ? 'إضافة إلى السلة' : 'Add to bag',
     size: isArabic ? 'المقاس' : 'Size',
+    chooseSize: isArabic ? 'اختر المقاس قبل الإضافة' : 'Choose a size before adding',
     notify: isArabic ? 'نبّهني عند التوفر' : 'Notify me when available',
     share: isArabic ? 'مشاركة المنتج' : 'Share product',
   };
@@ -168,6 +168,11 @@ export function ProductCard({
             </div>
           </div>
         )}
+        {needsVariant && (
+          <p className="mt-2 text-[10px] font-medium text-zx-text-secondary" role="status">
+            {labels.chooseSize}
+          </p>
+        )}
 
         <div className="zx-product-price mt-auto flex min-h-16 items-end justify-between gap-2 border-t border-zx-line pt-3">
           <div className="min-w-0">
@@ -193,7 +198,7 @@ export function ProductCard({
           <div className="flex gap-2">
             <button
               className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-zx-primary px-4 text-[12px] font-bold text-zx-on-primary shadow-md shadow-zx-primary/15 transition-all hover:-translate-y-0.5 hover:bg-zx-primary-hover hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-primary/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-              disabled={soldOut}
+              disabled={soldOut || needsVariant}
               onClick={() => onCustomize(product)}
               type="button"
             >
@@ -203,7 +208,7 @@ export function ProductCard({
             <button
               aria-label={labels.addToCart}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zx-line bg-zx-surface text-zx-primary transition-all hover:border-zx-primary hover:bg-zx-surface-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={soldOut}
+              disabled={soldOut || needsVariant}
               onClick={() => onAddToCart(product, variant)}
               type="button"
             >
@@ -213,7 +218,7 @@ export function ProductCard({
         ) : (
           <button
             className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-zx-primary text-[12px] font-bold text-zx-on-primary shadow-md shadow-zx-primary/15 transition-all hover:-translate-y-0.5 hover:bg-zx-primary-hover hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zx-primary/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-            disabled={soldOut}
+            disabled={soldOut || needsVariant}
             onClick={() => onAddToCart(product, variant)}
             type="button"
           >
