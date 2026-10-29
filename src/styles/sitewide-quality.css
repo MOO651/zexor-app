@@ -253,3 +253,122 @@ button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
     grid-column: 1 / -1 !important;
   }
 }
+
+
+/* Brand manifesto — a calm visual bridge between products and services. */
+.zx-brand-manifesto {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(15rem, .8fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  overflow: hidden;
+  width: min(100%, var(--zx-content-width));
+  margin-inline: auto;
+  padding: clamp(1.4rem, 4vw, 4rem);
+  border: 1px solid #354457;
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(ellipse at 86% 18%, rgb(126 224 208 / 15%), transparent 34%),
+    linear-gradient(125deg, #111923 0%, #1a2735 58%, #202f3d 100%);
+  color: #f2f5f7;
+  box-shadow: 0 24px 70px -48px rgb(0 0 0 / 52%);
+}
+.zx-brand-manifesto::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: linear-gradient(rgb(244 248 250 / 2.5%) 1px, transparent 1px), linear-gradient(90deg, rgb(244 248 250 / 2.5%) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: linear-gradient(90deg, transparent, black 55%, black);
+  content: "";
+  pointer-events: none;
+}
+.zx-brand-manifesto-copy { min-width: 0; }
+.zx-brand-manifesto-kicker {
+  display: inline-flex;
+  color: #9ce8dc;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  line-height: 1.7;
+}
+html:lang(ar) .zx-brand-manifesto-kicker { letter-spacing: 0; }
+.zx-brand-manifesto h2 {
+  display: grid;
+  gap: .08em;
+  margin-block: 1rem;
+  font-size: clamp(2.25rem, 5.2vw, 5.25rem);
+  font-weight: 780;
+  letter-spacing: -.065em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+html:lang(ar) .zx-brand-manifesto h2 {
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+.zx-brand-manifesto-accent { color: #7ee0d0; }
+.zx-brand-manifesto-copy p {
+  max-width: 42rem;
+  color: #c6d2df;
+  font-size: clamp(.9rem, 1.1vw, 1.05rem);
+  line-height: 1.95;
+}
+.zx-brand-manifesto-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 21rem);
+  aspect-ratio: 1;
+  justify-self: center;
+  border: 1px solid rgb(126 224 208 / 20%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(126 224 208 / 8%), transparent 62%);
+}
+.zx-brand-manifesto-orbit {
+  position: absolute;
+  border: 1px solid rgb(126 224 208 / 28%);
+  border-radius: 50%;
+}
+.zx-brand-manifesto-orbit-outer { inset: 7%; transform: rotate(-18deg) scaleY(.76); }
+.zx-brand-manifesto-orbit-inner { inset: 17%; transform: rotate(28deg) scaleY(.76); border-color: rgb(208 222 234 / 24%); }
+.zx-brand-manifesto-monogram {
+  color: #f2f5f7;
+  font-size: clamp(3.8rem, 7vw, 6.6rem);
+  font-weight: 780;
+  letter-spacing: -.1em;
+  line-height: 1;
+}
+.zx-brand-manifesto-monogram span { padding-inline: .08em; color: #7ee0d0; font-weight: 300; }
+.zx-brand-manifesto-index {
+  position: absolute;
+  top: 14%;
+  inset-inline-end: 13%;
+  color: #9ce8dc;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.zx-brand-manifesto-caption {
+  position: absolute;
+  bottom: 13%;
+  color: #b8c5d6;
+  font-size: .58rem;
+  font-weight: 750;
+  letter-spacing: .13em;
+  text-align: center;
+}
+html:lang(ar) .zx-brand-manifesto-caption { letter-spacing: 0; }
+@media (max-width: 760px) {
+  .zx-brand-manifesto {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: .95rem;
+  }
+  .zx-brand-manifesto h2 { font-size: clamp(2.1rem, 9vw, 3.5rem); }
+  .zx-brand-manifesto-mark { width: min(72%, 15rem); }
+  .zx-brand-manifesto-caption { font-size: .5rem; }
+}
