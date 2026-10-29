@@ -93,7 +93,6 @@ import {
   fetchStoreContent,
   fetchSiteSettings,
   fetchSocialLinks,
-  pingSiteData,
   savePaymentMethod,
   saveAdminOrders,
   saveAdminInquiries,
@@ -518,11 +517,10 @@ export default function App() {
   useEffect(() => {
     let active = true;
     void (async () => {
-      const [remoteSettings, remoteSocials, remotePayments, connected] = await Promise.all([
+      const [remoteSettings, remoteSocials, remotePayments] = await Promise.all([
         fetchSiteSettings(DEFAULT_SETTINGS),
         fetchSocialLinks(),
         fetchPaymentMethods(),
-        pingSiteData(),
       ]);
       if (!active) return;
       if (remoteSettings) setSettings((current) => ({
@@ -535,7 +533,8 @@ export default function App() {
         setSocialLinks(completeSocialRows(remoteSocials));
       }
       if (remotePayments) setPaymentMethods(completePaymentRows(remotePayments));
-      setSiteDataReady(connected);
+      // The settings/social/payment reads above already test connectivity; avoid an extra probe request.
+      setSiteDataReady(Boolean(remoteSettings || remoteSocials || remotePayments));
       setSettingsLoaded(true);
     })();
     return () => {
