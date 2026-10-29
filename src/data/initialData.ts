@@ -394,11 +394,11 @@ export const SHIPPING_RATES: Record<string, { eg: number; ksa: number }> = {
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  heroTitle: { en: 'Beyond the expected.', ar: 'أبعد من المعتاد.' },
-  heroAccent: { en: 'Made distinct.', ar: 'بهويّة مختلفة.' },
+  heroTitle: { en: 'A more considered', ar: 'اختيارات أرقى،' },
+  heroAccent: { en: 'way to live.', ar: 'بهويّة واحدة.' },
   heroText: {
-    en: 'Explore smart identity, considered fashion, digital experiences and curated spaces — brought together by one distinct point of view.',
-    ar: 'اكتشف الهوية الذكية والأزياء والتجارب الرقمية والمساحات المختارة، في عوالم تجمعها رؤية واحدة وهوية مختلفة.',
+    en: 'Discover thoughtfully selected products and services across smart cards, fashion, digital design, rentals and vintage finds.',
+    ar: 'اكتشف منتجات وخدمات مختارة بعناية، من البطاقات الذكية والأزياء إلى التصميم الرقمي وخدمات التأجير والقطع العتيقة.',
   },
   heroImage: '',
   whatsappEg: '201005556553',
