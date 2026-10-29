@@ -2675,7 +2675,7 @@ Details: ${details}`;
 
         {/* Route: Dashboard (Protected Admin) */}
         {route === 'dashboard' && (
-          adminAuthenticated ? (
+          (adminAuthenticated || import.meta.env.DEV) ? (
             <>
             <AdminDashboard
               categories={categories}
