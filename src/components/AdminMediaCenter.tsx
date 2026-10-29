@@ -729,6 +729,7 @@ export function AdminMediaCenter({ locale, products, onToast }: Props) {
 function groupLabel(group: string) {
   const labels: Record<string, string> = {
     hero: 'الافتتاحية',
+    portal: 'صور أقسام الموقع',
     fashion: 'الأزياء والـLookbook',
     cars: 'السيارات',
     'real-estate': 'العقارات',
