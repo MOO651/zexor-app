@@ -1101,7 +1101,7 @@ export default function App() {
       setOrders((current) => current.map((order) => order.id === orderId ? result.payload! : order));
     }
     const currentCatalog = await fetchStoreContent<unknown>('products');
-    if (isValidObjectArray(currentCatalog)) setProducts(currentCatalog as Product[]);
+    if (isValidObjectArray(currentCatalog)) setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(currentCatalog as Product[])));
     return true;
   }, [isArabic, setOrders, setProducts]);
 
@@ -3061,7 +3061,7 @@ Details: ${details}`;
               fetchStoreContent<unknown>('promo_codes'),
               fetchSiteSettings(DEFAULT_SETTINGS),
             ]);
-            if (isValidObjectArray(latestProducts)) setProducts(latestProducts as Product[]);
+            if (isValidObjectArray(latestProducts)) setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(latestProducts as Product[])));
             if (isValidObjectArray(latestPromos)) setPromoCodes(latestPromos as PromoCode[]);
             if (latestSettings) setSettings(latestSettings);
             setToast(isArabic ? 'تغير السعر أو الخصم أو رسوم التوصيل. تم تحديث البيانات، راجع الإجمالي وحاول مجدداً.' : 'The price, discount, or delivery fee changed. Details were refreshed; review the total and try again.');
