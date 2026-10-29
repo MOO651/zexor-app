@@ -50,7 +50,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
           const title = categories.find((category) => category.slug === portal.route)?.name[locale] ?? portal.title[locale];
           return (
             <button
-              className={`zx-department-tile zx-department-tile-${index % 5}`}
+              className={`zx-department-tile zx-department-tile-${index % 6}`}
               key={portal.route}
               style={{ backgroundImage: `url("${portal.image}")` }}
               onClick={() => navigate(portal.route)}
