@@ -31,16 +31,16 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             {isArabic ? `عوالم زكسور — 01 / ${String(portals.length).padStart(2, '0')}` : `THE ZEXOR WORLDS — 01 / ${String(portals.length).padStart(2, '0')}`}
           </span>
           <h2 id="zx-department-index-title">
-            {isArabic ? 'أكثر من مجرد علامة.' : 'One identity. Many worlds.'}
+            {isArabic ? 'ستة عوالم، هوية واحدة.' : 'Six worlds. One considered identity.'}
           </h2>
           <p>
             {isArabic
-              ? 'من البطاقات الذكية والأزياء والخدمات الرقمية إلى السيارات والعقارات والقطع العتيقة — لكل عالم تجربته، وتجمعها هوية واحدة.'
-              : 'Discover connected identity, considered fashion, digital services, vehicles, real estate and distinctive vintage finds — all under one identity.'}
+              ? 'من البطاقات الذكية والأزياء إلى الحلول الرقمية والسيارات والعقارات والقطع المنتقاة — تجربة واضحة لكل احتياج، تحت هوية واحدة.'
+              : 'Explore smart cards, considered apparel, digital services, vehicle and property rentals, and selected vintage pieces — thoughtfully brought together under one identity.'}
           </p>
         </div>
         <span className="zx-department-index-market">
-          <Globe2 aria-hidden="true" /> {isArabic ? 'مصر والسعودية' : 'EGYPT / KSA'}
+          <Globe2 aria-hidden="true" /> {isArabic ? 'مصممة لتناسبك' : 'MADE FOR YOU'}
         </span>
       </div>
 
