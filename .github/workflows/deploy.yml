@@ -53,7 +53,10 @@ jobs:
         with:
           path: dist
 
+  # Production is hosted on Vercel. Keep GitHub Pages deployment opt-in so
+  # repositories without Pages enabled still get a fully green quality/build check.
   deploy:
+    if: vars.ENABLE_GITHUB_PAGES == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
