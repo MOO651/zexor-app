@@ -153,141 +153,113 @@ html, body, #root {
   }
 }
 
-/* Dark mode is intentionally near-black with warm champagne accents.
-   Keep this after the light rules so every component follows the active theme. */
-html[data-theme="dark"] {
-  color-scheme: dark !important;
-  --zx-bg: #0B0B0A !important;
-  --zx-surface: #151412 !important;
-  --zx-surface-raised: #201D19 !important;
-  --zx-text: #F7F3EB !important;
-  --zx-text-secondary: #D0C6B7 !important;
-  --zx-text-muted: #B1A594 !important;
-  --zx-border: #3D352A !important;
-  --zx-accent: #D2B887 !important;
-  --zx-accent-hover: #E5D0A8 !important;
-  --zx-accent-contrast: #15120D !important;
-  --zx-mint: #D2B887 !important;
-  --zx-highlight: #D2B887 !important;
-  --zx-highlight-contrast: #15120D !important;
-  --zx-sand: #29241D !important;
-  --zx-sage: #8E7957 !important;
-  --zx-metal-light: #29241D !important;
-  --zx-footer-bg: #050505 !important;
-  --zx-footer-text: #F7F3EB !important;
-  --zx-cinematic: #0B0B0A !important;
-  --zx-cinematic-gradient: linear-gradient(135deg, #080808 0%, #17130D 100%) !important;
-  --zx-scrim: rgb(0 0 0 / 62%) !important;
-  --zx-photo-grade: saturate(.82) sepia(.12) contrast(1.02) brightness(.86) !important;
+/* Final white + beige system: readable text, unmistakable controls, and warm surfaces
+   across storefront, department pages, dialogs, checkout, and admin. */
+:root,
+html[data-theme="light"] {
+  color-scheme: light !important;
+  --zx-bg: #FAF8F4 !important;
+  --zx-surface: #F4EFE6 !important;
+  --zx-surface-raised: #FFFFFF !important;
+  --zx-text: #29251F !important;
+  --zx-text-secondary: #5E574D !important;
+  --zx-text-muted: #766D61 !important;
+  --zx-border: #E2D8C8 !important;
+  --zx-accent: #806746 !important;
+  --zx-accent-hover: #624D34 !important;
+  --zx-accent-contrast: #FFFFFF !important;
+  --zx-highlight: #BDA783 !important;
+  --zx-sand: #EDE3D4 !important;
+  --zx-footer-bg: #E9E0D3 !important;
+  --zx-footer-text: #29251F !important;
 }
-html[data-theme="dark"], html[data-theme="dark"] body, html[data-theme="dark"] #root,
-html[data-theme="dark"] .zx-app-shell {
-  background: #0B0B0A !important;
-  color: #F7F3EB !important;
+html, body, #root, .zx-app-shell {
+  background: #FAF8F4 !important;
+  color: #29251F !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(main, section, article, aside, nav, form, .home-page-flow) {
-  color: inherit;
+.zx-app-shell :is(main, section, article, aside, nav, form, .home-page-flow) { color: inherit; }
+.zx-app-shell :is(.zx-department-index, .zx-product, .zx-market-card, .zx-showcase-card, .zx-tile,
+  .zx-checkout-drawer, .zx-tracking-dialog, .zx-nfc-customizer-dialog, .zx-admin .zx-card,
+  .zx-admin .zx-theme-panel, .zx-admin [role="tabpanel"]) {
+  background-color: #FFFFFF !important;
+  border-color: #E2D8C8 !important;
+  color: #29251F !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(.zx-site-header, header.zx-site-header) {
-  background: rgb(15 14 12 / 96%) !important;
-  color: #F7F3EB !important;
-  border-color: #3D352A !important;
-  box-shadow: 0 12px 34px -24px rgb(0 0 0 / 80%) !important;
+.zx-app-shell :is(h1,h2,h3,h4,h5,h6,.zx-section-heading-title,.zx-department-index-head h2,
+  .zx-product-title,.zx-product-name,.zx-admin h1,.zx-admin h2,.zx-admin h3) {
+  color: #29251F !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(.zx-department-index, .zx-product, .zx-market-card, .zx-showcase-card, .zx-tile, .zx-checkout-drawer, .zx-tracking-dialog, .zx-nfc-customizer-dialog, .zx-admin .zx-card) {
-  background-color: #151412 !important;
-  border-color: #3D352A !important;
-  color: #F7F3EB !important;
+.zx-app-shell :is(p,.zx-section-heading-copy,.zx-department-index-head p,.zx-product-description,
+  .zx-admin p,.zx-admin label,.zx-eyebrow,.zx-section-heading-kicker) {
+  color: #5E574D;
 }
-html[data-theme="dark"] .zx-app-shell :is(.zx-section-heading-title, .zx-department-index-head h2, .zx-product-title, .zx-product-name, .zx-admin h1, .zx-admin h2, .zx-admin h3) {
-  color: #F7F3EB !important;
+.zx-app-shell .zx-department-tile {
+  border: 1px solid #D7C7AE !important;
+  background-color: #EDE3D4 !important;
+  box-shadow: 0 12px 30px -24px rgb(66 51 32 / 30%) !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(.zx-section-heading-copy, .zx-department-index-head p, .zx-product-description, .zx-admin p, .zx-admin label) {
-  color: #D0C6B7 !important;
+.zx-app-shell .zx-department-tile::before {
+  background: linear-gradient(180deg, rgb(250 248 244 / 28%) 0%, rgb(250 248 244 / 54%) 38%, rgb(244 239 230 / 94%) 100%) !important;
 }
-html[data-theme="dark"] .zx-hero-editorial {
-  border-color: #3D352A !important;
-  background:
-    radial-gradient(ellipse at 82% 20%, rgb(210 184 135 / 16%), transparent 36%),
-    radial-gradient(ellipse at 8% 100%, rgb(95 73 42 / 18%), transparent 42%),
-    linear-gradient(125deg, #0B0B0A 0%, #151310 62%, #211B12 100%) !important;
-  color: #F7F3EB !important;
-  box-shadow: 0 28px 70px -42px rgb(0 0 0 / 72%) !important;
+.zx-app-shell .zx-department-tile :is(.zx-tile-title, .zx-tile-description, .zx-tile-kicker,
+  .zx-tile-number, .zx-tile-action, .zx-tile-icon) {
+  color: #29251F !important;
+  text-shadow: none !important;
 }
-html[data-theme="dark"] .zx-hero-editorial::after {
-  background-image: linear-gradient(rgb(210 184 135 / 5%) 1px, transparent 1px), linear-gradient(90deg, rgb(210 184 135 / 5%) 1px, transparent 1px) !important;
+.zx-app-shell .zx-department-tile :is(.zx-tile-action, .zx-tile-icon) {
+  background: #FFFFFF !important;
+  border: 1px solid #CDBDA5 !important;
 }
-html[data-theme="dark"] .zx-hero-editorial :is(.zx-hero-overline,.zx-hero-location,.zx-hero-index,.zx-hero-editorial-bottom) {
-  color: #B1A594 !important;
+.zx-app-shell .zx-department-tile:hover,
+.zx-app-shell .zx-department-tile:focus-visible {
+  border-color: #806746 !important;
+  box-shadow: 0 18px 36px -25px rgb(66 51 32 / 36%) !important;
 }
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-copy h1 { color: #F7F3EB !important; }
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-accent,
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-art-label { color: #D2B887 !important; }
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-description { color: #D0C6B7 !important; }
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-primary {
-  background: #D2B887 !important;
-  border-color: #D2B887 !important;
-  color: #15120D !important;
-}
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-primary:hover {
-  background: #E5D0A8 !important;
-  border-color: #E5D0A8 !important;
-}
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-secondary {
-  background: #171511 !important;
-  border-color: #766448 !important;
-  color: #F7F3EB !important;
-}
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-secondary:hover { background: #29241D !important; }
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-art-disc {
-  background: radial-gradient(circle at 35% 28%, #29241D, #0B0B0A 75%) !important;
-  border-color: #8E7957 !important;
-  color: #D2B887 !important;
-}
-html[data-theme="dark"] .zx-hero-editorial .zx-hero-art-ring { border-color: rgb(210 184 135 / 30%) !important; }
-html[data-theme="dark"] .zx-brand-manifesto {
-  background: linear-gradient(135deg, #151412 0%, #1D1913 62%, #292117 100%) !important;
-  border-color: #3D352A !important;
-  color: #F7F3EB !important;
-}
-html[data-theme="dark"] .zx-brand-manifesto :is(p, h2, h3, span) { color: #D0C6B7; }
-html[data-theme="dark"] .zx-brand-manifesto :is(.zx-brand-manifesto-kicker, .zx-brand-manifesto-accent, .zx-brand-manifesto-index) { color: #D2B887 !important; }
-html[data-theme="dark"] .zx-brand-manifesto-mark,
-html[data-theme="dark"] .zx-brand-manifesto-orbit { border-color: #5E4D33 !important; }
-html[data-theme="dark"] .zx-site-footer {
-  background: #080807 !important;
-  color: #F7F3EB !important;
-  border-color: #3D352A !important;
-}
-html[data-theme="dark"] .zx-site-footer :is(p, span, a, svg, h2, h3, label) { color: inherit; }
-html[data-theme="dark"] .zx-site-footer a:hover { color: #D2B887 !important; }
-html[data-theme="dark"] .zx-app-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
-  background: #171511 !important;
-  color: #F7F3EB !important;
-  border-color: #5B4C35 !important;
-}
-html[data-theme="dark"] .zx-app-shell :is(input, select, textarea)::placeholder { color: #B1A594 !important; opacity: 1 !important; }
-html[data-theme="dark"] .zx-app-shell :is(input, select, textarea):focus-visible {
-  border-color: #D2B887 !important;
-  box-shadow: 0 0 0 3px rgb(210 184 135 / 18%) !important;
-}
-html[data-theme="dark"] .zx-app-shell :is(.zx-admin, .zx-admin main, .zx-admin section) { color: #F7F3EB; }
-html[data-theme="dark"] .zx-app-shell :is(.zx-admin .bg-zx-bg, .zx-admin .bg-zx-surface, .zx-admin .bg-zx-surface-raised) {
-  background-color: #151412 !important;
-}
-/* Consistent readable buttons and link controls in either theme. */
 .zx-app-shell :is(button, [role="button"], .zx-button, a.zx-button) {
   font-weight: 650;
   text-decoration-thickness: .08em;
   text-underline-offset: .18em;
 }
-.zx-app-shell :is(button, [role="button"]):disabled {
-  opacity: .58;
+.zx-app-shell :is(button, [role="button"]):disabled { opacity: .58; }
+.zx-app-shell :is(button:not(.zx-hero-primary):not(.zx-hero-secondary), [role="button"]) {
+  border-color: #D7C9B5;
 }
-html[data-theme="light"] .zx-app-shell :is(button, [role="button"]) {
-  border-color: color-mix(in srgb, #806746 38%, #E2D8C8);
+.zx-app-shell :is(button, [role="button"], a) { -webkit-tap-highlight-color: rgb(128 103 70 / 12%); }
+.zx-app-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
+  background: #FFFFFF !important;
+  color: #29251F !important;
+  border-color: #D7C9B5 !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(button, [role="button"]) {
-  border-color: color-mix(in srgb, #D2B887 42%, #3D352A);
+.zx-app-shell :is(input, select, textarea)::placeholder { color: #766D61 !important; opacity: 1 !important; }
+.zx-app-shell :is(input, select, textarea):focus-visible {
+  border-color: #806746 !important;
+  box-shadow: 0 0 0 3px rgb(128 103 70 / 16%) !important;
 }
-html[data-theme="dark"] .zx-app-shell :is(a, button) { -webkit-tap-highlight-color: rgb(210 184 135 / 16%); }
+.zx-app-shell .zx-site-footer {
+  background: #EDE3D4 !important;
+  color: #29251F !important;
+  border-color: #E2D8C8 !important;
+}
+.zx-app-shell .zx-site-footer :is(p, span, a, svg, h2, h3, label) { color: inherit !important; }
+.zx-app-shell .zx-site-footer a:hover { color: #624D34 !important; }
+.zx-app-shell .zx-admin :is(.bg-zx-bg, .bg-zx-surface, .bg-zx-surface-raised) {
+  background-color: #FFFFFF !important;
+}
+.zx-app-shell .zx-admin :is(table, thead, tbody, tr, th, td) {
+  border-color: #E2D8C8 !important;
+}
+@media (max-width: 760px) {
+  .zx-app-shell main { padding-inline: .8rem; }
+  .zx-hero-editorial { border-radius: 1rem !important; }
+  .zx-hero-editorial .zx-hero-copy h1 { font-size: clamp(2.55rem, 12vw, 4rem) !important; }
+  .zx-hero-editorial .zx-hero-actions > button { min-height: 2.9rem; }
+  .zx-department-tile { min-height: 15rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-app-shell *, .zx-app-shell *::before, .zx-app-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
