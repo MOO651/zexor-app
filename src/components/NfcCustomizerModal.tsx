@@ -49,6 +49,7 @@ export function NfcCustomizerModal({
     : null;
   const [flipped, setFlipped] = useState(false);
   const [activeTab, setActiveTab] = useState<'card' | 'profile'>('card');
+  const [formError, setFormError] = useState('');
 
   // Start with blank customer details so demo contact data can never be
   // accidentally sent with a real NFC order.
@@ -83,12 +84,31 @@ export function NfcCustomizerModal({
     setFormData((prev) => ({ ...prev, finish: finishId }));
   };
 
+  const validateOrderDetails = () => {
+    if (!formData.fullName.trim() || !formData.phone.trim()) {
+      setFormError(isArabic
+        ? 'اكتب الاسم ورقم التواصل قبل متابعة الطلب.'
+        : 'Enter your name and contact number before continuing.');
+      return false;
+    }
+    if (formData.profileLinked && !formData.profileSlug.trim()) {
+      setFormError(isArabic
+        ? 'اكتب اسم رابط البروفايل أو أوقف خيار ربط البروفايل.'
+        : 'Add a profile link name or turn off profile linking.');
+      return false;
+    }
+    setFormError('');
+    return true;
+  };
+
   const handleAddAndClose = () => {
+    if (!validateOrderDetails()) return;
     onAddToCart(product, formData);
     onClose();
   };
 
   const handleWhatsAppDirect = () => {
+    if (!validateOrderDetails()) return;
     const text = isArabic
       ? `طلب تفصيل كارت NFC ذكي:
 الاسم: ${formData.fullName}
@@ -416,7 +436,7 @@ Phone: ${formData.phone}`;
                   <label className="text-[10px] text-zx-text">{isArabic ? 'الاسم بالكامل' : 'Full Name'}</label>
                   <input
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    onChange={(e) => { setFormData({ ...formData, fullName: e.target.value }); setFormError(''); }}
                     value={formData.fullName}
                     placeholder={isArabic ? 'اكتب اسمك' : 'Enter your name'}
                   />
@@ -443,7 +463,7 @@ Phone: ${formData.phone}`;
                   <label className="text-[10px] text-zx-text">{isArabic ? 'رقم الهاتف / واتساب' : 'Phone / WhatsApp'}</label>
                   <input
                     className="mt-1 h-9 w-full rounded-xl border border-zx-border bg-zx-surface-raised px-3 text-xs text-zx-text outline-none focus:border-zx-border"
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); setFormError(''); }}
                     value={formData.phone}
                     placeholder={isArabic ? 'رقم التواصل' : 'Contact number'}
                     inputMode="tel"
@@ -477,7 +497,7 @@ Phone: ${formData.phone}`;
                     <span className="text-zx-text-secondary">zexor.me/</span>
                     <input
                       className="min-w-0 flex-1 bg-transparent font-medium outline-none"
-                      onChange={(e) => setFormData({ ...formData, profileSlug: e.target.value })}
+                      onChange={(e) => { setFormData({ ...formData, profileSlug: e.target.value }); setFormError(''); }}
                       placeholder="username"
                       value={formData.profileSlug}
                     />
@@ -494,6 +514,11 @@ Phone: ${formData.phone}`;
                   {market === 'eg' ? `${product.price.eg} ج.م` : `${product.price.ksa} ر.س`}
                 </span>
               </div>
+              {formError && (
+                <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-600" role="alert">
+                  {formError}
+                </p>
+              )}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-zx-cinematic px-4 text-xs font-semibold text-zx-accent-contrast shadow-md transition-all hover:bg-zx-cinematic"
