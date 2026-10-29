@@ -428,3 +428,51 @@ html[data-theme="light"] :where(.zx-admin, .zx-marketplace, .zx-agency-page) :wh
   html { scroll-behavior: auto; }
   .zx-department-tile, .home-page-flow .zx-product, .home-page-flow .zx-market-card { transition: none !important; }
 }
+
+
+/* Bashmeel real-estate brand integration */
+.zx-bashmeel-logo-badge {
+  position: absolute;
+  z-index: 2;
+  top: clamp(12px, 2vw, 22px);
+  inset-inline-end: clamp(12px, 2vw, 22px);
+  width: clamp(74px, 10vw, 118px);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgba(225, 190, 116, .78);
+  border-radius: 50%;
+  background: #f8f1e5;
+  box-shadow: 0 8px 24px rgba(30, 9, 10, .2);
+}
+.zx-bashmeel-logo-badge img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.zx-bashmeel-brand-panel {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 28px);
+  margin: 18px 0 24px;
+  padding: clamp(14px, 2.6vw, 24px);
+  border: 1px solid #e7d8bd;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #fffdf8 0%, #f3e8d5 100%);
+  box-shadow: 0 10px 28px rgba(72, 47, 26, .07);
+}
+.zx-bashmeel-brand-panel > img {
+  display: block;
+  width: clamp(92px, 13vw, 150px);
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #2a070b;
+  box-shadow: 0 4px 16px rgba(50, 12, 10, .16);
+}
+.zx-bashmeel-brand-copy { min-width: 0; display: grid; gap: 7px; color: #39291f; }
+.zx-bashmeel-brand-copy p { margin: 0; font-size: clamp(1.05rem, 2vw, 1.45rem); line-height: 1.35; font-weight: 800; color: #5a1720; }
+.zx-bashmeel-brand-copy span { font-size: clamp(.78rem, 1.25vw, .95rem); line-height: 1.8; color: #655447; }
+@media (max-width: 520px) {
+  .zx-bashmeel-brand-panel { align-items: flex-start; gap: 12px; border-radius: 16px; }
+  .zx-bashmeel-brand-panel > img { width: 82px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-bashmeel-logo-badge, .zx-bashmeel-brand-panel { scroll-behavior: auto; }
+}
