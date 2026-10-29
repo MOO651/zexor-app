@@ -1,0 +1,155 @@
+/* ZEXOR white + beige direction: one warm, consistent light palette across every route.
+   Final override layer intentionally keeps the storefront and admin out of dark/neon themes. */
+:root,
+html[data-theme="light"],
+html[data-theme="dark"] {
+  color-scheme: light !important;
+  --zx-bg: #FAF8F4 !important;
+  --zx-surface: #F4EFE6 !important;
+  --zx-surface-raised: #FFFFFF !important;
+  --zx-text: #29251F !important;
+  --zx-text-secondary: #5E574D !important;
+  --zx-text-muted: #766D61 !important;
+  --zx-border: #E2D8C8 !important;
+  --zx-accent: #806746 !important;
+  --zx-accent-hover: #624D34 !important;
+  --zx-accent-contrast: #FFFFFF !important;
+  --zx-mint: #DCCCB3 !important;
+  --zx-highlight: #BDA783 !important;
+  --zx-highlight-contrast: #29251F !important;
+  --zx-sand: #EDE3D4 !important;
+  --zx-sage: #D4C3A8 !important;
+  --zx-metal-light: #F1E8DB !important;
+  --zx-footer-bg: #E9E0D3 !important;
+  --zx-footer-text: #29251F !important;
+  --zx-cinematic: #F4EFE6 !important;
+  --zx-cinematic-gradient: linear-gradient(135deg, #FFFFFF 0%, #F4EFE6 58%, #E9DECE 100%) !important;
+  --zx-scrim: rgb(41 37 31 / 38%) !important;
+  --zx-photo-grade: saturate(.88) sepia(.08) contrast(.98) brightness(1.02) !important;
+}
+
+html, body, #root {
+  background: #FAF8F4 !important;
+  color: #29251F !important;
+}
+.zx-app-shell { background: #FAF8F4 !important; color: #29251F !important; }
+.zx-app-shell :is(main, section, article, aside, nav, form, .home-page-flow) {
+  color: inherit;
+}
+.zx-app-shell :is(.zx-site-header, header.zx-site-header) {
+  background: rgb(255 255 255 / 94%) !important;
+  color: #29251F !important;
+  border-color: #E2D8C8 !important;
+  box-shadow: 0 12px 32px -26px rgb(66 51 32 / 35%) !important;
+}
+.zx-app-shell :is(.zx-department-index, .zx-product, .zx-market-card, .zx-showcase-card, .zx-tile, .zx-checkout-drawer, .zx-tracking-dialog, .zx-nfc-customizer-dialog, .zx-admin .zx-card) {
+  background-color: #FFFFFF;
+  border-color: #E2D8C8 !important;
+  color: #29251F;
+}
+.zx-app-shell :is(.zx-section-heading-title, .zx-department-index-head h2, .zx-product-title, .zx-product-name, .zx-admin h1, .zx-admin h2, .zx-admin h3) {
+  color: #29251F;
+}
+.zx-app-shell :is(.zx-section-heading-copy, .zx-department-index-head p, .zx-product-description, .zx-admin p, .zx-admin label) {
+  color: #5E574D;
+}
+.zx-app-shell .zx-hero-editorial {
+  border-color: #E2D8C8 !important;
+  background:
+    radial-gradient(ellipse at 82% 20%, rgb(189 167 131 / 24%), transparent 34%),
+    radial-gradient(ellipse at 8% 100%, rgb(237 227 212 / 75%), transparent 40%),
+    linear-gradient(125deg, #FFFFFF 0%, #F7F2E9 60%, #EDE3D4 100%) !important;
+  color: #29251F !important;
+  box-shadow: 0 28px 70px -50px rgb(66 51 32 / 28%) !important;
+}
+.zx-hero-editorial::after {
+  background-image: linear-gradient(rgb(128 103 70 / 5%) 1px, transparent 1px), linear-gradient(90deg, rgb(128 103 70 / 5%) 1px, transparent 1px) !important;
+}
+.zx-hero-editorial :is(.zx-hero-overline,.zx-hero-location,.zx-hero-index,.zx-hero-editorial-bottom) {
+  color: #766D61 !important;
+}
+.zx-hero-editorial .zx-hero-copy h1 { color: #29251F !important; }
+.zx-hero-editorial .zx-hero-accent { color: #806746 !important; }
+.zx-hero-editorial .zx-hero-description { color: #5E574D !important; }
+.zx-hero-editorial .zx-hero-primary {
+  background: #806746 !important;
+  border: 1px solid #806746 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 22px -14px rgb(66 51 32 / 60%) !important;
+}
+.zx-hero-editorial .zx-hero-primary:hover {
+  background: #624D34 !important;
+  border-color: #624D34 !important;
+}
+.zx-hero-editorial .zx-hero-secondary {
+  background: #FFFFFF !important;
+  border: 1px solid #CDBDA5 !important;
+  color: #493A28 !important;
+}
+.zx-hero-editorial .zx-hero-secondary:hover { background: #EDE3D4 !important; }
+.zx-hero-editorial .zx-hero-art-disc {
+  background: radial-gradient(circle at 35% 28%, #FFFFFF, #E9DECE 75%) !important;
+  border-color: #BDA783 !important;
+  color: #806746 !important;
+  box-shadow: 0 12px 42px rgb(66 51 32 / 10%) !important;
+}
+.zx-hero-editorial .zx-hero-art-ring { border-color: rgb(128 103 70 / 30%) !important; }
+.zx-hero-editorial .zx-hero-art-label { color: #806746 !important; }
+.zx-brand-manifesto {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4EFE6 62%, #E9DECE 100%) !important;
+  border-color: #E2D8C8 !important;
+  color: #29251F !important;
+  box-shadow: 0 24px 64px -48px rgb(66 51 32 / 30%) !important;
+}
+.zx-brand-manifesto :is(p, h2, h3, span) { color: #5E574D; }
+.zx-brand-manifesto :is(.zx-brand-manifesto-kicker, .zx-brand-manifesto-accent, .zx-brand-manifesto-index) { color: #806746 !important; }
+.zx-brand-manifesto-mark, .zx-brand-manifesto-orbit { border-color: #CDBDA5 !important; }
+.zx-site-footer {
+  background: #EFE7DA !important;
+  color: #29251F !important;
+  border-color: #E2D8C8 !important;
+}
+.zx-site-footer :is(p, span, a, svg, h2, h3, label) { color: inherit; }
+.zx-site-footer a:hover { color: #806746 !important; }
+.zx-app-shell :is(button, [role="button"]) {
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.zx-app-shell :is(button, [role="button"]):focus-visible,
+.zx-app-shell a:focus-visible,
+.zx-app-shell input:focus-visible,
+.zx-app-shell select:focus-visible,
+.zx-app-shell textarea:focus-visible {
+  outline: 3px solid #A88A60 !important;
+  outline-offset: 3px !important;
+}
+.zx-app-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea) {
+  background: #FFFFFF !important;
+  color: #29251F !important;
+  border-color: #D7C9B5 !important;
+}
+.zx-app-shell :is(input, select, textarea)::placeholder { color: #766D61 !important; opacity: 1 !important; }
+.zx-app-shell :is(input, select, textarea):focus-visible {
+  border-color: #806746 !important;
+  box-shadow: 0 0 0 3px rgb(128 103 70 / 16%) !important;
+}
+.zx-app-shell :is(.zx-admin, .zx-admin main, .zx-admin section) {
+  color: #29251F;
+}
+.zx-app-shell :is(.zx-admin .bg-zx-bg, .zx-admin .bg-zx-surface, .zx-admin .bg-zx-surface-raised) {
+  background-color: #FFFFFF !important;
+}
+@media (max-width: 760px) {
+  .zx-app-shell main { padding-inline: .8rem; }
+  .zx-hero-editorial { border-radius: 1rem !important; }
+  .zx-hero-editorial .zx-hero-copy h1 { font-size: clamp(2.55rem, 12vw, 4rem) !important; }
+  .zx-hero-editorial .zx-hero-actions > button { min-height: 2.9rem; }
+  .zx-department-tile { min-height: 15rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-app-shell *, .zx-app-shell *::before, .zx-app-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
