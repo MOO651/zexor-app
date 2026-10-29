@@ -1385,7 +1385,7 @@ export default function App() {
     }
   };
 
-  // Primary navigation: the five departments, kept short so the bar never wraps.
+  // Primary navigation: core departments plus the editable Archive department; keep the bar compact.
   const categoryNameFor = useCallback((slug: string, fallback: string) =>
     categories.find((category) => category.slug === slug)?.name[locale] ?? fallback,
   [categories, locale]);
