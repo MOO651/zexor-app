@@ -1800,10 +1800,6 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-3 gap-2 pt-4 sm:hidden">
-                <button className="zx-menu-control" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">
-                  {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                  {isArabic ? 'المظهر' : 'Theme'}
-                </button>
                 <button className="zx-menu-control" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button">
                   <Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}
                 </button>
@@ -1861,10 +1857,6 @@ export default function App() {
                   </div>
 
                   <div className="hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-4">
-                    <button className="zx-menu-control" onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')} type="button">
-                      {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                      {isArabic ? (theme === 'light' ? 'الوضع الداكن' : 'الوضع الفاتح') : (theme === 'light' ? 'Dark mode' : 'Light mode')}
-                    </button>
                     <button className="zx-menu-control" onClick={() => setLocale((current) => current === 'ar' ? 'en' : 'ar')} type="button">
                       <Globe2 className="h-4 w-4" />{isArabic ? 'English' : 'العربية'}
                     </button>
