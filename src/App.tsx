@@ -1679,7 +1679,7 @@ export default function App() {
             {/* Search */}
             <button
               aria-label={isArabic ? 'بحث في المتجر' : 'Search the store'}
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text hover:bg-zx-mint md:flex"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text transition-colors hover:bg-zx-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zx-accent"
               onClick={() => setSearchOpen(true)}
               type="button"
             >
