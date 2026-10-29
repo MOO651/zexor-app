@@ -1407,7 +1407,7 @@ export default function App() {
 
     // Dynamic categories created in Admin!
     categories
-      .filter((c) => c.active && !c.parentSlug && !['cards', 'fashion', 'services', 'cars', 'property'].includes(c.slug))
+      .filter((c) => c.active && !c.parentSlug && !['cards', 'fashion', 'services', 'cars', 'property', 'market'].includes(c.slug))
       .forEach((c) => {
         items.push({ route: c.slug, label: c.name[locale] });
       });
