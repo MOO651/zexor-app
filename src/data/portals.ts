@@ -120,13 +120,14 @@ export const PORTALS: NumberedPortal[] = ORDERED.map((portal, i) => ({
   index: pad(i + 1),
 }));
 
-/** Filters the five departments down to the ones the admin has enabled. */
+/** Filters department tiles using the live visibility state supplied by the storefront. */
 export function visiblePortals(visibility: {
   cards: boolean;
   fashion: boolean;
   cars: boolean;
   property: boolean;
   services: boolean;
+  antiques: boolean;
 }): NumberedPortal[] {
   return PORTALS.filter((portal) => {
     const key = portal.route as keyof typeof visibility;
