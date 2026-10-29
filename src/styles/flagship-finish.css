@@ -253,3 +253,13 @@ html:lang(ar) .zx-tile-title { letter-spacing: 0; line-height: 1.55; }
   .home-page-flow .zx-showcase-card, .home-page-flow .zx-tile,
   .home-page-flow .zx-product-media img { transition: none !important; }
 }
+
+/* Archive gets its own muted-brass treatment instead of reusing the first tile's tint. */
+.zx-department-tile-5 {
+  background-color: #443a2d;
+}
+.zx-department-tile-5::before {
+  background:
+    radial-gradient(ellipse at 82% 12%, rgb(202 169 105 / 28%), transparent 46%),
+    linear-gradient(145deg, rgb(18 22 27 / 8%) 10%, rgb(9 13 19 / 72%) 100%);
+}
