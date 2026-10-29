@@ -1970,7 +1970,6 @@ export default function App() {
                 "Explore All 5 Departments" button. */}
             <div id="departments" className="scroll-mt-24">
               <CategoryShowcase
-                categories={categories}
                 isArabic={isArabic}
                 locale={locale}
                 navigate={navigate}
