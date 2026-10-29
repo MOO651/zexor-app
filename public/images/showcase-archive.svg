@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">ZEXOR Archive — curated vintage objects</title>
+  <desc id="desc">An editorial still life of a brass vintage timepiece and sculptural object against a midnight background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111c2c"/><stop offset=".58" stop-color="#202b3a"/><stop offset="1" stop-color="#080d15"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#9c8b65" stop-opacity=".28"/><stop offset="1" stop-color="#9c8b65" stop-opacity="0"/></radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2dfaa"/><stop offset=".28" stop-color="#9f7b3f"/><stop offset=".54" stop-color="#e8d09a"/><stop offset=".8" stop-color="#6d512c"/><stop offset="1" stop-color="#c8a768"/></linearGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#9ba0a0"/><stop offset=".5" stop-color="#444d56"/><stop offset="1" stop-color="#202a35"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <ellipse cx="635" cy="355" rx="450" ry="370" fill="url(#glow)"/>
+  <path d="M0 646 Q250 610 470 650 T900 635 T1200 650 V800 H0Z" fill="#0b111a"/>
+  <ellipse cx="625" cy="672" rx="330" ry="42" fill="#000" opacity=".48" filter="url(#shadow)"/>
+  <g transform="translate(520 180) rotate(-8 130 220)">
+    <path d="M83 50 Q130 8 177 50 L168 87 H92Z" fill="url(#brass)" stroke="#e9d7a4" stroke-opacity=".6" stroke-width="3"/>
+    <rect x="100" y="74" width="60" height="38" rx="12" fill="url(#brass)"/>
+    <circle cx="130" cy="250" r="150" fill="#0c1219" stroke="url(#brass)" stroke-width="17"/>
+    <circle cx="130" cy="250" r="126" fill="#d6c7a3" stroke="#6f572e" stroke-width="4"/>
+    <circle cx="130" cy="250" r="108" fill="#e5d9bd" stroke="#b29a67" stroke-width="2"/>
+    <g stroke="#55452c" stroke-width="4" stroke-linecap="round">
+      <path d="M130 155v13 M130 332v13 M35 250h13 M212 250h13 M62 182l9 9 M189 309l9 9 M62 318l9-9 M189 191l9-9"/>
+    </g>
+    <circle cx="130" cy="250" r="8" fill="#6e512a"/>
+    <path d="M130 250 L130 190 M130 250 L178 272" stroke="#57442a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M130 250 L130 202 M130 250 L166 266" stroke="#f4e7c8" stroke-width="2" stroke-linecap="round"/>
+    <rect x="110" y="395" width="40" height="26" rx="8" fill="url(#brass)"/>
+    <path d="M80 419h100l24 90H56Z" fill="url(#brass)" stroke="#b7985f" stroke-width="3"/>
+  </g>
+  <g transform="translate(300 355)">
+    <path d="M30 240 L80 35 Q92 0 119 24 L210 192 Q230 229 193 245Z" fill="url(#stone)" stroke="#a9a69a" stroke-opacity=".45" stroke-width="3"/>
+    <path d="M85 64 L135 190 L72 207Z" fill="#c2b89f" opacity=".35"/>
+    <path d="M45 242 Q105 270 200 240 L226 270 Q135 305 22 272Z" fill="#111a24" stroke="#7c8791" stroke-opacity=".55" stroke-width="2"/>
+  </g>
+  <g fill="#d8c49a" font-family="Georgia,serif">
+    <text x="74" y="88" font-size="19" letter-spacing="7" opacity=".86">ZEXOR / ARCHIVE</text>
+    <path d="M74 108H260" stroke="#c7ad76" stroke-opacity=".65"/>
+    <text x="74" y="704" font-size="13" letter-spacing="4" opacity=".75">OBJECTS WITH A PAST. CHARACTER THAT LASTS.</text>
+  </g>
+  <rect x="30" y="30" width="1140" height="740" rx="2" fill="none" stroke="#d4bd8b" stroke-opacity=".22"/>
+</svg>
