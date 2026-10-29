@@ -9,7 +9,6 @@ type Props = {
   heroAccent: string;
   heroText: string;
   heroImage?: string;
-  departmentNames?: Partial<Record<'cards' | 'fashion' | 'services' | 'cars' | 'property', string>>;
   departmentCount?: number;
 };
 
@@ -17,7 +16,7 @@ type Props = {
  * Lightweight editorial opening. No image gallery, carousel, video, or
  * per-department media is rendered here. Department navigation lives below.
  */
-export function HomeHero({ locale, navigate, heroTitle, heroAccent, heroText }: Props) {
+export function HomeHero({ locale, navigate, heroTitle, heroAccent, heroText, departmentCount = 6 }: Props) {
   const isArabic = locale === 'ar';
   const Down = isArabic ? ArrowDownLeft : ArrowDownRight;
   const Up = isArabic ? ArrowUpLeft : ArrowUpRight;
@@ -53,13 +52,13 @@ export function HomeHero({ locale, navigate, heroTitle, heroAccent, heroText }: 
           <div className="zx-hero-art-ring zx-hero-art-ring-inner" />
           <div className="zx-hero-art-disc"><span>Z</span><i /><span>X</span></div>
           <span className="zx-hero-art-label zx-hero-art-label-top">EST. ZEXOR</span>
-          <span className="zx-hero-art-label zx-hero-art-label-side">01 — 06</span>
+          <span className="zx-hero-art-label zx-hero-art-label-side">01 — {String(departmentCount).padStart(2, '0')}</span>
           <span className="zx-hero-art-dot zx-hero-art-dot-one" />
           <span className="zx-hero-art-dot zx-hero-art-dot-two" />
         </div>
       </div>
       <div className="zx-hero-editorial-bottom">
-        <span>{isArabic ? 'ستة عوالم مختلفة، بهوية واحدة.' : 'SIX WORLDS. ONE DISTINCT IDENTITY.'}</span>
+        <span>{isArabic ? `${departmentCount} عوالم مختلفة، بهوية واحدة.` : `${departmentCount} WORLDS. ONE DISTINCT IDENTITY.`}</span>
         <span className="zx-hero-scroll">{isArabic ? 'اكتشف المزيد' : 'DISCOVER MORE'} <Down aria-hidden="true" /></span>
       </div>
     </section>
