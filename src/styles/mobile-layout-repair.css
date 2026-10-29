@@ -1,0 +1,185 @@
+/* ZEXOR mobile layout repair — scoped overrides, preserving existing routes and commerce. */
+.zx-app-shell,
+.zx-app-shell main,
+.home-page-flow,
+.zx-hero-editorial,
+.zx-department-index {
+  min-width: 0;
+  max-width: 100%;
+}
+.zx-app-shell { overflow-x: clip; }
+.zx-hero-editorial {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.zx-hero-editorial-main {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .82fr);
+  align-items: center;
+}
+.zx-hero-copy { min-width: 0; }
+.zx-hero-copy h1 {
+  max-width: 100%;
+  font-size: clamp(2.6rem, 5.5vw, 5.7rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: balance;
+}
+html:lang(ar) .zx-hero-copy h1 {
+  letter-spacing: 0;
+  line-height: 1.3;
+  font-size: clamp(2.4rem, 5.2vw, 5.3rem);
+}
+.zx-hero-copy h1 > span { display: block; max-width: 100%; }
+.zx-hero-description {
+  max-width: 42rem;
+  line-height: 1.9;
+  overflow-wrap: break-word;
+}
+.zx-hero-actions { min-width: 0; flex-wrap: wrap; }
+.zx-hero-actions > button { min-width: 0; }
+.zx-department-index { box-sizing: border-box; }
+.zx-department-index-head > div { min-width: 0; }
+.zx-department-index-head h2 {
+  max-width: 100%;
+  line-height: 1.25;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.zx-department-index-head p { max-width: 48rem; line-height: 1.9; }
+.zx-department-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.65rem, 1.6vw, 1.15rem);
+  align-items: stretch;
+}
+.zx-department-tiles > .zx-department-tile,
+.zx-department-tiles > .zx-department-tile:nth-child(n) {
+  grid-column: auto !important;
+  min-width: 0;
+  min-height: clamp(17rem, 28vw, 25rem);
+  padding: clamp(.8rem, 1.5vw, 1.25rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+.zx-department-tile::before {
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(12 17 23 / 7%) 0%, rgb(12 17 23 / 18%) 30%, rgb(12 17 23 / 86%) 100%) !important;
+}
+.zx-tile-number { line-height: 1; }
+.zx-tile-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.zx-tile-kicker {
+  display: block;
+  max-width: 100%;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+.zx-tile-title {
+  display: block;
+  max-width: 100%;
+  font-size: clamp(1.15rem, 2vw, 1.8rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: balance;
+}
+html:lang(ar) .zx-tile-title { letter-spacing: 0; line-height: 1.5; }
+.zx-tile-description {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+.zx-tile-icon { flex-shrink: 0; }
+.zx-tile-action { z-index: 2; }
+@media (max-width: 900px) {
+  .zx-hero-editorial-main { grid-template-columns: minmax(0, 1fr) minmax(0, .6fr); gap: 1rem; }
+  .zx-hero-copy h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+  html:lang(ar) .zx-hero-copy h1 { font-size: clamp(2.25rem, 5.7vw, 3.8rem); }
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zx-department-tiles > .zx-department-tile,
+  .zx-department-tiles > .zx-department-tile:nth-child(n) { min-height: 18rem; }
+}
+@media (max-width: 600px) {
+  .zx-app-shell main { padding-inline: .65rem; }
+  .zx-app-shell main > .home-page-flow { padding-inline: 0; }
+  .zx-app-shell main > * + *,
+  .zx-app-shell main > .home-page-flow > * + * { margin-block-start: 2.6rem; }
+  .zx-hero-editorial {
+    width: 100%;
+    margin-inline: auto;
+    padding: 1.15rem .95rem 1rem !important;
+    border-radius: 1rem !important;
+  }
+  .zx-hero-editorial-top {
+    align-items: flex-start;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+  .zx-hero-overline { max-width: 100%; font-size: .68rem; line-height: 1.6; }
+  .zx-hero-location { font-size: .68rem; white-space: nowrap; }
+  .zx-hero-editorial-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .5rem;
+    padding-block: 1.7rem .8rem;
+  }
+  .zx-hero-copy { width: 100%; }
+  .zx-hero-index { font-size: .85rem; line-height: 1.7; }
+  .zx-hero-copy h1 {
+    width: 100%;
+    margin-block: .45rem .8rem;
+    font-size: clamp(2.25rem, 10.5vw, 3.35rem) !important;
+    line-height: 1.23 !important;
+    letter-spacing: 0 !important;
+  }
+  html:lang(ar) .zx-hero-copy h1 { font-size: clamp(2.15rem, 10vw, 3.15rem) !important; line-height: 1.42 !important; }
+  .zx-hero-description { font-size: .96rem !important; line-height: 1.9; }
+  .zx-hero-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: .65rem !important; margin-top: 1.1rem; }
+  .zx-hero-actions > button { width: 100%; min-height: 3.35rem !important; justify-content: space-between; padding-inline: 1rem; }
+  .zx-hero-art { display: none !important; }
+  .zx-hero-editorial-bottom { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; font-size: .68rem; }
+  .zx-department-index { padding-inline: .15rem; }
+  .zx-department-index-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+  .zx-department-index-head h2 { margin-block: .6rem; font-size: clamp(1.7rem, 8.5vw, 2.35rem) !important; }
+  .zx-department-index-head p { font-size: .9rem; line-height: 1.85; }
+  .zx-department-index-market { justify-self: start; }
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+  .zx-department-tiles > .zx-department-tile,
+  .zx-department-tiles > .zx-department-tile:nth-child(n) {
+    min-height: 17.5rem;
+    height: auto;
+    padding: .8rem;
+    border-radius: .85rem;
+  }
+  .zx-tile-number { font-size: clamp(2rem, 10vw, 3rem) !important; }
+  .zx-tile-icon { width: 2.2rem; height: 2.2rem; inset-block-start: .7rem; inset-inline-end: .7rem; }
+  .zx-tile-content { gap: .25rem; }
+  .zx-tile-kicker { font-size: .65rem; line-height: 1.55; }
+  .zx-tile-title { font-size: clamp(1rem, 4.7vw, 1.3rem) !important; line-height: 1.45 !important; }
+  .zx-tile-description { font-size: .72rem !important; line-height: 1.7; -webkit-line-clamp: 3; padding-bottom: 1.5rem; }
+  .zx-tile-action { width: 1.8rem; height: 1.8rem; inset-inline-end: .55rem; inset-block-end: .55rem; }
+  .zx-department-index-foot { margin-top: .9rem; font-size: .65rem; }
+}
+@media (max-width: 370px) {
+  .zx-app-shell main { padding-inline: .5rem; }
+  .zx-hero-editorial { padding-inline: .8rem !important; }
+  .zx-hero-copy h1 { font-size: 2.15rem !important; }
+  html:lang(ar) .zx-hero-copy h1 { font-size: 2.05rem !important; }
+  .zx-department-tiles { gap: .5rem; }
+  .zx-department-tiles > .zx-department-tile,
+  .zx-department-tiles > .zx-department-tile:nth-child(n) { min-height: 16rem; padding: .65rem; }
+  .zx-tile-title { font-size: .95rem !important; }
+  .zx-tile-description { font-size: .68rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-hero-editorial *, .zx-department-tile { animation: none !important; transition: none !important; }
+}
