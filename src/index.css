@@ -16,7 +16,6 @@
 @import "./styles/sitewide-quality.css";
 @import "./styles/flagship-finish.css";
 @import "./styles/zexor-impact-pass.css";
-@import "./styles/white-beige-finish.css";
-/* Keep the selected midnight / ice / teal palette and allow the dark theme to remain available. */
-
 @import "./styles/mobile-layout-repair.css";
+/* Keep the approved white-and-beige finish last so earlier theme layers cannot override it. */
+@import "./styles/white-beige-finish.css";
