@@ -372,3 +372,15 @@ html:lang(ar) .zx-brand-manifesto-caption { letter-spacing: 0; }
   .zx-brand-manifesto-mark { width: min(72%, 15rem); }
   .zx-brand-manifesto-caption { font-size: .5rem; }
 }
+
+
+/* Prevent iOS Safari from zooming the viewport when a form field receives focus. */
+@media (max-width: 760px) {
+  .zx-checkout-drawer :is(input, select, textarea),
+  .zx-tracking-dialog :is(input, select, textarea),
+  .zx-nfc-customizer-dialog :is(input, select, textarea),
+  .zx-site-header :is(input, select, textarea),
+  .zx-admin :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+    font-size: 16px !important;
+  }
+}
