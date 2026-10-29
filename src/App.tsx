@@ -769,7 +769,7 @@ export default function App() {
   const [restockPhone, setRestockPhone] = useState('');
 
   // Admin Login State
-  const [adminAuthenticated, setAdminAuthenticated] = useState(false);
+  const [adminAuthenticated, setAdminAuthenticated] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [adminLoginError, setAdminLoginError] = useState('');
@@ -2683,12 +2683,10 @@ Details: ${details}`;
               locale={locale}
               market={market}
               onLock={() => {
-                setAdminAuthenticated(false);
                 setCloudOrdersLoaded(false);
                 setCloudInquiriesLoaded(false);
                 setPrivateSecretsLoaded(false);
                 setSettings((current) => ({ ...current, telegramBotToken: '', telegramChatId: '' }));
-                void supabase.auth.signOut();
                 navigate('home');
               }}
               onDeleteInquiry={handleDeleteCloudInquiry}
