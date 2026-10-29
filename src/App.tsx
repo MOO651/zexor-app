@@ -1957,13 +1957,6 @@ export default function App() {
             {/* 1. Interactive 3D Parallax Hero */}
             <HomeHero
               departmentCount={activeDepartmentCount}
-              departmentNames={{
-                cards: categoryNameFor('cards', isArabic ? 'زكسور لينك' : 'ZEXOR LINK'),
-                fashion: categoryNameFor('fashion', isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'),
-                services: categoryNameFor('services', isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'),
-                cars: categoryNameFor('cars', isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'),
-                property: categoryNameFor('property', isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'),
-              }}
               heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
               heroImage={resolvedSettings.heroImage}
               heroText={getSiteText('hero.description', locale) ?? resolvedSettings.heroText[locale]}
