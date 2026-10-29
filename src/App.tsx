@@ -1954,7 +1954,7 @@ export default function App() {
         )}
         {route === 'home' && (
           <div className="home-page-flow">
-            {/* 1. Interactive 3D Parallax Hero */}
+            {/* 1. Brand hero */}
             <HomeHero
               departmentCount={activeDepartmentCount}
               heroAccent={getSiteText('hero.subtitle', locale) ?? resolvedSettings.heroAccent[locale]}
@@ -1965,9 +1965,8 @@ export default function App() {
               navigate={navigate}
             />
 
-            {/* 2. Department Board — image-driven entry points into every section.
-                The `departments` id is the scroll target for the hero's
-                "Explore All 5 Departments" button. */}
+            {/* 2. Six-department board — image-led entry points into each active section.
+                The `departments` id is the scroll target for the hero's explore button. */}
             <div id="departments" className="scroll-mt-24">
               <CategoryShowcase
                 isArabic={isArabic}
