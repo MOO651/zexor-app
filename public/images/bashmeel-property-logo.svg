@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+<title id="title">عقارات باشميل</title><desc id="desc">شعار عقارات باشميل بتصميم تراثي فاخر بالذهبي والعنابي.</desc>
+<defs>
+ <radialGradient id="bg"><stop stop-color="#6b0d16"/><stop offset="1" stop-color="#210307"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0b5"/><stop offset=".22" stop-color="#b77b2d"/><stop offset=".48" stop-color="#ffe8a0"/><stop offset=".7" stop-color="#8a541b"/><stop offset="1" stop-color="#f8d77c"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<circle cx="450" cy="450" r="420" fill="#090204" opacity=".65" filter="url(#shadow)"/>
+<circle cx="450" cy="450" r="405" fill="url(#bg)" stroke="url(#gold)" stroke-width="15"/>
+<circle cx="450" cy="450" r="383" fill="none" stroke="#e6bd6c" stroke-width="2" opacity=".8"/>
+<path d="M450 55 C415 100 420 125 450 145 C480 125 485 100 450 55Z M450 755 C415 800 420 825 450 845 C480 825 485 800 450 755Z" fill="url(#gold)"/>
+<g fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round">
+<path d="M245 225 C300 145 375 155 405 205 C370 180 340 205 350 235 C365 260 405 235 390 210"/>
+<path d="M655 225 C600 145 525 155 495 205 C530 180 560 205 550 235 C535 260 495 235 510 210"/>
+<path d="M235 665 C300 735 375 720 405 680 M665 665 C600 735 525 720 495 680"/>
+<path d="M290 180 Q450 105 610 180 M290 720 Q450 795 610 720"/>
+</g>
+<g transform="translate(450 300)" stroke="url(#gold)" fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+<path d="M0 -115 L0 80 M-80 -70 Q0 -140 80 -70 M-60 -35 Q0 -90 60 -35 M-115 35 Q0 100 115 35"/>
+<path d="M-130 75 L130 75 M-115 75 L-60 15 M115 75 L60 15"/>
+<path d="M-90 105 L90 105"/>
+</g>
+<rect x="105" y="430" width="690" height="150" rx="42" fill="url(#gold)" stroke="#ffe9a3" stroke-width="5"/>
+<rect x="120" y="445" width="660" height="120" rx="32" fill="none" stroke="#56200d" stroke-width="3"/>
+<text x="450" y="525" text-anchor="middle" font-family="Arial, Tahoma, sans-serif" font-size="62" font-weight="bold" fill="#35060a">عقارات باشميل</text>
+<g fill="url(#gold)" font-family="Arial, Tahoma, sans-serif" font-size="25" font-weight="bold" text-anchor="middle">
+<text x="330" y="635">تشطيب فلل وشقق</text><text x="570" y="635">إيجار سيارات</text><text x="450" y="690" font-size="29">تسويق عقاري</text>
+</g>
+<g stroke="url(#gold)" stroke-width="3" opacity=".9"><path d="M155 650H245 M655 650H745 M270 710H630"/></g>
+</svg>
