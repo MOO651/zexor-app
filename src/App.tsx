@@ -45,6 +45,7 @@ import {
   STATS,
 } from './data/initialData';
 import { HomeHero, TiltCard } from './components/HomeHero';
+import { BrandIdentityBlock } from './components/BrandIdentityBlock';
 import { NfcCustomizerModal } from './components/NfcCustomizerModal';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { FaqSection, SiteFooter, TrackingAndNewsletter } from './components/HomeSections';
@@ -2110,6 +2111,8 @@ export default function App() {
                 </div>
               </section>
             )}
+
+            <BrandIdentityBlock locale={locale} />
 
             {/* 5. Section 03: Digital Studio, Live Demos & Software Agency */}
             {isDepartmentActive('services') && (
