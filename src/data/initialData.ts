@@ -17,7 +17,6 @@ export const INITIAL_CATEGORIES: DynamicCategory[] = [
   { id: 'services', slug: 'services', name: { en: 'ZEXOR STUDIO', ar: 'استوديو زكسور' }, icon: 'code', active: true },
   { id: 'cars', slug: 'cars', name: { en: 'ZEXOR MOTORS', ar: 'زكسور موتورز' }, icon: 'car', active: true },
   { id: 'property', slug: 'property', name: { en: 'ZEXOR ESTATES', ar: 'زكسور إستيتس' }, icon: 'home', active: true },
-  { id: 'market', slug: 'market', name: { en: 'ZEXOR MARKET', ar: 'زكسور ماركت' }, icon: 'shopping-bag', active: true },
   { id: 'antiques', slug: 'antiques', name: { en: 'ZEXOR ARCHIVE', ar: 'زكسور أركايف' }, icon: 'gem', active: true },
 ];
 
@@ -31,8 +30,20 @@ const LEGACY_CATEGORY_NAMES: Record<string, string[]> = {
 
 /** Add new built-in departments and update only untouched legacy labels. */
 export function normalizeCategories(categories: DynamicCategory[]): DynamicCategory[] {
+  // "market" was the old generic sixth department. Fold it into Archive so
+  // returning visitors keep their category settings without seeing a duplicate.
+  const legacyMarket = categories.find((category) => category.slug === 'market');
   const normalized = INITIAL_CATEGORIES.map((builtIn) => {
     const current = categories.find((category) => category.slug === builtIn.slug);
+    if (!current && builtIn.slug === 'antiques' && legacyMarket) {
+      return {
+        ...legacyMarket,
+        id: builtIn.id,
+        slug: builtIn.slug,
+        name: builtIn.name,
+        icon: builtIn.icon,
+      };
+    }
     if (!current) return builtIn;
     const oldNames = LEGACY_CATEGORY_NAMES[builtIn.slug] ?? [];
     const shouldRename = oldNames.includes(current.name.ar) || oldNames.includes(current.name.en);
@@ -40,8 +51,16 @@ export function normalizeCategories(categories: DynamicCategory[]): DynamicCateg
   });
   return [
     ...normalized,
-    ...categories.filter((category) => !INITIAL_CATEGORIES.some((builtIn) => builtIn.slug === category.slug)),
+    ...categories.filter((category) =>
+      category.slug !== 'market'
+      && !INITIAL_CATEGORIES.some((builtIn) => builtIn.slug === category.slug)),
   ];
+}
+
+/** Move products from the retired generic market department into ZEXOR Archive. */
+export function normalizeLegacyProductCategories(products: Product[]): Product[] {
+  return products.map((product) =>
+    product.category === 'market' ? { ...product, category: 'antiques' } : product);
 }
 
 /** Update untouched demo product photography without overwriting admin uploads. */
