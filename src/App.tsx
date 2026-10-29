@@ -1507,14 +1507,14 @@ export default function App() {
   ) : [];
   const dynamicDepartmentSlides = currentDynamicDepartment
     ? currentDynamicDepartment.bannerSlides?.length
-      ? currentDynamicDepartment.bannerSlides.map((slide) => ({ title: slide.title[locale] || currentDynamicDepartment.name[locale], text: slide.text[locale] || currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'), image: slide.image || currentDynamicDepartment.bannerImage || art.studioPortal }))
-      : [0, 1, 2].map((index) => ({ title: currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale], text: currentDynamicDepartment.bannerText?.[locale] || (isArabic ? `اكتشف اختيارات ${currentDynamicDepartment.name.ar} المصممة لتناسب احتياجك.` : `Explore ${currentDynamicDepartment.name.en}, curated around what you need.`), image: currentDynamicDepartment.bannerImage || dynamicDepartmentProducts[index]?.imageUrl || art.studioPortal }))
+      ? currentDynamicDepartment.bannerSlides.map((slide) => ({ title: slide.title[locale] || currentDynamicDepartment.name[locale], text: slide.text[locale] || currentDynamicDepartment.bannerText?.[locale] || (isArabic ? 'اختيارات منتقاة بعناية، بتفاصيل تقدر تعدلها وتطورها من لوحة الإدارة.' : 'A considered collection with content and details you can shape from the admin dashboard.'), image: slide.image || currentDynamicDepartment.bannerImage || (currentDynamicDepartment.slug === 'antiques' ? art.archivePortal : art.studioPortal) }))
+      : [0, 1, 2].map((index) => ({ title: currentDynamicDepartment.bannerTitle?.[locale] || currentDynamicDepartment.name[locale], text: currentDynamicDepartment.bannerText?.[locale] || (isArabic ? `اكتشف اختيارات ${currentDynamicDepartment.name.ar} المصممة لتناسب احتياجك.` : `Explore ${currentDynamicDepartment.name.en}, curated around what you need.`), image: currentDynamicDepartment.bannerImage || dynamicDepartmentProducts[index]?.imageUrl || (currentDynamicDepartment.slug === 'antiques' ? art.archivePortal : art.studioPortal) }))
     : [];
   const routeNotFound = ![
     'home', 'cards', 'fashion', 'services', 'cars', 'property', 'contact',
     'dashboard', 'admin', 'pricing', 'calculator', 'reviews', 'tracking',
   ].includes(route) && !currentDynamicDepartment;
-  const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal }[slug] ?? art.studioPortal);
+  const departmentImage = (slug: string) => ({ cards: art.cardsPortal, fashion: art.hoodie, services: art.studioPortal, cars: art.vehiclesPortal, property: art.estatePortal, antiques: art.archivePortal }[slug] ?? art.studioPortal);
   const departmentBanner = (slug: string, fallbackTitle: string, fallbackText: string) => {
     const category = departmentFor(slug);
     const storyImages: Record<string, string[]> = {
