@@ -1393,7 +1393,7 @@ export default function App() {
     (resolvedSettings.sectionVisibility[slug] ?? true) && (categories.find((category) => category.slug === slug)?.active ?? true),
   [categories, resolvedSettings.sectionVisibility]);
   const activeDepartmentCount = (['cards', 'fashion', 'services', 'cars', 'property'] as const)
-    .filter(isDepartmentActive).length;
+    .filter(isDepartmentActive).length + Number(categories.find((category) => category.slug === 'antiques')?.active ?? true);
 
   const navItems: { route: Route; label: string }[] = useMemo(() => {
     const items: { route: Route; label: string }[] = [
@@ -1987,7 +1987,9 @@ export default function App() {
                   cars: isDepartmentActive('cars'),
                   property: isDepartmentActive('property'),
                   services: isDepartmentActive('services'),
+                  antiques: categories.find((category) => category.slug === 'antiques')?.active ?? true,
                 }}
+                categories={categories}
               />
             </div>
 
