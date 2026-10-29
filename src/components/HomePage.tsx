@@ -111,6 +111,14 @@ export function HomePage({
       {/* 1. Main brand statement */}
       <HomeHero
         heroAccent={settings.heroAccent[locale]}
+        departmentCount={
+          Number(sectionVisibility.cards)
+          + Number(sectionVisibility.fashion)
+          + Number(sectionVisibility.services)
+          + Number(sectionVisibility.cars)
+          + Number(sectionVisibility.property)
+          + Number(categories.find((category) => category.slug === 'antiques')?.active ?? true)
+        }
         heroImage={settings.heroImage}
         heroText={settings.heroText[locale]}
         heroTitle={settings.heroTitle[locale]}
