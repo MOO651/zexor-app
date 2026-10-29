@@ -21,3 +21,5 @@
 @import "./styles/white-beige-finish.css";
 /* Final layer: refined type, spacing, icon alignment and responsive hierarchy. */
 @import "./styles/typography-layout-refinement.css";
+/* Latest approved palette: premium white, beige and sand with dark readable text. */
+@import "./styles/premium-sand-finish.css";
