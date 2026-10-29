@@ -1,5 +1,6 @@
 import { ArrowUpLeft, ArrowUpRight, Globe2 } from 'lucide-react';
 import { visiblePortals } from '../data/portals';
+import { useSiteMedia } from '../lib/siteMediaContext';
 import type { DynamicCategory, Locale, Route } from '../types';
 
 type Props = {
@@ -20,6 +21,15 @@ type Props = {
 /** Photo-led editorial department tiles; routes and admin labels stay live. */
 export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
   const portals = visiblePortals({ ...visible, antiques: visible.antiques ?? true });
+  const { assets } = useSiteMedia();
+  const portalImageKeys: Record<string, string> = {
+    cards: 'portal.cards.image',
+    fashion: 'portal.fashion.image',
+    services: 'portal.services.image',
+    cars: 'portal.cars.image',
+    property: 'portal.property.image',
+    antiques: 'portal.antiques.image',
+  };
   const Arrow = isArabic ? ArrowUpLeft : ArrowUpRight;
   if (portals.length === 0) return null;
 
@@ -52,7 +62,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             <button
               className={`zx-department-tile zx-department-tile-${index % 6}`}
               key={portal.route}
-              style={{ backgroundImage: `url("${portal.image}")` }}
+              style={{ backgroundImage: `url("${assets[portalImageKeys[portal.route] ?? ""]?.url ?? portal.image}")` }}
               onClick={() => navigate(portal.route)}
               type="button"
             >
