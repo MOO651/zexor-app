@@ -1,0 +1,107 @@
+/* ZEXOR Flagship — warm editorial luxury system.
+   Presentation-only overrides; commerce, Supabase, routes and admin logic remain intact. */
+:root,
+html[data-theme="light"] {
+  color-scheme: light !important;
+  --zx-bg: #fbf9f5 !important;
+  --zx-surface: #f2ede4 !important;
+  --zx-surface-raised: #fffefa !important;
+  --zx-text: #24211d !important;
+  --zx-text-secondary: #62594e !important;
+  --zx-text-muted: #81766a !important;
+  --zx-border: #e6ded1 !important;
+  --zx-accent: #806747 !important;
+  --zx-accent-hover: #624c32 !important;
+  --zx-accent-contrast: #fffefa !important;
+  --zx-highlight: #c3ad8d !important;
+  --zx-sand: #ece2d3 !important;
+  --zx-footer-bg: #28241f !important;
+  --zx-footer-text: #f6f0e6 !important;
+  --zx-container: 90rem;
+  --zx-layout-gutter: clamp(1rem, 4vw, 3.5rem);
+  --zx-section-space: clamp(3.5rem, 7vw, 7rem);
+}
+html, body, #root { background: #fbf9f5 !important; color: #24211d !important; }
+body { letter-spacing: -.008em; }
+.zx-app-shell { background: #fbf9f5 !important; color: #24211d !important; }
+.zx-app-shell main { max-width: 100%; }
+.zx-app-shell :is(h1,h2,h3,h4) { letter-spacing: -.035em; }
+html:lang(ar) .zx-app-shell :is(h1,h2,h3,h4) { letter-spacing: 0; }
+.zx-site-header {
+  border: 1px solid rgb(230 222 209 / 82%) !important;
+  border-radius: 1rem !important;
+  background: rgb(255 254 250 / 94%) !important;
+  box-shadow: 0 10px 35px -30px rgb(44 35 23 / 42%) !important;
+  backdrop-filter: blur(18px);
+}
+.zx-app-shell :is(.zx-department-index, .zx-product, .zx-market-card, .zx-showcase-card, .zx-tile, .zx-admin .zx-card) {
+  border-color: #e6ded1 !important;
+  border-radius: 1.15rem !important;
+  box-shadow: 0 12px 38px -34px rgb(44 35 23 / 38%);
+}
+.zx-app-shell :is(.zx-product, .zx-market-card, .zx-showcase-card, .zx-tile) {
+  transition: transform 420ms cubic-bezier(.2,.8,.2,1), box-shadow 420ms cubic-bezier(.2,.8,.2,1), border-color 250ms ease;
+}
+@media (hover:hover) {
+  .zx-app-shell :is(.zx-product, .zx-market-card, .zx-showcase-card, .zx-tile):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 48px -34px rgb(44 35 23 / 42%);
+    border-color: #d2c1a7 !important;
+  }
+  .zx-product-media img, .zx-department-banner-image { transition: transform 700ms cubic-bezier(.2,.8,.2,1); }
+  .zx-product:hover .zx-product-media img, .zx-department-banner:hover .zx-department-banner-image { transform: scale(1.035); }
+}
+.zx-app-shell :is(button, [role="button"], .zx-button) { font-weight: 650; }
+.zx-app-shell :is(button, [role="button"]):focus-visible,
+.zx-app-shell a:focus-visible { outline-color: #806747 !important; outline-offset: 3px; }
+.zx-button--primary, .zx-hero-primary {
+  background: #806747 !important; border-color: #806747 !important; color: #fffefa !important;
+}
+.zx-button--primary:hover, .zx-hero-primary:hover { background: #624c32 !important; }
+.zx-hero-editorial {
+  border: 1px solid #e6ded1 !important;
+  border-radius: clamp(1.25rem, 3vw, 2.25rem) !important;
+  background:
+    radial-gradient(ellipse at 86% 14%, rgb(195 173 141 / 20%), transparent 32%),
+    radial-gradient(ellipse at 4% 100%, rgb(236 226 211 / 68%), transparent 42%),
+    linear-gradient(135deg, #fffefa 0%, #f8f3eb 58%, #eee4d5 100%) !important;
+  box-shadow: 0 28px 80px -58px rgb(44 35 23 / 34%) !important;
+}
+.zx-hero-editorial .zx-hero-copy h1 { color: #24211d !important; }
+.zx-hero-editorial .zx-hero-accent { color: #806747 !important; }
+.zx-hero-editorial .zx-hero-description,
+.zx-hero-editorial .zx-hero-overline,
+.zx-hero-editorial .zx-hero-location { color: #62594e !important; }
+.home-page-flow .zx-section-heading-title {
+  font-weight: 650 !important;
+  letter-spacing: -.04em;
+  max-width: 17ch;
+}
+html:lang(ar) .home-page-flow .zx-section-heading-title { letter-spacing: 0; }
+.zx-app-shell :is(input,select,textarea,.zx-input) {
+  border-color: #ded4c5;
+  border-radius: .8rem;
+  background: #fffefa;
+}
+.zx-app-shell :is(input,select,textarea,.zx-input):focus {
+  border-color: #806747;
+  box-shadow: 0 0 0 3px rgb(128 103 71 / 12%);
+  outline: none;
+}
+.zx-app-shell footer {
+  background: #28241f !important;
+  color: #f6f0e6 !important;
+}
+.zx-app-shell footer :is(p,a,span,h2,h3,label) { color: inherit; }
+@media (max-width: 640px) {
+  :root { --zx-layout-gutter: 1rem; --zx-section-space: 3.25rem; }
+  .zx-app-shell main { padding-inline: 1rem !important; }
+  .zx-site-header { border-radius: .85rem !important; }
+  .zx-app-shell :is(.zx-product, .zx-market-card, .zx-showcase-card, .zx-tile) { border-radius: .9rem !important; }
+  .home-page-flow .zx-section-heading-title { font-size: clamp(1.65rem, 7vw, 2.35rem) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-app-shell *, .zx-app-shell *::before, .zx-app-shell *::after {
+    animation-duration: .01ms !important; transition-duration: .01ms !important;
+  }
+}
