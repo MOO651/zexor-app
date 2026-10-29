@@ -12,14 +12,14 @@ type Props = {
     cars: boolean;
     property: boolean;
     services: boolean;
-    antiques: boolean;
+    antiques?: boolean;
   };
   categories?: DynamicCategory[];
 };
 
 /** Photo-led editorial department tiles; routes and admin labels stay live. */
 export function CategoryShowcase({ locale, isArabic, navigate, visible, categories = [] }: Props) {
-  const portals = visiblePortals(visible);
+  const portals = visiblePortals({ ...visible, antiques: visible.antiques ?? true });
   const Arrow = isArabic ? ArrowUpLeft : ArrowUpRight;
   if (portals.length === 0) return null;
 
