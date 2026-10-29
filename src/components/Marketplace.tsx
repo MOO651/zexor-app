@@ -349,6 +349,15 @@ Listing: ${itemTitle}`;
     <div className="zx-marketplace space-y-8">
       {/* Hero Banner */}
       <DepartmentBanner locale={locale} name={sectionName ?? (mode === 'cars' ? 'ZEXOR MOTORS' : 'ZEXOR ESTATES')} title={banner?.bannerTitle?.[locale]} text={banner?.bannerText?.[locale]} image={banner?.bannerImage} accent={banner?.bannerAccent} slides={configuredSlides?.length ? configuredSlides : defaultSlides} fallbackImage={mode === 'cars' ? art.vehiclesPortal : art.estatePortal} fallbackTitle={mode === 'cars' ? (isArabic ? 'اختيارات سيارات تناسب خطوتك القادمة' : 'Find the right car for your next move') : (isArabic ? 'مساحات أقرب لما تبحث عنه' : 'Find a space that feels right')} fallbackText={marketplaceBannerText} />
+      {mode === 'property' && (
+        <section className="zx-bashmeel-brand-panel" aria-label={isArabic ? 'هوية عقارات باشميل' : 'Bashmeel real-estate identity'}>
+          <img src={`${import.meta.env.BASE_URL}images/bashmeel-property-logo.svg`} alt={isArabic ? 'شعار عقارات باشميل' : 'Bashmeel Real Estate logo'} />
+          <div className="zx-bashmeel-brand-copy">
+            <p>{isArabic ? 'عقارات باشميل' : 'Bashmeel Real Estate'}</p>
+            <span>{isArabic ? 'تسويق عقاري • إيجار سيارات • تشطيب فلل وشقق' : 'Property marketing • Car rental • Villa & apartment finishing'}</span>
+          </div>
+        </section>
+      )}
       {subcategories.length > 0 && <nav aria-label={isArabic ? 'تصنيفات المعرض' : 'Showroom categories'} className="zx-market-subcategories flex flex-wrap gap-2">{[
         { slug: '', name: isArabic ? 'كل المعروض' : 'All listings' }, ...subcategories.map((category) => ({ slug: category.slug, name: category.name[locale] })),
       ].map((item) => <button aria-pressed={selectedDepartmentCategory === item.slug} className={`min-h-11 rounded-full border px-4 py-3 text-xs font-semibold transition ${selectedDepartmentCategory === item.slug ? 'border-zx-border bg-zx-cinematic text-zx-accent-contrast' : 'border-zx-border bg-zx-surface-raised text-zx-text hover:border-zx-border'}`} key={item.slug || 'all'} onClick={() => setSelectedDepartmentCategory(item.slug)} type="button">{item.name}</button>)}</nav>}
