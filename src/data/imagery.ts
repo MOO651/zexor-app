@@ -84,4 +84,5 @@ export const art = {
   vehiclesPortal: IMG + 'showcase-vehicles.svg',
   estatePortal: IMG + 'showcase-estate.svg',
   studioPortal: IMG + 'showcase-studio.svg',
+  archivePortal: IMG + 'showcase-archive.svg',
 } as const;
