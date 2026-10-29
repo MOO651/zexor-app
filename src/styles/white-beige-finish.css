@@ -296,3 +296,68 @@ html, body, #root, .zx-app-shell {
   background: linear-gradient(135deg, #FFFFFF 0%, #F4EFE6 60%, #E9DECE 100%) !important;
   color: #29251F !important;
 }
+
+
+/* Final contrast pass: clear labels and obvious controls, using white + beige only. */
+.zx-app-shell :is(.zx-button-primary,.zx-btn-primary,.zx-button--primary,.zx-product-body > button,[data-variant="primary"],.five-windows-cta) {
+  background: #806746 !important;
+  border: 1px solid #806746 !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 20px -14px rgb(66 51 32 / 62%);
+}
+.zx-app-shell :is(.zx-button-primary,.zx-btn-primary,.zx-button--primary,.zx-product-body > button,[data-variant="primary"],.five-windows-cta):hover:not(:disabled) {
+  background: #624D34 !important;
+  border-color: #624D34 !important;
+  color: #FFFFFF !important;
+}
+.zx-app-shell :is(.zx-hero-secondary,.zx-button-secondary,.zx-btn-secondary,[data-variant="secondary"]) {
+  background: #FFFFFF !important;
+  border: 1px solid #CDBDA5 !important;
+  color: #493A28 !important;
+}
+.zx-app-shell :is(.zx-hero-secondary,.zx-button-secondary,.zx-btn-secondary,[data-variant="secondary"]):hover:not(:disabled) {
+  background: #EDE3D4 !important;
+  border-color: #BDA783 !important;
+  color: #29251F !important;
+}
+.zx-app-shell .zx-product-variant-option[aria-checked="true"] {
+  background: #806746 !important;
+  border-color: #806746 !important;
+  color: #FFFFFF !important;
+}
+.zx-app-shell .zx-product-variant-option[aria-checked="false"] {
+  background: #FFFFFF !important;
+  border-color: #D7C9B5 !important;
+  color: #493A28 !important;
+}
+.zx-app-shell .zx-product-price {
+  border-color: #E2D8C8 !important;
+}
+.zx-app-shell .zx-product-price .zx-display,
+.zx-app-shell .zx-product-availability,
+.zx-app-shell .zx-product-category {
+  color: #624D34 !important;
+}
+.zx-app-shell .zx-site-footer :is(a,button) {
+  text-decoration-color: #BDA783;
+}
+.zx-app-shell :is(.zx-admin,.zx-checkout-drawer,.zx-tracking-dialog,.zx-nfc-customizer-dialog) :is(button,[role="button"]) {
+  min-height: 2.75rem;
+  border-radius: .7rem;
+  font-weight: 650;
+}
+.zx-app-shell :is(.zx-admin,.zx-checkout-drawer,.zx-tracking-dialog,.zx-nfc-customizer-dialog) :is(h1,h2,h3,label,p,small) {
+  text-shadow: none !important;
+}
+.zx-app-shell :is(.zx-admin,.zx-checkout-drawer,.zx-tracking-dialog,.zx-nfc-customizer-dialog) :is(input,select,textarea) {
+  accent-color: #806746;
+}
+.zx-app-shell :is(a,button,[role="button"]) {
+  text-underline-offset: .18em;
+}
+@media (max-width: 640px) {
+  .zx-app-shell :is(.zx-button-primary,.zx-btn-primary,.zx-button--primary,.zx-hero-primary,.zx-hero-secondary,.zx-product-body > button,[data-variant="primary"]) {
+    min-height: 2.9rem;
+  }
+}
