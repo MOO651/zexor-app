@@ -13,11 +13,9 @@ import {
   LockKeyhole,
   Menu,
   MessageCircle,
-  Moon,
   Search,
   ShoppingBag,
   Sparkles,
-  Sun,
   Truck,
   X,
 } from 'lucide-react';
@@ -184,14 +182,12 @@ function readStorage<T>(key: string, fallback: T, isValid?: (value: unknown) => 
   }
 }
 
-function detectPreferredTheme(): 'light' | 'dark' {
-  const stored = readStorage<unknown>(STORAGE.theme, null);
-  if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+function detectPreferredTheme(): 'light' {
+  return 'light';
 }
 
-function isValidTheme(value: unknown): value is 'light' | 'dark' {
-  return value === 'light' || value === 'dark';
+function isValidTheme(value: unknown): value is 'light' {
+  return value === 'light';
 }
 
 // Lets useStoredState tell the caller when persistence fails (quota exceeded or
@@ -447,7 +443,7 @@ export default function App() {
   const [categories, setCategories] = useStoredState<DynamicCategory[]>(STORAGE.categories, INITIAL_CATEGORIES, isValidObjectArray);
   const [cart, setCart] = useStoredState<CartLine[]>(STORAGE.cart, [], isValidObjectArray);
   const [orders, setOrders] = useStoredState<CustomerOrder[]>(STORAGE.orders, [], isValidObjectArray);
-  const [theme, setTheme] = useStoredState<'light' | 'dark'>(STORAGE.theme, detectPreferredTheme(), isValidTheme);
+  const [theme] = useStoredState<'light' | 'dark'>(STORAGE.theme, detectPreferredTheme(), isValidTheme);
   const [wishlist, setWishlist] = useStoredState<string[]>(STORAGE.wishlist, []);
   const [inbox, setInbox] = useStoredState<PlatformInquiry[]>(STORAGE.inbox, [], isValidObjectArray);
   const [promoCodes, setPromoCodes] = useStoredState<PromoCode[]>(STORAGE.promoCodes, [
@@ -1151,8 +1147,8 @@ export default function App() {
     const root = document.documentElement;
     root.lang = locale;
     root.dir = dir;
-    root.dataset.theme = theme;
-    root.style.colorScheme = theme;
+    root.dataset.theme = 'light';
+    root.style.colorScheme = 'light';
     const themeColor = getComputedStyle(root).getPropertyValue('--zx-bg').trim();
     if (themeColor) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
     const routeLabels: Record<string, Record<Locale, string>> = {
@@ -1687,16 +1683,6 @@ export default function App() {
               type="button"
             >
               <Search className="h-4 w-4" />
-            </button>
-
-            {/* Dark / Light Mode Toggle */}
-            <button
-              aria-label={isArabic ? (theme === 'light' ? 'تفعيل الوضع الداكن' : 'تفعيل الوضع الفاتح') : (theme === 'light' ? 'Enable dark mode' : 'Enable light mode')}
-              className="hidden h-9 w-9 items-center justify-center rounded-full border border-zx-border bg-zx-surface-raised/70 text-zx-text hover:bg-zx-mint sm:flex"
-              onClick={() => setTheme((curr) => (curr === 'light' ? 'dark' : 'light'))}
-              type="button"
-            >
-              {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </button>
 
             {/* Wishlist */}
