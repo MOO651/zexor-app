@@ -56,6 +56,11 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
               onClick={() => navigate(portal.route)}
               type="button"
             >
+              {portal.route === 'property' && (
+                <span className="zx-bashmeel-logo-badge" aria-label={isArabic ? 'عقارات باشميل' : 'Bashmeel Real Estate'}>
+                  <img src={`${import.meta.env.BASE_URL}images/bashmeel-property-logo.svg`} alt={isArabic ? 'شعار عقارات باشميل' : 'Bashmeel Real Estate logo'} loading="lazy" />
+                </span>
+              )}
               <span className="zx-tile-number">{String(index + 1).padStart(2, '0')}</span>
               <span className="zx-tile-icon"><Icon aria-hidden="true" /></span>
               <span className="zx-tile-content">
