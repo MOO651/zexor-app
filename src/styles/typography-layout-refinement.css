@@ -1,0 +1,356 @@
+/* ZEXOR visual refinement — typography, hierarchy, icon alignment and spacing.
+   Presentation-only layer: preserves existing routes, commerce, admin and data behavior. */
+:root {
+  --zx-font-body: "Manrope Variable", "Alexandria Variable", ui-sans-serif, system-ui, sans-serif;
+  --zx-font-arabic: "Alexandria Variable", "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --zx-display: "Manrope Variable", "Alexandria Variable", ui-sans-serif, sans-serif;
+  --zx-bg: #FAF8F4;
+  --zx-surface: #F4EFE6;
+  --zx-surface-raised: #FFFFFF;
+  --zx-text: #29251F;
+  --zx-text-secondary: #5E574D;
+  --zx-text-muted: #766D61;
+  --zx-border: #E2D8C8;
+  --zx-accent: #806746;
+  --zx-accent-hover: #624D34;
+  --zx-accent-contrast: #FFFFFF;
+  --zx-layout-gutter: clamp(.85rem, 3.2vw, 2.75rem);
+  --zx-section-space: clamp(3rem, 6vw, 6.25rem);
+}
+html, body, #root {
+  font-family: var(--zx-font-body);
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+html:lang(ar), html:lang(ar) body,
+html:lang(ar) button, html:lang(ar) input, html:lang(ar) select, html:lang(ar) textarea {
+  font-family: var(--zx-font-arabic);
+}
+html:lang(ar) body { line-height: 1.9; }
+html:lang(ar) :is(h1,h2,h3,h4,h5,h6,p,button,label,a) { letter-spacing: 0; }
+html:lang(en) :is(h1,h2,h3,h4,h5,h6) { letter-spacing: -.035em; }
+.zx-app-shell { color: #29251F; }
+.zx-app-shell main {
+  padding-inline: var(--zx-layout-gutter);
+}
+.home-page-flow > * + * {
+  margin-block-start: var(--zx-section-space);
+}
+.home-page-flow :is(h1,h2,h3,h4) {
+  text-wrap: balance;
+}
+.home-page-flow :is(p, .zx-section-heading-copy, .zx-product-description) {
+  line-height: 1.85;
+  text-wrap: pretty;
+}
+.home-page-flow .zx-section-heading-title {
+  max-width: 18ch;
+  font-size: clamp(1.85rem, 3.6vw, 3.25rem) !important;
+  line-height: 1.25 !important;
+  font-weight: 650;
+}
+html:lang(ar) .home-page-flow .zx-section-heading-title {
+  line-height: 1.55 !important;
+  max-width: 22ch;
+}
+.home-page-flow .zx-eyebrow,
+.zx-department-index-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  color: #806746 !important;
+  font-size: .7rem;
+  font-weight: 750;
+  letter-spacing: .13em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+html:lang(ar) .home-page-flow .zx-eyebrow,
+html:lang(ar) .zx-department-index-kicker {
+  letter-spacing: 0;
+  font-size: .78rem;
+}
+.zx-site-header {
+  min-height: 4.25rem;
+  padding: .65rem clamp(.8rem, 2vw, 1.4rem) !important;
+  border: 1px solid #E2D8C8 !important;
+  border-radius: 1.15rem !important;
+  box-shadow: 0 12px 32px -26px rgb(66 51 32 / 38%) !important;
+}
+.zx-site-header :is(button,a) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  min-height: 2.65rem;
+  border-radius: .7rem;
+}
+.zx-site-header svg { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; }
+.zx-app-shell :is(button, [role="button"], a.zx-button, .zx-button) {
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  line-height: 1.35;
+  border-radius: .72rem;
+}
+.zx-app-shell :is(button, [role="button"], a.zx-button, .zx-button) > svg,
+.zx-app-shell :is(button, [role="button"], a.zx-button, .zx-button) > :is(.lucide, [data-lucide]) {
+  width: 1.05em;
+  height: 1.05em;
+  flex: 0 0 auto;
+  stroke-width: 1.8;
+}
+.zx-app-shell :is(button, [role="button"]):not(.zx-tile-icon):not(.zx-tile-action) {
+  min-height: 2.75rem;
+}
+.zx-app-shell :is(button, [role="button"]):focus-visible,
+.zx-app-shell a:focus-visible,
+.zx-app-shell input:focus-visible,
+.zx-app-shell select:focus-visible,
+.zx-app-shell textarea:focus-visible {
+  outline: 2px solid #A88A60 !important;
+  outline-offset: 3px !important;
+}
+.zx-app-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea) {
+  min-height: 2.9rem;
+  padding: .7rem .9rem;
+  border-radius: .7rem;
+  line-height: 1.5;
+}
+.zx-app-shell :is(input,select,textarea)::placeholder { color: #766D61 !important; }
+.zx-hero-editorial {
+  border-radius: 1.4rem !important;
+  padding: clamp(1.2rem, 3vw, 2.6rem) !important;
+}
+.zx-hero-editorial .zx-hero-copy h1 {
+  font-weight: 650;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+  max-width: 11ch;
+}
+html:lang(ar) .zx-hero-editorial .zx-hero-copy h1 {
+  letter-spacing: 0;
+  line-height: 1.4;
+  max-width: 13ch;
+}
+.zx-hero-editorial .zx-hero-description {
+  max-width: 38rem;
+  font-size: clamp(.96rem, 1.1vw, 1.08rem);
+  line-height: 1.95;
+}
+.zx-hero-editorial .zx-hero-actions { gap: .75rem; }
+.zx-hero-editorial .zx-hero-actions > button { min-height: 3.15rem; padding-inline: 1.2rem; }
+.zx-department-index {
+  padding: clamp(1rem, 2.5vw, 2rem) !important;
+  border: 1px solid #E2D8C8 !important;
+  border-radius: 1.35rem !important;
+  box-shadow: 0 22px 55px -48px rgb(66 51 32 / 30%);
+}
+.zx-department-index-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: clamp(1.2rem, 2.5vw, 2rem);
+}
+.zx-department-index-head h2 {
+  margin-block: .55rem .75rem;
+  font-size: clamp(2rem, 4.4vw, 4rem) !important;
+  line-height: 1.2 !important;
+  font-weight: 650;
+}
+html:lang(ar) .zx-department-index-head h2 { line-height: 1.5 !important; }
+.zx-department-index-head p {
+  max-width: 44rem;
+  margin: 0;
+  font-size: .96rem;
+  line-height: 1.9;
+}
+.zx-department-index-market {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  flex: 0 0 auto;
+  padding: .65rem .9rem;
+  border: 1px solid #E2D8C8;
+  border-radius: 999px;
+  background: #FAF8F4;
+  font-size: .75rem;
+  font-weight: 650;
+}
+.zx-department-index-market svg { width: 1rem; height: 1rem; }
+.zx-department-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.7rem, 1.4vw, 1.2rem) !important;
+}
+.zx-department-tile {
+  min-width: 0;
+  min-height: clamp(19rem, 27vw, 27rem) !important;
+  padding: clamp(1rem, 1.8vw, 1.45rem) !important;
+  border: 1px solid #D7C7AE !important;
+  border-radius: 1rem !important;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 14px 32px -26px rgb(41 37 31 / 38%) !important;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .2s ease !important;
+}
+.zx-department-tile::before {
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(250 248 244 / 10%) 0%, rgb(250 248 244 / 18%) 22%, rgb(244 239 230 / 96%) 100%) !important;
+}
+.zx-department-tile:hover { transform: translateY(-4px); }
+.zx-tile-number {
+  font-size: clamp(2.3rem, 4vw, 4.2rem) !important;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.06em;
+  color: #806746 !important;
+}
+.zx-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: .8rem !important;
+  background: rgb(255 255 255 / 92%) !important;
+  border: 1px solid #D7C7AE !important;
+}
+.zx-tile-icon svg { width: 1.15rem; height: 1.15rem; stroke-width: 1.7; }
+.zx-tile-content {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  margin-top: auto;
+  padding-top: 1.6rem;
+}
+.zx-tile-kicker {
+  font-size: .68rem !important;
+  font-weight: 750;
+  line-height: 1.6;
+  letter-spacing: .08em;
+  color: #806746 !important;
+}
+html:lang(ar) .zx-tile-kicker { letter-spacing: 0; }
+.zx-tile-title {
+  font-size: clamp(1.2rem, 1.8vw, 1.8rem) !important;
+  font-weight: 700;
+  line-height: 1.35 !important;
+  color: #29251F !important;
+}
+html:lang(ar) .zx-tile-title { line-height: 1.55 !important; }
+.zx-tile-description {
+  font-size: .84rem !important;
+  line-height: 1.8 !important;
+  color: #5E574D !important;
+}
+.zx-tile-action {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 50% !important;
+  border: 1px solid #CDBDA5 !important;
+  background: #FFFFFF !important;
+  color: #624D34 !important;
+}
+.zx-tile-action svg { width: 1.05rem; height: 1.05rem; }
+.zx-department-index-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: .9rem;
+  border-top: 1px solid #E2D8C8;
+  color: #766D61;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+html:lang(ar) .zx-department-index-foot { letter-spacing: 0; }
+.home-page-flow section:has(.zx-product) .grid {
+  gap: clamp(.75rem, 1.6vw, 1.4rem) !important;
+}
+.home-page-flow .zx-product {
+  overflow: hidden;
+  border: 1px solid #E2D8C8 !important;
+  border-radius: 1rem !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 12px 28px -26px rgb(66 51 32 / 35%);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.home-page-flow .zx-product:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 38px -28px rgb(66 51 32 / 40%);
+}
+.home-page-flow .zx-product h3 { font-size: .98rem; font-weight: 650; line-height: 1.55; }
+.home-page-flow .zx-product p { font-size: .88rem; line-height: 1.75; }
+.home-page-flow .zx-product > div:last-child { padding: 1rem; }
+.zx-site-footer {
+  margin-top: var(--zx-section-space);
+  border-top: 1px solid #E2D8C8;
+}
+.zx-site-footer :is(a,button) { transition: color .2s ease, opacity .2s ease; }
+.zx-site-footer :is(a,button):hover { opacity: .78; }
+.zx-app-shell .zx-admin {
+  font-family: var(--zx-font-body);
+  line-height: 1.65;
+}
+.zx-app-shell .zx-admin :is(h1,h2,h3) { font-weight: 700; line-height: 1.35; }
+.zx-app-shell .zx-admin :is(.zx-card,.zx-theme-panel,[role="tabpanel"]) {
+  border-radius: 1rem;
+}
+.zx-app-shell .zx-admin :is(button,[role="tab"]) {
+  gap: .55rem;
+  border-radius: .7rem;
+}
+.zx-app-shell .zx-admin :is(button,[role="tab"]) svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+}
+@media (max-width: 900px) {
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zx-department-tile { min-height: 19rem !important; }
+  .zx-department-index-head { align-items: start; flex-direction: column; }
+}
+@media (max-width: 600px) {
+  :root { --zx-layout-gutter: .7rem; --zx-section-space: 2.8rem; }
+  .zx-site-header { min-height: 3.7rem; border-radius: .9rem !important; }
+  .home-page-flow > * + * { margin-block-start: var(--zx-section-space); }
+  .zx-hero-editorial { border-radius: 1rem !important; padding: 1.1rem !important; }
+  .zx-hero-editorial .zx-hero-copy h1 { font-size: clamp(2.2rem, 10vw, 3.25rem) !important; }
+  html:lang(ar) .zx-hero-editorial .zx-hero-copy h1 { font-size: clamp(2.05rem, 9.5vw, 3.05rem) !important; line-height: 1.45 !important; }
+  .zx-hero-editorial .zx-hero-actions > button { min-height: 3.15rem !important; }
+  .zx-department-index { padding: .9rem !important; border-radius: 1rem !important; }
+  .zx-department-index-head { gap: .65rem; margin-bottom: 1rem; }
+  .zx-department-index-head h2 { font-size: clamp(1.7rem, 8vw, 2.35rem) !important; }
+  .zx-department-index-head p { font-size: .88rem; }
+  .zx-department-index-market { font-size: .7rem; }
+  .zx-department-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem !important; }
+  .zx-department-tile { min-height: 17rem !important; padding: .75rem !important; border-radius: .8rem !important; }
+  .zx-tile-number { font-size: clamp(2rem, 9vw, 2.8rem) !important; }
+  .zx-tile-icon { width: 2.15rem; height: 2.15rem; border-radius: .65rem !important; }
+  .zx-tile-title { font-size: clamp(.98rem, 4.5vw, 1.22rem) !important; }
+  .zx-tile-description { font-size: .72rem !important; line-height: 1.7 !important; }
+  .zx-tile-action { width: 1.85rem; height: 1.85rem; }
+  .zx-department-index-foot { font-size: .6rem; }
+  .home-page-flow section:has(.zx-product) .grid { column-gap: .55rem !important; row-gap: .8rem !important; }
+  .home-page-flow .zx-product { border-radius: .8rem !important; }
+  .home-page-flow .zx-product > div:last-child { padding: .65rem !important; }
+  .home-page-flow .zx-product h3 { font-size: .85rem; }
+  .home-page-flow .zx-product p { font-size: .78rem; }
+}
+@media (max-width: 370px) {
+  .zx-department-tile { min-height: 15.5rem !important; padding: .62rem !important; }
+  .zx-tile-title { font-size: .92rem !important; }
+  .zx-tile-description { font-size: .66rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zx-app-shell *, .zx-app-shell *::before, .zx-app-shell *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
