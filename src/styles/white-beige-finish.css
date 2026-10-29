@@ -263,3 +263,36 @@ html, body, #root, .zx-app-shell {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Keep feature/stat panels and department banners inside the same warm palette. */
+.home-page-flow > section:has(.zx-feature-value) {
+  border-color: #E2D8C8 !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4EFE6 72%, #EDE3D4 100%) !important;
+  color: #29251F !important;
+}
+.home-page-flow > section:has(.zx-feature-value) :is(h2,h3,p,span,.zx-feature-label) {
+  color: #5E574D !important;
+}
+.home-page-flow > section:has(.zx-feature-value) .zx-feature-value {
+  color: #806746 !important;
+}
+.zx-app-shell .zx-department-banner {
+  border-color: #E2D8C8 !important;
+  background-color: #F4EFE6 !important;
+}
+.zx-app-shell .zx-department-banner-scrim {
+  background: linear-gradient(90deg, rgb(250 248 244 / 96%) 0%, rgb(244 239 230 / 82%) 55%, rgb(244 239 230 / 28%) 100%) !important;
+}
+.zx-app-shell .zx-department-banner :is(.zx-department-banner-title,.zx-department-banner-description,.zx-department-banner-eyebrow) {
+  color: #29251F !important;
+  text-shadow: none !important;
+}
+.zx-app-shell .zx-menu-portal {
+  background: #F4EFE6 !important;
+  color: #29251F !important;
+  border-color: #E2D8C8 !important;
+}
+.zx-app-shell .zx-route-curtain {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4EFE6 60%, #E9DECE 100%) !important;
+  color: #29251F !important;
+}
