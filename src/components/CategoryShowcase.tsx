@@ -28,7 +28,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
       <div className="zx-department-index-head">
         <div>
           <span className="zx-department-index-kicker">
-            {isArabic ? 'عوالم زكسور — 01 / 06' : 'THE ZEXOR WORLDS — 01 / 06'}
+            {isArabic ? `عوالم زكسور — 01 / ${String(portals.length).padStart(2, '0')}` : `THE ZEXOR WORLDS — 01 / ${String(portals.length).padStart(2, '0')}`}
           </span>
           <h2 id="zx-department-index-title">
             {isArabic ? 'أكثر من مجرد علامة.' : 'One identity. Many worlds.'}
