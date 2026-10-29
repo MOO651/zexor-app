@@ -106,7 +106,7 @@ const ORDERED: Portal[] = [
       ar: 'قطع عتيقة واختيارات مميزة لكل قطعة فيها حكاية وطابع خاص.',
     },
     meta: { en: 'Vintage · Objects · Collectibles', ar: 'فينتاج · قطع مميزة · مقتنيات' },
-    image: photos.studioStore,
+    image: art.archivePortal,
     icon: Gem,
     accent: 'var(--zx-mint)',
   },
