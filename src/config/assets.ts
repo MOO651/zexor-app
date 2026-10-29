@@ -428,4 +428,47 @@ export const DEFAULT_SITE_ASSETS: Record<string, DefaultSiteAsset> = {
     recommendedRatio: '1.91:1',
     recommendedSize: '1200 × 630 px',
   },
+
+  'portal.cards.image': {
+    type: 'image',
+    url: art.cardsPortal,
+    usage: 'Homepage department card — NFC cards',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
+  'portal.fashion.image': {
+    type: 'image',
+    url: photos.apparelLifestyle,
+    usage: 'Homepage department card — fashion',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
+  'portal.services.image': {
+    type: 'image',
+    url: photos.studioWebsite,
+    usage: 'Homepage department card — digital services',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
+  'portal.cars.image': {
+    type: 'image',
+    url: photos.vehicleCoupe,
+    usage: 'Homepage department card — car rentals',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
+  'portal.property.image': {
+    type: 'image',
+    url: photos.propertyVilla,
+    usage: 'Homepage department card — real estate',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
+  'portal.antiques.image': {
+    type: 'image',
+    url: art.archivePortal,
+    usage: 'Homepage department card — vintage and antiques',
+    recommendedRatio: '4:5',
+    recommendedSize: '1200 × 1500 px',
+  },
 };
