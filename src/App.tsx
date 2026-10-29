@@ -1583,7 +1583,7 @@ export default function App() {
         data-scrolled={navigationCompact}
       >
         <nav
-          aria-label="Navigation"
+          aria-label={isArabic ? 'التنقل الرئيسي' : 'Main navigation'}
           className="zx-site-nav zx-glass mx-auto flex h-18 max-w-7xl items-center justify-between gap-2 rounded-[1.35rem] border border-zx-border/90 px-3 shadow-lg sm:px-5"
         >
           {/* Logo */}
@@ -1600,6 +1600,7 @@ export default function App() {
           <div className="zx-no-bar zx-snap-x hidden items-center gap-0.5 overflow-x-auto lg:flex">
             {navItems.map((item) => (
               <button
+                aria-current={route === item.route ? 'page' : undefined}
                 className={`relative shrink-0 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition-all xl:px-3 ${
                   route === item.route
                     ? 'bg-zx-mint text-zx-mint-contrast shadow-xs'
@@ -1830,6 +1831,7 @@ export default function App() {
                     return (
                       <motion.button
                         animate={{ opacity: 1, x: 0 }}
+                        aria-current={route === item.route ? 'page' : undefined}
                         className={`zx-fullscreen-menu-link flex min-h-14 items-baseline gap-4 border-b border-zx-border py-2 text-start font-semibold transition-colors ${
                           route === item.route ? 'text-zx-accent' : 'text-zx-text hover:text-zx-accent'
                         }`}
