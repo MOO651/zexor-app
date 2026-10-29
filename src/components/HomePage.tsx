@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, MessageCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AGENCY_PROJECTS, STATS } from '../data/initialData';
-import type { Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
+import type { DynamicCategory, Locale, Market, Product, Property, Route, SiteSettings, Vehicle } from '../types';
 import { money, publicAssetUrl, whatsappNumberFor } from '../utils';
 import { CategoryShowcase } from './CategoryShowcase';
 import { HomeHero, TiltCard } from './HomeHero';
@@ -68,6 +68,7 @@ type HomePageProps = {
   onToast: (message: string) => void;
   onTrackOrder: () => void;
   renderPrice: (price: number, className: string) => ReactNode;
+  categories?: DynamicCategory[];
 };
 
 /**
@@ -92,6 +93,7 @@ export function HomePage({
   onToast,
   onTrackOrder,
   renderPrice,
+  categories = [],
 }: HomePageProps) {
   const { sectionVisibility, content } = settings;
   const { content: siteContent } = useSiteMedia();
@@ -119,6 +121,7 @@ export function HomePage({
       {/* 2. Lightweight department index — direct links, no image-scroll gallery. */}
       <div id="departments" className="scroll-mt-24">
         <CategoryShowcase
+          categories={categories}
           isArabic={isArabic}
           locale={locale}
           navigate={navigate}
@@ -128,6 +131,7 @@ export function HomePage({
             cars: sectionVisibility.cars,
             property: sectionVisibility.property,
             services: sectionVisibility.services,
+            antiques: categories.find((category) => category.slug === 'antiques')?.active ?? true,
           }}
         />
       </div>
