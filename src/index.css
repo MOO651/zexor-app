@@ -21,3 +21,6 @@
 @import "./styles/white-beige-finish.css";
 /* Final layer: refined type, spacing, icon alignment and responsive hierarchy. */
 @import "./styles/typography-layout-refinement.css";
+
+/* New standalone flagship polish layer. */
+@import "./styles/flagship-redesign.css";
