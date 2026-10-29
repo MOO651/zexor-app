@@ -31,7 +31,7 @@ export function CategoryShowcase({ locale, isArabic, navigate, visible, categori
             {isArabic ? `عوالم زكسور — 01 / ${String(portals.length).padStart(2, '0')}` : `THE ZEXOR WORLDS — 01 / ${String(portals.length).padStart(2, '0')}`}
           </span>
           <h2 id="zx-department-index-title">
-            {isArabic ? 'ستة عوالم، هوية واحدة.' : 'Six worlds. One considered identity.'}
+            {isArabic ? `${portals.length} عوالم، هوية واحدة.` : `${portals.length} worlds. One considered identity.`}
           </h2>
           <p>
             {isArabic
