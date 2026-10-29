@@ -34,6 +34,7 @@ import {
   DEFAULT_SETTINGS,
   INITIAL_CATEGORIES,
   normalizeCategories,
+  normalizeLegacyProductCategories,
   normalizeLegacySectionTitles,
   normalizeStarterProductImages,
   normalizeStarterVehicles,
@@ -463,7 +464,7 @@ export default function App() {
   const syncedStoreContent = useRef<Record<StoreContentKey, string> | null>(null);
   useEffect(() => {
     setCategories((current) => normalizeCategories(current));
-    setProducts((current) => normalizeStarterProductImages(current));
+    setProducts((current) => normalizeLegacyProductCategories(normalizeStarterProductImages(current)));
     setVehicles((current) => normalizeStarterVehicles(current));
     setProperties((current) => normalizeStarterProperties(current));
   }, [setCategories, setProducts, setVehicles, setProperties]);
@@ -553,7 +554,7 @@ export default function App() {
       if (!active) return;
       const [remoteProducts, remoteCategories, remoteVehicles, remoteProperties, remotePromos] = values;
       const loadedProducts = isValidObjectArray(remoteProducts)
-        ? normalizeStarterProductImages(remoteProducts as Product[])
+        ? normalizeLegacyProductCategories(normalizeStarterProductImages(remoteProducts as Product[]))
         : storeContentSnapshot.current.products;
       const loadedCategories = isValidObjectArray(remoteCategories)
         ? normalizeCategories(remoteCategories as DynamicCategory[])
@@ -616,7 +617,7 @@ export default function App() {
       if (typeof key !== 'string' || !['products', 'categories', 'vehicles', 'properties', 'promo_codes'].includes(key)) return;
       void fetchStoreContent<unknown>(key as StoreContentKey).then((remote) => {
         if (!active || !isValidObjectArray(remote)) return;
-        if (key === 'products') setProducts(normalizeStarterProductImages(remote as Product[]));
+        if (key === 'products') setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(remote as Product[])));
         else if (key === 'categories') setCategories(normalizeCategories(remote as DynamicCategory[]));
         else if (key === 'vehicles') setVehicles(normalizeStarterVehicles(remote as Vehicle[]));
         else if (key === 'properties') setProperties(normalizeStarterProperties(remote as Property[]));
@@ -1082,7 +1083,7 @@ export default function App() {
     const saved = await setCloudProductStock(productId, stock);
     if (saved) return true;
     const currentCatalog = await fetchStoreContent<unknown>('products');
-    if (isValidObjectArray(currentCatalog)) setProducts(currentCatalog as Product[]);
+    if (isValidObjectArray(currentCatalog)) setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(currentCatalog as Product[])));
     setToast(isArabic ? 'تعذر تحديث المخزون في قاعدة البيانات.' : 'Could not update stock in the database.');
     return false;
   }, [isArabic, setProducts]);
@@ -3050,7 +3051,7 @@ Details: ${details}`;
           const cloudResult = await createCloudOrder(completedOrder);
           if (cloudResult === 'stock_conflict') {
             const latestProducts = await fetchStoreContent<unknown>('products');
-            if (isValidObjectArray(latestProducts)) setProducts(latestProducts as Product[]);
+            if (isValidObjectArray(latestProducts)) setProducts(normalizeLegacyProductCategories(normalizeStarterProductImages(latestProducts as Product[])));
             setToast(isArabic ? 'تغير المخزون أو لم يعد المنتج متاحًا. راجع السلة وحاول مجددًا.' : 'Stock changed or an item is no longer available. Review your cart and try again.');
             return false;
           }
