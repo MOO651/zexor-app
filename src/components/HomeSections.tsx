@@ -286,7 +286,8 @@ export function SiteFooter({ isArabic, settings, sectionVisibility, market, navi
     { label: categories.find((category) => category.slug === 'fashion')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'أزياء زكسور' : 'ZEXOR FASHION'), route: 'fashion', slug: 'fashion' },
     { label: categories.find((category) => category.slug === 'cars')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور موتورز' : 'ZEXOR MOTORS'), route: 'cars', slug: 'cars' },
     { label: categories.find((category) => category.slug === 'property')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور إستيتس' : 'ZEXOR ESTATES'), route: 'property', slug: 'property' },
-  ].filter((link) => isCategoryActive(link.slug) && sectionVisibility[link.slug as keyof typeof sectionVisibility]);
+    { label: categories.find((category) => category.slug === 'antiques')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'زكسور أركايف' : 'ZEXOR ARCHIVE'), route: 'antiques', slug: 'antiques' },
+  ].filter((link) => isCategoryActive(link.slug) && (link.slug === 'antiques' || sectionVisibility[link.slug as keyof typeof sectionVisibility]));
 
   const companyLinks: { label: string; route: Route }[] = [
     ...(isCategoryActive('services') && sectionVisibility.services ? [{ label: categories.find((category) => category.slug === 'services')?.name[isArabic ? 'ar' : 'en'] ?? (isArabic ? 'استوديو زكسور' : 'ZEXOR STUDIO'), route: 'services' as Route }] : []),
