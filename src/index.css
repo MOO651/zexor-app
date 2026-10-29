@@ -17,5 +17,7 @@
 @import "./styles/flagship-finish.css";
 @import "./styles/zexor-impact-pass.css";
 @import "./styles/mobile-layout-repair.css";
-/* Keep the approved white-and-beige finish last so earlier theme layers cannot override it. */
+/* Approved warm white-and-beige palette remains the base visual direction. */
 @import "./styles/white-beige-finish.css";
+/* Final layer: refined type, spacing, icon alignment and responsive hierarchy. */
+@import "./styles/typography-layout-refinement.css";
