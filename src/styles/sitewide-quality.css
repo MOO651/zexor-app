@@ -233,3 +233,23 @@ button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .zx-department-tile, .home-page-flow .zx-product, .home-page-flow .zx-market-card { transition: none !important; }
 }
+
+
+/* Six-department layout correction: keep all six tiles in a balanced 3×2 grid.
+   Earlier five-department rules gave tiles 4–5 oversized spans and stranded
+   the new Archive tile on a row by itself. */
+.zx-department-tiles > .zx-department-tile,
+.zx-department-tiles > .zx-department-tile:nth-child(4),
+.zx-department-tiles > .zx-department-tile:nth-child(5) {
+  grid-column: span 2 !important;
+}
+@media (max-width: 760px) {
+  .zx-department-tiles > .zx-department-tile,
+  .zx-department-tiles > .zx-department-tile:nth-child(4),
+  .zx-department-tiles > .zx-department-tile:nth-child(5) {
+    grid-column: span 1 !important;
+  }
+  .zx-department-tiles > .zx-department-tile:nth-child(6) {
+    grid-column: 1 / -1 !important;
+  }
+}
